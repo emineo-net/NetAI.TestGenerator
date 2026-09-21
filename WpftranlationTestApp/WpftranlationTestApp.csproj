@@ -51,8 +51,8 @@
 
 
 
-	<!--<Import Project="..\..\Libraries\NetAI.TestGenerator.Tasks\build\NetAI.TestGenerator.Tasks.targets"
-			Condition="Exists('..\..\Libraries\NetAI.TestGenerator.Tasks\build\NetAI.TestGenerator.Tasks.dll')" />-->
+	<Import Project="..\..\Libraries\NetAI.TestGenerator.Tasks\build\NetAI.TestGenerator.Tasks.targets"
+			Condition="Exists('..\..\Libraries\NetAI.TestGenerator.Tasks\build\NetAI.TestGenerator.Tasks.dll')" />
 
 
 
