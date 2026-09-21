@@ -1,398 +1,407 @@
-﻿using NetAI.TestGenerator.Core.Models;
-using System.Globalization;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Linq;
+using NetAI.TestGenerator.Core.Models;
 
-namespace NetAI.TestGenerator.Core
+namespace NetAI.TestGenerator.Core;
+
+public class ProjectResxAnalyzer
 {
-    public class ProjectResxAnalyzer
+    public List<string> FindResxFiles(string projectDir)
     {
-        public List<string> FindResxFiles(string projectDir)
+        try
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(projectDir) || !Directory.Exists(projectDir))
-                {
-                    return new List<string>();
-                }
-
-                return Directory.GetFiles(projectDir, "*.resx", SearchOption.AllDirectories)
-                    .Where(file =>
-                        !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
-                        !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
-                        !file.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}"))
-                    .ToList();
-            }
-            catch (Exception)
+            if (string.IsNullOrWhiteSpace(projectDir) || !Directory.Exists(projectDir))
             {
                 return new List<string>();
             }
+
+            return Directory.GetFiles(projectDir, "*.resx", SearchOption.AllDirectories).Where(file =>
+                !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
+                !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
+                !file.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}")).ToList();
         }
-
-        //public string DetermineDefaultLanguage(string projectDir)
-        //{
-        //    const string globalFallback = "en";
-        //    try
-        //    {
-        //        if (string.IsNullOrWhiteSpace(projectDir) || !Directory.Exists(projectDir))
-        //        {
-        //            return globalFallback;
-        //        }
-
-        //        var csprojFile = Directory.GetFiles(projectDir, "*.csproj").FirstOrDefault();
-        //        if (csprojFile != null && File.Exists(csprojFile))
-        //        {
-        //            var doc = XDocument.Load(csprojFile);
-        //            var neutralLanguageElement = doc.Descendants("NeutralLanguage").FirstOrDefault();
-
-        //            if (neutralLanguageElement != null && !string.IsNullOrWhiteSpace(neutralLanguageElement.Value))
-        //            {
-        //                string val = neutralLanguageElement.Value.Trim();
-        //                if (IsValidCultureCode(val))
-        //                {
-        //                    return val;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch { /* fallback */ }
-
-        //    return globalFallback;
-        //}
-
-        //public List<string> DetermineSupportedLanguages(string projectDir, Action<string>? logInfo = null)
-        //{
-        //    var result = new List<string>();
-        //    try
-        //    {
-        //        if (string.IsNullOrWhiteSpace(projectDir) || !Directory.Exists(projectDir))
-        //        {
-        //            logInfo?.Invoke($"[AI-Translator Error] Project directory '{projectDir}' does not exist.");
-        //            return result;
-        //        }
-
-        //        var csprojFile = Directory.GetFiles(projectDir, "*.csproj").FirstOrDefault();
-        //        if (csprojFile == null || !File.Exists(csprojFile))
-        //        {
-        //            logInfo?.Invoke($"[AI-Translator] No .csproj file found in '{projectDir}' - <SupportedLanguage> could not be read.");
-        //            return result;
-        //        }
-
-        //        var doc = XDocument.Load(csprojFile);
-
-        //        var element = doc.Descendants("SupportedLanguage").FirstOrDefault()
-        //                      ?? doc.Descendants("SupportedLanguages").FirstOrDefault();
-
-        //        if (element == null || string.IsNullOrWhiteSpace(element.Value))
-        //        {
-        //            logInfo?.Invoke($"[AI-Translator] No <SupportedLanguage> tag found in '{Path.GetFileName(csprojFile)}' or it is empty.");
-        //            logInfo?.Invoke($"[AI-Translator Warning] No <SupportedLanguage> tag found in '{Path.GetFileName(csprojFile)}' or it is empty.");
-        //            return result;
-        //        }
-
-        //        var rawLanguages = element.Value.Split(',');
-        //        foreach (var lang in rawLanguages)
-        //        {
-        //            string trimmed = lang.Trim();
-        //            if (trimmed.Length > 0)
-        //            {
-        //                if (IsValidCultureCode(trimmed))
-        //                {
-        //                    if (!result.Contains(trimmed, StringComparer.OrdinalIgnoreCase))
-        //                    {
-        //                        result.Add(trimmed);
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    logInfo?.Invoke($"[AI-Translator Warning] Invalid language code '{trimmed}' in <SupportedLanguage> tag ignored.");
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (XmlException ex)
-        //    {
-        //        logInfo?.Invoke($"[AI-Translator Error] The .csproj file is not valid XML: {ex.Message}");
-        //    }
-        //    // NEU: Lässt unsere spezifische Exception unverändert nach oben durchschlagen
-        //    catch (InvalidDataException)
-        //    {
-        //        throw;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logInfo?.Invoke($"[AI-Translator Error] Error reading <SupportedLanguage>: {ex.Message}");
-        //    }
-
-        //    return result;
-        //}
-
-
-        public List<ResxFileInfo> ReadResxFiles(List<string> resxFilePaths, Action<string>? logInfo = null)
+        catch (Exception)
         {
-            var result = new List<ResxFileInfo>();
+            return new List<string>();
+        }
+    }
 
-            foreach (var path in resxFilePaths)
+    //public string DetermineDefaultLanguage(string projectDir)
+    //{
+    //    const string globalFallback = "en";
+    //    try
+    //    {
+    //        if (string.IsNullOrWhiteSpace(projectDir) || !Directory.Exists(projectDir))
+    //        {
+    //            return globalFallback;
+    //        }
+
+    //        var csprojFile = Directory.GetFiles(projectDir, "*.csproj").FirstOrDefault();
+    //        if (csprojFile != null && File.Exists(csprojFile))
+    //        {
+    //            var doc = XDocument.Load(csprojFile);
+    //            var neutralLanguageElement = doc.Descendants("NeutralLanguage").FirstOrDefault();
+
+    //            if (neutralLanguageElement != null && !string.IsNullOrWhiteSpace(neutralLanguageElement.Value))
+    //            {
+    //                string val = neutralLanguageElement.Value.Trim();
+    //                if (IsValidCultureCode(val))
+    //                {
+    //                    return val;
+    //                }
+    //            }
+    //        }
+    //    }
+    //    catch { /* fallback */ }
+
+    //    return globalFallback;
+    //}
+
+    //public List<string> DetermineSupportedLanguages(string projectDir, Action<string>? logInfo = null)
+    //{
+    //    var result = new List<string>();
+    //    try
+    //    {
+    //        if (string.IsNullOrWhiteSpace(projectDir) || !Directory.Exists(projectDir))
+    //        {
+    //            logInfo?.Invoke($"[AI-Translator Error] Project directory '{projectDir}' does not exist.");
+    //            return result;
+    //        }
+
+    //        var csprojFile = Directory.GetFiles(projectDir, "*.csproj").FirstOrDefault();
+    //        if (csprojFile == null || !File.Exists(csprojFile))
+    //        {
+    //            logInfo?.Invoke($"[AI-Translator] No .csproj file found in '{projectDir}' - <SupportedLanguage> could not be read.");
+    //            return result;
+    //        }
+
+    //        var doc = XDocument.Load(csprojFile);
+
+    //        var element = doc.Descendants("SupportedLanguage").FirstOrDefault()
+    //                      ?? doc.Descendants("SupportedLanguages").FirstOrDefault();
+
+    //        if (element == null || string.IsNullOrWhiteSpace(element.Value))
+    //        {
+    //            logInfo?.Invoke($"[AI-Translator] No <SupportedLanguage> tag found in '{Path.GetFileName(csprojFile)}' or it is empty.");
+    //            logInfo?.Invoke($"[AI-Translator Warning] No <SupportedLanguage> tag found in '{Path.GetFileName(csprojFile)}' or it is empty.");
+    //            return result;
+    //        }
+
+    //        var rawLanguages = element.Value.Split(',');
+    //        foreach (var lang in rawLanguages)
+    //        {
+    //            string trimmed = lang.Trim();
+    //            if (trimmed.Length > 0)
+    //            {
+    //                if (IsValidCultureCode(trimmed))
+    //                {
+    //                    if (!result.Contains(trimmed, StringComparer.OrdinalIgnoreCase))
+    //                    {
+    //                        result.Add(trimmed);
+    //                    }
+    //                }
+    //                else
+    //                {
+    //                    logInfo?.Invoke($"[AI-Translator Warning] Invalid language code '{trimmed}' in <SupportedLanguage> tag ignored.");
+    //                }
+    //            }
+    //        }
+    //    }
+    //    catch (XmlException ex)
+    //    {
+    //        logInfo?.Invoke($"[AI-Translator Error] The .csproj file is not valid XML: {ex.Message}");
+    //    }
+    //    // NEU: Lässt unsere spezifische Exception unverändert nach oben durchschlagen
+    //    catch (InvalidDataException)
+    //    {
+    //        throw;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        logInfo?.Invoke($"[AI-Translator Error] Error reading <SupportedLanguage>: {ex.Message}");
+    //    }
+
+    //    return result;
+    //}
+
+    public List<ResxFileInfo> ReadResxFiles(List<string> resxFilePaths, Action<string>? logInfo = null)
+    {
+        var result = new List<ResxFileInfo>();
+
+        foreach (var path in resxFilePaths)
+        {
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             {
-                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-                {
-                    logInfo?.Invoke($"[AI-Translator Warning] File skipped, path does not exist: '{path}'");
-                    continue;
-                }
-
-                ResxFileInfo resxFile;
-                try
-                {
-                    resxFile = new ResxFileInfo(path);
-                    if (resxFile.Entries == null)
-                    {
-                        resxFile.Entries = new List<ResxEntry>();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logInfo?.Invoke($"[AI-Translator Error] Failed to instantiate ResxFileInfo for '{path}': {ex.Message}");
-                    continue;
-                }
-
-                try
-                {
-                    var doc = XDocument.Load(path);
-                    var dataElements = doc.Descendants("data");
-
-                    foreach (var element in dataElements)
-                    {
-                        var nameAttribute = element.Attribute("name")?.Value;
-                        if (string.IsNullOrEmpty(nameAttribute)) continue;
-
-                        var valueElement = element.Element("value")?.Value ?? string.Empty;
-                        var commentElement = element.Element("comment")?.Value ?? string.Empty;
-
-                        resxFile.Entries.Add(new ResxEntry
-                        {
-                            Key = nameAttribute,
-                            Value = valueElement,
-                            Comment = commentElement,
-                            HasTranslation = !string.IsNullOrWhiteSpace(valueElement)
-                        });
-                    }
-
-                    result.Add(resxFile);
-                }
-                catch (XmlException ex)
-                {
-                    logInfo?.Invoke($"[AI-Translator Error] The file '{Path.GetFileName(path)}' is corrupted (invalid XML): {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    logInfo?.Invoke($"[AI-Translator Error] Unexpected error while reading '{Path.GetFileName(path)}': {ex.Message}");
-                }
+                logInfo?.Invoke($"[AI-Translator Warning] File skipped, path does not exist: '{path}'");
+                continue;
             }
 
-            return result;
-        }
-
-        public void SaveTranslations(string filePath, List<ResxEntry> translatedEntries, Action<string>? logInfo = null)
-        {
+            ResxFileInfo resxFile;
             try
             {
-                if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+                resxFile = new ResxFileInfo(path);
+                if (resxFile.Entries == null)
                 {
-                    logInfo?.Invoke($"[AI-Translator Error] File to save not found: '{filePath}'");
-                    return;
+                    resxFile.Entries = new List<ResxEntry>();
                 }
+            }
+            catch (Exception ex)
+            {
+                logInfo?.Invoke($"[AI-Translator Error] Failed to instantiate ResxFileInfo for '{path}': {ex.Message}");
+                continue;
+            }
 
-                if (translatedEntries == null || translatedEntries.Count == 0) return;
+            try
+            {
+                var doc = XDocument.Load(path);
+                var dataElements = doc.Descendants("data");
 
-                var doc = XDocument.Load(filePath);
-                var root = doc.Root;
-                if (root == null)
+                foreach (var element in dataElements)
                 {
-                    logInfo?.Invoke($"[AI-Translator Error] File '{Path.GetFileName(filePath)}' has no XML root element.");
-                    return;
-                }
-
-                foreach (var translation in translatedEntries)
-                {
-                    var dataElement = root.Descendants("data")
-                        .FirstOrDefault(e => e.Attribute("name")?.Value == translation.Key);
-
-                    if (dataElement != null)
+                    var nameAttribute = element.Attribute("name")?.Value;
+                    if (string.IsNullOrEmpty(nameAttribute))
                     {
-                        var valueElement = dataElement.Element("value");
-                        if (valueElement != null)
-                        {
-                            valueElement.Value = translation.Value;
-                        }
-                        else
-                        {
-                            dataElement.Add(new XElement("value", translation.Value));
-                        }
+                        continue;
                     }
-                    else
+
+                    var valueElement = element.Element("value")?.Value ?? string.Empty;
+                    var commentElement = element.Element("comment")?.Value ?? string.Empty;
+
+                    resxFile.Entries.Add(new ResxEntry
                     {
-                        var newDataElement = new XElement("data",
-                            new XAttribute("name", translation.Key),
-                            new XAttribute(XNamespace.Xml + "space", "preserve"),
-                            new XElement("value", translation.Value)
-                        );
-                        root.Add(newDataElement);
-                    }
+                        Key = nameAttribute,
+                        Value = valueElement,
+                        Comment = commentElement,
+                        HasTranslation = !string.IsNullOrWhiteSpace(valueElement)
+                    });
                 }
 
-                doc.Save(filePath);
+                result.Add(resxFile);
             }
             catch (XmlException ex)
             {
-                logInfo?.Invoke($"[AI-Translator Error] Saving failed, XML of '{Path.GetFileName(filePath)}' is corrupt: {ex.Message}");
+                logInfo?.Invoke($"[AI-Translator Error] The file '{Path.GetFileName(path)}' is corrupted (invalid XML): {ex.Message}");
             }
             catch (Exception ex)
             {
-                logInfo?.Invoke($"[AI-Translator Error] Error writing to '{Path.GetFileName(filePath)}': {ex.Message}");
+                logInfo?.Invoke($"[AI-Translator Error] Unexpected error while reading '{Path.GetFileName(path)}': {ex.Message}");
             }
         }
 
-        public string GetBaseResourceName(string fileName)
+        return result;
+    }
+
+    public void SaveTranslations(string filePath, List<ResxEntry> translatedEntries, Action<string>? logInfo = null)
+    {
+        try
         {
-            try
+            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             {
-                if (string.IsNullOrWhiteSpace(fileName)) return string.Empty;
-
-                string withoutExtension = Path.GetFileNameWithoutExtension(fileName);
-                string[] parts = withoutExtension.Split('.');
-
-                if (parts.Length > 1 && IsValidCultureCode(parts[^1]))
-                {
-                    return string.Join(".", parts.Take(parts.Length - 1));
-                }
-
-                return withoutExtension;
+                logInfo?.Invoke($"[AI-Translator Error] File to save not found: '{filePath}'");
+                return;
             }
-            catch
+
+            if (translatedEntries == null || translatedEntries.Count == 0)
             {
-                return fileName?.Split('.')[0] ?? string.Empty;
+                return;
             }
-        }
 
-        public string GetLanguageFromFileName(string filePath)
-        {
-            try
+            var doc = XDocument.Load(filePath);
+            var root = doc.Root;
+            if (root == null)
             {
-                if (string.IsNullOrWhiteSpace(filePath)) return "neutral";
+                logInfo?.Invoke($"[AI-Translator Error] File '{Path.GetFileName(filePath)}' has no XML root element.");
+                return;
+            }
 
-                string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
-                string[] parts = fileNameWithoutExtension.Split('.');
+            foreach (var translation in translatedEntries)
+            {
+                var dataElement = root.Descendants("data").FirstOrDefault(e => e.Attribute("name")?.Value == translation.Key);
 
-                if (parts.Length > 1)
+                if (dataElement != null)
                 {
-                    string potentialCulture = parts[^1];
-                    if (IsValidCultureCode(potentialCulture))
+                    var valueElement = dataElement.Element("value");
+                    if (valueElement != null)
                     {
-                        return potentialCulture;
+                        valueElement.Value = translation.Value;
+                    }
+                    else
+                    {
+                        dataElement.Add(new XElement("value", translation.Value));
                     }
                 }
+                else
+                {
+                    var newDataElement = new XElement("data", new XAttribute("name", translation.Key),
+                        new XAttribute(XNamespace.Xml + "space", "preserve"), new XElement("value", translation.Value));
+                    root.Add(newDataElement);
+                }
             }
-            catch
+
+            doc.Save(filePath);
+        }
+        catch (XmlException ex)
+        {
+            logInfo?.Invoke($"[AI-Translator Error] Saving failed, XML of '{Path.GetFileName(filePath)}' is corrupt: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            logInfo?.Invoke($"[AI-Translator Error] Error writing to '{Path.GetFileName(filePath)}': {ex.Message}");
+        }
+    }
+
+    public string GetBaseResourceName(string fileName)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
             {
-                // ignore
+                return string.Empty;
             }
-            return "neutral";
+
+            var withoutExtension = Path.GetFileNameWithoutExtension(fileName);
+            var parts = withoutExtension.Split('.');
+
+            if (parts.Length > 1 && IsValidCultureCode(parts[^1]))
+            {
+                return string.Join(".", parts.Take(parts.Length - 1));
+            }
+
+            return withoutExtension;
+        }
+        catch
+        {
+            return fileName?.Split('.')[0] ?? string.Empty;
+        }
+    }
+
+    public string GetLanguageFromFileName(string filePath)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                return "neutral";
+            }
+
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
+            var parts = fileNameWithoutExtension.Split('.');
+
+            if (parts.Length > 1)
+            {
+                var potentialCulture = parts[^1];
+                if (IsValidCultureCode(potentialCulture))
+                {
+                    return potentialCulture;
+                }
+            }
+        }
+        catch
+        {
+            // ignore
         }
 
-        public List<ResxFileInfo> EnsureSupportedLanguageFiles(
-            List<ResxFileInfo> parsedResources,
-            string projectDefaultLang,
-            List<string> supportedLanguages,
-            Action<string>? logInfo = null)
-        {
-            var newFiles = new List<ResxFileInfo>();
+        return "neutral";
+    }
 
-            try
+    public List<ResxFileInfo> EnsureSupportedLanguageFiles(List<ResxFileInfo> parsedResources, string projectDefaultLang,
+        List<string> supportedLanguages, Action<string>? logInfo = null)
+    {
+        var newFiles = new List<ResxFileInfo>();
+
+        try
+        {
+            if (supportedLanguages == null || supportedLanguages.Count == 0 || parsedResources == null || parsedResources.Count == 0)
             {
-                if (supportedLanguages == null || supportedLanguages.Count == 0 || parsedResources == null || parsedResources.Count == 0)
+                return newFiles;
+            }
+
+            var groups = parsedResources.GroupBy(f => GetBaseResourceName(f.FileName));
+
+            foreach (var group in groups)
+            {
+                var baseName = group.Key;
+                var filesInGroup = group.ToList();
+
+                var existingLanguages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var file in filesInGroup)
                 {
-                    return newFiles;
+                    var lang = GetLanguageFromFileName(file.FilePath);
+                    existingLanguages.Add(lang == "neutral" ? projectDefaultLang : lang);
                 }
 
-                var groups = parsedResources.GroupBy(f => GetBaseResourceName(f.FileName));
+                var sourceFile = filesInGroup.OrderByDescending(f => f.Entries?.Count(e => !string.IsNullOrWhiteSpace(e.Value)) ?? 0)
+                    .FirstOrDefault();
 
-                foreach (var group in groups)
+                if (sourceFile == null || !File.Exists(sourceFile.FilePath))
                 {
-                    string baseName = group.Key;
-                    var filesInGroup = group.ToList();
+                    continue;
+                }
 
-                    var existingLanguages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    foreach (var file in filesInGroup)
+                foreach (var targetLang in supportedLanguages)
+                {
+                    if (existingLanguages.Contains(targetLang))
                     {
-                        string lang = GetLanguageFromFileName(file.FilePath);
-                        existingLanguages.Add(lang == "neutral" ? projectDefaultLang : lang);
+                        continue;
                     }
 
-                    var sourceFile = filesInGroup
-                        .OrderByDescending(f => f.Entries?.Count(e => !string.IsNullOrWhiteSpace(e.Value)) ?? 0)
-                        .FirstOrDefault();
-
-                    if (sourceFile == null || !File.Exists(sourceFile.FilePath)) continue;
-
-                    foreach (var targetLang in supportedLanguages)
+                    try
                     {
-                        if (existingLanguages.Contains(targetLang)) continue;
+                        var dir = Path.GetDirectoryName(sourceFile.FilePath) ?? string.Empty;
+                        var newFileName = $"{baseName}.{targetLang}.resx";
+                        var newFilePath = Path.Combine(dir, newFileName);
 
-                        try
+                        logInfo?.Invoke(
+                            $"[AI-Translator] Creating new language file: '{newFileName}' using the header metadata from '{Path.GetFileName(sourceFile.FilePath)}'");
+
+                        var newDocument = XDocument.Load(sourceFile.FilePath);
+                        var root = newDocument.Root;
+                        if (root == null)
                         {
-                            string dir = Path.GetDirectoryName(sourceFile.FilePath) ?? string.Empty;
-                            string newFileName = $"{baseName}.{targetLang}.resx";
-                            string newFilePath = Path.Combine(dir, newFileName);
+                            continue;
+                        }
 
-                            logInfo?.Invoke($"[AI-Translator] Creating new language file: '{newFileName}' using the header metadata from '{Path.GetFileName(sourceFile.FilePath)}'");
+                        root.Descendants("data").Remove();
 
-                            var newDocument = XDocument.Load(sourceFile.FilePath);
-                            var root = newDocument.Root;
-                            if (root == null) continue;
-
-                            root.Descendants("data").Remove();
-
-                            if (sourceFile.Entries != null)
+                        if (sourceFile.Entries != null)
+                        {
+                            foreach (var entry in sourceFile.Entries)
                             {
-                                foreach (var entry in sourceFile.Entries)
-                                {
-                                    root.Add(new XElement("data",
-                                        new XAttribute("name", entry.Key),
-                                        new XAttribute(XNamespace.Xml + "space", "preserve"),
-                                        new XElement("value", string.Empty)
-                                    ));
-                                }
+                                root.Add(new XElement("data", new XAttribute("name", entry.Key),
+                                    new XAttribute(XNamespace.Xml + "space", "preserve"), new XElement("value", string.Empty)));
                             }
-
-                            newDocument.Save(newFilePath);
-
-                            var nFile = new ResxFileInfo(newFilePath)
-                            {
-                                Entries = sourceFile.Entries?.Select(e => new ResxEntry
-                                {
-                                    Key = e.Key,
-                                    Value = string.Empty,
-                                    HasTranslation = false
-                                }).ToList() ?? new List<ResxEntry>()
-                            };
-
-                            newFiles.Add(nFile);
                         }
-                        catch (Exception ex)
+
+                        newDocument.Save(newFilePath);
+
+                        var nFile = new ResxFileInfo(newFilePath)
                         {
-                            logInfo?.Invoke($"[AI-Translator Error] Could not create language file for '{targetLang}' in group '{baseName}': {ex.Message}");
-                        }
+                            Entries = sourceFile.Entries?.Select(e => new ResxEntry
+                            {
+                                Key = e.Key, Value = string.Empty, HasTranslation = false
+                            }).ToList() ?? new List<ResxEntry>()
+                        };
+
+                        newFiles.Add(nFile);
+                    }
+                    catch (Exception ex)
+                    {
+                        logInfo?.Invoke(
+                            $"[AI-Translator Error] Could not create language file for '{targetLang}' in group '{baseName}': {ex.Message}");
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                logInfo?.Invoke($"[AI-Translator Error] Error in EnsureSupportedLanguageFiles: {ex.Message}");
-            }
-
-            return newFiles;
+        }
+        catch (Exception ex)
+        {
+            logInfo?.Invoke($"[AI-Translator Error] Error in EnsureSupportedLanguageFiles: {ex.Message}");
         }
 
-        private bool IsValidCultureCode(string cultureCode) => TranslatorLanguageResolver.IsValidCultureCode(cultureCode);
+        return newFiles;
+    }
+
+    private bool IsValidCultureCode(string cultureCode)
+    {
+        return TranslatorLanguageResolver.IsValidCultureCode(cultureCode);
     }
 }

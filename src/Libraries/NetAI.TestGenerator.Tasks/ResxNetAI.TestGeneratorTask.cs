@@ -1,133 +1,148 @@
-﻿using NetAI.TestGenerator.Core;
+﻿using Microsoft.Build.Framework;
+using NetAI.TestGenerator.Core;
 using NetAI.TestGenerator.Core.Config;
-using Microsoft.Build.Framework;
-
 using Task = Microsoft.Build.Utilities.Task;
 
-namespace NetAI.TestGenerator.Tasks
+namespace NetAI.TestGenerator.Tasks;
+
+public class ResxAiTranslatorTask : Task
 {
-    public class ResxAiTranslatorTask : Task
+    [Required] public string ProjectDir { get; set; } = string.Empty;
+
+    // Nur noch das, was sich aus dem Build-Kontext ergibt,
+    // bleibt als MSBuild-Property. Alles andere kommt aus aisettings.json.
+    public string? CurrentConfiguration { get; set; }
+    public bool IsPublishing { get; set; }
+
+    public override bool Execute()
     {
-        [Required]
-        public string ProjectDir { get; set; } = string.Empty;
-
-        // Nur noch das, was sich aus dem Build-Kontext ergibt,
-        // bleibt als MSBuild-Property. Alles andere kommt aus aisettings.json.
-        public string? CurrentConfiguration { get; set; }
-        public bool IsPublishing { get; set; }
-
-        public override bool Execute()
+        // WPF protection: if project name ends with "_wpftmp", abort silently
+        if (!string.IsNullOrEmpty(ProjectDir) && ProjectDir.EndsWith("_wpftmp", StringComparison.OrdinalIgnoreCase))
         {
-            // WPF protection: if project name ends with "_wpftmp", abort silently
-            if (!string.IsNullOrEmpty(ProjectDir) && ProjectDir.EndsWith("_wpftmp", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
+            return true;
+        }
 
-            AiTestingConfig config;
-            try
-            {
-                config = AiSettingsLoader.Load(ProjectDir);
-            }
-            catch (Exception ex)
-            {
-                Log.LogError($"[AI-Translator] aisettings.json konnte nicht geladen werden: {ex.Message}");
-                return false;
-            }
+        AiTestingConfig config;
+        try
+        {
+            config = AiSettingsLoader.Load(ProjectDir);
+        }
+        catch (Exception ex)
+        {
+            Log.LogError($"[AI-Translator] aisettings.json konnte nicht geladen werden: {ex.Message}");
+            return false;
+        }
 
-            var translator = config.Translator ?? new TranslatorConfig();
+        var translator = config.Translator ?? new TranslatorConfig();
 
-            string modeInput = (translator.Mode ?? "all").ToLowerInvariant();
-            string config_ = (CurrentConfiguration ?? "Debug").ToLowerInvariant();
+        var modeInput = (translator.Mode ?? "all").ToLowerInvariant();
+        var config_ = (CurrentConfiguration ?? "Debug").ToLowerInvariant();
 
-            var activeModes = modeInput.Split(',')
-                .Select(m => m.Trim())
-                .ToList();
+        var activeModes = modeInput.Split(',').Select(m => m.Trim()).ToList();
 
-            Log.LogMessage(MessageImportance.High, $"[AI-Translator] Mode check: Config={config_}, IsPublish={IsPublishing}, Active modes=[{string.Join(", ", activeModes)}]");
+        Log.LogMessage(MessageImportance.High,
+            $"[AI-Translator] Mode check: Config={config_}, IsPublish={IsPublishing}, Active modes=[{string.Join(", ", activeModes)}]");
 
-            bool shouldRun = false;
+        var shouldRun = false;
 
-            if (activeModes.Contains("all"))
+        if (activeModes.Contains("all"))
+        {
+            shouldRun = true;
+        }
+        else
+        {
+            if (activeModes.Contains("debug") && config_ == "debug" && !IsPublishing)
             {
                 shouldRun = true;
             }
-            else
+
+            if (activeModes.Contains("release") && config_ == "release" && !IsPublishing)
             {
-                if (activeModes.Contains("debug") && config_ == "debug" && !IsPublishing) shouldRun = true;
-                if (activeModes.Contains("release") && config_ == "release" && !IsPublishing) shouldRun = true;
-                if (activeModes.Contains("publish") && IsPublishing) shouldRun = true;
+                shouldRun = true;
             }
 
-            if (!shouldRun)
+            if (activeModes.Contains("publish") && IsPublishing)
             {
-                Log.LogMessage(MessageImportance.High,
-                    $"🤖 [AI-Translator] Skipped. The current state (Config={CurrentConfiguration}, Publish={IsPublishing}) " +
-                    $"is not included in the allowed modes '{translator.Mode}'.");
-                return true;
+                shouldRun = true;
             }
-
-            Log.LogMessage(MessageImportance.High, "🤖 [AI-Translator] Mode condition met. Starting analysis...");
-
-            if (!string.IsNullOrEmpty(translator.Context))
-            {
-                Log.LogMessage(MessageImportance.High, $"[AI-Translator] App context received: {translator.Context}");
-            }
-            if (!string.IsNullOrEmpty(translator.GlossaryPath))
-            {
-                Log.LogMessage(MessageImportance.High, $"[AI-Translator] Glossary path received: {translator.GlossaryPath}");
-            }
-
-            Log.LogMessage(MessageImportance.High, "🤖 AI-Resx-Translator: Starting analysis...");
-
-            var collectedIssues = new List<string>();
-            var orchestrator = new ResxTranslationOrchestrator();
-
-            var result = orchestrator.ProcessProject(ProjectDir, translator, logInfo: message => {
-                    if (string.IsNullOrWhiteSpace(message)) return;
-
-                    bool isError = message.Contains("[AI-Translator Error]") || message.Contains("[AI-Translator CRITICAL]");
-                    bool isWarning = message.Contains("[AI-Translator Warning]") ||
-                                     (message.Contains("[AI-Translator]") && message.Contains("No <SupportedLanguage> tag found"));
-
-                    if (isError)
-                    {
-                        string cleanMessage = message.Replace("[AI-Translator Error]", "").Replace("[AI-Translator CRITICAL]", "").Trim();
-                        Log.LogError($"AiTranslator: {cleanMessage}");
-                        collectedIssues.Add($"[ERROR] {cleanMessage}");
-                    }
-                    else if (isWarning)
-                    {
-                        string cleanMessage = message.Replace("[AI-Translator Warning]", "").Replace("[AI-Translator]", "").Trim();
-                        Log.LogWarning($"AiTranslator: {cleanMessage}");
-                        collectedIssues.Add($"[WARNING] {cleanMessage}");
-                    }
-                    else
-                    {
-                        Log.LogMessage(MessageImportance.High, message);
-                    }
-                }).GetAwaiter().GetResult();
-
-            // var result = orchestrator.ProcessProject(ProjectDir, translator, logInfo: message => { ... }).GetAwaiter().GetResult();
-
-            //bool isWarning = message.Contains("[AI-Translator Warning]");
-
-            if (!result.Success)
-            {
-                Log.LogError($"AiTranslator fatal error: {result.ErrorMessage}");
-                collectedIssues.Add($"[FATAL ERROR] {result.ErrorMessage}");
-            }
-
-            var uniqueIssues = collectedIssues.Distinct().ToList();
-
-            if (uniqueIssues.Count > 0)
-            {
-                TryOpenSummaryLog(uniqueIssues);
-            }
-
-            return result.Success;
         }
 
-        private void TryOpenSummaryLog(List<string> issues) { /* unverändert */ }
+        if (!shouldRun)
+        {
+            Log.LogMessage(MessageImportance.High,
+                $"🤖 [AI-Translator] Skipped. The current state (Config={CurrentConfiguration}, Publish={IsPublishing}) " +
+                $"is not included in the allowed modes '{translator.Mode}'.");
+            return true;
+        }
+
+        Log.LogMessage(MessageImportance.High, "🤖 [AI-Translator] Mode condition met. Starting analysis...");
+
+        if (!string.IsNullOrEmpty(translator.Context))
+        {
+            Log.LogMessage(MessageImportance.High, $"[AI-Translator] App context received: {translator.Context}");
+        }
+
+        if (!string.IsNullOrEmpty(translator.GlossaryPath))
+        {
+            Log.LogMessage(MessageImportance.High, $"[AI-Translator] Glossary path received: {translator.GlossaryPath}");
+        }
+
+        Log.LogMessage(MessageImportance.High, "🤖 AI-Resx-Translator: Starting analysis...");
+
+        var collectedIssues = new List<string>();
+        var orchestrator = new ResxTranslationOrchestrator();
+
+        var result = orchestrator.ProcessProject(ProjectDir, translator, message =>
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
+            var isError = message.Contains("[AI-Translator Error]") || message.Contains("[AI-Translator CRITICAL]");
+            var isWarning = message.Contains("[AI-Translator Warning]") ||
+                            (message.Contains("[AI-Translator]") && message.Contains("No <SupportedLanguage> tag found"));
+
+            if (isError)
+            {
+                var cleanMessage = message.Replace("[AI-Translator Error]", "").Replace("[AI-Translator CRITICAL]", "").Trim();
+                Log.LogError($"AiTranslator: {cleanMessage}");
+                collectedIssues.Add($"[ERROR] {cleanMessage}");
+            }
+            else if (isWarning)
+            {
+                var cleanMessage = message.Replace("[AI-Translator Warning]", "").Replace("[AI-Translator]", "").Trim();
+                Log.LogWarning($"AiTranslator: {cleanMessage}");
+                collectedIssues.Add($"[WARNING] {cleanMessage}");
+            }
+            else
+            {
+                Log.LogMessage(MessageImportance.High, message);
+            }
+        }).GetAwaiter().GetResult();
+
+        // var result = orchestrator.ProcessProject(ProjectDir, translator, logInfo: message => { ... }).GetAwaiter().GetResult();
+
+        //bool isWarning = message.Contains("[AI-Translator Warning]");
+
+        if (!result.Success)
+        {
+            Log.LogError($"AiTranslator fatal error: {result.ErrorMessage}");
+            collectedIssues.Add($"[FATAL ERROR] {result.ErrorMessage}");
+        }
+
+        var uniqueIssues = collectedIssues.Distinct().ToList();
+
+        if (uniqueIssues.Count > 0)
+        {
+            TryOpenSummaryLog(uniqueIssues);
+        }
+
+        return result.Success;
+    }
+
+    private void TryOpenSummaryLog(List<string> issues)
+    {
+        /* unverändert */
     }
 }
