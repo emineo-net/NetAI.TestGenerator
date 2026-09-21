@@ -390,3 +390,5 @@ Logs/
 /GitHubActionMega/rclone.conf
 /src/Libraries/AiTranslator.Tasks/build/AiTranslator.Core.dll
 /src/Libraries/AiTranslator.Tasks/build/AiTranslator.Tasks.dll
+/src/Libraries/NetAI.TestGenerator.Tasks/build/NetAI.TestGenerator.Core.dll
+/src/Libraries/NetAI.TestGenerator.Tasks/build/NetAI.TestGenerator.Tasks.dll
