@@ -1,9 +1,9 @@
-﻿using NetAI.ResxTranslator.Core.Models;
+﻿using NetAI.TestGenerator.Core.Models;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
-namespace NetAI.ResxTranslator.Core;
+namespace NetAI.TestGenerator.Core;
 
 public class TranslationPromptBuilder
 {

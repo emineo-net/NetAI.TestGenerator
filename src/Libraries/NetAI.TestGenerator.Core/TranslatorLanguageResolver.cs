@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace NetAI.ResxTranslator.Core;
+namespace NetAI.TestGenerator.Core;
 
 /// <summary>
 /// Validiert und normalisiert die Sprach-Einstellungen aus aisettings.json.

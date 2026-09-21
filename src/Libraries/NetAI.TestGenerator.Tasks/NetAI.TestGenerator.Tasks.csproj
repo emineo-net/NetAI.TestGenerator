@@ -23,13 +23,12 @@
 
 	<ItemGroup>
 		<!-- Verpackt die .targets-Datei automatisch in den build-Ordner des NuGet-Pakets -->
-		<None Include="build\NetAI.ResxTranslator.Tasks.targets" Pack="true" PackagePath="build\" />
+		<None Include="build\NetAI.TestGenerator.Tasks.targets" Pack="true" PackagePath="build\" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<!-- WICHTIG: PrivateAssets="all" sorgt dafür, dass nur die DLL eingebettet wird, ohne eine NuGet-Abhängigkeit zu erzeugen -->
-		<ProjectReference Include="..\AiTranslator.Core\NetAI.ResxTranslator.Core.csproj" />
-		<ProjectReference Include="..\NetAI.ResxTranslator.Core\NetAI.ResxTranslator.Core.csproj" PrivateAssets="all" />
+		<ProjectReference Include="..\NetAI.TestGenerator.Core\NetAI.TestGenerator.Core.csproj" />
 	</ItemGroup>
 
 	<!-- 1. FÜR LOKALE ENTWICKLUNG: Kopiert nach dem Build die Task-DLL und die Core-DLL in den lokalen build/-Ordner -->
@@ -43,15 +42,15 @@
 		<Copy SourceFiles="@(LocalTaskFiles)" DestinationFolder="$(MSBuildProjectDirectory)\build\" SkipUnchangedFiles="true" Condition="'@(LocalTaskFiles)' != ''" />
 	</Target>
 
-	<!-- 2. FÜR DAS FERTIGE NUGET-PAKET: Packt sowohl NetAI.ResxTranslator.Tasks.dll als auch NetAI.ResxTranslator.Core.dll in den /tasks/-Ordner -->
+	<!-- 2. FÜR DAS FERTIGE NUGET-PAKET: Packt sowohl NetAI.TestGenerator.Tasks.dll als auch NetAI.TestGenerator.Core.dll in den /tasks/-Ordner -->
 	<Target Name="PackCustomTasksAndDependencies">
 		<ItemGroup>
 			<!-- KORREKTUR: Wir verwenden auch hier den festen Pfad zum netstandard2.0-Ordner -->
-			<TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.ResxTranslator.Tasks.dll">
+			<TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.dll">
 				<PackagePath>tasks\netstandard2.0\</PackagePath>
 			</TfmSpecificPackageFile>
 
-			<!-- Packt alle Projektreferenzen (wie die NetAI.ResxTranslator.Core.dll) ein, wenn der aktuelle NuGet-Build-Durchlauf bei netstandard2.0 ist -->
+			<!-- Packt alle Projektreferenzen (wie die NetAI.TestGenerator.Core.dll) ein, wenn der aktuelle NuGet-Build-Durchlauf bei netstandard2.0 ist -->
 			<TfmSpecificPackageFile Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" Condition="'$(TargetFramework)' == 'netstandard2.0'">
 				<PackagePath>tasks\netstandard2.0\</PackagePath>
 			</TfmSpecificPackageFile>

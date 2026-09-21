@@ -1,10 +1,10 @@
-﻿using NetAI.ResxTranslator.Core;
-using NetAI.ResxTranslator.Core.Config;
+﻿using NetAI.TestGenerator.Core;
+using NetAI.TestGenerator.Core.Config;
 using Microsoft.Build.Framework;
 
 using Task = Microsoft.Build.Utilities.Task;
 
-namespace NetAI.ResxTranslator.Tasks
+namespace NetAI.TestGenerator.Tasks
 {
     public class ResxAiTranslatorTask : Task
     {

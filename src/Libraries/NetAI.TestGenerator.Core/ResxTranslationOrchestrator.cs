@@ -9,7 +9,7 @@
 
 
 
-using NetAI.ResxTranslator.Core.Models;
+using NetAI.TestGenerator.Core.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -18,9 +18,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
-using NetAI.ResxTranslator.Core.Config;
+using NetAI.TestGenerator.Core.Config;
 
-namespace NetAI.ResxTranslator.Core
+namespace NetAI.TestGenerator.Core
 {
     public class ResxTranslationOrchestrator
     {

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace NetAI.ResxTranslator.Core.Config
+namespace NetAI.TestGenerator.Core.Config
 {
     public static class AiSettingsLoader
     {

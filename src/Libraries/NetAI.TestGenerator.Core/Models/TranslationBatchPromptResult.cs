@@ -1,4 +1,4 @@
-﻿namespace NetAI.ResxTranslator.Core.Models;
+﻿namespace NetAI.TestGenerator.Core.Models;
 
 public class TranslationBatchPromptResult
 {

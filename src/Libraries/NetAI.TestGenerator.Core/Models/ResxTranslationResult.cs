@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NetAI.ResxTranslator.Core.Models
+namespace NetAI.TestGenerator.Core.Models
 {
     /// <summary>
     /// Ergebnis eines Übersetzungs-Durchlaufs. Kapselt Erfolg/Fehler,

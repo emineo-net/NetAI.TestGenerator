@@ -1,9 +1,9 @@
-﻿using NetAI.ResxTranslator.Core.Models;
+﻿using NetAI.TestGenerator.Core.Models;
 using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace NetAI.ResxTranslator.Core
+namespace NetAI.TestGenerator.Core
 {
     public class ProjectResxAnalyzer
     {

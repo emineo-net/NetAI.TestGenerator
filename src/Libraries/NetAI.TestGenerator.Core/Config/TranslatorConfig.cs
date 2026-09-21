@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NetAI.ResxTranslator.Core.Config;
+namespace NetAI.TestGenerator.Core.Config;
 
 /// <summary>
 /// Abbild des "translator"-Blocks in aisettings.json.
