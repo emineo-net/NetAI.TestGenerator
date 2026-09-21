@@ -7,6 +7,9 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+<StackPanel>
+<Button x:Name="TestButton" Content="test auto translation" Click="TestButton_OnClick" ></Button>
 
+</StackPanel>
     </Grid>
 </Window>

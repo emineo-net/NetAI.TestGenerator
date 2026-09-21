@@ -1,0 +1,37 @@
+{
+  "$schema": "aisettings-schema.json",
+  "version": "1.1",
+  "translator": {
+    "mode": "all",
+    "apiKey": "",
+    "context": "",
+    "glossaryPath": "",
+    "defaultLanguage": "en",
+    "supportedLanguages": [ "de", "fr", "es" ]
+  },
+  "environment": {
+    "targetDotNetVersion": "net9.0",
+    "testProjectName": "{ProjectName}.Tests"
+  },
+  "frameworks": {
+    "testFramework": "xunit",
+    "mockingFramework": "moq",
+    "useFluentAssertions": true,
+    "useAutoFixture": true
+  },
+  "codeStyle": {
+    "useFileScopedNamespace": true,
+    "useAsyncSuffix": true,
+    "maxLineLength": 120
+  },
+  "generationBehavior": {
+    "testStrategy": "Both",
+    "splitTestsByMethod": false,
+    "maxTestsPerClass": 15
+  },
+  "aiConfiguration": {
+    "model": "gpt-4o",
+    "temperature": 0.2,
+    "systemPrompt": "You are an expert .NET developer. Write clean, maintainable code following Clean Code principles. Always use the Arrange-Act-Assert (AAA) pattern."
+  }
+}

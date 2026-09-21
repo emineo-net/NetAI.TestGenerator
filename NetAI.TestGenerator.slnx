@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
   <Configurations>
     <Platform Name="Any CPU" />
     <Platform Name="x64" />
@@ -11,13 +11,11 @@
     <File Path="RebuildNetAIResxTranslator.bat" />
     <File Path="TODO.md" />
   </Folder>
-  <Folder Name="/src/" />
   <Folder Name="/src/Libraries/">
     <Project Path="src/Libraries/NetAI.TestGenerator.Core/NetAI.TestGenerator.Core.csproj" />
     <Project Path="src/Libraries/NetAI.TestGenerator.Tasks/NetAI.TestGenerator.Tasks.csproj" />
   </Folder>
   <Folder Name="/src/UI/">
-    <Project Path="WpftranlationTestApp/WpftranlationTestApp.csproj" Id="75b1d199-bf94-4125-a7c8-3d747b94fa39" />
+    <Project Path="src/UI/WpftranlationTestApp/WpftranlationTestApp.csproj" Id="75b1d199-bf94-4125-a7c8-3d747b94fa39" />
   </Folder>
-
 </Solution>
