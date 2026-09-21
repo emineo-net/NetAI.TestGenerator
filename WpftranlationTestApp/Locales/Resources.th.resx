@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?><root><xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"><xsd:import namespace="http://www.w3.org/XML/1998/namespace" /><xsd:element name="root" msdata:IsDataSet="true"><xsd:complexType><xsd:choice maxOccurs="unbounded"><xsd:element name="metadata"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" use="required" type="xsd:string" /><xsd:attribute name="type" type="xsd:string" /><xsd:attribute name="mimetype" type="xsd:string" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="assembly"><xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType></xsd:element><xsd:element name="data"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /><xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /><xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /><xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="resheader"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType></xsd:element></xsd:choice></xsd:complexType></xsd:element></xsd:schema><resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="and" xml:space="preserve"><value>ถ ง ai </value></data>
+<data name="account" xml:space="preserve"><value>บ ญช ai </value></data>
+<data name="full name" xml:space="preserve"><value>ช อ นามสก ล</value></data>
+<data name="imprint" xml:space="preserve"><value>แก ไขโครงการหล ก ai </value></data>
+<data name="login" xml:space="preserve"><value>Login</value></data>
+<data name="date from" xml:space="preserve"><value>ว นท ai </value></data>
+<data name="rotate" xml:space="preserve"><value>หม น ai </value></data>
+<data name="contact" xml:space="preserve"><value>ต ดต อ ai </value></data>
+<data name="getting started" xml:space="preserve"><value>เร ม ai </value></data>
+<data name="show filter" xml:space="preserve"><value>แสดงต วกรอง ai </value></data>
+<data name="first" xml:space="preserve"><value>ก อน ai </value></data>
+<data name="paragraphs" xml:space="preserve"><value>ย่อหน้า</value></data>
+<data name="close" xml:space="preserve"><value>ป ด</value></data>
+<data name="contribution" xml:space="preserve"><value>การมีส่วนร่วม</value></data>
+<data name="invalid user" xml:space="preserve"><value>Invalid user</value></data>
+<data name="logout" xml:space="preserve"><value>ออกจากระบบ ai </value></data>
+<data name="manage your account" xml:space="preserve"><value>จ ดการบ ญช ผ ใช ของค ณ ai </value></data>
+<data name="message" xml:space="preserve"><value>message</value></data>
+<data name="order abandoned" xml:space="preserve"><value>ค าส งถ กละท ง ai </value></data>
+<data name="picture gallery" xml:space="preserve"><value>คล งภาพ ai </value></data>
+<data name="download" xml:space="preserve"><value>ดาวน โหลด</value></data>
+<data name="delete" xml:space="preserve"><value>ลบ</value></data>
+<data name="profile" xml:space="preserve"><value>โปรไฟล </value></data>
+<data name="recovery codes" xml:space="preserve"><value>รห สการก ค น ai </value></data>
+<data name="register as a new user" xml:space="preserve"><value>ลงทะเบ ยนเป นผ ใช ใหม ai </value></data>
+<data name="remove" xml:space="preserve"><value>Remove</value></data>
+<data name="click here to log in" xml:space="preserve"><value>คล กท น เพ อล อกอ น ai </value></data>
+<data name="date to" xml:space="preserve"><value>ว นท ai </value></data>
+<data name="save" xml:space="preserve"><value>บ นท ก</value></data>
+<data name="filter reset" xml:space="preserve"><value>ต งค าต วกรองใหม ai </value></data>
+<data name="previous" xml:space="preserve"><value>ก อนหน าน ai </value></data>
+<data name="add page" xml:space="preserve"><value>เพ มหน า ai </value></data>
+<data name="password" xml:space="preserve"><value>รห สผ าน</value></data>
+<data name="assign categories to your pages or delete them" xml:space="preserve"><value>ก าหนดหมวดหม ไปย งหน าของค ณ หร อลบม น ai </value></data>
+<data name="max" xml:space="preserve"><value>ค่ามากที่สุด</value></data>
+<data name="send" xml:space="preserve"><value>Send</value></data>
+<data name="error" xml:space="preserve"><value>Error</value></data>
+<data name="log in" xml:space="preserve"><value>ล อกอ น ai </value></data>
+<data name="conveniently filter and search contributions" xml:space="preserve"><value>ตัวกรองและเนื้อหาการค้นหาอย่างสม่ําเสมอ</value></data>
+<data name="confirm password" xml:space="preserve"><value>ย นย นรห สผ าน ai </value></data>
+<data name="enter url." xml:space="preserve"><value>เข้าที่ url</value></data>
+<data name="italicized" xml:space="preserve"><value>ต วเอ ยง ai </value></data>
+<data name="email" xml:space="preserve"><value>อ เมล </value></data>
+<data name="heading 6" xml:space="preserve"><value>6 ห ว เร อง ai </value></data>
+<data name="access denied" xml:space="preserve"><value>ถ กปฏ เสธการเข าถ ง ai </value></data>
+<data name="heading 5" xml:space="preserve"><value>ห วเร อง 5 ai </value></data>
+<data name="add authenticator app" xml:space="preserve"><value>เพ มโปรแกรมต วจร ง ai </value></data>
+<data name="associate your" xml:space="preserve"><value>จ บค ของค ณ ai </value></data>
+<data name="change email" xml:space="preserve"><value>เปล ยนอ เมล ai </value></data>
+<data name="change password" xml:space="preserve"><value>เปล ยนรห สผ าน ai </value></data>
+<data name="change your account settings" xml:space="preserve"><value>เปล ยนการต งค าบ ญช ผ ใช ของค ณ ai </value></data>
+<data name="choose plan" xml:space="preserve"><value>เล อกร ปแบบ ai </value></data>
+<data name="click here to confirm your account" xml:space="preserve"><value>คล กท น เพ อย นย นบ ญช ผ ใช ของค ณ ai </value></data>
+<data name="heading 4" xml:space="preserve"><value>4 ห ว เร อง ai </value></data>
+<data name="properties" xml:space="preserve"><value>ค ณสมบ ต ai </value></data>
+<data name="log in with a recovery code" xml:space="preserve"><value>ล อกอ นด วยรห สการก ค น ai </value></data>
+<data name="configure authenticator app" xml:space="preserve"><value>ปร บแต งโปรแกรมต วจร ง ai </value></data>
+<data name="title contains" xml:space="preserve"><value>ช อเร องม ค าว า ai </value></data>
+<data name="toggle view" xml:space="preserve"><value>ม ม ai </value></data>
+<data name="these docs" xml:space="preserve"><value>หมอพวกน ai </value></data>
+<data name="terms and conditions" xml:space="preserve"><value>เง อนไขและเง อนไข ai </value></data>
+<data name="xxx" xml:space="preserve"><value>เส ยง ai </value></data>
+<data name="all" xml:space="preserve"><value>all</value></data>
+<data name="confirm email" xml:space="preserve"><value>ย นย นอ เมล ai </value></data>
+<data name="confirm email change" xml:space="preserve"><value>ย นย นการเปล ยนแปลงอ เมล ai </value></data>
+<data name="hyperlink" xml:space="preserve"><value>ไฮเปอร ล งก ai </value></data>
+<data name="also see a preview of the" xml:space="preserve"><value>ด ต วอย างของ ai </value></data>
+<data name="delete data and close my account" xml:space="preserve"><value>ลบข อม ลและป ดบ ญช ai </value></data>
+<data name="delete personal data" xml:space="preserve"><value>ลบข อม ลส วนต ว ai </value></data>
+<data name="disable 2fa" xml:space="preserve"><value>ป ดการใช งาน 2fa ai </value></data>
+<data name="max lenght 14" xml:space="preserve"><value>ขนาดสูงสุด 14</value></data>
+<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>เลือกเมนูต่อไปนี้: การเริ่มบ้าน, การเริ่มระบบ, การล็อกอิน, การปรับรุ่น, การออกจากระบบ, การบันทึก, การติดต่อ, บัญชี ในเมนูที่สอง ให้เลือก: แสดงตัวกรอง, หมุน, มุมมอง, คุณสมบัติ, เพิ่ม, ส่งต่อ, ย้อนกลับ ในกล่องโต้ตอบ คุณสามารถ: บันทึก, ยกเลิก, ส่ง</value></data>
+<data name="authenticator app" xml:space="preserve"><value>โปรแกรมตรวจสอบสิทธิ์</value></data>
+<data name="recovery codes left." xml:space="preserve"><value>รหัสการกู้ชีพเหลือ</value></data>
+<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>การเจาะเว บท ม ประส ทธ ภาพโดยเพ ยงแค ป อน url ai </value></data>
+<data name="enable qr code generation" xml:space="preserve"><value>เป ดการใช งานแฟ ม code ร นของ code ai </value></data>
+<data name="external logins" xml:space="preserve"><value>ล อกอ นภายนอก ai </value></data>
+<data name="no passkeys are registered." xml:space="preserve"><value>ไม่ได้จดทะเบียน</value></data>
+<data name="forget this browser" xml:space="preserve"><value>ล มเบราว เซอร น ai </value></data>
+<data name="forgot password confirmation" xml:space="preserve"><value>ย นย นรห สผ านล ม ai </value></data>
+<data name="generate a new set of recovery codes" xml:space="preserve"><value>สร างช ดรห สการก ค นช ดใหม ai </value></data>
+<data name="generate recovery codes" xml:space="preserve"><value>สร างรห สการก ค น ai </value></data>
+<data name="the external login was removed." xml:space="preserve"><value>การล็อกอินภายนอกถูกยกเลิก</value></data>
+<data name="learn how to" xml:space="preserve"><value>เร ยนร ท จะ ai </value></data>
+<data name="legal inquiry" xml:space="preserve"><value>การสอบสวนทางกฎหมาย ai </value></data>
+<data name="locked out" xml:space="preserve"><value>ล อคออก ai </value></data>
+<data name="manage email" xml:space="preserve"><value>จ ดการอ เมล ai </value></data>
+<data name="just browse" xml:space="preserve"><value>แค เร ยกด ai </value></data>
+<data name="manage your external logins" xml:space="preserve"><value>จ ดการการล อกอ นภายนอกของค ณ ai </value></data>
+<data name="new password" xml:space="preserve"><value>รห สผ านใหม ai </value></data>
+<data name="old password" xml:space="preserve"><value>รห สผ านเก า ai </value></data>
+<data name="options" xml:space="preserve"><value>ต วเล อก ai </value></data>
+<data name="google authenticator for" xml:space="preserve"><value>โปรแกรมสร้างความเป็นจริงของกูเกิ้ลสําหรับ</value></data>
+<data name="order complete" xml:space="preserve"><value>เร ยงล าด บเสร จสมบ รณ ai </value></data>
+<data name="personal data" xml:space="preserve"><value>ข อม ลส วนต ว ai </value></data>
+<data name="phone number" xml:space="preserve"><value>หมายเลขโทรศ พท ai </value></data>
+<data name="min" xml:space="preserve"><value>มิน</value></data>
+<data name="recovery code" xml:space="preserve"><value>เร ยกค นรห ส ai </value></data>
+<data name="recovery code verification" xml:space="preserve"><value>ตรวจความถ กต องของโค ด ai </value></data>
+<data name="register" xml:space="preserve"><value>ลงทะเบ ยน ai </value></data>
+<data name="register confirmation" xml:space="preserve"><value>ย นย นการลงทะเบ ยน ai </value></data>
+<data name="registered logins" xml:space="preserve"><value>บ นท กการล อกอ น ai </value></data>
+<data name="remember me" xml:space="preserve"><value>จ าฉ นไว ai </value></data>
+<data name="remember this machine" xml:space="preserve"><value>จ าเคร องน ไว ai </value></data>
+<data name="resend" xml:space="preserve"><value>สร างใหม ai </value></data>
+<data name="resend email confirmation" xml:space="preserve"><value>ย นย นอ เมลใหม ai </value></data>
+<data name="reset" xml:space="preserve"><value>ต งค าใหม ai </value></data>
+<data name="reset authenticator app" xml:space="preserve"><value>ต งค าโปรแกรมต วจร งใหม อ กคร ง ai </value></data>
+<data name="reset authenticator key" xml:space="preserve"><value>ต งค าก ญแจต วจร งใหม อ กคร ง ai </value></data>
+<data name="reset filters" xml:space="preserve"><value>ต งค าต วกรองใหม ai </value></data>
+<data name="reset password" xml:space="preserve"><value>ต งค ารห สผ านใหม ai </value></data>
+<data name="reset password confirmation" xml:space="preserve"><value>ย นย นรห สผ านใหม ai </value></data>
+<data name="reset recovery codes" xml:space="preserve"><value>ต งค ารห สการเร ยกค นใหม ai </value></data>
+<data name="user name" xml:space="preserve"><value>ช อผ ใช ai </value></data>
+<data name="scan the qr code or enter this key" xml:space="preserve"><value>ค นหารห ส qr หร อป อนก ญแจน ai </value></data>
+<data name="selected categories" xml:space="preserve"><value>หมวดหม ท เล อก ai </value></data>
+<data name="selected websites" xml:space="preserve"><value>เว บไซต ท เล อก ai </value></data>
+<data name="send verification email" xml:space="preserve"><value>ส งอ เมลตรวจสอบ ai </value></data>
+<data name="set password" xml:space="preserve"><value>ต งค ารห สผ าน ai </value></data>
+<data name="set your password" xml:space="preserve"><value>ต งค ารห สผ านของค ณ ai </value></data>
+<data name="subject" xml:space="preserve"><value>subject</value></data>
+<data name="define the names of your categories" xml:space="preserve"><value>ก าหนดช อหมวดหม ของค ณ ai </value></data>
+<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>ในสองปัจจัยหลัก แอปตัวจริง พื้นที่และปลอกกระสุนไม่สําคัญ</value></data>
+<data name="update password" xml:space="preserve"><value>การปร บปร งรห สผ าน ai </value></data>
+<data name="main heading" xml:space="preserve"><value>ห วเร องหล ก ai </value></data>
+<data name="error finding user for unspecified email" xml:space="preserve"><value>เก ดข อผ ดพลาดระหว างค นหาจดหมายท ย งไม ระบ ai </value></data>
+<data name="home" xml:space="preserve"><value>หน าหล ก</value></data>
+<data name="invalid password reset" xml:space="preserve"><value>การปร บค ารห สผ านไม ถ กต อง ai </value></data>
+<data name="of" xml:space="preserve"><value>of</value></data>
+<data name="paragraph" xml:space="preserve"><value>ย อหน า ai </value></data>
+<data name="success" xml:space="preserve"><value>สําเร็จ</value></data>
+<data name="set up authenticator app" xml:space="preserve"><value>ต งค าโปรแกรมต วจร ง ai </value></data>
+<data name="username" xml:space="preserve"><value>ช อผ ใช งาน</value></data>
+<data name="verification code" xml:space="preserve"><value>รห สตรวจสอบ ai </value></data>
+<data name="verify" xml:space="preserve"><value>ตรวจสอบ ai </value></data>
+<data name="next" xml:space="preserve"><value>ต อไป ai </value></data>
+<data name="subscriptions" xml:space="preserve"><value>สมาช ก ai </value></data>
+<data name="you have" xml:space="preserve"><value>ค ณม ai </value></data>
+<data name="you must" xml:space="preserve"><value>เจ าต อง ai </value></data>
+<data name="your password has been changed" xml:space="preserve"><value>รห สผ านของค ณม การเปล ยนแปลง ai </value></data>
+<data name="your profile has been updated" xml:space="preserve"><value>โพรไฟล ของค ณถ กปร บปร งแล ว ai </value></data>
+<data name="nter a name for your passkey" xml:space="preserve"><value>เพิ่มชื่อให้คีย์ของคุณ</value></data>
+<data name="forgot your password?" xml:space="preserve"><value>ลืมพาสเวิร์ดเหรอ</value></data>
+<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>แสดงการ บริจาคอย่างเต็มรูปแบบ โดยการคลิกบนหัวเรื่อง บริจาค</value></data>
+<data name="privacy policy" xml:space="preserve"><value>ข อก าหนดความเป นส วนต ว ai </value></data>
+<data name="pro version" xml:space="preserve"><value>ร นของโปร ai </value></data>
+<data name="new project" xml:space="preserve"><value>โครงการใหม ai </value></data>
+<data name="reset filter" xml:space="preserve"><value>ต งค าต วกรองใหม ai </value></data>
+<data name="save changes" xml:space="preserve"><value>บ นท กการเปล ยนแปลง ai </value></data>
+<data name="last" xml:space="preserve"><value>ส ดท าย ai </value></data>
+<data name="open original" xml:space="preserve"><value>เป ดต นฉบ บ ai </value></data>
+<data name="download documents" xml:space="preserve"><value>ดาวน โหลดเอกสาร ai </value></data>
+<data name="tagging and filtering" xml:space="preserve"><value>กรองและกรอง ai </value></data>
+<data name="open local" xml:space="preserve"><value>เป ดภายในระบบ ai </value></data>
+<data name="download single" xml:space="preserve"><value>ดาวน โหลดซ งเก ล ai </value></data>
+<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>ภาพไอคอนเพื่อสลับมุมมองไพ่กับมุมมองตาราง</value></data>
+<data name="add custom tag" xml:space="preserve"><value>เพิ่มป้ายกําหนดเอง</value></data>
+<data name="define the name of the tag for individual posts" xml:space="preserve"><value>ก าหนดช อของป ายส าหร บแต ละโพสต ai </value></data>
+<data name="tagging contributions" xml:space="preserve"><value>การจัดการจดหมาย</value></data>
+<data name="filter your pages" xml:space="preserve"><value>กรองหน าเว บของค ณ ai </value></data>
+<data name="download txt or json documents without images" xml:space="preserve"><value>ดาวน โหลดเอกสาร txt หร อ json โดยไม ม ภาพ ai </value></data>
+<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>ในต วกรอง ค ณสามารถกรองได โดยป ายโพสต ai </value></data>
+<data name="click on the" xml:space="preserve"><value>คล กบน ai </value></data>
+<data name="to display download options" xml:space="preserve"><value>แสดงต วเล อกการดาวน โหลด ai </value></data>
+<data name="click save word document." xml:space="preserve"><value>คลิกที่เอกสารบันทึกคํา</value></data>
+<data name="error changing user name." xml:space="preserve"><value>เกิดข้อผิดพลาดในการเปลี่ยนชื่อของผู้ใช้</value></data>
+<data name="add" xml:space="preserve"><value>เพ ม</value></data>
+<data name="document." xml:space="preserve"><value>เอกสาร</value></data>
+<data name="a new tab." xml:space="preserve"><value>แท็บใหม่</value></data>
+<data name="and json will open. you will" xml:space="preserve"><value>และเจสันจะเปิด คุณจะ</value></data>
+<data name="json download" xml:space="preserve"><value>ดาวน์โหลด Json</value></data>
+<data name="the external login was added." xml:space="preserve"><value>มีการเพิ่มการล็อกอินภายนอก</value></data>
+<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>ปิดการใช้งานการตรวจสอบสิทธิ์แบบสองปัจจัย (2fa)</value></data>
+<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>จง ใช้ สวิตช์ นั้น เลือก ระหว่าง ที่ ไหน และ ที่ ไหน.</value></data>
+<data name="loc[are displayed.]" xml:space="preserve"><value>Lc [ถูกแสดง]</value></data>
+<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>รูปแบบรูปแบบแท็บที่เรียบเรียงมาอย่างดี เพื่อใช้ในการประมวลผลในตารางคํานวณหรือฐานข้อมูลเพิ่มเติม</value></data>
+<data name="save to your download directory." xml:space="preserve"><value>บันทึกไปยังไดเรกทอรีดาวน์โหลดของคุณ</value></data>
+<data name="two-factor authentication (2fa)" xml:space="preserve"><value>การตรวจสอบสิทธิ์สองปัจจัย (fa)</value></data>
+<data name="cards" xml:space="preserve"><value>การ ด</value></data>
+<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>ตัวช่วยการรีไซเคิลสีแดง จะปรากฏภายใต้ไอคอนตัวกรอง การคลิกบนไอคอนนี้ จะเป็นการลบตัวกรองที่ทํางานอยู่ทั้งหมด และจะแสดงภาพรวมของส่วน บริจาคที่สมบูรณ์อีกครั้ง</value></data>
+<data name="two-factor authentication" xml:space="preserve"><value>การตรวจสอบสิทธิ์สองปัจจัย</value></data>
+<data name="enter a new email" xml:space="preserve"><value>ป้อนจดหมายใหม่</value></data>
+<data name="select columns for scraping" xml:space="preserve"><value>เลือกคอลัมน์สําหรับขูด</value></data>
+<data name="click one or more tags for a post." xml:space="preserve"><value>คลิกหนึ่งป้ายกํากับหรือมากกว่าสําหรับโพสต์</value></data>
+<data name="cards and table" xml:space="preserve"><value>การ์ดและตาราง</value></data>
+<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>ภาพไอคอนเพื่อดูส่วน บริจาคดั้งเดิมในต้นฉบับและการจัดวาง</value></data>
+<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>ใน ทัศนะ ของ การ บริจาค เป็น ราย บุคคล คุณ สามารถ ดาวน์ โหลด ได้.</value></data>
+<data name="rename" xml:space="preserve"><value>ต งช อใหม </value></data>
+<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>ในการแสดงการ บริจาคแบบแท็ก คุณสามารถเลือกป้ายกํากับที่สอดคล้องกันได้จากรายการข้อความ</value></data>
+<data name="toggle help visibility" xml:space="preserve"><value>เปิด/ ปิด การมองเห็น</value></data>
+<data name="enter / select url" xml:space="preserve"><value>เข้า/ เลือก url</value></data>
+<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>ดาวน์โหลดตัวเลือก pdf, docs, txt, html</value></data>
+<data name="to display filter dialog" xml:space="preserve"><value>เพื่อแสดงกล่องตัวกรอง</value></data>
+<data name="enter your phone number" xml:space="preserve"><value>ป้อนหมายเลขโทรศัพท์ของคุณ</value></data>
+<data name="no contributions were found on the page" xml:space="preserve"><value>ไม่พบส่วน บริจาคบนหน้ากระดาษ</value></data>
+<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>หน้าต่างใหม่จะทําการแสดงตัวอย่าง pdf ของเอกสารของคุณ แสดงตัวอย่างนี้ จะแสดงภาพรวมของเนื้อหาและผังแป้นพิมพ์ของเอกสารในตอนต้น</value></data>
+<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>วิธีที่ดีที่สุดที่จะติดต่อเรา คือใช้รูปแบบการติดต่อของเราด้านล่าง กรุณากรอกข้อมูลที่จําเป็นทั้งหมด แล้วเราจะติดต่อกลับไปให้เร็วที่สุด</value></data>
+<data name="export" xml:space="preserve"><value>ส งออก ai </value></data>
+<data name="underlined" xml:space="preserve"><value>ขีดเส้นใต้</value></data>
+<data name="add to followed projects" xml:space="preserve"><value>เพ มไปย งโครงการต อไปน ai </value></data>
+<data name="follow" xml:space="preserve"><value>ตาม ai </value></data>
+<data name="scraping view" xml:space="preserve"><value>ม มมองการข ด ai </value></data>
+<data name="authenticator code" xml:space="preserve"><value>รห สต วจร ง ai </value></data>
+<data name="heading 3" xml:space="preserve"><value>ห วเร อง 3 ai </value></data>
+<data name="heading 2" xml:space="preserve"><value>ห วเร อง 2 ai </value></data>
+<data name="image" xml:space="preserve"><value>ร ปภาพ ai </value></data>
+<data name="the created document will open in" xml:space="preserve"><value>เอกสารท ถ กสร างข นจะเป ดใน ai </value></data>
+<data name="click on download a view with" xml:space="preserve"><value>คล กเม อดาวน โหลดม มมองด วย ai </value></data>
+<data name="file saving failed:" xml:space="preserve"><value>การบันทึกแฟ้มล้มเหลว:</value></data>
+<data name="file saved to:" xml:space="preserve"><value>แฟ้มที่ถูกบันทึกไปยัง:</value></data>
+<data name="an error occurred during download:" xml:space="preserve"><value>เกิดข้อผิดพลาดระหว่างดาวน์โหลด:</value></data>
+<data name="thank you for your message." xml:space="preserve"><value>ขอบคุณสําหรับข้อความ</value></data>
+<data name="file" xml:space="preserve"><value>แฟ้ม</value></data>
+<data name="an error has occurred." xml:space="preserve"><value>เกิดข้อผิดพลาดขึ้น</value></data>
+<data name="table" xml:space="preserve"><value>ตาราง</value></data>
+<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>รูปแบบเอกสาร: dox, pdf, html, json, txt</value></data>
+<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>กรองด้วยหมวดหมู่ (คุณคงได้แท็กหน้าของคุณเพื่อทําเช่นนี้)</value></data>
+<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>จากนั้นคุณสามารถดาวน์โหลดเอกสาร pdf, dx และ Html ด้วยภาพ</value></data>
+<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>คุณสามารถกําหนดชื่อของป้ายกํากับของคุณแต่ละตัวภายใต้ตัวเลือก</value></data>
+<data name="show help (dynamic, static, off)" xml:space="preserve"><value>แสดงความช่วยเหลือ (เร็ว, คงที่, ปิด)</value></data>
+<data name="enter a part that the title must contain." xml:space="preserve"><value>เติมส่วนของหัวเรื่องที่จะบรรจุอยู่</value></data>
+<data name="switch view" xml:space="preserve"><value>มุมมองการสลับ</value></data>
+<data name="custoum" xml:space="preserve"><value>Custoum</value></data>
+<data name="download document" xml:space="preserve"><value>ดาวน์โหลดเอกสาร</value></data>
+<data name="csv download" xml:space="preserve"><value>ดาวน์โหลด Csv</value></data>
+<data name="excel download" xml:space="preserve"><value>การดาวน์โหลดเอก</value></data>
+<data name="single document download" xml:space="preserve"><value>ดาวน์โหลดเอกสารเดี่ยว</value></data>
+<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>ด้วย 'ใกล้หน้าหนึ่ง" คุณสามารถรับภาพได้ถึง 200 ภาพ</value></data>
+<data name="the contributions for" xml:space="preserve"><value>เงินบริจาคสําหรับ</value></data>
+<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>เพื่อรวบรวมผลงานใหม่ๆ โดยอัตโนมัติในอนาคต กดที่</value></data>
+<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>คุณ สามารถ เลือก โครงการ แต่ ละ โครงการ เพื่อ แสดง เฉพาะ ส่วน บริจาค ที่ เป็น ของ โครงการ เหล่า นั้น.</value></data>
+<data name="available predefined tags" xml:space="preserve"><value>ป้ายกํากับที่กําหนดไว้ล่วงหน้า</value></data>
+<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>หาก คุณ ได้ กําหนด จัด ประเภท ไว้ ใน เว็บไซต์ ของ คุณ คุณ ก็ สามารถ กรอง ได้ ด้วย ประเภท เหล่า นี้. เลือกเว็บเพจหรือหมวดหมู่ที่ต้องการจากรายการ</value></data>
+<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>เมื่อคุณได้ทําการเลือกแล้ว ให้คลิกที่ปุ่ม "แทนที่" เพื่อปรับใช้ตัวกรอง จะมีการปรับปรุงมุมมองการ บริจาค และจะแสดงผลลัพธ์ที่กรองเท่านั้น</value></data>
+<data name="to display options" xml:space="preserve"><value>แสดงตัวเลือกต่าง ๆ</value></data>
+<data name="this will rotate all cards." xml:space="preserve"><value>นี่จะหมุนไพ่ทั้งหมด</value></data>
+<data name="button" xml:space="preserve"><value>ปุ่ม</value></data>
+<data name="preview the images" xml:space="preserve"><value>แสดงตัวอย่างรูปภาพ</value></data>
+<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>หากเอกสารของคุณมีแฟ้มรูปภาพอยู่ จะแสดงอยู่ในภาพตัวอย่างด้วย</value></data>
+<data name="download options" xml:space="preserve"><value>ตัวเลือกการดาวน์โหลด</value></data>
+<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>ในการดาวน์โหลดเอกสาร ให้เลือกรูปแบบที่ต้องการจากตัวเลือกที่มี</value></data>
+<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>ฉันจัดการสําหรับเอกสารพร้อมการพิมพ์ และแบ่งปันในรูปแบบอาชีพ</value></data>
+<data name="error: incorrect password." xml:space="preserve"><value>ผิดพลาด: รหัสผ่านไม่ถูกต้อง</value></data>
+<data name="useful if you want to edit the document further." xml:space="preserve"><value>หากคุณต้องการแก้ไขเอกสารเพิ่มเติม</value></data>
+<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>มีประโยชน์สําหรับการฝังเนื้อหาในเว็บไซต์ หรือสื่อดิจิทัลอื่น ๆ</value></data>
+<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>บรรจุเฉพาะข้อความธรรมดา ไม่มีรูปแบบ เหมาะสมสําหรับการประมวลผลง่าย ๆ</value></data>
+<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>เก็บภาพต่าง ๆ ของเอกสารทั้งหมดไว้เป็นแฟ้มที่แยกต่างหาก ในกรณีที่คุณต้องการภาพแต่ละแฟ้ม</value></data>
+<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>เพื่อค้นหาส่วนต่าง ๆ ของเว็บไซต์ ให้ใส่ url แล้วคลิกที่ไอคอนขยายกระจก อีกทางเลือกหนึ่ง คุณสามารถกดปุ่มป้อนบนคีย์บอร์ดของคุณ</value></data>
+<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>หากคุณกําลังล็อกอินเข้าและติดตามตําแหน่ง urls สําหรับการเปลี่ยนแปลงอยู่แล้ว คุณยังสามารถเลือก url จากรายการวางลงได้</value></data>
+<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>โพสต์ปัจจุบันบนเว็บไซต์ที่เลือก จะถูกจับโดยอัตโนมัติโดยอัลกอริทึมของเรา จาก นั้น ก็ จะ มี การ แสดง โพสต์ ที่ เก่า และ ใหม่ ๆ บน เว็บไซต์.</value></data>
+<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>ฉันป้อน url และไม่มีอะไรแสดง เพราะอะไร?</value></data>
+<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>แต่น่าเสียดายที่นี้ไม่ได้ผิดปกติและสามารถมีสาเหตุหลายอย่าง e.g.:</value></data>
+<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>ไม่ มี การ บริจาค ใด ที่ เกี่ยว ข้อง กับ เว็บไซต์ ที่ คุณ กําลัง ค้น หา อยู่. (เช่น คุณป้อนหน้าติดต่อเป็น url: "https offishmysite/contact")</value></data>
+<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>โพสต์เชื่อมโยงไม่ได้อยู่ในขอบเขต ตัวอย่างเช่น คุณป้อน "https limisite.com/ profiles" แต่การบริจาคทั้งหมดหมายถึง "htpss phone.com/gency".</value></data>
+<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>บล็อกที่ต้องการ (หน้าปิดคือหุ่น)</value></data>
+<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>หน้าที่ร้องขอมาจะแสดงเฉพาะโพสต์สําหรับผู้ใช้ที่ลงทะเบียนไว้เท่านั้น</value></data>
+<data name="table structure (sorted by priority)" xml:space="preserve"><value>โครงสร้างตาราง (จัดตามความสําคัญ)</value></data>
+<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>ตาราง ถูก จัด ให้ เป็น ระเบียบ เพื่อ ว่า ข้อมูล ที่ สําคัญ ที่ สุด จะ ได้ รับ การ แสดง ก่อน เพื่อ ให้ มี การ นํา มา ใช้ อย่าง รวด เร็ว และ มี ประสิทธิภาพ.</value></data>
+<data name="tags" xml:space="preserve"><value>ป้ายกํากับ</value></data>
+<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>จะมีการเปิดส่วน บริจาคในแท็บหรือหน้าต่างใหม่ คุณจะเห็นการบริจาคขณะที่มันได้รับการตีพิมพ์บนเว็บไซต์เดิม -- รวมถึงการฟอร์แมต, ภาพ, ลิงก์ และเนื้อหาอื่น ๆ ที่อาจจะไม่ได้รวมอยู่ในมุมมองการขูด</value></data>
+<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>ป้ายกํากับหรือหมวดหมู่ใด ๆ ที่มีอยู่แล้ว ถูกแสดงที่นี่ การ ทํา เช่น นี้ จะ ช่วย คุณ ให้ ตรวจ สอบ การ บริจาค อย่าง รวด เร็ว โดย หัวข้อ หรือ จุด สนใจ.</value></data>
+<data name="headings and titles" xml:space="preserve"><value>หัว เรื่อง และ ตําแหน่ง</value></data>
+<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>หัว เรื่อง และ หัว เรื่อง ของ การ บริจาค มี ราย ชื่อ เป็น สอง. การ บริจาค แบบ นี้ ทํา ให้ เห็น ราย ละเอียด แรก ๆ เกี่ยว กับ เนื้อหา และ ทํา ให้ สามารถ ระบุ การ บริจาค ที่ เกี่ยว ข้อง อย่าง รวด เร็ว.</value></data>
+<data name="date and author" xml:space="preserve"><value>วันที่และผู้เขียน</value></data>
+<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>คอลัมน์ นี้ บรรจุ วัน ที่ และ ผู้ เขียน การ บริจาค. การ ทํา เช่น นี้ ทํา ให้ คุณ เห็น ได้ ว่า มี การ บริจาค โดย ผู้ ใด และ โดย ผู้ ใด.</value></data>
+<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>เนื้อหาที่แท้จริงของการบริจาค แบ่งออกเป็น paragraph เป็นส่วนสุดท้ายของตาราง นี่คือที่ที่คุณจะพบข้อความรายละเอียดที่ถูกขูด</value></data>
+<data name="table functions" xml:space="preserve"><value>ฟังก์ชันตาราง</value></data>
+<data name="tagging" xml:space="preserve"><value>การลาก</value></data>
+<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>การ บริจาค แบบ มี เงื่อนไข นี่ ทํา ให้ ง่าย ขึ้น ที่ จะ จัด เรียง, กรอง, และ จัด การ เรื่อง การ บริจาค ภาย หลัง โดย เฉพาะ อย่าง ยิ่ง เมื่อ จัด การ กับ ข้อมูล จํานวน มาก.</value></data>
+<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>โปรแกรมจัดการตารางทั้งหมด หรือ ที่เลือกไว้ สามารถดาวน์โหลดได้ในรูปแบบต่าง ๆ</value></data>
+<data name="select tagged contributions" xml:space="preserve"><value>เลือกส่วนติดต่อ</value></data>
+<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>รูปแบบตารางที่รู้จักกันดี เสนอตัวเลือกการฟอร์แมตเพิ่มเติม โดยเฉพาะอย่างยิ่งที่เหมาะสมต่อการรายงานหรือนําเสนอ</value></data>
+<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>รูปแบบข้อมูลแบบโครงสร้าง ที่เหมาะกับการประมวลผลเพิ่มเติม ในโปรแกรมหรือโปรแกรมเว็บ</value></data>
+<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>ส่วน ประกอบ ของ ส่วน ประกอบ ย่อย นี้ ทํา ให้ คุณ สามารถ จัด ระเบียบ และ จัด ระเบียบ การ บริจาค ได้ ง่าย ขึ้น ใน การ หา หรือ กรอง ต่อ ไป.</value></data>
+<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>คุณสมบัตินี้ใช้ได้ทั้งในไพ่และมุมมองตาราง คุณสมบัตินี้จะช่วยให้คุณสามารถซ่อนส่วน บริจาคหรือธงชาติได้ โดยเฉพาะอย่างยิ่งที่สําคัญ</value></data>
+<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>การ บริจาค ของ มาระ โก ซึ่ง สําคัญ เป็น พิเศษ ไม่ ว่า จะ เกี่ยว ข้อง หรือ โดด เด่น.</value></data>
+<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>ระบุว่าการบริจาคได้ถูกดาวน์โหลดมาแล้ว</value></data>
+<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>การ บริจาค เครื่องหมาย ที่ มี การ สร้าง หรือ แก้ไข โดย ใช้ เทคโนโลยี ไอ.</value></data>
+<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>ซ่อนส่วนบริจาคที่คุณไม่ต้องการจะแสดง แต่ไม่ได้ลบทั้งหมด</value></data>
+<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>หากส่วนเชื่อมโยงไม่ทํางาน หรือส่วน บริจาคไม่มีอยู่ อาจเนื่องจากมีการเปลี่ยนแปลงในหน้าเดิม</value></data>
+<data name="show contribution" xml:space="preserve"><value>แสดงการมีส่วนร่วม</value></data>
+<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>ในมุมมองไพ่ ให้คลิกที่พาดหัวเพื่อเปิดหน้าต่างใหม่ด้วยเนื้อหาของการมีส่วนร่วม</value></data>
+<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>การ จัด เตรียม สําหรับ การ อ่าน, การ ตรวจ สอบ, หรือ การ แก้ไข ส่วน บริจาค โดย ไม่ ต้อง เรียก แหล่ง ที่ มา เดิม.</value></data>
+<data name="create a new account." xml:space="preserve"><value>สร้างบัญชีใหม่</value></data>
+<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>หากมีส่วนมีส่วนแสดงแฟ้มของภาพอยู่ จะมีการแสดงภาพตัวอย่างขนาดเล็ก ๆ ในส่วนแสดงตัวอย่าง</value></data>
+<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>คุณจะเห็นตัวเลขที่มุมบนของภาพแสดงตัวอย่าง จํานวน นี้ บ่ง ชี้ ว่า มี รูป ปั้น มาก น้อย เท่า ไร ใน ส่วน บริจาค.</value></data>
+<data name="simply click on the preview image." xml:space="preserve"><value>คลิกบนภาพตัวอย่าง</value></data>
+<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>จะมีการเปิดมุมมองแกลเลอรีภาพต่าง ๆ ที่แสดงอยู่ในส่วน บริจาคอย่างชัดเจนและมีขนาดใหญ่ขึ้น</value></data>
+<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>ให้คุณได้พิจารณาว่า จะมีการแสดงส่วน บริจาคร่วมกับป้ายที่เลือกหรือไม่ หรือเฉพาะส่วน บริจาคที่ไม่ได้ติดป้ายไว้เท่านั้น</value></data>
+<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>คําถามใด ๆ ที่คุณมีเกี่ยวกับนโยบายความเป็นส่วนตัวของเรา คุกกี้หรือเงื่อนไขของการใช้งาน จะตอบเร็วที่สุดเท่าที่เป็นไปได้</value></data>
+<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>การมีส่วนร่วมในปัจจุบันจากเว็บไซต์ที่คุณชื่นชอบ - อย่างรวดเร็ว</value></data>
+<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>คุณ มัก จะ อ่าน หรือ ค้นคว้า ใน เว็บไซต์ ต่าง ๆ และ ต้องการ ข่าว ล่า สุด ใน ที่ เดียว กัน ไหม? งั้นคุณก็มาถูกที่แล้ว</value></data>
+<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>โพสต์ใหม่ทั้งหมดจากเว็บไซต์ที่คุณเลือก</value></data>
+<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>เอกสารที่สร้างขึ้นใน dex, pdf, json หรือ html.</value></data>
+<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>ทําเครื่องหมายโพสต์ด้วยรายการ 'แท็ก' ของเรา (เช่น "เช่น", "ไม่สนใจ", "ดาวน์โหลดแล้ว",.... มี 'tags' ที่ปรับแต่งได้ 10 ตัวสําหรับวัตถุประสงค์นี้</value></data>
+<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>สืบค้นเมื่อใกล้กว่า - เครื่องมือที่ดีที่สุดสําหรับใครก็ตามที่ต้องการจะติดตามข้อมูลล่าสุดในออนไลน์ ด้วยฟังก์ชันการเจาะเว็บที่เป็นมิตรกับผู้ใช้ ให้ป้อน url และดูโพสต์ใหม่ทั้งหมดในเว็บไซต์ที่ต้องการทันที</value></data>
+<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>แต่ละโพสต์สามารถแสดงได้เต็มขนาดด้วยการคลิกหนึ่งครั้ง ดังนั้นคุณจะไม่พลาดข้อมูลที่สําคัญใดๆ ลําดับ เวลา ของ โพสต์ ทํา ให้ ง่าย ขึ้น ที่ จะ นํา ทาง และ ค้น หา เนื้อหา ที่ เกี่ยว ข้อง.</value></data>
+<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>จุด เด่น อย่าง หนึ่ง คือ ความ สามารถ ที่ จะ สร้าง เอกสาร จาก แต่ ละ ส่วน ที่ บริจาค ใน ฟิล์ม, pdf, json หรือ html - สําหรับ การ ประมวล ข้อมูล.</value></data>
+<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>นั่นหมายความว่าคุณไม่เคยพลาดการมีส่วนร่วมใหม่และอยู่เสมอจนถึงวันที่</value></data>
+<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>ลงทะเบียนเพื่อเปิดใช้งานแผนอิสระ จากนั้นคุณสามารถยกระดับเป็นแผนอาชีพ</value></data>
+<data name="you do not have access to this resource." xml:space="preserve"><value>คุณไม่สามารถเข้าถึงทรัพยากรนี้ได้</value></data>
+<data name="thank you for confirming your email." xml:space="preserve"><value>ขอบคุณที่ยืนยันอีเมล</value></data>
+<data name="error confirming your email." xml:space="preserve"><value>เกิดข้อผิดพลาดระหว่างยืนยันอีเมลของคุณ</value></data>
+<data name="i accept the terms and conditions" xml:space="preserve"><value>ฉันยอมรับเงื่อนไขและเงื่อนไข</value></data>
+<data name="error: invalid email change confirmation link." xml:space="preserve"><value>ผิดพลาด: ส่วนเชื่อมโยงการเปลี่ยนแปลงอีเมลไม่ถูกต้อง</value></data>
+<data name="error changing email." xml:space="preserve"><value>เกิดข้อผิดพลาดขณะเปลี่ยนอีเมล</value></data>
+<data name="thank you for confirming your email change." xml:space="preserve"><value>ขอบคุณที่ยืนยันการเปลี่ยนแปลงอีเมล</value></data>
+<data name="you've successfully authenticated with" xml:space="preserve"><value>คุณได้ตรวจสอบสิทธิ์เรียบร้อยแล้ว</value></data>
+<data name="use another service to register." xml:space="preserve"><value>ใช้บริการอื่นเพื่อลงทะเบียน</value></data>
+<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>โปรดป้อนที่อยู่อีเมลของเว็บไซต์นี้ด้านล่างนี้ แล้วคลิกที่ปุ่มลงทะเบียนเพื่อทําการล็อกอินเสร็จสิ้น</value></data>
+<data name="please enter your email." xml:space="preserve"><value>โปรดป้อนอีเมลของคุณ</value></data>
+<data name="error loading external login information." xml:space="preserve"><value>เกิดข้อผิดพลาดในการโหลดข้อมูลการล็อกอินภายนอก</value></data>
+<data name="error loading external login information during confirmation." xml:space="preserve"><value>เกิดข้อผิดพลาดระหว่างทําการโหลดข้อมูลการล็อกอินภายนอก</value></data>
+<data name="reset your password." xml:space="preserve"><value>ปรับรหัสผ่านของคุณใหม่</value></data>
+<data name="the default ui requires a user store with email support." xml:space="preserve"><value>แฟ้มภาพที่ทํางานอยู่</value></data>
+<data name="enter your email." xml:space="preserve"><value>ป้อนอีเมลของคุณ</value></data>
+<data name="please check your email to reset your password." xml:space="preserve"><value>โปรดตรวจสอบอีเมลของคุณเพื่อปรับค่ารหัสผ่านของคุณใหม่</value></data>
+<data name="the password reset link is invalid." xml:space="preserve"><value>ลิงก์ที่ตั้งค่ารหัสผ่านใหม่ไม่ถูกต้อง</value></data>
+<data name="please confirm your password." xml:space="preserve"><value>โปรดยืนยันรหัสผ่านของคุณ</value></data>
+<data name="this account has been locked out, please try again later." xml:space="preserve"><value>บัญชีนี้ถูกล็อคไว้ โปรดลองใหม่อีกครั้งในภายหลัง</value></data>
+<data name="use a local account to log in." xml:space="preserve"><value>ใช้บัญชีผู้ใช้ท้องถิ่นเพื่อล็อกอิน</value></data>
+<data name="log in with a passkey" xml:space="preserve"><value>ล็อกอินด้วยปุ่มผ่าน</value></data>
+<data name="use another service to log in." xml:space="preserve"><value>ใช้บริการอื่นเพื่อล็อกอิน</value></data>
+<data name="please enter your password." xml:space="preserve"><value>โปรดป้อนรหัสผ่านของคุณ</value></data>
+<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>การล็อกอินของคุณถูกป้องกันด้วยโปรแกรมที่เชื่อถือได้ ใส่รหัสตัวจริงด้านล่างนี้</value></data>
+<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>ไม่สามารถเข้าถึงอุปกรณ์ที่เชื่อถือได้ของคุณ? คุณทําได้</value></data>
+<data name="error: invalid authenticator code." xml:space="preserve"><value>ผิดพลาด: รหัสตัวจริงไม่ถูกต้อง</value></data>
+<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>คุณได้ร้องขอให้ล็อกอินด้วยรหัสคืน จะไม่มีการจดจําการล็อกอินนี้ จนกว่าคุณจะให้รหัสโปรแกรมจริงที่ล็อกอินหรือปิดการใช้งาน 2fa และล็อกอินอีกครั้ง</value></data>
+<data name="recoverycode" xml:space="preserve"><value>เรียกคืนรหัส</value></data>
+<data name="for how to configure a real email sender" xml:space="preserve"><value>สําหรับการปรับแต่งผู้ส่งอีเมลจริง</value></data>
+<data name="normally this would be emailed:" xml:space="preserve"><value>ตามปกติแล้ว จะมีการส่งอีเมล:</value></data>
+<data name="please check your email to confirm your account." xml:space="preserve"><value>โปรดตรวจสอบอีเมลของคุณเพื่อยืนยันบัญชีผู้ใช้ของคุณ</value></data>
+<data name="verification email sent. please check your email." xml:space="preserve"><value>ส่งอีเมลตรวจสอบแล้ว กรุณาเช็คอีเมลของคุณ</value></data>
+<data name="enter the code" xml:space="preserve"><value>ป้อนรหัส</value></data>
+<data name="your password has been reset. please" xml:space="preserve"><value>รหัสผ่านของคุณได้รับการรีเซ็ต เชิญ</value></data>
+<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>ยังไม่มีการปรับแต่งบริการการตรวจสอบสิทธิ์ภายนอก ดูนี่สิ</value></data>
+<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>บทความเกี่ยวกับการตั้งค่าโปรแกรมนี้ในการใช้งานภายนอก</value></data>
+<data name="put these codes in a safe place." xml:space="preserve"><value>เก็บรหัสพวกนี้ไว้ในที่ปลอดภัย</value></data>
+<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>ถ้าคุณเสียอุปกรณ์ และไม่มีรหัสที่กู้ได้ คุณจะเสียการเข้าถึงบัญชีของคุณ</value></data>
+<data name="enter the old password" xml:space="preserve"><value>ป้อนรหัสผ่านเก่า</value></data>
+<data name="enter the new password" xml:space="preserve"><value>ป้อนรหัสผ่านตัวใหม่</value></data>
+<data name="user changed their password successfully." xml:space="preserve"><value>ผู้ใช้เปลี่ยนรหัสผ่านเรียบร้อยแล้ว</value></data>
+<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>การลบข้อมูลนี้จะเป็นการลบบัญชีของคุณออกไปอย่างถาวร และจะไม่สามารถกู้ข้อมูลดังกล่าวกลับมาได้</value></data>
+<data name="unexpected error occurred deleting user." xml:space="preserve"><value>เกิดข้อผิดพลาดที่ไม่คาดคิดขึ้น กําลังลบผู้ใช้</value></data>
+<data name="this action only disables 2fa." xml:space="preserve"><value>การกระทํานี้จะปิดการใช้งานเฉพาะ 2fa เท่านั้น</value></data>
+<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>การปิดการใช้งาน 2fa ไม่ได้เปลี่ยนกุญแจที่ใช้ในโปรแกรมสร้างจริง หากคุณต้องการเปลี่ยนกุญแจที่ใช้ในโปรแกรมจริง คุณควรจะเปลี่ยน</value></data>
+<data name="set your authenticator keys." xml:space="preserve"><value>ตั้งกุญแจตัวจริงของคุณ</value></data>
+<data name="reset your authenticator keys." xml:space="preserve"><value>ตั้งค่ากุญแจตัวจริงของคุณ</value></data>
+<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>ไม่สามารถปิดการใช้งาน 2fa ได้ เนื่องจากยังไม่เปิดใช้งานอยู่</value></data>
+<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>เกิดข้อผิดพลาดที่ไม่คาดคิดขึ้น</value></data>
+<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2fa ถูกปิดการใช้งาน คุณสามารถแทนที่ 2f ได้เมื่อคุณตั้งค่าแอปพลิเคชันตัวจริง</value></data>
+<data name="enter your email" xml:space="preserve"><value>ป้อนอีเมลของคุณ</value></data>
+<data name="your email is unchanged." xml:space="preserve"><value>อีเมล์ของคุณไม่เปลี่ยนแปลง</value></data>
+<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>ยืนยันการเชื่อมโยงเพื่อเปลี่ยนอีเมล กรุณาเช็คอีเมลของคุณ</value></data>
+<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>การใช้โปรแกรมจริง ผ่านขั้นตอนต่อไปนี้:</value></data>
+<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>ดาวน์โหลดแอปพลิเคชัน 2 ตัวประกอบ เช่น ไมโครซอฟต์ (microsoft) สําหรับ</value></data>
+<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>เมื่อคุณได้สแกนรหัส Qr หรือป้อนกุญแจด้านบน แอพการตรวจสอบสิทธิ์สองปัจจัยของคุณจะมีรหัสเฉพาะ ป้อนรหัสในกล่องยืนยันด้านล่างนี้</value></data>
+<data name="error: verification code is invalid." xml:space="preserve"><value>ผิดพลาด: รหัสตรวจสอบไม่ถูกต้อง</value></data>
+<data name="your authenticator app has been verified." xml:space="preserve"><value>app ของเครื่องคุณได้รับการยืนยันแล้ว</value></data>
+<data name="add another service to log in." xml:space="preserve"><value>เพิ่มบริการอื่น ๆ ไปยังปูมบันทึก</value></data>
+<data name="error: the external login was not removed." xml:space="preserve"><value>ผิดพลาด: การล็อกอินภายนอกไม่ได้ถูกลบ</value></data>
+<data name="error: could not load external login info." xml:space="preserve"><value>ผิดพลาด: ไม่สามารถโหลดข้อมูลการล็อกอินภายนอกได้</value></data>
+<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>ผิดพลาด: ไม่มีการเพิ่มการล็อกอินภายนอก ล็อกอินภายนอกจะถูกกําหนดให้ใช้บัญชีผู้ใช้ตัวเดียวเท่านั้น</value></data>
+<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>สร้างรหัสสําหรับการตรวจสอบสิทธิ์ 2 อัน (2fa)</value></data>
+<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>การสร้างรหัสการกู้คืนตัวใหม่ ไม่ได้เปลี่ยนกุญแจที่ใช้ในโปรแกรมที่ใช้งานได้จริง หากคุณต้องการเปลี่ยนกุญแจที่ใช้ในโปรแกรมจริง คุณควรจะเปลี่ยน</value></data>
+<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>ไม่สามารถสร้างรหัสการกู้คืนสําหรับผู้ใช้ได้ เนื่องจากไม่มี 2fa เปิดใช้งาน</value></data>
+<data name="you have generated new recovery codes." xml:space="preserve"><value>คุณสร้างรหัสการฟื้นตัวใหม่</value></data>
+<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>ผู้ใช้ที่มีหมายเลข '{0}' ได้สร้างรหัสการเรียกคืนข้อมูล 2fa ใหม่</value></data>
+<data name="choose your username." xml:space="preserve"><value>เลือกชื่อผู้ใช้ของคุณ</value></data>
+<data name="you have no recovery codes left." xml:space="preserve"><value>คุณไม่มีรหัสที่จะกู้ได้</value></data>
+<data name="error: failed to set phone number." xml:space="preserve"><value>ผิดพลาด: ล้มเหลวในการตั้งค่าหมายเลขโทรศัพท์</value></data>
+<data name="manage your passkeys" xml:space="preserve"><value>จัดการรหัสผ่านของคุณ</value></data>
+<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>คุณได้หมายเลขสูงสุดของการผ่าน กรุณาลบหนึ่งก่อนที่จะเพิ่มใหม่</value></data>
+<data name="add a new passkey" xml:space="preserve"><value>เพิ่มรหัสผ่านใหม่</value></data>
+<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>ผิดพลาด: เบราว์เซอร์ไม่ได้ให้รหัสผ่าน</value></data>
+<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>ผิดพลาด: ไม่สามารถเพิ่มรหัสผ่านลงในบัญชีผู้ใช้ของคุณได้</value></data>
+<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>ผิดพลาด: ID พาสคีย์ที่ระบุไม่ถูกต้อง</value></data>
+<data name="error: the passkey could not be deleted." xml:space="preserve"><value>ผิดพลาด: พาสคีย์ไม่สามารถลบได้</value></data>
+<data name="passkey deleted successfully." xml:space="preserve"><value>ลบพาสคีย์เรียบร้อยแล้ว</value></data>
+<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>บัญชีของคุณมีข้อมูลส่วนตัวที่คุณให้เรา หน้านี้ให้คุณได้ดาวน์โหลดหรือลบข้อมูลดังกล่าว</value></data>
+<data name="enter a new name for your" xml:space="preserve"><value>ป้อนชื่อใหม่ของคุณ</value></data>
+<data name="passkey" xml:space="preserve"><value>พาสคีย์</value></data>
+<data name="my passkey" xml:space="preserve"><value>บัตรผ่านของฉัน</value></data>
+<data name="passkey name" xml:space="preserve"><value>รหัสผ่าน</value></data>
+<data name="continue" xml:space="preserve"><value>ทําต่อไป</value></data>
+<data name="error: the specified passkey could not be found." xml:space="preserve"><value>ผิดพลาด: ไม่พบรหัสผ่านที่ระบุ</value></data>
+<data name="error: the passkey could not be updated." xml:space="preserve"><value>ผิดพลาด: ไม่สามารถปรับรหัสผ่านได้</value></data>
+<data name="passkey updated successfully." xml:space="preserve"><value>ปรับปรุงรหัสผ่านเรียบร้อยแล้ว</value></data>
+<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>หากคุณตั้งค่ากุญแจตัวจริง โปรแกรมสร้างจริงของคุณจะไม่ทํางาน จนกว่าคุณจะปรับแต่งมันใหม่อีกครั้ง</value></data>
+<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>โพรเซสนี้จะปิดการใช้งาน 2fa จนกว่าคุณจะตรวจสอบสิทธิ์ในโปรแกรมจริงของคุณ</value></data>
+<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>หากคุณยังทําการปรับแต่ง App ของเครื่องจริงไม่ได้ คุณอาจจะเสียสิทธิ์ในการใช้งานบัญชีผู้ใช้ของคุณ</value></data>
+<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>ปุ่ม App ของเครื่องคุณ ได้ถูกปรับค่ามาแล้ว คุณจะต้องปรับแต่งโปรแกรมตัวจริง โดยใช้กุญแจตัวใหม่</value></data>
+<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>คุณยังไม่มีชื่อผู้ใช้/ พาสเวิร์ดของเว็บไซต์นี้ เพิ่มบัญชีผู้ใช้ในเครื่องเพื่อให้คุณสามารถล็อกอินได้โดยไม่ต้องล็อกอินภายนอก</value></data>
+<data name="your password has been set." xml:space="preserve"><value>รหัสผ่านของคุณได้ถูกตั้งค่าแล้ว</value></data>
+<data name="before you can log in with a recovery code." xml:space="preserve"><value>ก่อนที่คุณจะสามารถล็อกอินด้วยรหัสการฟื้นตัว</value></data>
+<data name="you have 1 recovery code left." xml:space="preserve"><value>คุณเหลือ 1 รหัส</value></data>
+<data name="inline text" xml:space="preserve"><value>ข้อความแบบอินไลน์</value></data>
+<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>นโยบาย พุทธ ศาสนา และ คุกกี้ ยัง ไม่ เป็น ที่ ยอม รับ.</value></data>
+<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>คุณต้องยอมรับนโยบาย ก่อนที่คุณจะสามารถเปิดการตรวจสอบสิทธิ์สองปัจจัย</value></data>
+<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>เบราว์เซอร์ตัวปัจจุบันถูกลืม เมื่อคุณล็อกอินอีกครั้งจากเบราว์เซอร์นี้ คุณจะถูกถามสําหรับรหัส 2fa ของคุณ</value></data>
+<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>โปรแกรมนี้ยังไม่มีผู้ส่งอีเมลจริง ๆ ลงทะเบียนไว้ ดู</value></data>
+<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>แสดงโพสต์ดั้งเดิม (เปิดในแท็บใหม่)</value></data>
+<data name="to display options." xml:space="preserve"><value>เพื่อแสดงตัวเลือก</value></data>
+<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>เพื่อเพิ่มหน้าใหม่สําหรับการติดตามการมีส่วนร่วม</value></data>
+<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>เพื่อ แสดง ภาพ ง่าย ๆ ของ การ บริจาค.</value></data>
+<data name="to display filters." xml:space="preserve"><value>เพื่อแสดงตัวกรอง</value></data>
+<data name="to rotate the map view." xml:space="preserve"><value>เพื่อหมุนมุมมองแผนที่</value></data>
+<data name="to display the image gallery." xml:space="preserve"><value>เพื่อแสดงคลังภาพ.</value></data>
+<data name="italic text" xml:space="preserve"><value>ข้อความตัวเอียง</value></data>
+<data name="summary" xml:space="preserve"><value>สรุป</value></data>
+<data name="expandable section" xml:space="preserve"><value>ส่วนที่ขยายได้</value></data>
+<data name="strong emphasis" xml:space="preserve"><value>การเน้นหนัก</value></data>
+<data name="emphasis (italic)" xml:space="preserve"><value>การเน้น (ตัวเอียง)</value></data>
+<data name="highlighted text" xml:space="preserve"><value>ข้อความที่ไฮไลต์</value></data>
+<data name="code snippet" xml:space="preserve"><value>โค้ดสั้น ๆ</value></data>
+<data name="code block" xml:space="preserve"><value>บล็อกโค้ด</value></data>
+<data name="block quote" xml:space="preserve"><value>ข้อความอ้างอิงแบบบล็อก</value></data>
+<data name="citation" xml:space="preserve"><value>การอ้างอิง</value></data>
+<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>ทำเครื่องหมายโพสต์ด้วย 'รายการแท็ก' ของเรา (เช่น 'ถูกใจ', 'ไม่น่าสนใจ', 'ดาวน์โหลดแล้ว', ...) มี 'แท็ก' ที่กำหนดค่าได้ 10 รายการสำหรับจุดประสงค์นี้</value></data>
+<data name="heading 1" xml:space="preserve"><value>หัวข้อ 1</value></data>
+<data name="sample output" xml:space="preserve"><value>ผลลัพธ์ตัวอย่าง</value></data>
+<data name="variable" xml:space="preserve"><value>ตัวแปร</value></data>
+<data name="small text" xml:space="preserve"><value>ข้อความขนาดเล็ก</value></data>
+<data name="figure with caption" xml:space="preserve"><value>รูปภาพพร้อมคำบรรยาย</value></data>
+<data name="figure caption" xml:space="preserve"><value>คำบรรยายรูปภาพ</value></data>
+<data name="keyboard input" xml:space="preserve"><value>การป้อนข้อมูลจากแป้นพิมพ์</value></data>
+<data name="bold text" xml:space="preserve"><value>ข้อความตัวหนา</value></data>
+<data name="subscript" xml:space="preserve"><value>ตัวห้อย</value></data>
+<data name="superscript" xml:space="preserve"><value>ตัวยก</value></data>
+<data name="are displayed." xml:space="preserve"><value>จะถูกแสดง</value></data>
+<data name="block container" xml:space="preserve"><value>คอนเทนเนอร์บล็อก</value></data>
+<data name="abbreviation" xml:space="preserve"><value>ตัวย่อ</value></data>
+<data name="custom" xml:space="preserve"><value>กำหนดเอง</value></data>
+</root>

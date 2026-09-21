@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<!-- net9.0 hinzugefügt, damit es exakt deckungsgleich mit dem Tasks-Projekt ist -->
+		<TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<!-- WICHTIG für MSBuild-Task-Pakete: Kennzeichnet das Paket als reine Entwicklungshilfe -->
+		<DevelopmentDependency>true</DevelopmentDependency>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+		<!-- NUGET-PROFI-EINSTELLUNG: Verhindert, dass NuGet-Standardordner (lib/) für Custom Tasks generiert werden -->
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+
+		<!-- Weist NuGet an, unser benutzerdefiniertes Target für den Paketinhalt aufzurufen -->
+		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackCustomTasksAndDependencies</TargetsForTfmSpecificContentInPackage>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- WICHTIG: PrivateAssets="all" verhindert, dass diese MSBuild-DLLs ins Zielprojekt "lecken" -->
+		<PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Verpackt die .targets-Datei automatisch in den build-Ordner des NuGet-Pakets -->
+		<None Include="build\NetAI.ResxTranslator.Tasks.targets" Pack="true" PackagePath="build\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- WICHTIG: PrivateAssets="all" sorgt dafür, dass nur die DLL eingebettet wird, ohne eine NuGet-Abhängigkeit zu erzeugen -->
+		<ProjectReference Include="..\AiTranslator.Core\NetAI.ResxTranslator.Core.csproj" />
+		<ProjectReference Include="..\NetAI.ResxTranslator.Core\NetAI.ResxTranslator.Core.csproj" PrivateAssets="all" />
+	</ItemGroup>
+
+	<!-- 1. FÜR LOKALE ENTWICKLUNG: Kopiert nach dem Build die Task-DLL und die Core-DLL in den lokalen build/-Ordner -->
+	<Target Name="CopyTaskAndDependenciesToLocalBuildFolder" AfterTargets="Build">
+		<ItemGroup>
+			<!-- Wir nutzen einen festen, sicheren Pfad direkt zum netstandard2.0-Ausgabeordner -->
+			<LocalTaskFiles Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.dll" />
+		</ItemGroup>
+
+		<!-- Kopiert alles gesammelt in den build-Ordner, sofern überhaupt DLLs im Quellordner existieren -->
+		<Copy SourceFiles="@(LocalTaskFiles)" DestinationFolder="$(MSBuildProjectDirectory)\build\" SkipUnchangedFiles="true" Condition="'@(LocalTaskFiles)' != ''" />
+	</Target>
+
+	<!-- 2. FÜR DAS FERTIGE NUGET-PAKET: Packt sowohl NetAI.ResxTranslator.Tasks.dll als auch NetAI.ResxTranslator.Core.dll in den /tasks/-Ordner -->
+	<Target Name="PackCustomTasksAndDependencies">
+		<ItemGroup>
+			<!-- KORREKTUR: Wir verwenden auch hier den festen Pfad zum netstandard2.0-Ordner -->
+			<TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.ResxTranslator.Tasks.dll">
+				<PackagePath>tasks\netstandard2.0\</PackagePath>
+			</TfmSpecificPackageFile>
+
+			<!-- Packt alle Projektreferenzen (wie die NetAI.ResxTranslator.Core.dll) ein, wenn der aktuelle NuGet-Build-Durchlauf bei netstandard2.0 ist -->
+			<TfmSpecificPackageFile Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" Condition="'$(TargetFramework)' == 'netstandard2.0'">
+				<PackagePath>tasks\netstandard2.0\</PackagePath>
+			</TfmSpecificPackageFile>
+		</ItemGroup>
+	</Target>
+
+
+</Project>

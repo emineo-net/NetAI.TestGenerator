@@ -1,0 +1,146 @@
+﻿
+Code: CS8602 (155x)
+  - Dereferenzierung eines mÃ¶glichen Nullverweises.
+  - Dereferenzierung eines mÃ¶glichen Nullverweises.
+  - Dereferenzierung eines mÃ¶glichen Nullverweises.
+
+Code: CS8618 (384x)
+  - Non-Nullable-Feld â€ž_selectedSkillâ€œ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. FÃ¼gen Sie ggf. den â€žerforderlichenâ€œ Modifizierer hinzu, oder deklarieren Sie den Feld als NULL-Werte zulassend.
+  - Non-Nullable-Eigenschaft â€žNameâ€œ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. FÃ¼gen Sie ggf. den â€žerforderlichenâ€œ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.
+  - Non-Nullable-Eigenschaft â€žTypâ€œ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. FÃ¼gen Sie ggf. den â€žerforderlichenâ€œ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.
+
+Code: CS8625 (62x)
+  - Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+  - Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+  - Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+
+Code: CS8600 (13x)
+  - Das NULL-Literal oder ein mÃ¶glicher NULL-Wert wird in einen Non-Nullable-Typ konvertiert.
+  - Das NULL-Literal oder ein mÃ¶glicher NULL-Wert wird in einen Non-Nullable-Typ konvertiert.
+  - Das NULL-Literal oder ein mÃ¶glicher NULL-Wert wird in einen Non-Nullable-Typ konvertiert.
+
+Code: CS8629 (4x)
+  - Ein Werttyp, der NULL zulÃ¤sst, kann NULL sein.
+  - Ein Werttyp, der NULL zulÃ¤sst, kann NULL sein.
+  - Ein Werttyp, der NULL zulÃ¤sst, kann NULL sein.
+
+Code: CS8604 (106x)
+  - MÃ¶gliches Nullverweisargument fÃ¼r den Parameter "path" in "DirectoryInfo Directory.CreateDirectory(string path)".
+  - MÃ¶gliches Nullverweisargument fÃ¼r den Parameter "path" in "string[] Directory.GetDirectories(string path)".
+  - MÃ¶gliches Nullverweisargument fÃ¼r den Parameter "path" in "string[] Directory.GetFiles(string path)".
+
+Code: CS8603 (57x)
+  - MÃ¶gliche NullverweisrÃ¼ckgabe.
+  - MÃ¶gliche NullverweisrÃ¼ckgabe.
+  - MÃ¶gliche NullverweisrÃ¼ckgabe.
+
+Code: CS8981 (4x)
+  - Der Typname â€žinitâ€œ enthÃ¤lt nur ASCII-Zeichen in Kleinbuchstaben. Solche Namen kÃ¶nnen mÃ¶glicherweise fÃ¼r die Sprache reserviert werden.
+  - Der Typname â€žinitâ€œ enthÃ¤lt nur ASCII-Zeichen in Kleinbuchstaben. Solche Namen kÃ¶nnen mÃ¶glicherweise fÃ¼r die Sprache reserviert werden.
+  - Der Typname â€žinitâ€œ enthÃ¤lt nur ASCII-Zeichen in Kleinbuchstaben. Solche Namen kÃ¶nnen mÃ¶glicherweise fÃ¼r die Sprache reserviert werden.
+
+Code: CS0168 (51x)
+  - Die Variable "ex" ist deklariert, wird aber nie verwendet.
+  - Die Variable "ex" ist deklariert, wird aber nie verwendet.
+  - Die Variable "ex" ist deklariert, wird aber nie verwendet.
+
+Code: CS0219 (7x)
+  - Die Variable "answerTag" ist zugewiesen, ihr Wert wird aber nie verwendet.
+  - Die Variable "html" ist zugewiesen, ihr Wert wird aber nie verwendet.
+  - Die Variable "usePWrite" ist zugewiesen, ihr Wert wird aber nie verwendet.
+
+Code: CS8612 (14x)
+  - Die NULL-ZulÃ¤ssigkeit von Verweistypen im Typ "event PropertyChangedEventHandler BaseViewModel.PropertyChanged" entspricht nicht dem implizit implementierten Member "event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged".
+  - Die NULL-ZulÃ¤ssigkeit von Verweistypen im Typ "event EventHandler RelayCommand.CanExecuteChanged" entspricht nicht dem implizit implementierten Member "event EventHandler? ICommand.CanExecuteChanged".
+  - Die NULL-ZulÃ¤ssigkeit von Verweistypen im Typ "event PropertyChangedEventHandler BindableBase.PropertyChanged" entspricht nicht dem implizit implementierten Member "event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged".
+
+Code: CS8767 (11x)
+  - Die NULL-ZulÃ¤ssigkeit von Verweistypen im Typ des Parameters "parameter" von "bool RelayCommand.CanExecute(object parameter)" entspricht (mÃ¶glicherweise aufgrund von Attributen fÃ¼r die NULL-ZulÃ¤ssigkeit) nicht dem implizit implementierten Member "bool ICommand.CanExecute(object? parameter)".
+  - Die NULL-ZulÃ¤ssigkeit von Verweistypen im Typ des Parameters "parameter" von "void RelayCommand.Execute(object parameter)" entspricht (mÃ¶glicherweise aufgrund von Attributen fÃ¼r die NULL-ZulÃ¤ssigkeit) nicht dem implizit implementierten Member "void ICommand.Execute(object? parameter)".
+  - Die NULL-ZulÃ¤ssigkeit von Verweistypen im Typ des Parameters "formatType" von "object CustomProvider.GetFormat(Type formatType)" entspricht (mÃ¶glicherweise aufgrund von Attributen fÃ¼r die NULL-ZulÃ¤ssigkeit) nicht dem implizit implementierten Member "object? IFormatProvider.GetFormat(Type? formatType)".
+
+Code: CS0472 (1x)
+  - Das Ergebnis des Ausdrucks ist immer "true", da ein Wert vom Typ "int" niemals NULL vom Typ "int?" ist.
+
+Code: CS0252 (2x)
+  - Unbeabsichtigter Verweisvergleich. Wandeln Sie die linke Seite in den Typ "string" um, um einen Wertvergleich durchzufÃ¼hren.
+  - Unbeabsichtigter Verweisvergleich. Wandeln Sie die linke Seite in den Typ "string" um, um einen Wertvergleich durchzufÃ¼hren.
+
+Code: CS0618 (2x)
+  - "HtmlNode.DescendantNodes(int)" ist veraltet: "Use Descendants() instead, the results of this function will change in a future version"
+  - "ParentNodeExtensions.Descendents<TNode>(INode)" ist veraltet: "Use Descendants"
+
+Code: SYSLIB0014 (1x)
+  - "WebRequest.Create(string)" ist veraltet: "WebRequest, HttpWebRequest, ServicePoint, and WebClient are obsolete. Use HttpClient instead." (https://aka.ms/dotnet-warnings/SYSLIB0014)
+
+Code: CS0659 (1x)
+  - "Subtitle" Ã¼berschreibt Object.Equals(object o), aber nicht Object.GetHashCode().
+
+Code: CS8601 (26x)
+  - MÃ¶gliche Nullverweiszuweisung.
+  - MÃ¶gliche Nullverweiszuweisung.
+  - MÃ¶gliche Nullverweiszuweisung.
+
+Code: CS0414 (12x)
+  - Dem Feld "VacancyWebSite.userWebSiteTagsStr" wurde ein Wert zugewiesen, der aber nie verwendet wird.
+  - Dem Feld "MainWindow.newTranslationsPath" wurde ein Wert zugewiesen, der aber nie verwendet wird.
+  - Dem Feld "ConfSettings.routeAnalyzer" wurde ein Wert zugewiesen, der aber nie verwendet wird.
+
+Code: MsgPack015 (5x)
+  - MessagePackObjectAttribute.AllowPrivate should be set to true because the type is not public and/or at least one of its non-public members are attributed for serialization (https://github.com/MessagePack-CSharp/MessagePack-CSharp/blob/master/doc/analyzers/MsgPack015.md)
+  - MessagePackObjectAttribute.AllowPrivate should be set to true because the type is not public and/or at least one of its non-public members are attributed for serialization (https://github.com/MessagePack-CSharp/MessagePack-CSharp/blob/master/doc/analyzers/MsgPack015.md)
+  - MessagePackObjectAttribute.AllowPrivate should be set to true because the type is not public and/or at least one of its non-public members are attributed for serialization (https://github.com/MessagePack-CSharp/MessagePack-CSharp/blob/master/doc/analyzers/MsgPack015.md)
+
+Code: CS8620 (1x)
+  - Das Argument vom Typ "Dictionary<string, object>" kann aufgrund von Unterschieden in der NULL-ZulÃ¤ssigkeit von Verweistypen nicht fÃ¼r den Parameter "parameters" vom Typ "IDictionary<string, object?>" in "ParameterView ParameterView.FromDictionary(IDictionary<string, object?> parameters)" verwendet werden.
+
+Code: CS0169 (17x)
+  - Das Feld "WordDocService.Log" wird nie verwendet.
+  - Das Feld "App.host" wird nie verwendet.
+  - Das Feld "StaticAppData.Date" wird nie verwendet.
+
+Code: CS0162 (6x)
+  - Unerreichbarer Code wurde entdeckt.
+  - Unerreichbarer Code wurde entdeckt.
+  - Unerreichbarer Code wurde entdeckt.
+
+Code: CS0067 (2x)
+  - Das Ereignis "VacancyWindow.PropertyChanged" wird nie verwendet.
+  - Das Ereignis "VacancyWindow.PropertyChanged" wird nie verwendet.
+
+Code: WPF0042 (2x)
+  - Avoid side effects in CLR accessors (https://github.com/DotNetAnalyzers/WpfAnalyzers/tree/master/documentation/WPF0042.md)
+  - Avoid side effects in CLR accessors (https://github.com/DotNetAnalyzers/WpfAnalyzers/tree/master/documentation/WPF0042.md)
+
+Code: WPF0041 (18x)
+  - Use SetCurrentValue(VisibilityProperty, Visibility.Collapsed) (https://github.com/DotNetAnalyzers/WpfAnalyzers/tree/master/documentation/WPF0041.md)
+  - Use SetCurrentValue(TextBox.TextProperty, result) (https://github.com/DotNetAnalyzers/WpfAnalyzers/tree/master/documentation/WPF0041.md)
+  - Use SetCurrentValue(TextBox.TextProperty, "") (https://github.com/DotNetAnalyzers/WpfAnalyzers/tree/master/documentation/WPF0041.md)
+
+Code: CS4014 (8x)
+  - Da auf diesen Aufruf nicht gewartet wird, wird die AusfÃ¼hrung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt. Ziehen Sie ein Anwenden des "Await"-Operators auf das Ergebnis des Aufrufs in Betracht.
+  - Da auf diesen Aufruf nicht gewartet wird, wird die AusfÃ¼hrung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt. Ziehen Sie ein Anwenden des "Await"-Operators auf das Ergebnis des Aufrufs in Betracht.
+  - Da auf diesen Aufruf nicht gewartet wird, wird die AusfÃ¼hrung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt. Ziehen Sie ein Anwenden des "Await"-Operators auf das Ergebnis des Aufrufs in Betracht.
+
+Code: RZ10012 (1x)
+  - Found markup element with unexpected name 'Upgrade'. If this is intended to be a component, add a @using directive for its namespace.
+
+Code: CS0105 (2x)
+  - Die using-Direktive fÃ¼r "MySharedBlazorLibrary" ist bereits vorher in diesem Namespace aufgetreten.
+  - Die using-Direktive fÃ¼r "ContextSharedModels.Models" ist bereits vorher in diesem Namespace aufgetreten.
+
+Code: CS0108 (3x)
+  - "NavMenu.JsRuntime" blendet den vererbten Member "MyComponentBase.JsRuntime" aus. Verwenden Sie das new-SchlÃ¼sselwort, wenn das Ausblenden vorgesehen war.
+  - "Contact.PageName" blendet den vererbten Member "MyComponentBase.PageName" aus. Verwenden Sie das new-SchlÃ¼sselwort, wenn das Ausblenden vorgesehen war.
+  - "ProjectsByDateComponent.NavigationManager" blendet den vererbten Member "MyComponentBase.NavigationManager" aus. Verwenden Sie das new-SchlÃ¼sselwort, wenn das Ausblenden vorgesehen war.
+
+Code: CS8605 (5x)
+  - Unboxing eines mÃ¶glichen NULL-Werts.
+  - Unboxing eines mÃ¶glichen NULL-Werts.
+  - Unboxing eines mÃ¶glichen NULL-Werts.
+
+Code: CS8619 (1x)
+  - Die NULL-ZulÃ¤ssigkeit von Verweistypen im Wert vom Typ "(MemoryStream?, string)" entspricht nicht dem Zieltyp "(MemoryStream, string)".
+
+Code: CS0649 (1x)
+  - Dem Feld "Inspector.dotNetRef" wird nie etwas zugewiesen, und es hat immer seinen Standardwert von "null".

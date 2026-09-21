@@ -1,0 +1,496 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="metadata">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" />
+							</xsd:sequence>
+							<xsd:attribute name="name" use="required" type="xsd:string" />
+							<xsd:attribute name="type" type="xsd:string" />
+							<xsd:attribute name="mimetype" type="xsd:string" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="assembly">
+						<xsd:complexType>
+							<xsd:attribute name="alias" type="xsd:string" />
+							<xsd:attribute name="name" type="xsd:string" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="and" xml:space="preserve"><value>and</value></data>
+
+	<data name="account" xml:space="preserve"><value>Account</value></data>
+	<data name="full name" xml:space="preserve"><value>Full Name</value></data>
+	<data name="imprint" xml:space="preserve"><value>Imprint</value></data>
+	<data name="login" xml:space="preserve"><value>Login</value></data>
+	<data name="date from" xml:space="preserve"><value>Date From</value></data>
+	<data name="rotate" xml:space="preserve"><value>Rotate</value></data>
+	<data name="contact" xml:space="preserve"><value>Contact</value></data>
+	<data name="getting started" xml:space="preserve"><value>Getting Started</value></data>
+	<data name="show filter" xml:space="preserve"><value>Show Filter</value></data>
+	<data name="first" xml:space="preserve"><value>First</value></data>
+	<data name="paragraphs" xml:space="preserve"><value>Paragraphs</value></data>
+	<data name="close" xml:space="preserve"><value>Close</value></data>
+	<data name="contribution" xml:space="preserve"><value>Contribution</value></data>
+	<data name="invalid user" xml:space="preserve"><value>Invalid User</value></data>
+	<data name="logout" xml:space="preserve"><value>Logout</value></data>
+	<data name="manage your account" xml:space="preserve"><value>Manage Your Account</value></data>
+	<data name="message" xml:space="preserve"><value>Message</value></data>
+	<data name="order abandoned" xml:space="preserve"><value>Order Abandoned</value></data>
+	<data name="picture gallery" xml:space="preserve"><value>Picture Gallery</value></data>
+	<data name="download" xml:space="preserve"><value>Download</value></data>
+	<data name="delete" xml:space="preserve"><value>Delete</value></data>
+	<data name="profile" xml:space="preserve"><value>Profile</value></data>
+	<data name="recovery codes" xml:space="preserve"><value>Recovery Codes</value></data>
+	<data name="register as a new user" xml:space="preserve"><value>Register as a New User</value></data>
+	<data name="remove" xml:space="preserve"><value>Remove</value></data>
+	<data name="click here to log in" xml:space="preserve"><value>Click Here to Log In</value></data>
+	<data name="date to" xml:space="preserve"><value>Date To</value></data>
+	<data name="save" xml:space="preserve"><value>Save</value></data>
+	<data name="filter reset" xml:space="preserve"><value>Filter Reset</value></data>
+	<data name="previous" xml:space="preserve"><value>Previous</value></data>
+	<data name="add page" xml:space="preserve"><value>Add Page</value></data>
+	<data name="password" xml:space="preserve"><value>Password</value></data>
+	<data name="assign categories to your pages or delete them" xml:space="preserve"><value>Assign categories to your pages or delete them</value></data>
+	<data name="max" xml:space="preserve"><value>Max</value></data>
+	<data name="send" xml:space="preserve"><value>Send</value></data>
+	<data name="error" xml:space="preserve"><value>Error</value></data>
+	<data name="log in" xml:space="preserve"><value>Log In</value></data>
+	<data name="conveniently filter and search contributions" xml:space="preserve"><value>Conveniently filter and search contributions</value></data>
+	<data name="confirm password" xml:space="preserve"><value>Confirm Password</value></data>
+	<data name="enter url." xml:space="preserve"><value>Enter URL.</value></data>
+	<data name="italicized" xml:space="preserve"><value>Italicized</value></data>
+	<data name="email" xml:space="preserve"><value>Email</value></data>
+	<data name="heading 6" xml:space="preserve"><value>Heading 6</value></data>
+	<data name="access denied" xml:space="preserve"><value>Access Denied</value></data>
+	<data name="heading 5" xml:space="preserve"><value>Heading 5</value></data>
+	<data name="add authenticator app" xml:space="preserve"><value>Add Authenticator App</value></data>
+	<data name="associate your" xml:space="preserve"><value>Associate Your</value></data>
+	<data name="change email" xml:space="preserve"><value>Change Email</value></data>
+	<data name="change password" xml:space="preserve"><value>Change Password</value></data>
+	<data name="change your account settings" xml:space="preserve"><value>Change Your Account Settings</value></data>
+	<data name="choose plan" xml:space="preserve"><value>Choose Plan</value></data>
+	<data name="click here to confirm your account" xml:space="preserve"><value>Click Here to Confirm Your Account</value></data>
+	<data name="heading 4" xml:space="preserve"><value>Heading 4</value></data>
+	<data name="properties" xml:space="preserve"><value>Properties</value></data>
+	<data name="log in with a recovery code" xml:space="preserve"><value>Log In with a Recovery Code</value></data>
+	<data name="configure authenticator app" xml:space="preserve"><value>Configure Authenticator App</value></data>
+	<data name="title contains" xml:space="preserve"><value>Title Contains</value></data>
+	<data name="toggle view" xml:space="preserve"><value>Toggle View</value></data>
+	<data name="these docs" xml:space="preserve"><value>These Docs</value></data>
+	<data name="terms and conditions" xml:space="preserve"><value>Terms and Conditions</value></data>
+	<data name="xxx" xml:space="preserve"><value>XXX</value></data>
+	<data name="all" xml:space="preserve"><value>All</value></data>
+	<data name="confirm email" xml:space="preserve"><value>Confirm Email</value></data>
+	<data name="confirm email change" xml:space="preserve"><value>Confirm Email Change</value></data>
+	<data name="hyperlink" xml:space="preserve"><value>Hyperlink</value></data>
+	<data name="also see a preview of the" xml:space="preserve"><value>Also see a preview of the</value></data>
+	<data name="delete data and close my account" xml:space="preserve"><value>Delete Data and Close My Account</value></data>
+	<data name="delete personal data" xml:space="preserve"><value>Delete Personal Data</value></data>
+	<data name="disable 2fa" xml:space="preserve"><value>Disable 2FA</value></data>
+	<data name="max lenght 14" xml:space="preserve"><value>Max Length 14</value></data>
+	<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>Select the following from the menu: Home, Getting Started, Register, Login, Upgrade, Logout, Imprint, Contact, Account. In the second menu, select: Show Filter, Rotate, Toggle View, Properties, Add, Forward, Backward. In the dialogue box you can: Save, Cancel, Submit.</value></data>
+	<data name="authenticator app" xml:space="preserve"><value>Authenticator App</value></data>
+	<data name="recovery codes left." xml:space="preserve"><value>Recovery codes left.</value></data>
+	<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>Efficient web scraping by simply entering a URL</value></data>
+	<data name="enable qr code generation" xml:space="preserve"><value>Enable QR Code Generation</value></data>
+	<data name="external logins" xml:space="preserve"><value>External Logins</value></data>
+	<data name="no passkeys are registered." xml:space="preserve"><value>No passkeys are registered.</value></data>
+	<data name="forget this browser" xml:space="preserve"><value>Forget this browser</value></data>
+	<data name="forgot password confirmation" xml:space="preserve"><value>Forgot password confirmation</value></data>
+	<data name="generate a new set of recovery codes" xml:space="preserve"><value>Generate a new set of recovery codes</value></data>
+	<data name="generate recovery codes" xml:space="preserve"><value>Generate Recovery Codes</value></data>
+	<data name="the external login was removed." xml:space="preserve"><value>The external login was removed.</value></data>
+	<data name="learn how to" xml:space="preserve"><value>Learn how to</value></data>
+	<data name="legal inquiry" xml:space="preserve"><value>Legal Inquiry</value></data>
+	<data name="locked out" xml:space="preserve"><value>Locked Out</value></data>
+	<data name="manage email" xml:space="preserve"><value>Manage Email</value></data>
+	<data name="just browse" xml:space="preserve"><value>Just Browse</value></data>
+	<data name="manage your external logins" xml:space="preserve"><value>Manage Your External Logins</value></data>
+	<data name="new password" xml:space="preserve"><value>New Password</value></data>
+	<data name="old password" xml:space="preserve"><value>Old Password</value></data>
+	<data name="options" xml:space="preserve"><value>Options</value></data>
+	<data name="google authenticator for" xml:space="preserve"><value>Google Authenticator for</value></data>
+	<data name="order complete" xml:space="preserve"><value>Order Complete</value></data>
+	<data name="personal data" xml:space="preserve"><value>Personal Data</value></data>
+	<data name="phone number" xml:space="preserve"><value>Phone Number</value></data>
+	<data name="min" xml:space="preserve"><value>Min</value></data>
+	<data name="recovery code" xml:space="preserve"><value>Recovery Code</value></data>
+	<data name="recovery code verification" xml:space="preserve"><value>Recovery Code Verification</value></data>
+	<data name="register" xml:space="preserve"><value>Register</value></data>
+	<data name="register confirmation" xml:space="preserve"><value>Register Confirmation</value></data>
+	<data name="registered logins" xml:space="preserve"><value>Registered Logins</value></data>
+	<data name="remember me" xml:space="preserve"><value>Remember Me</value></data>
+	<data name="remember this machine" xml:space="preserve"><value>Remember This Machine</value></data>
+	<data name="resend" xml:space="preserve"><value>Resend</value></data>
+	<data name="resend email confirmation" xml:space="preserve"><value>Resend Email Confirmation</value></data>
+	<data name="reset" xml:space="preserve"><value>Reset</value></data>
+	<data name="reset authenticator app" xml:space="preserve"><value>Reset Authenticator App</value></data>
+	<data name="reset authenticator key" xml:space="preserve"><value>Reset Authenticator Key</value></data>
+	<data name="reset filters" xml:space="preserve"><value>Reset Filters</value></data>
+	<data name="reset password" xml:space="preserve"><value>Reset Password</value></data>
+	<data name="reset password confirmation" xml:space="preserve"><value>Reset Password Confirmation</value></data>
+	<data name="reset recovery codes" xml:space="preserve"><value>Reset Recovery Codes</value></data>
+	<data name="user name" xml:space="preserve"><value>User Name</value></data>
+	<data name="scan the qr code or enter this key" xml:space="preserve"><value>Scan the QR code or enter this key</value></data>
+	<data name="selected categories" xml:space="preserve"><value>Selected Categories</value></data>
+	<data name="selected websites" xml:space="preserve"><value>Selected Websites</value></data>
+	<data name="send verification email" xml:space="preserve"><value>Send Verification Email</value></data>
+	<data name="set password" xml:space="preserve"><value>Set Password</value></data>
+	<data name="set your password" xml:space="preserve"><value>Set your password</value></data>
+	<data name="subject" xml:space="preserve"><value>Subject</value></data>
+	<data name="define the names of your categories" xml:space="preserve"><value>Define the names of your categories</value></data>
+	<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>Into your two-factor authenticator app. Spaces and casing do not matter.</value></data>
+	<data name="update password" xml:space="preserve"><value>Update Password</value></data>
+	<data name="main heading" xml:space="preserve"><value>Main Heading</value></data>
+	<data name="error finding user for unspecified email" xml:space="preserve"><value>Error finding user for unspecified email</value></data>
+	<data name="home" xml:space="preserve"><value>Home</value></data>
+	<data name="invalid password reset" xml:space="preserve"><value>Invalid password reset</value></data>
+	<data name="of" xml:space="preserve"><value>Of</value></data>
+	<data name="paragraph" xml:space="preserve"><value>Paragraph</value></data>
+	<data name="success" xml:space="preserve"><value>Success</value></data>
+	<data name="set up authenticator app" xml:space="preserve"><value>Set Up Authenticator App</value></data>
+	<data name="username" xml:space="preserve"><value>Username</value></data>
+	<data name="verification code" xml:space="preserve"><value>Verification Code</value></data>
+	<data name="verify" xml:space="preserve"><value>Verify</value></data>
+	<data name="next" xml:space="preserve"><value>Next</value></data>
+	<data name="subscriptions" xml:space="preserve"><value>Subscriptions</value></data>
+	<data name="you have" xml:space="preserve"><value>You have</value></data>
+	<data name="you must" xml:space="preserve"><value>You must</value></data>
+	<data name="your password has been changed" xml:space="preserve"><value>Your password has been changed</value></data>
+	<data name="your profile has been updated" xml:space="preserve"><value>Your profile has been updated</value></data>
+	<data name="nter a name for your passkey" xml:space="preserve"><value>Enter a name for your passkey</value></data>
+	<data name="forgot your password?" xml:space="preserve"><value>Forgot your password?</value></data>
+	<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>Full display of the contributions by clicking on the contribution title</value></data>
+	<data name="privacy policy" xml:space="preserve"><value>Privacy Policy</value></data>
+	<data name="pro version" xml:space="preserve"><value>Pro Version</value></data>
+	<data name="new project" xml:space="preserve"><value>New Project</value></data>
+	<data name="reset filter" xml:space="preserve"><value>Reset Filter</value></data>
+	<data name="save changes" xml:space="preserve"><value>Save Changes</value></data>
+	<data name="last" xml:space="preserve"><value>Last</value></data>
+	<data name="open original" xml:space="preserve"><value>Open Original</value></data>
+	<data name="download documents" xml:space="preserve"><value>Download Documents</value></data>
+	<data name="tagging and filtering" xml:space="preserve"><value>Tagging and Filtering</value></data>
+	<data name="open local" xml:space="preserve"><value>Open Local</value></data>
+	<data name="download single" xml:space="preserve"><value>Download Single</value></data>
+	<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>Icon to switch between the cards view and the table view.</value></data>
+	<data name="add custom tag" xml:space="preserve"><value>Add Custom Tag</value></data>
+	<data name="define the name of the tag for individual posts" xml:space="preserve"><value>Define the name of the tag for individual posts</value></data>
+	<data name="tagging contributions" xml:space="preserve"><value>Tagging contributions</value></data>
+	<data name="filter your pages" xml:space="preserve"><value>Filter your pages</value></data>
+	<data name="download txt or json documents without images" xml:space="preserve"><value>Download TXT or JSON documents without images</value></data>
+	<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>In the filters you can filter by tagged posts</value></data>
+	<data name="click on the" xml:space="preserve"><value>Click on the</value></data>
+	<data name="to display download options" xml:space="preserve"><value>To display download options</value></data>
+	<data name="click save word document." xml:space="preserve"><value>Click Save Word Document.</value></data>
+	<data name="error changing user name." xml:space="preserve"><value>Error changing user name.</value></data>
+	<data name="add" xml:space="preserve"><value>Add</value></data>
+	<data name="document." xml:space="preserve"><value>Document.</value></data>
+	<data name="a new tab." xml:space="preserve"><value>A new tab.</value></data>
+	<data name="and json will open. you will" xml:space="preserve"><value>And JSON will open. You will</value></data>
+	<data name="json download" xml:space="preserve"><value>JSON Download</value></data>
+	<data name="the external login was added." xml:space="preserve"><value>The external login was added.</value></data>
+	<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>Disable Two-Factor Authentication (2FA)</value></data>
+	<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>Use the switch to choose between ‘Where is’ and ‘Where is not’.</value></data>
+	<data name="loc[are displayed.]" xml:space="preserve"><value>Loc[are displayed.]</value></data>
+	<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>A simple, tab-separated format well suited to further processing in spreadsheets or databases.</value></data>
+	<data name="save to your download directory." xml:space="preserve"><value>Save to your download directory.</value></data>
+	<data name="two-factor authentication (2fa)" xml:space="preserve"><value>Two-Factor Authentication (2FA)</value></data>
+	<data name="cards" xml:space="preserve"><value>Cards</value></data>
+	<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>A red recycle bin icon appears under the filter icon. Clicking on this icon deletes all active filters and displays the complete contribution overview again.</value></data>
+	<data name="two-factor authentication" xml:space="preserve"><value>Two-Factor Authentication</value></data>
+	<data name="enter a new email" xml:space="preserve"><value>Enter a new email</value></data>
+	<data name="select columns for scraping" xml:space="preserve"><value>Select columns for scraping</value></data>
+	<data name="click one or more tags for a post." xml:space="preserve"><value>Click one or more tags for a post.</value></data>
+	<data name="cards and table" xml:space="preserve"><value>Cards and Table</value></data>
+	<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>Icon to view the original contribution in its original source and layout.</value></data>
+	<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>In the view for individual contributions you can download them.</value></data>
+	<data name="rename" xml:space="preserve"><value>Rename</value></data>
+	<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>To display tagged contributions, you can select the corresponding tag from the list of text.</value></data>
+	<data name="toggle help visibility" xml:space="preserve"><value>Toggle Help Visibility</value></data>
+	<data name="enter / select url" xml:space="preserve"><value>Enter / Select URL</value></data>
+	<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>Download options PDF, DOCX, TXT, HTML</value></data>
+	<data name="to display filter dialog" xml:space="preserve"><value>To display filter dialog</value></data>
+	<data name="enter your phone number" xml:space="preserve"><value>Enter your phone number</value></data>
+	<data name="no contributions were found on the page" xml:space="preserve"><value>No contributions were found on the page</value></data>
+	<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>A new window will open displaying a PDF preview of your document. This preview provides an initial overview of the document's content and layout.</value></data>
+	<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>The best way to contact us is to use our contact form below. Please fill out all of the required fields and we will get back to you as soon as possible.</value></data>
+	<data name="export" xml:space="preserve"><value>Export</value></data>
+	<data name="underlined" xml:space="preserve"><value>Underlined</value></data>
+	<data name="add to followed projects" xml:space="preserve"><value>Add to Followed Projects</value></data>
+	<data name="follow" xml:space="preserve"><value>Follow</value></data>
+	<data name="scraping view" xml:space="preserve"><value>Scraping View</value></data>
+	<data name="authenticator code" xml:space="preserve"><value>Authenticator Code</value></data>
+	<data name="heading 3" xml:space="preserve"><value>Heading 3</value></data>
+	<data name="heading 2" xml:space="preserve"><value>Heading 2</value></data>
+	<data name="image" xml:space="preserve"><value>Image</value></data>
+	<data name="the created document will open in" xml:space="preserve"><value>The created document will open in</value></data>
+	<data name="click on download a view with" xml:space="preserve"><value>Click on download a view with</value></data>
+	<data name="file saving failed:" xml:space="preserve"><value>File saving failed:</value></data>
+	<data name="file saved to:" xml:space="preserve"><value>File saved to:</value></data>
+	<data name="an error occurred during download:" xml:space="preserve"><value>An error occurred during download:</value></data>
+	<data name="thank you for your message." xml:space="preserve"><value>Thank you for your message.</value></data>
+	<data name="file" xml:space="preserve"><value>File</value></data>
+	<data name="an error has occurred." xml:space="preserve"><value>An error has occurred.</value></data>
+	<data name="table" xml:space="preserve"><value>Table</value></data>
+	<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>Document formats: DOCX, PDF, HTML, JSON, TXT</value></data>
+	<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>Filter by category (you must have tagged your pages to do this)</value></data>
+	<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>Then you can download PDF, DOCX and HTML documents with images</value></data>
+	<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>You can define the name of your tags individually under Options.</value></data>
+	<data name="show help (dynamic, static, off)" xml:space="preserve"><value>Show help (dynamic, static, off)</value></data>
+	<data name="enter a part that the title must contain." xml:space="preserve"><value>Enter a part that the title must contain.</value></data>
+	<data name="switch view" xml:space="preserve"><value>Switch View</value></data>
+	<data name="custoum" xml:space="preserve"><value>Custom</value></data>
+	<data name="download document" xml:space="preserve"><value>Download Document</value></data>
+	<data name="csv download" xml:space="preserve"><value>CSV Download</value></data>
+	<data name="excel download" xml:space="preserve"><value>Excel Download</value></data>
+	<data name="single document download" xml:space="preserve"><value>Single Document Download</value></data>
+	<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>With 'Closerpage-for-Windows' you can receive up to 200 images.</value></data>
+	<data name="the contributions for" xml:space="preserve"><value>The contributions for</value></data>
+	<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>To automatically collect new contributions in the future, click on</value></data>
+	<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>You can select individual projects to display only the contributions that belong to those projects.</value></data>
+	<data name="available predefined tags" xml:space="preserve"><value>Available predefined tags</value></data>
+	<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>If you have assigned categories to your web pages, you can also filter by these categories. Simply select the desired web pages or categories from the list.</value></data>
+	<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>Once you have made your selection, click on the “Submit” button to apply the filter. The contribution view will then be updated and will only show the filtered results.</value></data>
+	<data name="to display options" xml:space="preserve"><value>To display options</value></data>
+	<data name="this will rotate all cards." xml:space="preserve"><value>This will rotate all cards.</value></data>
+	<data name="button" xml:space="preserve"><value>Button</value></data>
+	<data name="preview the images" xml:space="preserve"><value>Preview the images</value></data>
+	<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>If your document contains image files, these will also be displayed in the preview.</value></data>
+	<data name="download options" xml:space="preserve"><value>Download Options</value></data>
+	<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>To download the document, select the desired format from the available options.</value></data>
+	<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>Ideal for print-ready documents and sharing in a professional layout.</value></data>
+	<data name="error: incorrect password." xml:space="preserve"><value>Error: Incorrect password.</value></data>
+	<data name="useful if you want to edit the document further." xml:space="preserve"><value>Useful if you want to edit the document further.</value></data>
+	<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>Useful for embedding content in a website or other digital medium.</value></data>
+	<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>Contains only plain text, with no formatting. Suitable for simple further processing.</value></data>
+	<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>Contains all the document's images as separate files in case you need them individually.</value></data>
+	<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>To search a website for contributions, enter a URL and click on the magnifying glass icon. Alternatively, you can press the Enter key on your keyboard.</value></data>
+	<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>If you are logged in and already tracking URLs for changes, you can also select the URL from the drop-down list.</value></data>
+	<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>Current posts on the selected website are automatically captured by our algorithm. The old and newly detected posts are then displayed on the website.</value></data>
+	<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>I enter a URL and nothing is displayed. Why?</value></data>
+	<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>Unfortunately, this is not unusual and can have many causes, e.g.:</value></data>
+	<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>No contributions are linked on the website you are searching for. (e.g., you entered the contact page as the URL: “https://mysite/contact”)</value></data>
+	<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>The linked posts are not within the domain. For example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”</value></data>
+	<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>The requested page blocks bots (Closerpage is a bot).</value></data>
+	<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>The requested page only displays posts for registered users.</value></data>
+	<data name="table structure (sorted by priority)" xml:space="preserve"><value>Table structure (sorted by priority)</value></data>
+	<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>The table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing.</value></data>
+	<data name="tags" xml:space="preserve"><value>Tags</value></data>
+	<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>The contribution will then open in a new browser window or tab. There you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view.</value></data>
+	<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>Any existing tags or categories assigned to the contributions are displayed here. This helps you to quickly filter contributions by topic or focus.</value></data>
+	<data name="headings and titles" xml:space="preserve"><value>Headings and Titles</value></data>
+	<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>The headings and titles of the contributions are listed second. They provide an initial overview of the content and enable the quick identification of relevant contributions.</value></data>
+	<data name="date and author" xml:space="preserve"><value>Date and Author</value></data>
+	<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>This column contains the publication date and the author of the contribution. This allows you to see when and by whom the contribution was created.</value></data>
+	<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>The actual content of the contributions, divided into paragraphs, makes up the final part of the table. This is where you will find the detailed text that has been scraped.</value></data>
+	<data name="table functions" xml:space="preserve"><value>Table Functions</value></data>
+	<data name="tagging" xml:space="preserve"><value>Tagging</value></data>
+	<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>Contributions can be marked and tagged by selecting the checkbox. This makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data.</value></data>
+	<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>The entire table or selected contributions can be downloaded in various formats</value></data>
+	<data name="select tagged contributions" xml:space="preserve"><value>Select tagged contributions</value></data>
+	<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>A well-known table format offering additional formatting options, particularly suited to reports or presentations.</value></data>
+	<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>A structured data format particularly suited to further processing in programs or web applications.</value></data>
+	<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>The tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on.</value></data>
+	<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>This feature is available in both the cards and scraping table views. This feature enables you to hide specific contributions or flag them as particularly important.</value></data>
+	<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>Mark contributions that are particularly important, relevant or outstanding.</value></data>
+	<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>Indicates that the contribution has already been downloaded.</value></data>
+	<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>Marks contributions that have been created or edited using AI technologies.</value></data>
+	<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>Hides contributions that you no longer want to display, but does not delete them completely.</value></data>
+	<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>If the link does not work or the contribution is no longer available, this may be due to changes on the original page.</value></data>
+	<data name="show contribution" xml:space="preserve"><value>Show Contribution</value></data>
+	<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>In card view, click on the headline to open a new window with the content of the contribution.</value></data>
+	<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>Ideal for quickly reading, checking, or editing contributions without having to call up the original source.</value></data>
+	<data name="create a new account." xml:space="preserve"><value>Create a new account.</value></data>
+	<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>If a contribution contains image files, a small preview image will be displayed in the contribution preview.</value></data>
+	<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>You will see a number in the upper corner of the preview image. This number indicates how many images are contained in the contribution.</value></data>
+	<data name="simply click on the preview image." xml:space="preserve"><value>Simply click on the preview image.</value></data>
+	<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>This will open a gallery view in which all images in the contribution are displayed clearly and in a larger format.</value></data>
+	<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>This allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed.</value></data>
+	<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>Any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible.</value></data>
+	<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>Current contributions from your favorite websites - at a glance</value></data>
+	<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>Do you frequently read or research on different websites and want the latest news in one place at a glance? Then you've come to the right place!</value></data>
+	<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>All new posts from your selected websites at a glance.</value></data>
+	<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>Generate documents in DOCX, PDF, JSON or HTML.</value></data>
+	<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>Mark posts with our 'tag list' (e.g. “Like”, “Uninteresting”, “Already downloaded”, ...). There are 10 configurable 'tags' available for this purpose.</value></data>
+	<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>Discover Closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. With the user-friendly web scraping function, simply enter a URL and instantly see all new posts on the desired website.</value></data>
+	<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>Each post can be displayed in full with a single click, so you won't miss any important information. The chronological order of the posts makes it easier to navigate and find relevant content.</value></data>
+	<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>A particular highlight is the ability to create documents from each contribution in DOCX, PDF, JSON or HTML format - ideal for archiving or further processing the information.</value></data>
+	<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>This means you never miss a new contribution and are always up to date</value></data>
+	<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>Register to activate the free plan. Then, you can upgrade to the Pro plan.</value></data>
+	<data name="you do not have access to this resource." xml:space="preserve"><value>You do not have access to this resource.</value></data>
+	<data name="thank you for confirming your email." xml:space="preserve"><value>Thank you for confirming your email.</value></data>
+	<data name="error confirming your email." xml:space="preserve"><value>Error confirming your email.</value></data>
+	<data name="i accept the terms and conditions" xml:space="preserve"><value>I accept the terms and conditions</value></data>
+	<data name="error: invalid email change confirmation link." xml:space="preserve"><value>Error: Invalid email change confirmation link.</value></data>
+	<data name="error changing email." xml:space="preserve"><value>Error changing email.</value></data>
+	<data name="thank you for confirming your email change." xml:space="preserve"><value>Thank you for confirming your email change.</value></data>
+	<data name="you've successfully authenticated with" xml:space="preserve"><value>You've successfully authenticated with</value></data>
+	<data name="use another service to register." xml:space="preserve"><value>Use another service to register.</value></data>
+	<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>Please enter an email address for this site below and click the Register button to finish logging in.</value></data>
+	<data name="please enter your email." xml:space="preserve"><value>Please enter your email.</value></data>
+	<data name="error loading external login information." xml:space="preserve"><value>Error loading external login information.</value></data>
+	<data name="error loading external login information during confirmation." xml:space="preserve"><value>Error loading external login information during confirmation.</value></data>
+	<data name="reset your password." xml:space="preserve"><value>Reset your password.</value></data>
+	<data name="the default ui requires a user store with email support." xml:space="preserve"><value>The default UI requires a user store with email support.</value></data>
+	<data name="enter your email." xml:space="preserve"><value>Enter your email.</value></data>
+	<data name="please check your email to reset your password." xml:space="preserve"><value>Please check your email to reset your password.</value></data>
+	<data name="the password reset link is invalid." xml:space="preserve"><value>The password reset link is invalid.</value></data>
+	<data name="please confirm your password." xml:space="preserve"><value>Please confirm your password.</value></data>
+	<data name="this account has been locked out, please try again later." xml:space="preserve"><value>This account has been locked out, please try again later.</value></data>
+	<data name="use a local account to log in." xml:space="preserve"><value>Use a local account to log in.</value></data>
+	<data name="log in with a passkey" xml:space="preserve"><value>Log In with a Passkey</value></data>
+	<data name="use another service to log in." xml:space="preserve"><value>Use another service to log in.</value></data>
+	<data name="please enter your password." xml:space="preserve"><value>Please enter your password.</value></data>
+	<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>Your login is protected with an authenticator app. Enter your authenticator code below.</value></data>
+	<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>Don't have access to your authenticator device? You can</value></data>
+	<data name="error: invalid authenticator code." xml:space="preserve"><value>Error: Invalid authenticator code.</value></data>
+	<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>You have requested to log in with a recovery code. This login will not be remembered until you provide an authenticator app code at log in or disable 2FA and log in again.</value></data>
+	<data name="recoverycode" xml:space="preserve"><value>Recovery Code</value></data>
+	<data name="for how to configure a real email sender" xml:space="preserve"><value>For how to configure a real email sender</value></data>
+	<data name="normally this would be emailed:" xml:space="preserve"><value>Normally this would be emailed:</value></data>
+	<data name="please check your email to confirm your account." xml:space="preserve"><value>Please check your email to confirm your account.</value></data>
+	<data name="verification email sent. please check your email." xml:space="preserve"><value>Verification email sent. Please check your email.</value></data>
+	<data name="enter the code" xml:space="preserve"><value>Enter the code</value></data>
+	<data name="your password has been reset. please" xml:space="preserve"><value>Your password has been reset. Please</value></data>
+	<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>There are no external authentication services configured. See this</value></data>
+	<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>Article about setting up this ASP.NET application to support logging in via external services</value></data>
+	<data name="put these codes in a safe place." xml:space="preserve"><value>Put these codes in a safe place.</value></data>
+	<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>If you lose your device and don't have the recovery codes you will lose access to your account.</value></data>
+	<data name="enter the old password" xml:space="preserve"><value>Enter the old password</value></data>
+	<data name="enter the new password" xml:space="preserve"><value>Enter the new password</value></data>
+	<data name="user changed their password successfully." xml:space="preserve"><value>User changed their password successfully.</value></data>
+	<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>Deleting this data will permanently remove your account, and this cannot be recovered.</value></data>
+	<data name="unexpected error occurred deleting user." xml:space="preserve"><value>Unexpected error occurred deleting user.</value></data>
+	<data name="this action only disables 2fa." xml:space="preserve"><value>This action only disables 2FA.</value></data>
+	<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Disabling 2FA does not change the keys used in authenticator apps. If you wish to change the key used in an authenticator app you should</value></data>
+	<data name="set your authenticator keys." xml:space="preserve"><value>Set your authenticator keys.</value></data>
+	<data name="reset your authenticator keys." xml:space="preserve"><value>Reset your authenticator keys.</value></data>
+	<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>Cannot disable 2FA for user as it's not currently enabled.</value></data>
+	<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>Unexpected error occurred disabling 2FA.</value></data>
+	<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2FA has been disabled. You can re-enable 2FA when you set up an authenticator app.</value></data>
+	<data name="enter your email" xml:space="preserve"><value>Enter your email</value></data>
+	<data name="your email is unchanged." xml:space="preserve"><value>Your email is unchanged.</value></data>
+	<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>Confirmation link to change email sent. Please check your email.</value></data>
+	<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>To use an authenticator app go through the following steps:</value></data>
+	<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>Download a two-factor authenticator app like Microsoft Authenticator for</value></data>
+	<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>Once you have scanned the QR code or input the key above, your two-factor authentication app will provide you with a unique code. Enter the code in the confirmation box below.</value></data>
+	<data name="error: verification code is invalid." xml:space="preserve"><value>Error: Verification code is invalid.</value></data>
+	<data name="your authenticator app has been verified." xml:space="preserve"><value>Your authenticator app has been verified.</value></data>
+	<data name="add another service to log in." xml:space="preserve"><value>Add another service to log in.</value></data>
+	<data name="error: the external login was not removed." xml:space="preserve"><value>Error: The external login was not removed.</value></data>
+	<data name="error: could not load external login info." xml:space="preserve"><value>Error: Could not load external login info.</value></data>
+	<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>Error: The external login was not added. External logins can only be associated with one account.</value></data>
+	<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>Generate Two-Factor Authentication (2FA) Recovery Codes</value></data>
+	<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Generating new recovery codes does not change the keys used in authenticator apps. If you wish to change the key used in an authenticator app you should</value></data>
+	<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>Cannot generate recovery codes for user because they do not have 2FA enabled.</value></data>
+	<data name="you have generated new recovery codes." xml:space="preserve"><value>You have generated new recovery codes.</value></data>
+	<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>User with ID '{userid}' has generated new 2FA recovery codes.</value></data>
+	<data name="choose your username." xml:space="preserve"><value>Choose your username.</value></data>
+	<data name="you have no recovery codes left." xml:space="preserve"><value>You have no recovery codes left.</value></data>
+	<data name="error: failed to set phone number." xml:space="preserve"><value>Error: Failed to set phone number.</value></data>
+	<data name="manage your passkeys" xml:space="preserve"><value>Manage your passkeys</value></data>
+	<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>You have reached the maximum number of allowed passkeys. Please delete one before adding a new one.</value></data>
+	<data name="add a new passkey" xml:space="preserve"><value>Add a New Passkey</value></data>
+	<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>Error: The browser did not provide a passkey.</value></data>
+	<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>Error: The passkey could not be added to your account.</value></data>
+	<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>Error: The specified passkey ID had an invalid format.</value></data>
+	<data name="error: the passkey could not be deleted." xml:space="preserve"><value>Error: The passkey could not be deleted.</value></data>
+	<data name="passkey deleted successfully." xml:space="preserve"><value>Passkey deleted successfully.</value></data>
+	<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>Your account contains personal data that you have given us. This page allows you to download or delete that data.</value></data>
+	<data name="enter a new name for your" xml:space="preserve"><value>Enter a new name for your</value></data>
+	<data name="passkey" xml:space="preserve"><value>Passkey</value></data>
+	<data name="my passkey" xml:space="preserve"><value>My Passkey</value></data>
+	<data name="passkey name" xml:space="preserve"><value>Passkey Name</value></data>
+	<data name="continue" xml:space="preserve"><value>Continue</value></data>
+	<data name="error: the specified passkey could not be found." xml:space="preserve"><value>Error: The specified passkey could not be found.</value></data>
+	<data name="error: the passkey could not be updated." xml:space="preserve"><value>Error: The passkey could not be updated.</value></data>
+	<data name="passkey updated successfully." xml:space="preserve"><value>Passkey updated successfully.</value></data>
+	<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>If you reset your authenticator key, your authenticator app will not work until you reconfigure it.</value></data>
+	<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>This process disables 2FA until you verify your authenticator app.</value></data>
+	<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>If you do not complete your authenticator app configuration, you may lose access to your account.</value></data>
+	<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>Your authenticator app key has been reset. You will need to configure your authenticator app using the new key.</value></data>
+	<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>You do not have a local username/password for this site. Add a local account so you can log in without an external login.</value></data>
+	<data name="your password has been set." xml:space="preserve"><value>Your password has been set.</value></data>
+	<data name="before you can log in with a recovery code." xml:space="preserve"><value>Before you can log in with a recovery code.</value></data>
+	<data name="you have 1 recovery code left." xml:space="preserve"><value>You have 1 recovery code left.</value></data>
+	<data name="inline text" xml:space="preserve"><value>Inline Text</value></data>
+	<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>Privacy and cookie policy have not been accepted.</value></data>
+	<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>You must accept the policy before you can enable two-factor authentication.</value></data>
+	<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>The current browser has been forgotten. When you log in again from this browser, you will be prompted for your 2FA code.</value></data>
+	<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>This app does not currently have a real email sender registered, see</value></data>
+	<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>To display the original post (it opens in a new browser tab)</value></data>
+	<data name="to display options." xml:space="preserve"><value>To display options.</value></data>
+	<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>To add a new page for monitoring contributions.</value></data>
+	<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>To display a simplified HTML view of the contribution.</value></data>
+	<data name="to display filters." xml:space="preserve"><value>To display filters.</value></data>
+	<data name="to rotate the map view." xml:space="preserve"><value>To rotate the map view.</value></data>
+	<data name="to display the image gallery." xml:space="preserve"><value>To display the image gallery.</value></data>
+	<data name="italic text" xml:space="preserve"><value>Italic Text</value></data>
+	<data name="summary" xml:space="preserve"><value>Summary</value></data>
+	<data name="expandable section" xml:space="preserve"><value>Expandable Section</value></data>
+	<data name="strong emphasis" xml:space="preserve"><value>Strong Emphasis</value></data>
+	<data name="emphasis (italic)" xml:space="preserve"><value>Emphasis (Italic)</value></data>
+	<data name="highlighted text" xml:space="preserve"><value>Highlighted Text</value></data>
+	<data name="code snippet" xml:space="preserve"><value>Code Snippet</value></data>
+	<data name="code block" xml:space="preserve"><value>Code Block</value></data>
+	<data name="block quote" xml:space="preserve"><value>Block Quote</value></data>
+	<data name="citation" xml:space="preserve"><value>Citation</value></data>
+	<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>Mark posts with our 'tag list' (e.g. 'Like', 'Uninteresting', 'Already downloaded', ...). There are 10 configurable 'tags' available for this purpose.</value></data>
+	<data name="heading 1" xml:space="preserve"><value>Heading 1</value></data>
+	<data name="sample output" xml:space="preserve"><value>Sample Output</value></data>
+	<data name="variable" xml:space="preserve"><value>Variable</value></data>
+	<data name="small text" xml:space="preserve"><value>Small Text</value></data>
+	<data name="figure with caption" xml:space="preserve"><value>Figure with Caption</value></data>
+	<data name="figure caption" xml:space="preserve"><value>Figure Caption</value></data>
+	<data name="keyboard input" xml:space="preserve"><value>Keyboard Input</value></data>
+	<data name="bold text" xml:space="preserve"><value>Bold Text</value></data>
+	<data name="subscript" xml:space="preserve"><value>Subscript</value></data>
+	<data name="superscript" xml:space="preserve"><value>Superscript</value></data>
+	<data name="are displayed." xml:space="preserve"><value>Are displayed.</value></data>
+	<data name="block container" xml:space="preserve"><value>Block Container</value></data>
+	<data name="abbreviation" xml:space="preserve"><value>Abbreviation</value></data>
+	<data name="custom" xml:space="preserve"><value>Custom</value></data>
+
+</root>

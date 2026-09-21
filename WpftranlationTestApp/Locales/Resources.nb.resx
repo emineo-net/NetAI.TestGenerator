@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?><root><xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"><xsd:import namespace="http://www.w3.org/XML/1998/namespace" /><xsd:element name="root" msdata:IsDataSet="true"><xsd:complexType><xsd:choice maxOccurs="unbounded"><xsd:element name="metadata"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" use="required" type="xsd:string" /><xsd:attribute name="type" type="xsd:string" /><xsd:attribute name="mimetype" type="xsd:string" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="assembly"><xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType></xsd:element><xsd:element name="data"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /><xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /><xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /><xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="resheader"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType></xsd:element></xsd:choice></xsd:complexType></xsd:element></xsd:schema><resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="and" xml:space="preserve"><value>og</value></data>
+<data name="account" xml:space="preserve"><value>Konto</value></data>
+<data name="full name" xml:space="preserve"><value>fullstendig navn ai </value></data>
+<data name="imprint" xml:space="preserve"><value>Avtrykk</value></data>
+<data name="login" xml:space="preserve"><value>pålogging ai </value></data>
+<data name="date from" xml:space="preserve"><value>dato fra</value></data>
+<data name="rotate" xml:space="preserve"><value>roter</value></data>
+<data name="contact" xml:space="preserve"><value>Kontakt</value></data>
+<data name="getting started" xml:space="preserve"><value>Komme i gang</value></data>
+<data name="show filter" xml:space="preserve"><value>vis filter</value></data>
+<data name="first" xml:space="preserve"><value>først ai </value></data>
+<data name="paragraphs" xml:space="preserve"><value>Nr.</value></data>
+<data name="close" xml:space="preserve"><value>lukk ai </value></data>
+<data name="contribution" xml:space="preserve"><value>Bidrag</value></data>
+<data name="invalid user" xml:space="preserve"><value>ugyldig bruker ai </value></data>
+<data name="logout" xml:space="preserve"><value>Logg ut</value></data>
+<data name="manage your account" xml:space="preserve"><value>Administrer kontoen din</value></data>
+<data name="message" xml:space="preserve"><value>melding ai </value></data>
+<data name="order abandoned" xml:space="preserve"><value>Bestilling avbrutt</value></data>
+<data name="picture gallery" xml:space="preserve"><value>Bildegalleri</value></data>
+<data name="download" xml:space="preserve"><value>last ned ai </value></data>
+<data name="delete" xml:space="preserve"><value>slette ai </value></data>
+<data name="profile" xml:space="preserve"><value>profil ai </value></data>
+<data name="recovery codes" xml:space="preserve"><value>Gjenopprettingskoder</value></data>
+<data name="register as a new user" xml:space="preserve"><value>Registrer deg som ny bruker</value></data>
+<data name="remove" xml:space="preserve"><value>fjern ai </value></data>
+<data name="click here to log in" xml:space="preserve"><value>klikk her for å logge inn</value></data>
+<data name="date to" xml:space="preserve"><value>dato til</value></data>
+<data name="save" xml:space="preserve"><value>lagre ai </value></data>
+<data name="filter reset" xml:space="preserve"><value>tilbakestilling av filter ai </value></data>
+<data name="previous" xml:space="preserve"><value>tidligere ai </value></data>
+<data name="add page" xml:space="preserve"><value>legg til siden ai </value></data>
+<data name="password" xml:space="preserve"><value>passord ai </value></data>
+<data name="assign categories to your pages or delete them" xml:space="preserve"><value>tilordne kategorier til sidene dine eller slette dem ai </value></data>
+<data name="max" xml:space="preserve"><value>Max</value></data>
+<data name="send" xml:space="preserve"><value> send ai </value></data>
+<data name="error" xml:space="preserve"><value>feil ai </value></data>
+<data name="log in" xml:space="preserve"><value>logg inn ai </value></data>
+<data name="conveniently filter and search contributions" xml:space="preserve"><value>Beleilig filtrer og søk bidrag</value></data>
+<data name="confirm password" xml:space="preserve"><value>Bekreft passord</value></data>
+<data name="enter url." xml:space="preserve"><value>Skriv inn adresse.</value></data>
+<data name="italicized" xml:space="preserve"><value>kursivisert ai </value></data>
+<data name="email" xml:space="preserve"><value>e post ai </value></data>
+<data name="heading 6" xml:space="preserve"><value>nr 6 ai </value></data>
+<data name="access denied" xml:space="preserve"><value>Tilgang nektet</value></data>
+<data name="heading 5" xml:space="preserve"><value>posisjon 5 ai </value></data>
+<data name="add authenticator app" xml:space="preserve"><value>Legge til autentiseringsapp</value></data>
+<data name="associate your" xml:space="preserve"><value>Tilknytt din</value></data>
+<data name="change email" xml:space="preserve"><value>Endre e post</value></data>
+<data name="change password" xml:space="preserve"><value>endre passord ai </value></data>
+<data name="change your account settings" xml:space="preserve"><value>Endre kontoinnstillingene dine</value></data>
+<data name="choose plan" xml:space="preserve"><value>Velg plan</value></data>
+<data name="click here to confirm your account" xml:space="preserve"><value>Klikk her for å bekrefte kontoen din</value></data>
+<data name="heading 4" xml:space="preserve"><value>overskrift 4 ai </value></data>
+<data name="properties" xml:space="preserve"><value>egenskaper</value></data>
+<data name="log in with a recovery code" xml:space="preserve"><value>logge inn med en gjenopprettingskode</value></data>
+<data name="configure authenticator app" xml:space="preserve"><value>Konfigurer autentiseringsappen</value></data>
+<data name="title contains" xml:space="preserve"><value>tittelen inneholder</value></data>
+<data name="toggle view" xml:space="preserve"><value>bytt visning</value></data>
+<data name="these docs" xml:space="preserve"><value>disse dokumentene</value></data>
+<data name="terms and conditions" xml:space="preserve"><value>vilkår og betingelser ai </value></data>
+<data name="xxx" xml:space="preserve"><value>xxx</value></data>
+<data name="all" xml:space="preserve"><value>alle ai </value></data>
+<data name="confirm email" xml:space="preserve"><value>Bekreft e post</value></data>
+<data name="confirm email change" xml:space="preserve"><value>Bekreft endring av e post</value></data>
+<data name="hyperlink" xml:space="preserve"><value>hyperlenke ai </value></data>
+<data name="also see a preview of the" xml:space="preserve"><value>se også en forhåndsvisning av ai </value></data>
+<data name="delete data and close my account" xml:space="preserve"><value>Slett data og lukk kontoen min</value></data>
+<data name="delete personal data" xml:space="preserve"><value>Slett personlige data</value></data>
+<data name="disable 2fa" xml:space="preserve"><value>Deaktiver 2FA</value></data>
+<data name="max lenght 14" xml:space="preserve"><value>Max lenht 14</value></data>
+<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>Velg følgende fra menyen: hjem, komme i gang, registrere, logge inn, oppgradere, logge ut, imprint, kontakt, konto. I den andre menyen, velg: vis filter, roter, slå av, egenskaper, legg til, videre, bakover. I dialogboksen kan du: lagre, avbryte, sende.</value></data>
+<data name="authenticator app" xml:space="preserve"><value>Authenticator app</value></data>
+<data name="recovery codes left." xml:space="preserve"><value>Utvinningskoder igjen.</value></data>
+<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>Effektiv webskraping ved å skrive inn en URL</value></data>
+<data name="enable qr code generation" xml:space="preserve"><value>aktivere generering av QR koder</value></data>
+<data name="external logins" xml:space="preserve"><value>Ekstern innlogging</value></data>
+<data name="no passkeys are registered." xml:space="preserve"><value>Ingen passnøkler er registrert.</value></data>
+<data name="forget this browser" xml:space="preserve"><value>Glem denne nettleseren</value></data>
+<data name="forgot password confirmation" xml:space="preserve"><value>Bekreftelse på glemt passord</value></data>
+<data name="generate a new set of recovery codes" xml:space="preserve"><value>generere et nytt sett med gjenopprettingskoder</value></data>
+<data name="generate recovery codes" xml:space="preserve"><value>Generer gjenopprettingskoder</value></data>
+<data name="the external login was removed." xml:space="preserve"><value>Ekstern innlogging ble fjernet.</value></data>
+<data name="learn how to" xml:space="preserve"><value>Lær hvordan du</value></data>
+<data name="legal inquiry" xml:space="preserve"><value>Juridisk forespørsel</value></data>
+<data name="locked out" xml:space="preserve"><value>Låst ute</value></data>
+<data name="manage email" xml:space="preserve"><value>Administrer e post</value></data>
+<data name="just browse" xml:space="preserve"><value>bare bla gjennom ai </value></data>
+<data name="manage your external logins" xml:space="preserve"><value>Administrer dine eksterne pålogginger</value></data>
+<data name="new password" xml:space="preserve"><value>Nytt passord</value></data>
+<data name="old password" xml:space="preserve"><value>Gammelt passord</value></data>
+<data name="options" xml:space="preserve"><value>Alternativer</value></data>
+<data name="google authenticator for" xml:space="preserve"><value>Google-godkjenner</value></data>
+<data name="order complete" xml:space="preserve"><value>Bestilling fullført</value></data>
+<data name="personal data" xml:space="preserve"><value>Personlige data</value></data>
+<data name="phone number" xml:space="preserve"><value>Telefonnummer</value></data>
+<data name="min" xml:space="preserve"><value>Min</value></data>
+<data name="recovery code" xml:space="preserve"><value>Gjenopprettingskode</value></data>
+<data name="recovery code verification" xml:space="preserve"><value>Bekreftelse av gjenopprettingskode</value></data>
+<data name="register" xml:space="preserve"><value>Registrere</value></data>
+<data name="register confirmation" xml:space="preserve"><value>Registrer bekreftelse</value></data>
+<data name="registered logins" xml:space="preserve"><value>Registrerte pålogginger</value></data>
+<data name="remember me" xml:space="preserve"><value>Husk meg</value></data>
+<data name="remember this machine" xml:space="preserve"><value>Husk denne maskinen</value></data>
+<data name="resend" xml:space="preserve"><value>Send på nytt</value></data>
+<data name="resend email confirmation" xml:space="preserve"><value>Send e postbekreftelse på nytt</value></data>
+<data name="reset" xml:space="preserve"><value>Tilbakestill</value></data>
+<data name="reset authenticator app" xml:space="preserve"><value>Tilbakestille autentiseringsapp</value></data>
+<data name="reset authenticator key" xml:space="preserve"><value>Tilbakestill autentiseringsnøkkel</value></data>
+<data name="reset filters" xml:space="preserve"><value>Tilbakestill filtre</value></data>
+<data name="reset password" xml:space="preserve"><value>Tilbakestill passord</value></data>
+<data name="reset password confirmation" xml:space="preserve"><value>Bekreftelse på tilbakestilling av passord</value></data>
+<data name="reset recovery codes" xml:space="preserve"><value>Tilbakestille gjenopprettingskoder</value></data>
+<data name="user name" xml:space="preserve"><value>brukernavn ai </value></data>
+<data name="scan the qr code or enter this key" xml:space="preserve"><value>Skann QR koden eller skriv inn denne nøkkelen</value></data>
+<data name="selected categories" xml:space="preserve"><value>Valgte kategorier</value></data>
+<data name="selected websites" xml:space="preserve"><value>Valgte nettsteder</value></data>
+<data name="send verification email" xml:space="preserve"><value>Send bekreftelses e post</value></data>
+<data name="set password" xml:space="preserve"><value>Angi passord</value></data>
+<data name="set your password" xml:space="preserve"><value>Angi passordet ditt</value></data>
+<data name="subject" xml:space="preserve"><value>emne ai </value></data>
+<data name="define the names of your categories" xml:space="preserve"><value>definere navn på kategoriene dine ai </value></data>
+<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>Inn i din to faktor autentiskator app. Spaces og foringsrør spiller ingen rolle.</value></data>
+<data name="update password" xml:space="preserve"><value>Oppdater passord</value></data>
+<data name="main heading" xml:space="preserve"><value>hovedpost ai </value></data>
+<data name="error finding user for unspecified email" xml:space="preserve"><value>Feil ved å finne bruker for uspesifisert e post</value></data>
+<data name="home" xml:space="preserve"><value>hjemme ai </value></data>
+<data name="invalid password reset" xml:space="preserve"><value>Ugyldig tilbakestilling av passord</value></data>
+<data name="of" xml:space="preserve"><value>av ai </value></data>
+<data name="paragraph" xml:space="preserve"><value>avsnitt ai </value></data>
+<data name="success" xml:space="preserve"><value>Suksess</value></data>
+<data name="set up authenticator app" xml:space="preserve"><value>Konfigurer autentiseringsappen</value></data>
+<data name="username" xml:space="preserve"><value>brukernavn ai </value></data>
+<data name="verification code" xml:space="preserve"><value>Bekreftelseskode</value></data>
+<data name="verify" xml:space="preserve"><value>Bekreft</value></data>
+<data name="next" xml:space="preserve"><value>neste ai </value></data>
+<data name="subscriptions" xml:space="preserve"><value>abonnement ai </value></data>
+<data name="you have" xml:space="preserve"><value>Du har</value></data>
+<data name="you must" xml:space="preserve"><value>Du må</value></data>
+<data name="your password has been changed" xml:space="preserve"><value>Passordet ditt har blitt endret</value></data>
+<data name="your profile has been updated" xml:space="preserve"><value>Profilen din har blitt oppdatert</value></data>
+<data name="nter a name for your passkey" xml:space="preserve"><value>Ner et navn på din passnøkkel</value></data>
+<data name="forgot your password?" xml:space="preserve"><value>Glemt passordet ditt?</value></data>
+<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>Full visning av bidragene ved å klikke på bidragstittelen</value></data>
+<data name="privacy policy" xml:space="preserve"><value>personvernerklæring ai </value></data>
+<data name="pro version" xml:space="preserve"><value>pro versjon ai </value></data>
+<data name="new project" xml:space="preserve"><value>nytt prosjekt ai </value></data>
+<data name="reset filter" xml:space="preserve"><value>tilbakestill filter ai </value></data>
+<data name="save changes" xml:space="preserve"><value>lagre endringer ai </value></data>
+<data name="last" xml:space="preserve"><value>siste ai </value></data>
+<data name="open original" xml:space="preserve"><value>åpen original ai </value></data>
+<data name="download documents" xml:space="preserve"><value>last ned dokumenter ai </value></data>
+<data name="tagging and filtering" xml:space="preserve"><value>tagging og filtrering ai </value></data>
+<data name="open local" xml:space="preserve"><value>åpen lokal ai </value></data>
+<data name="download single" xml:space="preserve"><value>nedlasting enkelt ai </value></data>
+<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>Ikon for å bytte mellom kortvisningen og tabellvisningen.</value></data>
+<data name="add custom tag" xml:space="preserve"><value>Legg til egendefinert tag</value></data>
+<data name="define the name of the tag for individual posts" xml:space="preserve"><value>definere navnet på etiketten for individuelle innlegg ai </value></data>
+<data name="tagging contributions" xml:space="preserve"><value>Tagging bidrag</value></data>
+<data name="filter your pages" xml:space="preserve"><value>filtrer sidene dine ai </value></data>
+<data name="download txt or json documents without images" xml:space="preserve"><value>last ned txt eller json dokumenter uten bilder ai </value></data>
+<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>i filtrene du kan filtrere etter taggede innlegg ai </value></data>
+<data name="click on the" xml:space="preserve"><value>klikk på ai </value></data>
+<data name="to display download options" xml:space="preserve"><value>å vise nedlastingsalternativer ai </value></data>
+<data name="click save word document." xml:space="preserve"><value>Klikk på Lagre orddokument.</value></data>
+<data name="error changing user name." xml:space="preserve"><value>Feil ved endring av brukernavn.</value></data>
+<data name="add" xml:space="preserve"><value>legg til ai </value></data>
+<data name="document." xml:space="preserve"><value>Dokument.</value></data>
+<data name="a new tab." xml:space="preserve"><value>En ny fane.</value></data>
+<data name="and json will open. you will" xml:space="preserve"><value>Json åpner. Du vil</value></data>
+<data name="json download" xml:space="preserve"><value>Json last ned</value></data>
+<data name="the external login was added." xml:space="preserve"><value>Ekstern innlogging ble lagt til.</value></data>
+<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>Deaktiver tofaktorautentisering (2fa)</value></data>
+<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>Bruk bryteren til å velge mellom \"hvor er\" og \"hvor er ikke\".</value></data>
+<data name="loc[are displayed.]" xml:space="preserve"><value>Loc[er vist.]</value></data>
+<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>Et enkelt, tabdelt format som passer godt til videre behandling i regneark eller databaser.</value></data>
+<data name="save to your download directory." xml:space="preserve"><value>Lagre i nedlastingskatalogen.</value></data>
+<data name="two-factor authentication (2fa)" xml:space="preserve"><value>Tofaktorautentisering (2fa)</value></data>
+<data name="cards" xml:space="preserve"><value>kort ai </value></data>
+<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>En rød recyclebin kan ikon vises under filterikonet. Klikk på dette ikonet sletter alle aktive filtre og viser den komplette bidragsoversikten igjen.</value></data>
+<data name="two-factor authentication" xml:space="preserve"><value>Tofaktorautentisering</value></data>
+<data name="enter a new email" xml:space="preserve"><value>Skriv inn en ny e-post</value></data>
+<data name="select columns for scraping" xml:space="preserve"><value>Velg kolonner for skraping</value></data>
+<data name="click one or more tags for a post." xml:space="preserve"><value>Klikk på en eller flere tagger for et innlegg.</value></data>
+<data name="cards and table" xml:space="preserve"><value>Kort og bord</value></data>
+<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>Ikon for å vise det opprinnelige bidraget i sin opprinnelige kilde og layout.</value></data>
+<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>I henhold til individuelle bidrag kan du laste dem ned.</value></data>
+<data name="rename" xml:space="preserve"><value>endre navn ai </value></data>
+<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>Hvis du vil vise merket bidrag, kan du velge den tilsvarende etiketten fra tekstlisten.</value></data>
+<data name="toggle help visibility" xml:space="preserve"><value>Slå av og på synlighet av hjelp</value></data>
+<data name="enter / select url" xml:space="preserve"><value>Skriv inn / velg URL</value></data>
+<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>Last ned alternativer pdf, docs, txt, HTML</value></data>
+<data name="to display filter dialog" xml:space="preserve"><value>For å vise filterdialog</value></data>
+<data name="enter your phone number" xml:space="preserve"><value>Skriv inn telefonnummeret ditt</value></data>
+<data name="no contributions were found on the page" xml:space="preserve"><value>Ingen bidrag ble funnet på siden</value></data>
+<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>Et nytt vindu åpner en pdf-forhåndsvisning av dokumentet ditt. Denne forhåndsvisningen gir en initial oversikt over dokumentets innhold og layout.</value></data>
+<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>Den beste måten å kontakte oss på er å bruke kontaktskjemaet vårt nedenfor. Vennligst fyll ut alle de nødvendige feltene, og vi vil komme tilbake til deg så snart som mulig.</value></data>
+<data name="export" xml:space="preserve"><value>eksport ai </value></data>
+<data name="underlined" xml:space="preserve"><value>Understreket</value></data>
+<data name="add to followed projects" xml:space="preserve"><value>legg til følgende prosjekter ai </value></data>
+<data name="follow" xml:space="preserve"><value>følg ai </value></data>
+<data name="scraping view" xml:space="preserve"><value>skrapevisning ai </value></data>
+<data name="authenticator code" xml:space="preserve"><value>autentisk kode ai </value></data>
+<data name="heading 3" xml:space="preserve"><value>nr 3 ai </value></data>
+<data name="heading 2" xml:space="preserve"><value>overskrift 2 ai </value></data>
+<data name="image" xml:space="preserve"><value>bilde ai </value></data>
+<data name="the created document will open in" xml:space="preserve"><value>det opprettede dokumentet vil åpnes i ai </value></data>
+<data name="click on download a view with" xml:space="preserve"><value>klikk på last ned en visning med ai </value></data>
+<data name="file saving failed:" xml:space="preserve"><value>Fillagring mislyktes:</value></data>
+<data name="file saved to:" xml:space="preserve"><value>Fil lagret til:</value></data>
+<data name="an error occurred during download:" xml:space="preserve"><value>En feil oppstod under nedlasting:</value></data>
+<data name="thank you for your message." xml:space="preserve"><value>Takk for beskjeden.</value></data>
+<data name="file" xml:space="preserve"><value>Fil</value></data>
+<data name="an error has occurred." xml:space="preserve"><value>En feil har skjedd.</value></data>
+<data name="table" xml:space="preserve"><value>Tabell</value></data>
+<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>Dokumentformater: docx, pdf, html, json, txt</value></data>
+<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>Filtrer etter kategori (du må ha merket sidene dine for å gjøre dette)</value></data>
+<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>Deretter kan du laste ned pdf, docx og HTML-dokumenter med bilder</value></data>
+<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>Du kan definere navnet på taggene dine individuelt under alternativer.</value></data>
+<data name="show help (dynamic, static, off)" xml:space="preserve"><value>Vis hjelp (dynamisk, statisk, off)</value></data>
+<data name="enter a part that the title must contain." xml:space="preserve"><value>Skriv inn en del som tittelen må inneholde.</value></data>
+<data name="switch view" xml:space="preserve"><value>Bytt visning</value></data>
+<data name="custoum" xml:space="preserve"><value>Custoum</value></data>
+<data name="download document" xml:space="preserve"><value>Last ned dokument</value></data>
+<data name="csv download" xml:space="preserve"><value>Last ned Csv</value></data>
+<data name="excel download" xml:space="preserve"><value>Excel nedlasting</value></data>
+<data name="single document download" xml:space="preserve"><value>Enkelt dokument nedlasting</value></data>
+<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>Med 'lukkeside-for-windows' kan du motta opptil 200 bilder.</value></data>
+<data name="the contributions for" xml:space="preserve"><value>Bidragene til</value></data>
+<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>Hvis du vil samle inn nye bidrag i fremtiden, klikker du på</value></data>
+<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>Du kan velge individuelle prosjekter for å vise bare bidragene som tilhører disse prosjektene.</value></data>
+<data name="available predefined tags" xml:space="preserve"><value>Tilgjengelige forhåndsdefinerte tags</value></data>
+<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>Hvis du har tildelt kategorier til dine nettsider, kan du også filtrere etter disse kategoriene. Bare velg de ønskede nettsider eller kategorier fra listen.</value></data>
+<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>Når du har gjort ditt utvalg, klikker du på «submit»-knappen for å bruke filteret. Bidragsvisningen vil da bli oppdatert og vil bare vise de filtrerte resultatene.</value></data>
+<data name="to display options" xml:space="preserve"><value>For å vise alternativer</value></data>
+<data name="this will rotate all cards." xml:space="preserve"><value>Dette vil rotere alle kort.</value></data>
+<data name="button" xml:space="preserve"><value>Button</value></data>
+<data name="preview the images" xml:space="preserve"><value>Forhåndsvis bildene</value></data>
+<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>Hvis dokumentet inneholder bildefiler, vil disse vises i forhåndsvisningen.</value></data>
+<data name="download options" xml:space="preserve"><value>Last ned alternativer</value></data>
+<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>Hvis du vil laste ned dokumentet, velger du ønsket format fra tilgjengelige alternativer.</value></data>
+<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>Ideell for utskriftsklare dokumenter og deling i profesjonell layout.</value></data>
+<data name="error: incorrect password." xml:space="preserve"><value>Feil: feil passord.</value></data>
+<data name="useful if you want to edit the document further." xml:space="preserve"><value>Nyttig hvis du vil redigere dokumentet videre.</value></data>
+<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>Nyttig for å bygge inn innhold på et nettsted eller et annet digitalt medium.</value></data>
+<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>Inneholder kun vanlig tekst, uten formatering. Passer til enkel videre behandling.</value></data>
+<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>Inneholder alle dokumentets bilder som separate filer i tilfelle du trenger dem individuelt.</value></data>
+<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>Hvis du vil søke på en nettside for bidrag, skriv inn en adresse og klikk på forstørrelsesglassikonet. Alternativt kan du trykke på enter-tasten på tastaturet.</value></data>
+<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>Hvis du er logget på og allerede sporer URL-er for endringer, kan du også velge URL-adressen fra rullegardinlisten.</value></data>
+<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>Gjeldende innlegg på det valgte nettstedet blir automatisk tatt opp av algoritmen vår. De gamle og nylig oppdaget innleggene vises deretter på nettsiden.</value></data>
+<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>Jeg går inn i en adresse og ingenting vises. Er det derfor?</value></data>
+<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>Dessverre er dette ikke uvanlig og kan ha mange årsaker, for eksempel:</value></data>
+<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>Ingen bidrag er knyttet til nettstedet du leter etter. (f.eks. skrev du inn kontaktsiden som URL: \"https://mysite/contact\")</value></data>
+<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>De tilkoblede innleggene er ikke innenfor domenet. For eksempel skrev du inn \"https://mysite.com/products\", men alle bidrag refererer til \"https://otherpage.com/productxy\".</value></data>
+<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>De etterspurde siden blokkerer bots (nærmere side er en bot).</value></data>
+<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>Den valgte siden viser kun innlegg for registrerte brukere.</value></data>
+<data name="table structure (sorted by priority)" xml:space="preserve"><value>Tabellstruktur (sortert etter prioritet)</value></data>
+<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>Tabellen er organisert slik at den viktigste informasjonen vises først, noe som gir rask orientering og effektiv behandling.</value></data>
+<data name="tags" xml:space="preserve"><value>Tags</value></data>
+<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>Bidraget vil da åpnes i et nytt nettleservindu eller fane. Der vil du se bidraget som det ble publisert på den opprinnelige nettsiden - inkludert all formatering, bilder, lenker og annet innhold som kanskje ikke er inkludert i skrapevisningen.</value></data>
+<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>Alle eksisterende tags eller kategorier som tildeles bidragene, vises her. Dette hjelper deg å raskt filtrere bidrag etter emne eller fokus.</value></data>
+<data name="headings and titles" xml:space="preserve"><value>Overskrifter og titler</value></data>
+<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>Tittelene og tittelene på bidragene er oppført andre. De gir en initial oversikt over innholdet og muliggjør rask identifisering av relevante bidrag.</value></data>
+<data name="date and author" xml:space="preserve"><value>Dato og forfatter</value></data>
+<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>Denne kolonnen inneholder dato for publisering og forfatter av bidraget. Dette gjør det mulig å se når og av hvem bidraget ble opprettet.</value></data>
+<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>Det faktiske innholdet i bidragene, fordelt på avsnitt, utgjør den endelige delen av tabellen. Her finner du den detaljerte teksten som har blitt skrapt.</value></data>
+<data name="table functions" xml:space="preserve"><value>Tabellfunksjoner</value></data>
+<data name="tagging" xml:space="preserve"><value>Tagging</value></data>
+<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>Bidrag kan markeres og tagges ved å velge avkrysningsboksen. Dette gjør det lettere å sortere, filtrere og administrere bidrag senere, spesielt når det gjelder store mengder data.</value></data>
+<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>Hele tabellen eller valgte bidrag kan lastes ned i ulike formater</value></data>
+<data name="select tagged contributions" xml:space="preserve"><value>Velg taggede bidrag</value></data>
+<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>Et kjent tabellformat som tilbyr ytterligere formateringsalternativer, spesielt egnet til rapporter eller presentasjoner.</value></data>
+<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>Et strukturert dataformat som er spesielt egnet til videre behandling i programmer eller webapplikasjoner.</value></data>
+<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>Tagging-funksjonen gjør det mulig å kategorisere og organisere bidrag, noe som gjør dem enklere å finne eller filtrere senere.</value></data>
+<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>Denne funksjonen er tilgjengelig i både kort- og skrapetabellvisninger. Denne funksjonen gjør at du kan skjule spesifikke bidrag eller flagge dem som spesielt viktig.</value></data>
+<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>Merk bidrag som er spesielt viktige, relevante eller utestående.</value></data>
+<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>Innser at bidraget allerede er lastet ned.</value></data>
+<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>Merker bidrag som er opprettet eller redigert ved hjelp av ai-teknologi.</value></data>
+<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>Skjuler bidrag som du ikke lenger vil vise, men sletter dem ikke helt.</value></data>
+<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>Hvis lenken ikke fungerer eller bidraget ikke lenger er tilgjengelig, kan dette skyldes endringer på den opprinnelige siden.</value></data>
+<data name="show contribution" xml:space="preserve"><value>Vis bidrag</value></data>
+<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>Klikk på overskriften i kortvisning for å åpne et nytt vindu med innholdet i bidraget.</value></data>
+<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>Ideell for rask lesing, kontroll eller redigering av bidrag uten å måtte ringe opp den opprinnelige kilden.</value></data>
+<data name="create a new account." xml:space="preserve"><value>Opprett en ny konto.</value></data>
+<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>Hvis et bidrag inneholder bildefiler, vises et lite forhåndsvisningsbilde i forhåndsvisningen av bidrag.</value></data>
+<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>Du vil se et tall i det øvre hjørnet av forhåndsvisningsbildet. Dette tallet indikerer hvor mange bilder som finnes i bidraget.</value></data>
+<data name="simply click on the preview image." xml:space="preserve"><value>Bare klikk på forhåndsvisningsbildet.</value></data>
+<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>Dette vil åpne en gallerivisning der alle bilder i bidraget vises tydelig og i et større format.</value></data>
+<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>Dette gjør det mulig å bestemme om bidrag med den valgte etiketten vises eller om det kun vises bidrag som ikke er tagget tilsvarende.</value></data>
+<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>Eventuelle spørsmål du har om vår personvernerklæring, informasjonskapsler eller bruksvilkår vil bli besvart så snart som mulig.</value></data>
+<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>Gjeldende bidrag fra dine favorittnettsteder - på et øyeblikk</value></data>
+<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>Leser eller forsker du ofte på ulike nettsteder og vil ha de siste nyhetene på ett sted? Så er du kommet til riktig sted!</value></data>
+<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>Alle nye innlegg fra dine valgte nettsteder med et blikk.</value></data>
+<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>Opprette dokumenter i docx, pdf, json eller html.</value></data>
+<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>Merk innlegg med vår \"tag-liste\" (f.eks. \"like\", \"uinteressante\", \"alt nedlastet\", ...). Det er 10 konfigurerbare \"merker\" tilgjengelig for dette formålet.</value></data>
+<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>Oppdag nærmere side - det ultimate verktøyet for alle som ønsker å holde seg oppdatert med det nyeste online-innholdet. Med den brukervennlige web skrapefunksjonen, bare skriv inn en URL og umiddelbart se alle nye innlegg på den ønskede nettsiden.</value></data>
+<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>Hvert innlegg kan vises fullt ut med ett enkelt klikk, slik at du ikke vil gå glipp av noen viktig informasjon. Den kronologiske rekkefølgen av innleggene gjør det lettere å navigere og finne relevant innhold.</value></data>
+<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>Et spesielt høydepunkt er evnen til å lage dokumenter fra hvert bidrag i docx, pdf, json eller html-format - ideell for arkivering eller videre behandling av informasjonen.</value></data>
+<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>Det betyr at du aldri savner et nytt bidrag og alltid er oppdatert</value></data>
+<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>Registrer deg for å aktivere den frie planen. Deretter kan du oppgradere til pro-planen.</value></data>
+<data name="you do not have access to this resource." xml:space="preserve"><value>Du har ikke tilgang til denne ressursen.</value></data>
+<data name="thank you for confirming your email." xml:space="preserve"><value>Takk for at du bekrefter din e-post.</value></data>
+<data name="error confirming your email." xml:space="preserve"><value>Feil ved bekreftelse av e-posten.</value></data>
+<data name="i accept the terms and conditions" xml:space="preserve"><value>Jeg godtar vilkårene og betingelsene</value></data>
+<data name="error: invalid email change confirmation link." xml:space="preserve"><value>Feil: ugyldig e-post endre bekreftelse lenke.</value></data>
+<data name="error changing email." xml:space="preserve"><value>Feil ved endring av e-post.</value></data>
+<data name="thank you for confirming your email change." xml:space="preserve"><value>Takk for at du bekrefter e-postendringen.</value></data>
+<data name="you've successfully authenticated with" xml:space="preserve"><value>Du har autentisert med</value></data>
+<data name="use another service to register." xml:space="preserve"><value>Bruk en annen tjeneste til å registrere seg.</value></data>
+<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>Vennligst skriv inn en e-postadresse for dette nettstedet nedenfor og klikk på registerknappen for å avslutte innloggingen.</value></data>
+<data name="please enter your email." xml:space="preserve"><value>Vennligst skriv inn e-posten din.</value></data>
+<data name="error loading external login information." xml:space="preserve"><value>Feil ved lasting av ekstern innloggingsinformasjon.</value></data>
+<data name="error loading external login information during confirmation." xml:space="preserve"><value>Feil ved lasting av ekstern innloggingsinformasjon under bekreftelse.</value></data>
+<data name="reset your password." xml:space="preserve"><value>Tilbakestill passordet.</value></data>
+<data name="the default ui requires a user store with email support." xml:space="preserve"><value>Standardui krever en brukerbutikk med e-poststøtte.</value></data>
+<data name="enter your email." xml:space="preserve"><value>Skriv inn e-posten din.</value></data>
+<data name="please check your email to reset your password." xml:space="preserve"><value>Sjekk e-posten din for å tilbakestille passordet.</value></data>
+<data name="the password reset link is invalid." xml:space="preserve"><value>Linken for tilbakestilling av passord er ugyldig.</value></data>
+<data name="please confirm your password." xml:space="preserve"><value>Bekreft passordet ditt.</value></data>
+<data name="this account has been locked out, please try again later." xml:space="preserve"><value>Denne kontoen er låst ut, prøv igjen senere.</value></data>
+<data name="use a local account to log in." xml:space="preserve"><value>Bruke en lokal konto til å logge inn.</value></data>
+<data name="log in with a passkey" xml:space="preserve"><value>Logg deg inn med en passnøkkel</value></data>
+<data name="use another service to log in." xml:space="preserve"><value>Bruk en annen tjeneste til å logge inn.</value></data>
+<data name="please enter your password." xml:space="preserve"><value>Vennligst skriv inn passordet ditt.</value></data>
+<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>Innloggingen din er beskyttet med en autentisk app. Skriv inn din autentiske kode nedenfor.</value></data>
+<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>Har du ikke tilgang til din autentiske enhet? Du kan</value></data>
+<data name="error: invalid authenticator code." xml:space="preserve"><value>Feil: ugyldig autentisk kode.</value></data>
+<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>Du har bedt om å logge inn med en gjenopprettingskode. Denne innloggingen vil ikke bli husket før du gir en autentisk appkode ved innlogging eller deaktivere 2fa og logg inn igjen.</value></data>
+<data name="recoverycode" xml:space="preserve"><value>Recoverycode</value></data>
+<data name="for how to configure a real email sender" xml:space="preserve"><value>Hvordan konfigurere en ekte e-postavsender</value></data>
+<data name="normally this would be emailed:" xml:space="preserve"><value>Normalt vil dette bli sendt på e-post:</value></data>
+<data name="please check your email to confirm your account." xml:space="preserve"><value>Sjekk e-posten din for å bekrefte kontoen din.</value></data>
+<data name="verification email sent. please check your email." xml:space="preserve"><value>Verifisering e-post sendt. Sjekk e-posten din.</value></data>
+<data name="enter the code" xml:space="preserve"><value>Skriv inn koden</value></data>
+<data name="your password has been reset. please" xml:space="preserve"><value>Passordet ditt er tilbakestilt. Vær så snill</value></data>
+<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>Det er ingen eksterne autentiseringstjenester konfigurert. Se dette</value></data>
+<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>Artikkel om å sette opp dette asp.net-programmet for å støtte innlogging via eksterne tjenester</value></data>
+<data name="put these codes in a safe place." xml:space="preserve"><value>Sett disse kodene på et trygt sted.</value></data>
+<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>Hvis du mister enheten og ikke har gjenopprettingskodene vil du miste tilgang til kontoen din.</value></data>
+<data name="enter the old password" xml:space="preserve"><value>Skriv det gamle passordet</value></data>
+<data name="enter the new password" xml:space="preserve"><value>Skriv inn det nye passordet</value></data>
+<data name="user changed their password successfully." xml:space="preserve"><value>Brukeren endret passordet sitt.</value></data>
+<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>Slette disse dataene vil permanent fjerne kontoen din, og dette kan ikke gjenopprettes.</value></data>
+<data name="unexpected error occurred deleting user." xml:space="preserve"><value>Uventet feil oppstod ved sletting av bruker.</value></data>
+<data name="this action only disables 2fa." xml:space="preserve"><value>Denne handlingen deaktiverer bare 2fa.</value></data>
+<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Desabling 2fa endrer ikke tastene som brukes i autentiske apper. Hvis du vil endre nøkkelen som brukes i en autentisk app bør du</value></data>
+<data name="set your authenticator keys." xml:space="preserve"><value>Sett dine autentiske nøkler.</value></data>
+<data name="reset your authenticator keys." xml:space="preserve"><value>Tilbakestille autentiske nøkler.</value></data>
+<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>Kan ikke deaktivere 2fa for bruker siden den ikke er aktivert.</value></data>
+<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>Uventet feil oppstod deaktivering av 2fa.</value></data>
+<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2fa er deaktivert. Du kan reenable 2fa når du konfigurerer en autentisk app</value></data>
+<data name="enter your email" xml:space="preserve"><value>Skriv inn din e-post</value></data>
+<data name="your email is unchanged." xml:space="preserve"><value>Din e-post er uendret.</value></data>
+<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>Bekreft lenke til å endre e-post sendt. Sjekk e-posten din.</value></data>
+<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>For å bruke en autentisk app gå gjennom følgende trinn:</value></data>
+<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>Last ned en to-faktor autentiskator app som mikrosoft autentiskator for</value></data>
+<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>Når du har skannet qr-koden eller skrive inn nøkkelen ovenfor, vil din to faktorautentiseringsapp gi deg en unik kode. Skriv koden i bekreftelsesboksen nedenfor.</value></data>
+<data name="error: verification code is invalid." xml:space="preserve"><value>Feil: Verifiseringskoden er ugyldig.</value></data>
+<data name="your authenticator app has been verified." xml:space="preserve"><value>Appen din er verifisert.</value></data>
+<data name="add another service to log in." xml:space="preserve"><value>Legg til en annen tjeneste for å logge inn.</value></data>
+<data name="error: the external login was not removed." xml:space="preserve"><value>Feil: den eksterne innloggingen ble ikke fjernet.</value></data>
+<data name="error: could not load external login info." xml:space="preserve"><value>Feil: kunne ikke laste inn ekstern innloggingsinformasjon.</value></data>
+<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>Feil: Ekstern innlogging ble ikke lagt til. Eksterne innlogginger kan bare knyttes til én konto.</value></data>
+<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>Generer to-faktor autentisering (2fa) gjenopprettingskoder</value></data>
+<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Opprette nye gjenopprettingskoder endrer ikke nøkler som brukes i autentiske apper. Hvis du vil endre nøkkelen som brukes i en autentisk app bør du</value></data>
+<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>Kan ikke generere gjenopprettingskoder for brukeren fordi de ikke har 2fa aktivert.</value></data>
+<data name="you have generated new recovery codes." xml:space="preserve"><value>Du har laget nye gjenopprettingskoder.</value></data>
+<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>Bruker med id \"{userid}\" har generert nye 2fa gjenopprettingskoder.</value></data>
+<data name="choose your username." xml:space="preserve"><value>Velg ditt brukernavn.</value></data>
+<data name="you have no recovery codes left." xml:space="preserve"><value>Du har ingen gjenopprettingskoder igjen.</value></data>
+<data name="error: failed to set phone number." xml:space="preserve"><value>Feil: Kunne ikke angi telefonnummer.</value></data>
+<data name="manage your passkeys" xml:space="preserve"><value>Administrer dine passnøkler</value></data>
+<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>Du har nådd det maksimale antall tillatte nøkkelr. Slett en før du legger til en ny.</value></data>
+<data name="add a new passkey" xml:space="preserve"><value>Legg til en ny passnøkkel</value></data>
+<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>Feil: Nettleseren ga ikke en passnøkkel.</value></data>
+<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>Feil: Passnøkkelen kunne ikke legges til kontoen din.</value></data>
+<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>Feil: den angitte passkey-ID hadde et ugyldig format.</value></data>
+<data name="error: the passkey could not be deleted." xml:space="preserve"><value>Feil: Passnøkkelen kunne ikke slettes.</value></data>
+<data name="passkey deleted successfully." xml:space="preserve"><value>Passkey slettet.</value></data>
+<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>Din konto inneholder personopplysninger som du har gitt oss. Denne siden lar deg laste ned eller slette disse dataene.</value></data>
+<data name="enter a new name for your" xml:space="preserve"><value>Skriv inn et nytt navn for din</value></data>
+<data name="passkey" xml:space="preserve"><value>Passkey</value></data>
+<data name="my passkey" xml:space="preserve"><value>Min passnøkkel</value></data>
+<data name="passkey name" xml:space="preserve"><value>Passnøkkelnavn</value></data>
+<data name="continue" xml:space="preserve"><value>Fortsett</value></data>
+<data name="error: the specified passkey could not be found." xml:space="preserve"><value>Feil: den angitte nøkkelen ble ikke funnet.</value></data>
+<data name="error: the passkey could not be updated." xml:space="preserve"><value>Feil: Passkey kunne ikke oppdateres.</value></data>
+<data name="passkey updated successfully." xml:space="preserve"><value>Passkey er oppdatert.</value></data>
+<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>Hvis du tilbakestiller din autentiske nøkkel din autentiske app vil ikke fungere før du gjenoppretter den.</value></data>
+<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>Denne prosessen deaktiverer 2fa til du bekrefter din autentiske app.</value></data>
+<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>Hvis du ikke fullfører app-konfigurasjonen din, kan du miste tilgang til kontoen din.</value></data>
+<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>Din autentiske app-nøkkel er tilbakestilt, må du konfigurere din autentiske app ved hjelp av den nye nøkkelen.</value></data>
+<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>Du har ikke et lokalt brukernavn/passord til dette nettstedet. Legg til en lokal konto slik at du kan logge inn uten ekstern innlogging.</value></data>
+<data name="your password has been set." xml:space="preserve"><value>Passordet ditt er satt.</value></data>
+<data name="before you can log in with a recovery code." xml:space="preserve"><value>Før du kan logge på med en gjenopprettingskode.</value></data>
+<data name="you have 1 recovery code left." xml:space="preserve"><value>Du har 1 gjenopprettingskode igjen.</value></data>
+<data name="inline text" xml:space="preserve"><value>Inlinetekst</value></data>
+<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>Personvern og informasjonskapsler er ikke akseptert.</value></data>
+<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>Du må akseptere policyen før du kan aktivere to faktorautentisering.</value></data>
+<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>Nettleseren er glemt. Når du logger inn igjen fra denne nettleseren vil du bli bedt om din 2fa-kode.</value></data>
+<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>Denne appen har for tiden ikke en ekte e-post avsender registrert, se</value></data>
+<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>Hvis du vil vise det opprinnelige innlegget (det åpnes i en ny nettleserfane)</value></data>
+<data name="to display options." xml:space="preserve"><value>For å vise alternativer.</value></data>
+<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>Legg til en ny side for å overvåke bidrag.</value></data>
+<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>For å vise en forenklet HTML-visning av bidraget.</value></data>
+<data name="to display filters." xml:space="preserve"><value>For å vise filtre.</value></data>
+<data name="to rotate the map view." xml:space="preserve"><value>For å rotere kartvisningen.</value></data>
+<data name="to display the image gallery." xml:space="preserve"><value>For å vise bildegalleriet.</value></data>
+<data name="italic text" xml:space="preserve"><value>Kursiv tekst</value></data>
+<data name="summary" xml:space="preserve"><value>Sammendrag</value></data>
+<data name="expandable section" xml:space="preserve"><value>Uttrykkbar seksjon</value></data>
+<data name="strong emphasis" xml:space="preserve"><value>Sterk vektlegging</value></data>
+<data name="emphasis (italic)" xml:space="preserve"><value>Vektlegging (kursiv)</value></data>
+<data name="highlighted text" xml:space="preserve"><value>Uthevet tekst</value></data>
+<data name="code snippet" xml:space="preserve"><value>Kodeutdrag</value></data>
+<data name="code block" xml:space="preserve"><value>Kodeblokk</value></data>
+<data name="block quote" xml:space="preserve"><value>Blokksitat</value></data>
+<data name="citation" xml:space="preserve"><value>Sitering</value></data>
+<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>merk innlegg med vår 'tag-liste' (f.eks. 'liker', 'uinteressant', 'allerede lastet ned', ...). Det er 10 konfigurerbare 'tagger' tilgjengelig for dette formålet.</value></data>
+<data name="heading 1" xml:space="preserve"><value>Overskrift 1</value></data>
+<data name="sample output" xml:space="preserve"><value>Eksempelutdata</value></data>
+<data name="variable" xml:space="preserve"><value>Variabel</value></data>
+<data name="small text" xml:space="preserve"><value>Liten tekst</value></data>
+<data name="figure with caption" xml:space="preserve"><value>Figur med bildetekst</value></data>
+<data name="figure caption" xml:space="preserve"><value>Bildetekst</value></data>
+<data name="keyboard input" xml:space="preserve"><value>Tastaturinndata</value></data>
+<data name="bold text" xml:space="preserve"><value>Fet tekst</value></data>
+<data name="subscript" xml:space="preserve"><value>Senket skrift</value></data>
+<data name="superscript" xml:space="preserve"><value>Hevet skrift</value></data>
+<data name="are displayed." xml:space="preserve"><value>vises.</value></data>
+<data name="block container" xml:space="preserve"><value>Blokkbeholder</value></data>
+<data name="abbreviation" xml:space="preserve"><value>Forkortelse</value></data>
+<data name="custom" xml:space="preserve"><value>Tilpasset</value></data>
+</root>

@@ -1,0 +1,1 @@
+Testet WebApi-Endpunkte via WebApplicationFactory

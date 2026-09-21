@@ -1,0 +1,61 @@
+﻿<Project>
+
+	<PropertyGroup>
+		<!-- Pfad zur Entwicklungs-DLL direkt im build-Ordner -->
+		<AiTranslatorTaskAssembly>$(MSBuildThisFileDirectory)AiTranslator.Tasks.dll</AiTranslatorTaskAssembly>
+		<!-- Wir prüfen, ob die DLL physisch existiert -->
+		<AiTranslatorTaskExists Condition="Exists('$(AiTranslatorTaskAssembly)')">true</AiTranslatorTaskExists>
+	</PropertyGroup>
+
+	<!-- TRICK: TaskHostFactory zwingt MSBuild, den Task in einem separaten Prozess zu starten. -->
+	<!-- Dadurch wird die DLL NIEMALS von Visual Studio selbst gesperrt! -->
+	<UsingTask Condition="'$(AiTranslatorTaskExists)' == 'true'"
+	           TaskName="AiTranslator.Tasks.ResxAiTranslatorTask"
+	           AssemblyFile="$(AiTranslatorTaskAssembly)"
+	           TaskFactory="TaskHostFactory" />
+
+	<!-- TARGET: Schema und Einstellungen erzeugen -->
+	<Target Name="SetupAiTranslatorSettings" BeforeTargets="AssignTargetPaths">
+		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\aisettings-schema.json"
+		      DestinationFiles="$(ProjectDir)aisettings-schema.json"
+		      SkipUnchangedFiles="true"
+		      Condition="!Exists('$(ProjectDir)aisettings-schema.json')" />
+
+		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\aisettings.json"
+		      DestinationFiles="$(ProjectDir)aisettings.json"
+		      SkipUnchangedFiles="true"
+		      Condition="!Exists('$(ProjectDir)aisettings.json')" />
+
+		<ItemGroup>
+			<None Update="aisettings-schema.json">
+				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			</None>
+			<None Update="aisettings.json">
+				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			</None>
+		</ItemGroup>
+	</Target>
+
+	<!-- TARGET 1: Läuft beim normalen Build (NUR wenn DLL existiert) -->
+	<Target Name="RunAiTranslation"
+	        BeforeTargets="BeforeBuild"
+	        DependsOnTargets="SetupAiTranslatorSettings"
+	        Condition="'$(AiTranslatorTaskExists)' == 'true' And !$(MSBuildProjectName.EndsWith('_wpftmp'))">
+
+		<ResxAiTranslatorTask ProjectDir="$(ProjectDir)"
+		                      CurrentConfiguration="$(Configuration)"
+		                      IsPublishing="false" />
+	</Target>
+
+	<!-- TARGET 2: Läuft beim Publish (NUR wenn DLL existiert) -->
+	<Target Name="RunAiTranslationOnPublish"
+	        BeforeTargets="PrepareForPublish"
+	        DependsOnTargets="SetupAiTranslatorSettings"
+	        Condition="'$(AiTranslatorTaskExists)' == 'true' And !$(MSBuildProjectName.EndsWith('_wpftmp'))">
+
+		<ResxAiTranslatorTask ProjectDir="$(ProjectDir)"
+		                      CurrentConfiguration="$(Configuration)"
+		                      IsPublishing="true" />
+	</Target>
+
+</Project>

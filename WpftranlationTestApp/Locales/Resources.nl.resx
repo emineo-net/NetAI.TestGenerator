@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?><root><xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"><xsd:import namespace="http://www.w3.org/XML/1998/namespace" /><xsd:element name="root" msdata:IsDataSet="true"><xsd:complexType><xsd:choice maxOccurs="unbounded"><xsd:element name="metadata"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" use="required" type="xsd:string" /><xsd:attribute name="type" type="xsd:string" /><xsd:attribute name="mimetype" type="xsd:string" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="assembly"><xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType></xsd:element><xsd:element name="data"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /><xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /><xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /><xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="resheader"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType></xsd:element></xsd:choice></xsd:complexType></xsd:element></xsd:schema><resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="and" xml:space="preserve"><value>en</value></data>
+<data name="account" xml:space="preserve"><value>account</value></data>
+<data name="full name" xml:space="preserve"><value>Volledige naam</value></data>
+<data name="imprint" xml:space="preserve"><value>Afdruk</value></data>
+<data name="login" xml:space="preserve"><value>Inloggen</value></data>
+<data name="date from" xml:space="preserve"><value>datum van</value></data>
+<data name="rotate" xml:space="preserve"><value>roteren</value></data>
+<data name="contact" xml:space="preserve"><value>Contact</value></data>
+<data name="getting started" xml:space="preserve"><value>Aan de slag</value></data>
+<data name="show filter" xml:space="preserve"><value>filter tonen</value></data>
+<data name="first" xml:space="preserve"><value>eerst ai </value></data>
+<data name="paragraphs" xml:space="preserve"><value>Leden</value></data>
+<data name="close" xml:space="preserve"><value>Sluiten</value></data>
+<data name="contribution" xml:space="preserve"><value>Bijdrage</value></data>
+<data name="invalid user" xml:space="preserve"><value>Ongeldige gebruiker</value></data>
+<data name="logout" xml:space="preserve"><value>Afmelden</value></data>
+<data name="manage your account" xml:space="preserve"><value>Je account beheren</value></data>
+<data name="message" xml:space="preserve"><value>bericht</value></data>
+<data name="order abandoned" xml:space="preserve"><value>Bestelling Verlaten</value></data>
+<data name="picture gallery" xml:space="preserve"><value>afbeeldingsgalerij</value></data>
+<data name="download" xml:space="preserve"><value>Download</value></data>
+<data name="delete" xml:space="preserve"><value>Verwijderen</value></data>
+<data name="profile" xml:space="preserve"><value>Profiel</value></data>
+<data name="recovery codes" xml:space="preserve"><value>Herstelcodes</value></data>
+<data name="register as a new user" xml:space="preserve"><value>Registreren als nieuwe gebruiker</value></data>
+<data name="remove" xml:space="preserve"><value>Verwijder</value></data>
+<data name="click here to log in" xml:space="preserve"><value>klik hier om in te loggen</value></data>
+<data name="date to" xml:space="preserve"><value>datum tot</value></data>
+<data name="save" xml:space="preserve"><value>Opslaan</value></data>
+<data name="filter reset" xml:space="preserve"><value>filterreset ai </value></data>
+<data name="previous" xml:space="preserve"><value>vorige ai </value></data>
+<data name="add page" xml:space="preserve"><value>pagina toevoegen ai </value></data>
+<data name="password" xml:space="preserve"><value>Wachtwoord</value></data>
+<data name="assign categories to your pages or delete them" xml:space="preserve"><value>categorieën aan uw pagina s toewijzen of verwijderen ai </value></data>
+<data name="max" xml:space="preserve"><value>Max.</value></data>
+<data name="send" xml:space="preserve"><value>Verzenden</value></data>
+<data name="error" xml:space="preserve"><value>Fout</value></data>
+<data name="log in" xml:space="preserve"><value>log in ai </value></data>
+<data name="conveniently filter and search contributions" xml:space="preserve"><value>Gemakkelijk filteren en zoeken bijdragen</value></data>
+<data name="confirm password" xml:space="preserve"><value>Wachtwoord bevestigen</value></data>
+<data name="enter url." xml:space="preserve"><value>Voer url in.</value></data>
+<data name="italicized" xml:space="preserve"><value>cursief ai </value></data>
+<data name="email" xml:space="preserve"><value>E mail</value></data>
+<data name="heading 6" xml:space="preserve"><value>rubriek 6 ai </value></data>
+<data name="access denied" xml:space="preserve"><value>Toegang geweigerd</value></data>
+<data name="heading 5" xml:space="preserve"><value>rubriek 5 ai </value></data>
+<data name="add authenticator app" xml:space="preserve"><value>Authenticatie app toevoegen</value></data>
+<data name="associate your" xml:space="preserve"><value>Koppel uw</value></data>
+<data name="change email" xml:space="preserve"><value>E mail wijzigen</value></data>
+<data name="change password" xml:space="preserve"><value>wachtwoord wijzigen ai </value></data>
+<data name="change your account settings" xml:space="preserve"><value>Je accountinstellingen wijzigen</value></data>
+<data name="choose plan" xml:space="preserve"><value>Kies plan</value></data>
+<data name="click here to confirm your account" xml:space="preserve"><value>Klik hier om uw account te bevestigen</value></data>
+<data name="heading 4" xml:space="preserve"><value>rubriek 4 ai </value></data>
+<data name="properties" xml:space="preserve"><value>eigenschappen</value></data>
+<data name="log in with a recovery code" xml:space="preserve"><value>inloggen met een herstelcode</value></data>
+<data name="configure authenticator app" xml:space="preserve"><value>Authenticatie app configureren</value></data>
+<data name="title contains" xml:space="preserve"><value>titel bevat</value></data>
+<data name="toggle view" xml:space="preserve"><value>weergave omschakelen</value></data>
+<data name="these docs" xml:space="preserve"><value>deze documenten</value></data>
+<data name="terms and conditions" xml:space="preserve"><value>algemene voorwaarden ai </value></data>
+<data name="xxx" xml:space="preserve"><value>xxx</value></data>
+<data name="all" xml:space="preserve"><value>alles</value></data>
+<data name="confirm email" xml:space="preserve"><value>E mail bevestigen</value></data>
+<data name="confirm email change" xml:space="preserve"><value>Bevestig e mail wijzigen</value></data>
+<data name="hyperlink" xml:space="preserve"><value>hyperlinks ai </value></data>
+<data name="also see a preview of the" xml:space="preserve"><value>zie ook een voorbeeld van de ai </value></data>
+<data name="delete data and close my account" xml:space="preserve"><value>Verwijder gegevens en sluit mijn account</value></data>
+<data name="delete personal data" xml:space="preserve"><value>Persoonlijke gegevens verwijderen</value></data>
+<data name="disable 2fa" xml:space="preserve"><value>2FA uitschakelen</value></data>
+<data name="max lenght 14" xml:space="preserve"><value>Max. lengte 14</value></data>
+<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>Selecteer het volgende uit het menu: thuis, aan de slag, registreren, aanmelden, upgraden, uitloggen, imprint, contact, account. In het tweede menu, selecteer: Filter tonen, roteren, toggle weergave, eigenschappen, toevoegen, vooruit, achteruit. In het dialoogvenster kunt u: opslaan, annuleren, verzenden.</value></data>
+<data name="authenticator app" xml:space="preserve"><value>Authenticatorapp</value></data>
+<data name="recovery codes left." xml:space="preserve"><value>Herstel codes links.</value></data>
+<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>Efficiënt webscrapen door gewoon een URL in te voeren</value></data>
+<data name="enable qr code generation" xml:space="preserve"><value>QR code genereren inschakelt</value></data>
+<data name="external logins" xml:space="preserve"><value>Externe aanmeldingen</value></data>
+<data name="no passkeys are registered." xml:space="preserve"><value>Er zijn geen sleutels geregistreerd.</value></data>
+<data name="forget this browser" xml:space="preserve"><value>Deze browser vergeten</value></data>
+<data name="forgot password confirmation" xml:space="preserve"><value>Bevestiging wachtwoord vergeten</value></data>
+<data name="generate a new set of recovery codes" xml:space="preserve"><value>een nieuwe set herstelcodes genereren</value></data>
+<data name="generate recovery codes" xml:space="preserve"><value>Herstelcodes genereren</value></data>
+<data name="the external login was removed." xml:space="preserve"><value>De externe login is verwijderd.</value></data>
+<data name="learn how to" xml:space="preserve"><value>Leer hoe u</value></data>
+<data name="legal inquiry" xml:space="preserve"><value>Juridische vragen</value></data>
+<data name="locked out" xml:space="preserve"><value>Vergrendeld</value></data>
+<data name="manage email" xml:space="preserve"><value>Beheer e mail</value></data>
+<data name="just browse" xml:space="preserve"><value>gewoon bladeren ai </value></data>
+<data name="manage your external logins" xml:space="preserve"><value>Uw externe aanmeldingen beheren</value></data>
+<data name="new password" xml:space="preserve"><value>Nieuw wachtwoord</value></data>
+<data name="old password" xml:space="preserve"><value>Oud wachtwoord</value></data>
+<data name="options" xml:space="preserve"><value>Opties</value></data>
+<data name="google authenticator for" xml:space="preserve"><value>Google authenticator voor</value></data>
+<data name="order complete" xml:space="preserve"><value>Bestelling voltooid</value></data>
+<data name="personal data" xml:space="preserve"><value>Persoonlijke gegevens</value></data>
+<data name="phone number" xml:space="preserve"><value>Telefoonnummer</value></data>
+<data name="min" xml:space="preserve"><value>Min</value></data>
+<data name="recovery code" xml:space="preserve"><value>Herstelcode</value></data>
+<data name="recovery code verification" xml:space="preserve"><value>Verificatie herstelcode</value></data>
+<data name="register" xml:space="preserve"><value>Registreren</value></data>
+<data name="register confirmation" xml:space="preserve"><value>Bevestiging registreren</value></data>
+<data name="registered logins" xml:space="preserve"><value>Geregistreerde aanmeldingen</value></data>
+<data name="remember me" xml:space="preserve"><value>Onthoud mij</value></data>
+<data name="remember this machine" xml:space="preserve"><value>Onthoud dit apparaat</value></data>
+<data name="resend" xml:space="preserve"><value>Opnieuw verzenden</value></data>
+<data name="resend email confirmation" xml:space="preserve"><value>Bevestiging per e mail opnieuw verzenden</value></data>
+<data name="reset" xml:space="preserve"><value>Reset</value></data>
+<data name="reset authenticator app" xml:space="preserve"><value>Authenticator app resetten</value></data>
+<data name="reset authenticator key" xml:space="preserve"><value>Authenticatorsleutel resetten</value></data>
+<data name="reset filters" xml:space="preserve"><value>Filters resetten</value></data>
+<data name="reset password" xml:space="preserve"><value>Wachtwoord opnieuw instellen</value></data>
+<data name="reset password confirmation" xml:space="preserve"><value>Bevestiging wachtwoord opnieuw instellen</value></data>
+<data name="reset recovery codes" xml:space="preserve"><value>Herstelcodes opnieuw instellen</value></data>
+<data name="user name" xml:space="preserve"><value>gebruikersnaam ai </value></data>
+<data name="scan the qr code or enter this key" xml:space="preserve"><value>Scan de QR code of voer deze sleutel in</value></data>
+<data name="selected categories" xml:space="preserve"><value>Geselecteerde categorieën</value></data>
+<data name="selected websites" xml:space="preserve"><value>Geselecteerde websites</value></data>
+<data name="send verification email" xml:space="preserve"><value>Verificatie e mail verzenden</value></data>
+<data name="set password" xml:space="preserve"><value>Wachtwoord instellen</value></data>
+<data name="set your password" xml:space="preserve"><value>Stel je wachtwoord in</value></data>
+<data name="subject" xml:space="preserve"><value>onderwerp</value></data>
+<data name="define the names of your categories" xml:space="preserve"><value>de namen van uw categorieën definiëren ai </value></data>
+<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>In uw twee factor authenticator app. Ruimtes en behuizing maakt niet uit.</value></data>
+<data name="update password" xml:space="preserve"><value>Wachtwoord bijwerken</value></data>
+<data name="main heading" xml:space="preserve"><value>hoofdrubriek ai </value></data>
+<data name="error finding user for unspecified email" xml:space="preserve"><value>Fout bij het vinden van gebruiker voor niet gespecificeerd e mailadres</value></data>
+<data name="home" xml:space="preserve"><value>Voorpagina</value></data>
+<data name="invalid password reset" xml:space="preserve"><value>Ongeldig wachtwoord resetten</value></data>
+<data name="of" xml:space="preserve"><value>van</value></data>
+<data name="paragraph" xml:space="preserve"><value>paragraaf ai </value></data>
+<data name="success" xml:space="preserve"><value>Succes</value></data>
+<data name="set up authenticator app" xml:space="preserve"><value>Authenticatie app instellen</value></data>
+<data name="username" xml:space="preserve"><value>Gebruikersnaam</value></data>
+<data name="verification code" xml:space="preserve"><value>Verificatie Code</value></data>
+<data name="verify" xml:space="preserve"><value>verifiëren</value></data>
+<data name="next" xml:space="preserve"><value>volgende ai </value></data>
+<data name="subscriptions" xml:space="preserve"><value>abonnementen ai </value></data>
+<data name="you have" xml:space="preserve"><value>U hebt</value></data>
+<data name="you must" xml:space="preserve"><value>U moet</value></data>
+<data name="your password has been changed" xml:space="preserve"><value>Je wachtwoord is gewijzigd</value></data>
+<data name="your profile has been updated" xml:space="preserve"><value>Je profiel is bijgewerkt</value></data>
+<data name="nter a name for your passkey" xml:space="preserve"><value>Meer een naam voor uw wachtwoord</value></data>
+<data name="forgot your password?" xml:space="preserve"><value>Wachtwoord vergeten?</value></data>
+<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>Volledige weergave van de bijdragen door te klikken op de titel van de bijdrage</value></data>
+<data name="privacy policy" xml:space="preserve"><value>privacybeleid ai </value></data>
+<data name="pro version" xml:space="preserve"><value>pro versie ai </value></data>
+<data name="new project" xml:space="preserve"><value>nieuw project ai </value></data>
+<data name="reset filter" xml:space="preserve"><value>resetfilter ai </value></data>
+<data name="save changes" xml:space="preserve"><value>wijzigingen opslaan ai </value></data>
+<data name="last" xml:space="preserve"><value>laatste ai </value></data>
+<data name="open original" xml:space="preserve"><value>origineel openen ai </value></data>
+<data name="download documents" xml:space="preserve"><value>documenten downloaden ai </value></data>
+<data name="tagging and filtering" xml:space="preserve"><value>tagging en filtering ai </value></data>
+<data name="open local" xml:space="preserve"><value>lokaal openen ai </value></data>
+<data name="download single" xml:space="preserve"><value>single downloaden ai </value></data>
+<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>Pictogram om te schakelen tussen de kaartenweergave en de tabelweergave.</value></data>
+<data name="add custom tag" xml:space="preserve"><value>Aangepaste tag toevoegen</value></data>
+<data name="define the name of the tag for individual posts" xml:space="preserve"><value>de naam van het label voor individuele berichten definiëren ai </value></data>
+<data name="tagging contributions" xml:space="preserve"><value>Taggingsbijdragen</value></data>
+<data name="filter your pages" xml:space="preserve"><value>filter uw pagina s ai </value></data>
+<data name="download txt or json documents without images" xml:space="preserve"><value>txt of json documenten downloaden zonder afbeeldingen ai </value></data>
+<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>in de filters kunt u filteren door getagged berichten ai </value></data>
+<data name="click on the" xml:space="preserve"><value>klik op de ai </value></data>
+<data name="to display download options" xml:space="preserve"><value>om downloadopties weer te geven ai </value></data>
+<data name="click save word document." xml:space="preserve"><value>Klik op opslaan woorddocument.</value></data>
+<data name="error changing user name." xml:space="preserve"><value>Fout bij het wijzigen van gebruikersnaam.</value></data>
+<data name="add" xml:space="preserve"><value>Toevoegen</value></data>
+<data name="document." xml:space="preserve"><value>Document.</value></data>
+<data name="a new tab." xml:space="preserve"><value>Een nieuwe rekening.</value></data>
+<data name="and json will open. you will" xml:space="preserve"><value>En Json gaat open. Dat komt nog wel.</value></data>
+<data name="json download" xml:space="preserve"><value>Json downloaden</value></data>
+<data name="the external login was added." xml:space="preserve"><value>De externe login is toegevoegd.</value></data>
+<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>Tweefactorauthenticatie uitschakelen (2fa)</value></data>
+<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>Gebruik de switch om te kiezen tussen waar is en waar niet.</value></data>
+<data name="loc[are displayed.]" xml:space="preserve"><value>Loc[worden weergegeven.]</value></data>
+<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>Een eenvoudig, tab-gescheiden formaat geschikt voor verdere verwerking in spreadsheets of databases.</value></data>
+<data name="save to your download directory." xml:space="preserve"><value>Opslaan in je downloadmap.</value></data>
+<data name="two-factor authentication (2fa)" xml:space="preserve"><value>Two-factor authenticatie (2fa)</value></data>
+<data name="cards" xml:space="preserve"><value>Kaarten</value></data>
+<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>Een rode recyclebin kan pictogram verschijnt onder het filter pictogram. Door op dit pictogram te klikken worden alle actieve filters verwijderd en wordt het volledige overzicht van de bijdragen weer weergegeven.</value></data>
+<data name="two-factor authentication" xml:space="preserve"><value>Two-factor authenticatie</value></data>
+<data name="enter a new email" xml:space="preserve"><value>Voer een nieuwe e-mail in</value></data>
+<data name="select columns for scraping" xml:space="preserve"><value>Selecteer kolommen voor schrapen</value></data>
+<data name="click one or more tags for a post." xml:space="preserve"><value>Klik op een of meer tags voor een bericht.</value></data>
+<data name="cards and table" xml:space="preserve"><value>Kaarten en tabellen</value></data>
+<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>Pictogram om de oorspronkelijke bijdrage te bekijken in de oorspronkelijke bron en layout.</value></data>
+<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>Voor individuele bijdragen kunt u ze downloaden.</value></data>
+<data name="rename" xml:space="preserve"><value>Hernoem</value></data>
+<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>Om getagde bijdragen weer te geven, kunt u de bijbehorende tag uit de lijst met teksten selecteren.</value></data>
+<data name="toggle help visibility" xml:space="preserve"><value>Zichtbaarheid schakelen</value></data>
+<data name="enter / select url" xml:space="preserve"><value>Voer in / selecteer url</value></data>
+<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>Download opties pdf, docs, txt, html</value></data>
+<data name="to display filter dialog" xml:space="preserve"><value>Filterdialoog weergeven</value></data>
+<data name="enter your phone number" xml:space="preserve"><value>Voer uw telefoonnummer in</value></data>
+<data name="no contributions were found on the page" xml:space="preserve"><value>Geen bijdragen gevonden op de pagina</value></data>
+<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>Een nieuw venster opent een pdf-voorbeeld van uw document. Dit voorbeeld geeft een eerste overzicht van de inhoud en lay-out van het document.</value></data>
+<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>De beste manier om contact met ons op te nemen is om ons contactformulier hieronder te gebruiken. Vul alle benodigde velden in en we nemen zo snel mogelijk contact met u op.</value></data>
+<data name="export" xml:space="preserve"><value>uitvoer ai </value></data>
+<data name="underlined" xml:space="preserve"><value>Onderstreept</value></data>
+<data name="add to followed projects" xml:space="preserve"><value>aan volgende projecten toevoegen ai </value></data>
+<data name="follow" xml:space="preserve"><value>volgen ai </value></data>
+<data name="scraping view" xml:space="preserve"><value>schurende weergave ai </value></data>
+<data name="authenticator code" xml:space="preserve"><value>identificatiecode ai </value></data>
+<data name="heading 3" xml:space="preserve"><value>rubriek 3 ai </value></data>
+<data name="heading 2" xml:space="preserve"><value>rubriek 2 ai </value></data>
+<data name="image" xml:space="preserve"><value>afbeelding ai </value></data>
+<data name="the created document will open in" xml:space="preserve"><value>het aangemaakte document opent in ai </value></data>
+<data name="click on download a view with" xml:space="preserve"><value>klik op een weergave downloaden met ai </value></data>
+<data name="file saving failed:" xml:space="preserve"><value>Bestand opslaan mislukt:</value></data>
+<data name="file saved to:" xml:space="preserve"><value>Bestand opgeslagen in:</value></data>
+<data name="an error occurred during download:" xml:space="preserve"><value>Er is een fout opgetreden tijdens het downloaden:</value></data>
+<data name="thank you for your message." xml:space="preserve"><value>Bedankt voor je bericht.</value></data>
+<data name="file" xml:space="preserve"><value>Bestand</value></data>
+<data name="an error has occurred." xml:space="preserve"><value>Er is een fout opgetreden.</value></data>
+<data name="table" xml:space="preserve"><value>Tabel</value></data>
+<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>Documentformaten: docx, pdf, html, json, txt</value></data>
+<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>Filter op categorie (u moet uw pagina's hebben getagd om dit te doen)</value></data>
+<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>Dan kunt u pdf, docx en html documenten downloaden met afbeeldingen</value></data>
+<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>U kunt de naam van uw tags individueel definiëren onder opties.</value></data>
+<data name="show help (dynamic, static, off)" xml:space="preserve"><value>Hulp tonen (dynamisch, statisch, uit)</value></data>
+<data name="enter a part that the title must contain." xml:space="preserve"><value>Voer een deel in dat de titel moet bevatten.</value></data>
+<data name="switch view" xml:space="preserve"><value>Schakelen weergave</value></data>
+<data name="custoum" xml:space="preserve"><value>Aangepast</value></data>
+<data name="download document" xml:space="preserve"><value>Document downloaden</value></data>
+<data name="csv download" xml:space="preserve"><value>Csv-download</value></data>
+<data name="excel download" xml:space="preserve"><value>Excel-download</value></data>
+<data name="single document download" xml:space="preserve"><value>Download één document</value></data>
+<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>Met 'closerpage-for-windows' ontvang je tot 200 beelden.</value></data>
+<data name="the contributions for" xml:space="preserve"><value>De bijdragen voor</value></data>
+<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>Om automatisch nieuwe bijdragen in de toekomst te verzamelen, klik op</value></data>
+<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>U kunt individuele projecten selecteren om alleen de bijdragen die tot deze projecten behoren weer te geven.</value></data>
+<data name="available predefined tags" xml:space="preserve"><value>Beschikbare vooraf gedefinieerde tags</value></data>
+<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>Als u categorieën hebt toegewezen aan uw webpagina's, kunt u ook filteren door deze categorieën. Selecteer gewoon de gewenste webpagina's of categorieën uit de lijst.</value></data>
+<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>Zodra u uw selectie hebt gemaakt, klikt u op de  De bijdrageweergave zal dan worden bijgewerkt en alleen de gefilterde resultaten tonen.</value></data>
+<data name="to display options" xml:space="preserve"><value>Opties weergeven</value></data>
+<data name="this will rotate all cards." xml:space="preserve"><value>Dit zal alle kaarten draaien.</value></data>
+<data name="button" xml:space="preserve"><value>Knop</value></data>
+<data name="preview the images" xml:space="preserve"><value>Afbeeldingen bekijken</value></data>
+<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>Als uw document afbeeldingsbestanden bevat, worden deze ook weergegeven in het voorbeeld.</value></data>
+<data name="download options" xml:space="preserve"><value>Downloadopties</value></data>
+<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>Om het document te downloaden, selecteert u het gewenste formaat uit de beschikbare opties.</value></data>
+<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>Ideaal voor print-ready documenten en delen in een professionele lay-out.</value></data>
+<data name="error: incorrect password." xml:space="preserve"><value>Fout: onjuist wachtwoord.</value></data>
+<data name="useful if you want to edit the document further." xml:space="preserve"><value>Nuttig als u het document verder wilt bewerken.</value></data>
+<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>Nuttig voor het inbedden van inhoud in een website of ander digitaal medium.</value></data>
+<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>Bevat alleen platte tekst, zonder opmaak. Geschikt voor eenvoudige verdere verwerking.</value></data>
+<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>Bevat alle afbeeldingen van het document als aparte bestanden in het geval u ze individueel nodig hebt.</value></data>
+<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>Om een website te zoeken voor bijdragen, voer een url en klik op het vergrootglas pictogram. Als alternatief kunt u de enter-toets op uw toetsenbord indrukken.</value></data>
+<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>Als u bent ingelogd en al tracking urls voor wijzigingen, kunt u ook de url selecteren uit de drop-down lijst.</value></data>
+<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>Huidige berichten op de geselecteerde website worden automatisch vastgelegd door ons algoritme. De oude en nieuw gedetecteerde berichten worden dan weergegeven op de website.</value></data>
+<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>Ik voer een url en niets wordt weergegeven. Waarom?</value></data>
+<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>Helaas is dit niet ongebruikelijk en kan het vele oorzaken hebben, bijvoorbeeld:</value></data>
+<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>Er zijn geen bijdragen gekoppeld op de website die u zoekt. (bijv., u hebt de contactpagina als url ingevoerd: https://mysite/contact</value></data>
+<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>De gekoppelde berichten zijn niet binnen het domein. Zo hebt u bijvoorbeeld een http://mysite.com/products,</value></data>
+<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>De gevraagde pagina blokkeert bots (closerpage is een bot).</value></data>
+<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>De gevraagde pagina toont alleen berichten voor geregistreerde gebruikers.</value></data>
+<data name="table structure (sorted by priority)" xml:space="preserve"><value>Tabelstructuur (gesorteerd naar prioriteit)</value></data>
+<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>De tabel is zo georganiseerd dat de belangrijkste informatie eerst wordt weergegeven, waardoor snelle oriëntatie en efficiënte verwerking mogelijk zijn.</value></data>
+<data name="tags" xml:space="preserve"><value>Tags</value></data>
+<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>De bijdrage wordt dan geopend in een nieuw browservenster of tabblad. Daar ziet u de bijdrage zoals het werd gepubliceerd op de oorspronkelijke website.Inclusief alle opmaak, afbeeldingen, links en andere inhoud die niet in de scraping view zijn opgenomen.</value></data>
+<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>Alle bestaande tags of categorieën toegewezen aan de bijdragen worden hier weergegeven. Dit helpt u snel bijdragen te filteren op onderwerp of focus.</value></data>
+<data name="headings and titles" xml:space="preserve"><value>Rubrieken en titels</value></data>
+<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>De rubrieken en titels van de bijdragen zijn de tweede. Zij bieden een eerste overzicht van de inhoud en maken een snelle identificatie van relevante bijdragen mogelijk.</value></data>
+<data name="date and author" xml:space="preserve"><value>Datum en auteur</value></data>
+<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>Deze kolom bevat de publicatiedatum en de auteur van de bijdrage. Hierdoor kunt u zien wanneer en door wie de bijdrage werd gecreëerd.</value></data>
+<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>De feitelijke inhoud van de bijdragen, verdeeld in paragrafen, vormt het laatste deel van de tabel. Hier vindt u de gedetailleerde tekst die is geschraapt.</value></data>
+<data name="table functions" xml:space="preserve"><value>Tabelfuncties</value></data>
+<data name="tagging" xml:space="preserve"><value>Markeren</value></data>
+<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>Bijdragen kunnen gemarkeerd en gemerkt worden door het selectievakje te selecteren. Dit maakt het makkelijker om later bijdragen te sorteren, te filteren en te beheren, vooral wanneer het gaat om grote hoeveelheden gegevens.</value></data>
+<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>De gehele tabel of geselecteerde bijdragen kunnen worden gedownload in verschillende formaten</value></data>
+<data name="select tagged contributions" xml:space="preserve"><value>Getagde bijdragen selecteren</value></data>
+<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>Een bekend tabelformaat met extra opmaakopties, met name geschikt voor rapporten of presentaties.</value></data>
+<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>Een gestructureerd dataformaat dat bijzonder geschikt is voor verdere verwerking in programma's of webapplicaties.</value></data>
+<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>Met de taggingfunctie kunt u bijdragen categoriseren en organiseren, waardoor ze later gemakkelijker te vinden of te filteren zijn.</value></data>
+<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>Deze functie is beschikbaar in zowel de kaarten en scraping tafel uitzicht. Deze functie stelt u in staat om specifieke bijdragen te verbergen of te markeren als bijzonder belangrijk.</value></data>
+<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>Met name belangrijke, relevante of uitstaande bijdragen.</value></data>
+<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>Geeft aan dat de bijdrage reeds is gedownload.</value></data>
+<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>Markeert bijdragen die zijn gemaakt of bewerkt met behulp van ai technologieën.</value></data>
+<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>Verbergt bijdragen die u niet langer wilt weergeven, maar verwijdert ze niet volledig.</value></data>
+<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>Als de link niet werkt of de bijdrage niet meer beschikbaar is, kan dit te wijten zijn aan wijzigingen op de oorspronkelijke pagina.</value></data>
+<data name="show contribution" xml:space="preserve"><value>Bijdrage tonen</value></data>
+<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>Klik in kaartweergave op de kop om een nieuw venster te openen met de inhoud van de bijdrage.</value></data>
+<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>Ideaal voor het snel lezen, controleren of bewerken van bijdragen zonder de oorspronkelijke bron te hoeven bellen.</value></data>
+<data name="create a new account." xml:space="preserve"><value>Maak een nieuw account aan.</value></data>
+<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>Als een bijdrage afbeeldingsbestanden bevat, wordt een kleine voorbeeldafbeelding weergegeven in de bijdragevoorbeeld.</value></data>
+<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>U ziet een nummer in de bovenste hoek van de preview afbeelding. Dit getal geeft aan hoeveel afbeeldingen in de bijdrage zitten.</value></data>
+<data name="simply click on the preview image." xml:space="preserve"><value>Klik gewoon op de voorbeeldafbeelding.</value></data>
+<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>Dit opent een galerijweergave waarin alle afbeeldingen in de bijdrage duidelijk en in een groter formaat worden weergegeven.</value></data>
+<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>Dit stelt u in staat om te beslissen of bijdragen met de geselecteerde tag worden weergegeven of of alleen bijdragen die niet zijn getagd dienovereenkomstig worden weergegeven.</value></data>
+<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>Vragen over ons privacybeleid, cookies of gebruiksvoorwaarden worden zo snel mogelijk beantwoord.</value></data>
+<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>Huidige bijdragen van uw favoriete websites - in een oogopslag</value></data>
+<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>Leest u regelmatig of onderzoekt u op verschillende websites en wilt u het laatste nieuws op één plek in één oogopslag? Dan ben je aan het juiste adres!</value></data>
+<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>Alle nieuwe berichten van uw geselecteerde websites in een oogopslag.</value></data>
+<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>Genereer documenten in docx, pdf, json of html.</value></data>
+<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>Posts markeren met onze 'taglijst' (bijv. "like Er zijn 10 configureerbare 'tags' beschikbaar voor dit doel.</value></data>
+<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>Ontdek closeerpage - de ultieme tool voor iedereen die op de hoogte wil blijven van de nieuwste online content. Met de gebruiksvriendelijke web scraping functie, gewoon een url invoeren en direct zien alle nieuwe berichten op de gewenste website.</value></data>
+<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>Elke post kan volledig worden weergegeven met een enkele klik, zodat u geen belangrijke informatie missen. De chronologische volgorde van de berichten maakt het makkelijker om te navigeren en relevante inhoud te vinden.</value></data>
+<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>Een bijzonder hoogtepunt is de mogelijkheid om documenten te maken van elke bijdrage in docx, pdf, json of html formaat - ideaal voor archivering of verdere verwerking van de informatie.</value></data>
+<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>Dit betekent dat je nooit een nieuwe bijdrage mist en altijd up to date bent</value></data>
+<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>Registreer om het gratis plan te activeren. Dan kun je upgraden naar het pro plan.</value></data>
+<data name="you do not have access to this resource." xml:space="preserve"><value>Je hebt geen toegang tot deze bron.</value></data>
+<data name="thank you for confirming your email." xml:space="preserve"><value>Bedankt voor het bevestigen van uw e-mail.</value></data>
+<data name="error confirming your email." xml:space="preserve"><value>Fout bij het bevestigen van uw e-mail.</value></data>
+<data name="i accept the terms and conditions" xml:space="preserve"><value>Ik accepteer de voorwaarden</value></data>
+<data name="error: invalid email change confirmation link." xml:space="preserve"><value>Fout: ongeldige e-mail wijziging bevestigingslink.</value></data>
+<data name="error changing email." xml:space="preserve"><value>Fout bij het wijzigen van e-mail.</value></data>
+<data name="thank you for confirming your email change." xml:space="preserve"><value>Bedankt voor het bevestigen van uw e-mail wijziging.</value></data>
+<data name="you've successfully authenticated with" xml:space="preserve"><value>U bent succesvol geauthenticeerd met</value></data>
+<data name="use another service to register." xml:space="preserve"><value>Gebruik een andere dienst om te registreren.</value></data>
+<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>Voer hieronder een e-mailadres in voor deze site en klik op de registerknop om in te loggen.</value></data>
+<data name="please enter your email." xml:space="preserve"><value>Vul uw e-mail in.</value></data>
+<data name="error loading external login information." xml:space="preserve"><value>Fout bij laden externe aanmeldingsinformatie.</value></data>
+<data name="error loading external login information during confirmation." xml:space="preserve"><value>Fout bij het laden van externe aanmeldinformatie tijdens de bevestiging.</value></data>
+<data name="reset your password." xml:space="preserve"><value>Uw wachtwoord resetten.</value></data>
+<data name="the default ui requires a user store with email support." xml:space="preserve"><value>De standaard ui vereist een gebruikerswinkel met e-mailondersteuning.</value></data>
+<data name="enter your email." xml:space="preserve"><value>Voer je e-mail in.</value></data>
+<data name="please check your email to reset your password." xml:space="preserve"><value>Controleer uw e-mail om uw wachtwoord te resetten.</value></data>
+<data name="the password reset link is invalid." xml:space="preserve"><value>De wachtwoord reset koppeling is ongeldig.</value></data>
+<data name="please confirm your password." xml:space="preserve"><value>Bevestig uw wachtwoord.</value></data>
+<data name="this account has been locked out, please try again later." xml:space="preserve"><value>Dit account is geblokkeerd, probeer het later nog eens.</value></data>
+<data name="use a local account to log in." xml:space="preserve"><value>Gebruik een lokaal account om in te loggen.</value></data>
+<data name="log in with a passkey" xml:space="preserve"><value>Aanmelden met een wachtwoord</value></data>
+<data name="use another service to log in." xml:space="preserve"><value>Gebruik een andere dienst om in te loggen.</value></data>
+<data name="please enter your password." xml:space="preserve"><value>Voer uw wachtwoord in.</value></data>
+<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>Uw login is beveiligd met een authenticator app. Voer hieronder uw aanmeldingscode in.</value></data>
+<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>Heb je geen toegang tot je authenticatieapparaat? Je kunt</value></data>
+<data name="error: invalid authenticator code." xml:space="preserve"><value>Fout: ongeldige aanmeldcode.</value></data>
+<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>U heeft gevraagd om in te loggen met een herstelcode. Deze login wordt niet onthouden totdat u een appcode van de authenticator bij inloggen of uitschakelen 2fa en opnieuw inloggen.</value></data>
+<data name="recoverycode" xml:space="preserve"><value>Terugvorderingscode</value></data>
+<data name="for how to configure a real email sender" xml:space="preserve"><value>Voor het instellen van een echte e-mailzender</value></data>
+<data name="normally this would be emailed:" xml:space="preserve"><value>Normaal gesproken wordt dit gemaild:</value></data>
+<data name="please check your email to confirm your account." xml:space="preserve"><value>Controleer uw e-mail om uw account te bevestigen.</value></data>
+<data name="verification email sent. please check your email." xml:space="preserve"><value>Verificatie e-mail verzonden. Controleer uw e-mail.</value></data>
+<data name="enter the code" xml:space="preserve"><value>Code invoeren</value></data>
+<data name="your password has been reset. please" xml:space="preserve"><value>Je wachtwoord is gereset. Alsjeblieft.</value></data>
+<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>Er zijn geen externe authenticatiediensten geconfigureerd. Zie dit</value></data>
+<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>Artikel over het opzetten van deze asp.net applicatie ter ondersteuning van inloggen via externe diensten</value></data>
+<data name="put these codes in a safe place." xml:space="preserve"><value>Zet deze codes op een veilige plek.</value></data>
+<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>Als u uw apparaat verliest en de herstelcodes niet hebt, verliest u toegang tot uw account.</value></data>
+<data name="enter the old password" xml:space="preserve"><value>Geef het oude wachtwoord</value></data>
+<data name="enter the new password" xml:space="preserve"><value>Geef het nieuwe wachtwoord</value></data>
+<data name="user changed their password successfully." xml:space="preserve"><value>Gebruiker veranderde hun wachtwoord succesvol.</value></data>
+<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>Het verwijderen van deze gegevens zal permanent uw account verwijderen, en dit kan niet worden hersteld.</value></data>
+<data name="unexpected error occurred deleting user." xml:space="preserve"><value>Onverwachte fout opgetreden verwijderen gebruiker.</value></data>
+<data name="this action only disables 2fa." xml:space="preserve"><value>Deze actie schakelt slechts 2fa uit.</value></data>
+<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Het uitschakelen van 2fa verandert niet de sleutels die gebruikt worden in authenticator-apps. Als u de sleutel wilt wijzigen die gebruikt wordt in een authenticator app moet u</value></data>
+<data name="set your authenticator keys." xml:space="preserve"><value>Stel uw sleutels in.</value></data>
+<data name="reset your authenticator keys." xml:space="preserve"><value>Reset uw authenticator sleutels.</value></data>
+<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>Kan 2fa voor gebruiker niet uitschakelen omdat het momenteel niet is ingeschakeld.</value></data>
+<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>Onverwachte fout opgetreden het uitschakelen van 2fa.</value></data>
+<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2fa is uitgeschakeld. U kunt 2fa opnieuw inschakelen wanneer u een authenticator-app opzet</value></data>
+<data name="enter your email" xml:space="preserve"><value>Voer uw e-mail in</value></data>
+<data name="your email is unchanged." xml:space="preserve"><value>Uw e-mail is ongewijzigd.</value></data>
+<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>Bevestigingslink om e-mail te wijzigen verzonden. Controleer uw e-mail.</value></data>
+<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>Om gebruik te maken van een authenticator app gaan door de volgende stappen:</value></data>
+<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>Download een twee-factor authenticatie app zoals microsoft authenticator voor</value></data>
+<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>Zodra u de rq code hebt gescand of de sleutel hierboven invoert, zal uw twee factor authenticatie app u voorzien van een unieke code. Voer de code in in het onderstaande bevestigingsvenster.</value></data>
+<data name="error: verification code is invalid." xml:space="preserve"><value>Fout: verificatiecode is ongeldig.</value></data>
+<data name="your authenticator app has been verified." xml:space="preserve"><value>Uw app is geverifieerd.</value></data>
+<data name="add another service to log in." xml:space="preserve"><value>Voeg een andere dienst toe om in te loggen.</value></data>
+<data name="error: the external login was not removed." xml:space="preserve"><value>Fout: de externe aanmelding is niet verwijderd.</value></data>
+<data name="error: could not load external login info." xml:space="preserve"><value>Fout: kon externe aanmeldinfo niet laden.</value></data>
+<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>Fout: de externe aanmelding is niet toegevoegd. Externe logins kunnen maar met één account worden geassocieerd.</value></data>
+<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>Genereer twee-factor authenticatie (2fa) herstelcodes</value></data>
+<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Het genereren van nieuwe recovery codes verandert niet de sleutels gebruikt in authenticator apps. Als u de sleutel wilt wijzigen die gebruikt wordt in een authenticator app moet u</value></data>
+<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>Kan geen herstelcodes genereren voor de gebruiker omdat ze 2fa niet hebben ingeschakeld.</value></data>
+<data name="you have generated new recovery codes." xml:space="preserve"><value>Je hebt nieuwe herstelcodes gegenereerd.</value></data>
+<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>Gebruiker met id '{userid}' heeft nieuwe 2fa herstelcodes gegenereerd.</value></data>
+<data name="choose your username." xml:space="preserve"><value>Kies uw gebruikersnaam.</value></data>
+<data name="you have no recovery codes left." xml:space="preserve"><value>Je hebt geen herstelcodes meer.</value></data>
+<data name="error: failed to set phone number." xml:space="preserve"><value>Fout: kon telefoonnummer niet instellen.</value></data>
+<data name="manage your passkeys" xml:space="preserve"><value>Uw wachtwoorden beheren</value></data>
+<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>U heeft het maximum aantal toegestane wachtwoorden bereikt. Verwijder er een voordat u een nieuwe toevoegt.</value></data>
+<data name="add a new passkey" xml:space="preserve"><value>Een nieuwe wachtwoord toevoegen</value></data>
+<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>Fout: de browser heeft geen wachtwoord opgegeven.</value></data>
+<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>Fout: de passleutel kon niet aan uw account worden toegevoegd.</value></data>
+<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>Fout: het opgegeven wachtwoord-id had een ongeldig formaat.</value></data>
+<data name="error: the passkey could not be deleted." xml:space="preserve"><value>Fout: de passleutel kon niet verwijderd worden.</value></data>
+<data name="passkey deleted successfully." xml:space="preserve"><value>Wachtwoord is succesvol verwijderd.</value></data>
+<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>Uw account bevat persoonlijke gegevens die u ons hebt gegeven. Op deze pagina kunt u die gegevens downloaden of verwijderen.</value></data>
+<data name="enter a new name for your" xml:space="preserve"><value>Voer een nieuwe naam in voor uw</value></data>
+<data name="passkey" xml:space="preserve"><value>Wachtwoord</value></data>
+<data name="my passkey" xml:space="preserve"><value>Mijn sleutel</value></data>
+<data name="passkey name" xml:space="preserve"><value>Wachtwoordnaam</value></data>
+<data name="continue" xml:space="preserve"><value>Doorgaan</value></data>
+<data name="error: the specified passkey could not be found." xml:space="preserve"><value>Fout: de opgegeven sleutel kon niet gevonden worden.</value></data>
+<data name="error: the passkey could not be updated." xml:space="preserve"><value>Fout: de passleutel kon niet worden bijgewerkt.</value></data>
+<data name="passkey updated successfully." xml:space="preserve"><value>Wachtwoord succesvol bijgewerkt.</value></data>
+<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>Als u uw authenticatorsleutel reset zal uw authenticator-app niet werken totdat u het opnieuw hebt ingesteld.</value></data>
+<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>Dit proces schakelt 2fa uit totdat u uw authenticator-app controleert.</value></data>
+<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>Als u de configuratie van uw app niet voltooit, verliest u mogelijk toegang tot uw account.</value></data>
+<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>Uw authenticator app sleutel is gereset, moet u uw authenticator app configureren met behulp van de nieuwe sleutel.</value></data>
+<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>U heeft geen lokale gebruikersnaam/wachtwoord voor deze site. Voeg een lokaal account toe zodat u kunt inloggen zonder externe aanmelding.</value></data>
+<data name="your password has been set." xml:space="preserve"><value>Uw wachtwoord is ingesteld.</value></data>
+<data name="before you can log in with a recovery code." xml:space="preserve"><value>Voordat u kunt inloggen met een herstelcode.</value></data>
+<data name="you have 1 recovery code left." xml:space="preserve"><value>Je hebt nog 1 code over.</value></data>
+<data name="inline text" xml:space="preserve"><value>Inline tekst</value></data>
+<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>Privacy- en cookiebeleid zijn niet geaccepteerd.</value></data>
+<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>U moet het beleid accepteren voordat u twee factor authenticatie kunt inschakelen.</value></data>
+<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>De huidige browser is vergeten. Wanneer u opnieuw inlogt vanuit deze browser wordt u gevraagd om uw 2fa code.</value></data>
+<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>Deze app heeft momenteel geen echte e-mail afzender geregistreerd, zie</value></data>
+<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>Het oorspronkelijke bericht weergeven (het opent in een nieuw browsertabblad)</value></data>
+<data name="to display options." xml:space="preserve"><value>Om opties weer te geven.</value></data>
+<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>Een nieuwe pagina toevoegen voor het monitoren van bijdragen.</value></data>
+<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>Een vereenvoudigde html-weergave van de bijdrage weergeven.</value></data>
+<data name="to display filters." xml:space="preserve"><value>Filters weergeven.</value></data>
+<data name="to rotate the map view." xml:space="preserve"><value>Om de kaartweergave te draaien.</value></data>
+<data name="to display the image gallery." xml:space="preserve"><value>De afbeeldingsgalerij weergeven.</value></data>
+<data name="italic text" xml:space="preserve"><value>Cursieve tekst</value></data>
+<data name="summary" xml:space="preserve"><value>Samenvatting</value></data>
+<data name="expandable section" xml:space="preserve"><value>Uitklapbare sectie</value></data>
+<data name="strong emphasis" xml:space="preserve"><value>Sterke nadruk</value></data>
+<data name="emphasis (italic)" xml:space="preserve"><value>Nadruk (cursief)</value></data>
+<data name="highlighted text" xml:space="preserve"><value>Gemarkeerde tekst</value></data>
+<data name="code snippet" xml:space="preserve"><value>Codefragment</value></data>
+<data name="code block" xml:space="preserve"><value>Codeblok</value></data>
+<data name="block quote" xml:space="preserve"><value>Blokcitaat</value></data>
+<data name="citation" xml:space="preserve"><value>Citatie</value></data>
+<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>markeer berichten met onze 'taglijst' (bijv. 'leuk', 'niet interessant', 'reeds gedownload', ...). Er zijn 10 configureerbare 'tags' beschikbaar voor dit doel.</value></data>
+<data name="heading 1" xml:space="preserve"><value>Kop 1</value></data>
+<data name="sample output" xml:space="preserve"><value>Voorbeelduitvoer</value></data>
+<data name="variable" xml:space="preserve"><value>Variabele</value></data>
+<data name="small text" xml:space="preserve"><value>Kleine tekst</value></data>
+<data name="figure with caption" xml:space="preserve"><value>Figuur met bijschrift</value></data>
+<data name="figure caption" xml:space="preserve"><value>Figuurbijschrift</value></data>
+<data name="keyboard input" xml:space="preserve"><value>Toetsenbordinvoer</value></data>
+<data name="bold text" xml:space="preserve"><value>Vetgedrukte tekst</value></data>
+<data name="subscript" xml:space="preserve"><value>Diepergesteld</value></data>
+<data name="superscript" xml:space="preserve"><value>Hogergesteld</value></data>
+<data name="are displayed." xml:space="preserve"><value>worden weergegeven.</value></data>
+<data name="block container" xml:space="preserve"><value>Blokcontainer</value></data>
+<data name="abbreviation" xml:space="preserve"><value>Afkorting</value></data>
+<data name="custom" xml:space="preserve"><value>Aangepast</value></data>
+</root>

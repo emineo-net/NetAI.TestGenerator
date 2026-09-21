@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?><root><xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"><xsd:import namespace="http://www.w3.org/XML/1998/namespace" /><xsd:element name="root" msdata:IsDataSet="true"><xsd:complexType><xsd:choice maxOccurs="unbounded"><xsd:element name="metadata"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" use="required" type="xsd:string" /><xsd:attribute name="type" type="xsd:string" /><xsd:attribute name="mimetype" type="xsd:string" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="assembly"><xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType></xsd:element><xsd:element name="data"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /><xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /><xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /><xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="resheader"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType></xsd:element></xsd:choice></xsd:complexType></xsd:element></xsd:schema><resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="and" xml:space="preserve"><value>そして ai </value></data>
+<data name="account" xml:space="preserve"><value>パスワード ai </value></data>
+<data name="full name" xml:space="preserve"><value>フルネーム</value></data>
+<data name="imprint" xml:space="preserve"><value>インプリント ai </value></data>
+<data name="login" xml:space="preserve"><value>ログイン</value></data>
+<data name="date from" xml:space="preserve"><value>からの日付 ai </value></data>
+<data name="rotate" xml:space="preserve"><value>回転 ai </value></data>
+<data name="contact" xml:space="preserve"><value>コンタクト ai </value></data>
+<data name="getting started" xml:space="preserve"><value>スタート ai </value></data>
+<data name="show filter" xml:space="preserve"><value>ショー フィルター ai </value></data>
+<data name="first" xml:space="preserve"><value>はじめて ai </value></data>
+<data name="paragraphs" xml:space="preserve"><value>パラグラフ</value></data>
+<data name="close" xml:space="preserve"><value>閉じる</value></data>
+<data name="contribution" xml:space="preserve"><value>社会貢献</value></data>
+<data name="invalid user" xml:space="preserve"><value>無効なユーザ</value></data>
+<data name="logout" xml:space="preserve"><value>ログイン ai </value></data>
+<data name="manage your account" xml:space="preserve"><value>アカウントの管理 ai </value></data>
+<data name="message" xml:space="preserve"><value>メッセージ本文</value></data>
+<data name="order abandoned" xml:space="preserve"><value>注文放棄 ai </value></data>
+<data name="picture gallery" xml:space="preserve"><value>フォトギャラリー ai </value></data>
+<data name="download" xml:space="preserve"><value>ダウンロード</value></data>
+<data name="delete" xml:space="preserve"><value>削除</value></data>
+<data name="profile" xml:space="preserve"><value>プロフィール</value></data>
+<data name="recovery codes" xml:space="preserve"><value>回復コード ai </value></data>
+<data name="register as a new user" xml:space="preserve"><value>新規会員登録 ai </value></data>
+<data name="remove" xml:space="preserve"><value>削除</value></data>
+<data name="click here to log in" xml:space="preserve"><value>ここをクリックしてログイン ai </value></data>
+<data name="date to" xml:space="preserve"><value>新着情報 ai </value></data>
+<data name="save" xml:space="preserve"><value>保存</value></data>
+<data name="filter reset" xml:space="preserve"><value>フィルターリセット ai </value></data>
+<data name="previous" xml:space="preserve"><value>前の投稿 ai </value></data>
+<data name="add page" xml:space="preserve"><value>ページを追加 ai </value></data>
+<data name="password" xml:space="preserve"><value>パスワード</value></data>
+<data name="assign categories to your pages or delete them" xml:space="preserve"><value>ページにカテゴリを割り当てたり 削除したりする ai </value></data>
+<data name="max" xml:space="preserve"><value>マックス</value></data>
+<data name="send" xml:space="preserve"><value>送信</value></data>
+<data name="error" xml:space="preserve"><value>エラー</value></data>
+<data name="log in" xml:space="preserve"><value>ログイン ai </value></data>
+<data name="conveniently filter and search contributions" xml:space="preserve"><value>便利なフィルタと検索貢献</value></data>
+<data name="confirm password" xml:space="preserve"><value>パスワードの確認 ai </value></data>
+<data name="enter url." xml:space="preserve"><value>url を入力してください。</value></data>
+<data name="italicized" xml:space="preserve"><value>アクリル化 ai </value></data>
+<data name="email" xml:space="preserve"><value>メールアドレス</value></data>
+<data name="heading 6" xml:space="preserve"><value>見出し 6 ai </value></data>
+<data name="access denied" xml:space="preserve"><value>アクセス拒否 ai </value></data>
+<data name="heading 5" xml:space="preserve"><value>見出し 5 ai </value></data>
+<data name="add authenticator app" xml:space="preserve"><value>認証アプリを追加 ai </value></data>
+<data name="associate your" xml:space="preserve"><value>パートナー ai </value></data>
+<data name="change email" xml:space="preserve"><value>電子メールの変更 ai </value></data>
+<data name="change password" xml:space="preserve"><value>パスワード変更 ai </value></data>
+<data name="change your account settings" xml:space="preserve"><value>アカウント設定を変更する ai </value></data>
+<data name="choose plan" xml:space="preserve"><value>プランを選ぶ ai </value></data>
+<data name="click here to confirm your account" xml:space="preserve"><value>アカウントを確認するにはここをクリック ai </value></data>
+<data name="heading 4" xml:space="preserve"><value>見出し 4 ai </value></data>
+<data name="properties" xml:space="preserve"><value>プロパティ ai </value></data>
+<data name="log in with a recovery code" xml:space="preserve"><value>回復コードでログイン ai </value></data>
+<data name="configure authenticator app" xml:space="preserve"><value>認証アプリの設定 ai </value></data>
+<data name="title contains" xml:space="preserve"><value>タイトルが含まれています ai </value></data>
+<data name="toggle view" xml:space="preserve"><value>トグルビュー ai </value></data>
+<data name="these docs" xml:space="preserve"><value>これらのドキュメント ai </value></data>
+<data name="terms and conditions" xml:space="preserve"><value>条件と条件 ai </value></data>
+<data name="xxx" xml:space="preserve"><value>xxxxxx ai </value></data>
+<data name="all" xml:space="preserve"><value>すべて</value></data>
+<data name="confirm email" xml:space="preserve"><value>確認メール ai </value></data>
+<data name="confirm email change" xml:space="preserve"><value>メール変更の確認 ai </value></data>
+<data name="hyperlink" xml:space="preserve"><value>ハイパーリンク ai </value></data>
+<data name="also see a preview of the" xml:space="preserve"><value>また プレビューを見る ai </value></data>
+<data name="delete data and close my account" xml:space="preserve"><value>データを削除し アカウントを閉じる ai </value></data>
+<data name="delete personal data" xml:space="preserve"><value>個人データの削除 ai </value></data>
+<data name="disable 2fa" xml:space="preserve"><value>2fa を無効にする ai </value></data>
+<data name="max lenght 14" xml:space="preserve"><value>最高のlenght 14</value></data>
+<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>メニューから下記を選択します:ホーム、開始、登録、ログイン、アップグレード、ログアウト、インプリント、連絡先、アカウント。 2番目のメニューで、フィルタを表示、回転、トグルビュー、プロパティ、追加、転送、後方を選択します。 対話ボックスでは、保存、キャンセル、送信することができます。</value></data>
+<data name="authenticator app" xml:space="preserve"><value>認証アプリ</value></data>
+<data name="recovery codes left." xml:space="preserve"><value>回復コードは左。</value></data>
+<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>単にurlを入力するだけで 効率的なwebスクレイピング ai </value></data>
+<data name="enable qr code generation" xml:space="preserve"><value>qrコード生成を有効にする ai </value></data>
+<data name="external logins" xml:space="preserve"><value>外部ログイン ai </value></data>
+<data name="no passkeys are registered." xml:space="preserve"><value>パスキーは登録されていません。</value></data>
+<data name="forget this browser" xml:space="preserve"><value>このブラウザを忘れる ai </value></data>
+<data name="forgot password confirmation" xml:space="preserve"><value>パスワード確認 ai </value></data>
+<data name="generate a new set of recovery codes" xml:space="preserve"><value>回復コードの新しいセットを生成する ai </value></data>
+<data name="generate recovery codes" xml:space="preserve"><value>回復コードを生成 ai </value></data>
+<data name="the external login was removed." xml:space="preserve"><value>外部ログインを削除しました。</value></data>
+<data name="learn how to" xml:space="preserve"><value>方法を学ぶ ai </value></data>
+<data name="legal inquiry" xml:space="preserve"><value>法的お問い合わせ ai </value></data>
+<data name="locked out" xml:space="preserve"><value>ロックアウト ai </value></data>
+<data name="manage email" xml:space="preserve"><value>電子メールの管理 ai </value></data>
+<data name="just browse" xml:space="preserve"><value>閲覧する ai </value></data>
+<data name="manage your external logins" xml:space="preserve"><value>外部ログインを管理する ai </value></data>
+<data name="new password" xml:space="preserve"><value>新しいパスワード ai </value></data>
+<data name="old password" xml:space="preserve"><value>古いパスワード ai </value></data>
+<data name="options" xml:space="preserve"><value>オプション ai </value></data>
+<data name="google authenticator for" xml:space="preserve"><value>Googleの認証</value></data>
+<data name="order complete" xml:space="preserve"><value>注文完了 ai </value></data>
+<data name="personal data" xml:space="preserve"><value>個人データ ai </value></data>
+<data name="phone number" xml:space="preserve"><value>電話番号 ai </value></data>
+<data name="min" xml:space="preserve"><value>ツイート</value></data>
+<data name="recovery code" xml:space="preserve"><value>回復コード ai </value></data>
+<data name="recovery code verification" xml:space="preserve"><value>回復コードの検証 ai </value></data>
+<data name="register" xml:space="preserve"><value>ログイン ai </value></data>
+<data name="register confirmation" xml:space="preserve"><value>確認登録 ai </value></data>
+<data name="registered logins" xml:space="preserve"><value>ログイン登録 ai </value></data>
+<data name="remember me" xml:space="preserve"><value>お問い合わせ ai </value></data>
+<data name="remember this machine" xml:space="preserve"><value>この機械を覚えて下さい ai </value></data>
+<data name="resend" xml:space="preserve"><value>リリース ai </value></data>
+<data name="resend email confirmation" xml:space="preserve"><value>メールでのお問い合わせ ai </value></data>
+<data name="reset" xml:space="preserve"><value>リセット ai </value></data>
+<data name="reset authenticator app" xml:space="preserve"><value>リセット認証アプリ ai </value></data>
+<data name="reset authenticator key" xml:space="preserve"><value>リセット認証キー ai </value></data>
+<data name="reset filters" xml:space="preserve"><value>リセットフィルタ ai </value></data>
+<data name="reset password" xml:space="preserve"><value>パスワードリセット ai </value></data>
+<data name="reset password confirmation" xml:space="preserve"><value>パスワード確認のリセット ai </value></data>
+<data name="reset recovery codes" xml:space="preserve"><value>リセット回復コード ai </value></data>
+<data name="user name" xml:space="preserve"><value>ユーザ名 ai </value></data>
+<data name="scan the qr code or enter this key" xml:space="preserve"><value>qrコードをスキャンするか このキーを入力してください ai </value></data>
+<data name="selected categories" xml:space="preserve"><value>選択したカテゴリ ai </value></data>
+<data name="selected websites" xml:space="preserve"><value>選択したウェブサイト ai </value></data>
+<data name="send verification email" xml:space="preserve"><value>確認メールの送信 ai </value></data>
+<data name="set password" xml:space="preserve"><value>パスワードを設定する ai </value></data>
+<data name="set your password" xml:space="preserve"><value>パスワードを設定する ai </value></data>
+<data name="subject" xml:space="preserve"><value>件名</value></data>
+<data name="define the names of your categories" xml:space="preserve"><value>カテゴリの名前を定義する ai </value></data>
+<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>2つのファクター認証アプリに。スペースやケーシングは問題ありません。</value></data>
+<data name="update password" xml:space="preserve"><value>パスワードの更新 ai </value></data>
+<data name="main heading" xml:space="preserve"><value>主要な見出し ai </value></data>
+<data name="error finding user for unspecified email" xml:space="preserve"><value>未指定のメールのユーザーを見つけるエラー ai </value></data>
+<data name="home" xml:space="preserve"><value>ホーム</value></data>
+<data name="invalid password reset" xml:space="preserve"><value>無効なパスワードリセット ai </value></data>
+<data name="of" xml:space="preserve"><value>インフォメーション ai </value></data>
+<data name="paragraph" xml:space="preserve"><value>パラグラフ ai </value></data>
+<data name="success" xml:space="preserve"><value>成功事例</value></data>
+<data name="set up authenticator app" xml:space="preserve"><value>認証アプリの設定 ai </value></data>
+<data name="username" xml:space="preserve"><value>ユーザー名</value></data>
+<data name="verification code" xml:space="preserve"><value>認証コード ai </value></data>
+<data name="verify" xml:space="preserve"><value>認証 ai </value></data>
+<data name="next" xml:space="preserve"><value>次</value></data>
+<data name="subscriptions" xml:space="preserve"><value>登録アカウント</value></data>
+<data name="you have" xml:space="preserve"><value>お問い合わせ ai </value></data>
+<data name="you must" xml:space="preserve"><value>お問い合わせ ai </value></data>
+<data name="your password has been changed" xml:space="preserve"><value>パスワードが変更されました ai </value></data>
+<data name="your profile has been updated" xml:space="preserve"><value>プロフィールの更新 ai </value></data>
+<data name="nter a name for your passkey" xml:space="preserve"><value>パスキーの名前を入力してください</value></data>
+<data name="forgot your password?" xml:space="preserve"><value>パスワードを忘れた場合</value></data>
+<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>貢献タイトルをクリックすることで貢献のフル表示</value></data>
+<data name="privacy policy" xml:space="preserve"><value>プライバシーポリシー ai </value></data>
+<data name="pro version" xml:space="preserve"><value>プロバージョン ai </value></data>
+<data name="new project" xml:space="preserve"><value>新規プロジェクト ai </value></data>
+<data name="reset filter" xml:space="preserve"><value>リセットフィルタ ai </value></data>
+<data name="save changes" xml:space="preserve"><value>変更を保存 ai </value></data>
+<data name="last" xml:space="preserve"><value>最後の投稿 ai </value></data>
+<data name="open original" xml:space="preserve"><value>オープンオリジナル ai </value></data>
+<data name="download documents" xml:space="preserve"><value>資料ダウンロード ai </value></data>
+<data name="tagging and filtering" xml:space="preserve"><value>タグ付けとフィルタリング ai </value></data>
+<data name="open local" xml:space="preserve"><value>ローカル ai </value></data>
+<data name="download single" xml:space="preserve"><value>ダウンロードシングル ai </value></data>
+<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>カードビューとテーブルビューを切り替えるアイコンです。</value></data>
+<data name="add custom tag" xml:space="preserve"><value>カスタムタグを追加する</value></data>
+<data name="define the name of the tag for individual posts" xml:space="preserve"><value>個々の投稿のタグの名前を定義する ai </value></data>
+<data name="tagging contributions" xml:space="preserve"><value>貢献をタグ付け</value></data>
+<data name="filter your pages" xml:space="preserve"><value>ページをフィルタリングする ai </value></data>
+<data name="download txt or json documents without images" xml:space="preserve"><value>画像なしで txt または json のドキュメントをダウンロード ai </value></data>
+<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>タグ付き投稿でフィルタリングできるフィルタ ai </value></data>
+<data name="click on the" xml:space="preserve"><value>クリック ai </value></data>
+<data name="to display download options" xml:space="preserve"><value>ダウンロードオプションを表示 ai </value></data>
+<data name="click save word document." xml:space="preserve"><value>単語文書を保存をクリックします。</value></data>
+<data name="error changing user name." xml:space="preserve"><value>ユーザ名を変更するエラー。</value></data>
+<data name="add" xml:space="preserve"><value>追加</value></data>
+<data name="document." xml:space="preserve"><value>ドキュメント。</value></data>
+<data name="a new tab." xml:space="preserve"><value>新しいタブ。</value></data>
+<data name="and json will open. you will" xml:space="preserve"><value>json が開きます。 お問い合わせ</value></data>
+<data name="json download" xml:space="preserve"><value>Json ダウンロード</value></data>
+<data name="the external login was added." xml:space="preserve"><value>外部ログインを追加しました。</value></data>
+<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>2ファクタ認証を無効に(2fa)</value></data>
+<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>スイッチを使用して「どこでも」と「どこでも」を選択します。</value></data>
+<data name="loc[are displayed.]" xml:space="preserve"><value>Loc[表示されます。]</value></data>
+<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>スプレッドシートやデータベースでさらに処理するのに適した、シンプルでタブ区切られたフォーマットです。</value></data>
+<data name="save to your download directory." xml:space="preserve"><value>ダウンロードディレクトリに保存します。</value></data>
+<data name="two-factor authentication (2fa)" xml:space="preserve"><value>2要素認証(2fa)</value></data>
+<data name="cards" xml:space="preserve"><value>カード</value></data>
+<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>赤いrecyclebin はフィルター アイコンの下に表示できます。 このアイコンをクリックすると、すべてのアクティブフィルタを削除し、コントリビューションの概要を再び表示します。</value></data>
+<data name="two-factor authentication" xml:space="preserve"><value>2要素認証</value></data>
+<data name="enter a new email" xml:space="preserve"><value>新しいメールを入力してください</value></data>
+<data name="select columns for scraping" xml:space="preserve"><value>スクレイピング用の列を選択</value></data>
+<data name="click one or more tags for a post." xml:space="preserve"><value>投稿の1つ以上のタグをクリックします。</value></data>
+<data name="cards and table" xml:space="preserve"><value>カードとテーブル</value></data>
+<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>オリジナルのソースとレイアウトでオリジナルのコントリビューションをご覧いただけます。</value></data>
+<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>個々の貢献のためのビューでは、それらをダウンロードすることができます.</value></data>
+<data name="rename" xml:space="preserve"><value>名前変更</value></data>
+<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>タグ付けされた投稿を表示するには、テキストのリストから対応するタグを選択できます。</value></data>
+<data name="toggle help visibility" xml:space="preserve"><value>ヘルプの可視性を切り替える</value></data>
+<data name="enter / select url" xml:space="preserve"><value>url を入力/選択</value></data>
+<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>ダウンロードオプション pdf、docs、txt、html</value></data>
+<data name="to display filter dialog" xml:space="preserve"><value>フィルター ダイアログを表示するには</value></data>
+<data name="enter your phone number" xml:space="preserve"><value>電話番号を入力してください</value></data>
+<data name="no contributions were found on the page" xml:space="preserve"><value>ページの投稿が見つかりませんでした</value></data>
+<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>ドキュメントのpdfプレビューを表示する新しいウィンドウが開きます。 このプレビューは、ドキュメントのコンテンツとレイアウトの初期概要を提供します。</value></data>
+<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>お問い合わせは、下記のお問い合わせフォームをご利用ください。 必要事項を全てご記入の上、折り返しご連絡いたします。</value></data>
+<data name="export" xml:space="preserve"><value>エクスポート</value></data>
+<data name="underlined" xml:space="preserve"><value>下線付き</value></data>
+<data name="add to followed projects" xml:space="preserve"><value>プロジェクトをフォローする ai </value></data>
+<data name="follow" xml:space="preserve"><value>フォロー ai </value></data>
+<data name="scraping view" xml:space="preserve"><value>スクラップビュー ai </value></data>
+<data name="authenticator code" xml:space="preserve"><value>認証コード ai </value></data>
+<data name="heading 3" xml:space="preserve"><value>見出し 3 ai </value></data>
+<data name="heading 2" xml:space="preserve"><value>見出し 2 ai </value></data>
+<data name="image" xml:space="preserve"><value>サイトマップ ai </value></data>
+<data name="the created document will open in" xml:space="preserve"><value>作成したドキュメントが開きます ai </value></data>
+<data name="click on download a view with" xml:space="preserve"><value>クリックして ビューをダウンロード ai </value></data>
+<data name="file saving failed:" xml:space="preserve"><value>ファイル保存失敗:</value></data>
+<data name="file saved to:" xml:space="preserve"><value>保存したファイル:</value></data>
+<data name="an error occurred during download:" xml:space="preserve"><value>ダウンロード中にエラーが発生しました。</value></data>
+<data name="thank you for your message." xml:space="preserve"><value>お問い合わせ</value></data>
+<data name="file" xml:space="preserve"><value>ファイル</value></data>
+<data name="an error has occurred." xml:space="preserve"><value>エラーが発生しました。</value></data>
+<data name="table" xml:space="preserve"><value>テーブル</value></data>
+<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>文書のフォーマット: docx、pdf、html、json、txt</value></data>
+<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>カテゴリ別フィルター(これをするためにあなたのページをタグ付けする必要があります)</value></data>
+<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>それからPDF、docxおよびhtml文書をイメージとダウンロードできます</value></data>
+<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>オプションでタグの名前を個別に定義できます。</value></data>
+<data name="show help (dynamic, static, off)" xml:space="preserve"><value>ショーヘルプ(動的、静的、オフ)</value></data>
+<data name="enter a part that the title must contain." xml:space="preserve"><value>タイトルが含まれている必要がある部分を入力してください。</value></data>
+<data name="switch view" xml:space="preserve"><value>スイッチビュー</value></data>
+<data name="custoum" xml:space="preserve"><value>カストウム</value></data>
+<data name="download document" xml:space="preserve"><value>ドキュメントのダウンロード</value></data>
+<data name="csv download" xml:space="preserve"><value>Csvのダウンロード</value></data>
+<data name="excel download" xml:space="preserve"><value>Excelダウンロード</value></data>
+<data name="single document download" xml:space="preserve"><value>単一の文書のダウンロード</value></data>
+<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>'closerpage-for-windows' では、最大200枚の画像を受信できます。</value></data>
+<data name="the contributions for" xml:space="preserve"><value>寄付金について</value></data>
+<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>未来に新たな貢献を自動的に収集するには、</value></data>
+<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>これらのプロジェクトに所属するコントリビューションだけを表示するために個々のプロジェクトを選択することができます。</value></data>
+<data name="available predefined tags" xml:space="preserve"><value>利用可能な事前定義タグ</value></data>
+<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>ウェブページにカテゴリを割り当てた場合、これらのカテゴリでフィルタリングすることもできます。 リストから目的のWebページやカテゴリを選択するだけです。</value></data>
+<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>選択が完了したら、「送信」ボタンをクリックしてフィルターを適用します。 その後、コントリビューションビューが更新され、フィルタリングされた結果のみが表示されます。</value></data>
+<data name="to display options" xml:space="preserve"><value>オプションを表示する</value></data>
+<data name="this will rotate all cards." xml:space="preserve"><value>全てのカードを回転させます。</value></data>
+<data name="button" xml:space="preserve"><value>ボタン</value></data>
+<data name="preview the images" xml:space="preserve"><value>画像をプレビューする</value></data>
+<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>ドキュメントに画像ファイルが含まれている場合は、プレビューにも表示されます。</value></data>
+<data name="download options" xml:space="preserve"><value>オプションをダウンロード</value></data>
+<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>ドキュメントをダウンロードするには、利用可能なオプションから目的のフォーマットを選択します。</value></data>
+<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>プリント対応の文書や、プロフェッショナルなレイアウトでの共有に最適です。</value></data>
+<data name="error: incorrect password." xml:space="preserve"><value>エラー:パスワードが間違っています。</value></data>
+<data name="useful if you want to edit the document further." xml:space="preserve"><value>ドキュメントをさらに編集したい場合に便利です。</value></data>
+<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>ウェブサイトやその他のデジタル媒体でコンテンツを埋め込むのに便利です。</value></data>
+<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>書式なしのテキストのみが含まれています。 簡単な加工に適しています。</value></data>
+<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>個々のファイルが必要な場合は、すべてのドキュメントの画像を個別のファイルとして保存します。</value></data>
+<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>貢献のためにウェブサイトを検索するには、URLを入力し、拡大するガラスアイコンをクリックします。 キーボードの入力キーを押すこともできます。</value></data>
+<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>変更用のURLをログインして既に追跡している場合は、ドロップダウンリストからURLを選択することもできます。</value></data>
+<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>選択したウェブサイトの現在の投稿は、アルゴリズムによって自動的にキャプチャされます。 古い投稿と新しく検出された投稿がウェブサイトに表示されます。</value></data>
+<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>url を入力すると何も表示されません。 なぜですか?</value></data>
+<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>残念ながら、これは珍しいことではなく、以下のような多くの原因を持つことができます。</value></data>
+<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>お客様が探しているウェブサイトにリンクされていない (例:「https://mysite/contact」)</value></data>
+<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>ドメイン内でリンクされた投稿は使用できません。 例えば、「https://mysite.com/products」と入力していますが、全ての投稿は「https://otherpage.com/productxy」です。</value></data>
+<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>リクエストされたページブロックボット(閉じるボット)。</value></data>
+<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>リクエストされたページは、登録されたユーザーの投稿のみを表示します。</value></data>
+<data name="table structure (sorted by priority)" xml:space="preserve"><value>テーブル構造(優先順位)</value></data>
+<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>最初に最も重要な情報が表示されるようにテーブルを整理し、迅速な向きと効率的な処理を可能にします。</value></data>
+<data name="tags" xml:space="preserve"><value>ニュース</value></data>
+<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>貢献は、新しいブラウザウィンドウまたはタブで開きます。 スクレイピングビューに含まれていないすべての書式、画像、リンク、その他のコンテンツを含む、元のウェブサイトに掲載されたので、あなたは貢献が表示されます。</value></data>
+<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>貢献に割り当てられた既存のタグまたはカテゴリがここに表示されます。 これは、トピックやフォーカスによって貢献をすばやくフィルタリングするのに役立ちます。</value></data>
+<data name="headings and titles" xml:space="preserve"><value>見出しとタイトル</value></data>
+<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>寄付の見出しとタイトルは2番目にリストされています。 コンテンツの初期概要を提供し、関連する貢献の迅速な識別を有効にします。</value></data>
+<data name="date and author" xml:space="preserve"><value>日付と著者</value></data>
+<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>この列には、出版物の日付と投稿者の著者が含まれています。 これにより、貢献が作成された時やその人によって確認できます。</value></data>
+<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>貢献の実際の内容, 段落に分割, テーブルの最後の部分を作る. これは、スクレイピングされた詳細なテキストを見つける場所です。</value></data>
+<data name="table functions" xml:space="preserve"><value>テーブル機能</value></data>
+<data name="tagging" xml:space="preserve"><value>タギング</value></data>
+<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>貢献は、チェックボックスを選択することによってマークされ、タグ付けすることができます。 これにより、大量のデータを処理する際に特に、後で投稿をソート、フィルタリング、管理が容易になります。</value></data>
+<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>テーブル全体または選択したコントリビューションは、さまざまな形式でダウンロードできます。</value></data>
+<data name="select tagged contributions" xml:space="preserve"><value>タグ付き投稿を選択</value></data>
+<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>特にレポートやプレゼンテーションに適した、追加のフォーマットオプションを提供するよく知られているテーブルフォーマット。</value></data>
+<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>プログラムやWebアプリケーションでさらに処理する構造化されたデータ形式。</value></data>
+<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>タギング機能を使用すると、コントリビューションを分類して整理し、後で検索またはフィルタリングが容易になります。</value></data>
+<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>カードとスクレイピングテーブルビューのどちらでも利用できます。 この機能は、特定の貢献を非表示にしたり、特に重要としてフラグを立てることを可能にします。</value></data>
+<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>特に重要、関連性、または顕著であるマーク貢献。</value></data>
+<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>寄付が既にダウンロードされていることを示す。</value></data>
+<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>ai技術を使用して作成または編集されたマークの貢献。</value></data>
+<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>表示したくないという貢献を隠しますが、完全に削除しません。</value></data>
+<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>リンクが機能しない場合や、投稿が利用できなくなった場合は、元のページの変更によります。</value></data>
+<data name="show contribution" xml:space="preserve"><value>成果発表</value></data>
+<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>カードビューで、見出しをクリックして、貢献内容で新しいウィンドウを開きます。</value></data>
+<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>元のソースを呼び出すことなく、素早くコントリビューションを読み、確認、編集するのに最適です。</value></data>
+<data name="create a new account." xml:space="preserve"><value>新しいアカウントを作成します。</value></data>
+<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>貢献が画像ファイルを含んでいる場合、コントリビューションプレビューに小さなプレビュー画像が表示されます。</value></data>
+<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>プレビュー画像の上部にある数字が表示されます。 この数字は、投稿に含まれている画像の数を示します。</value></data>
+<data name="simply click on the preview image." xml:space="preserve"><value>プレビュー画像をクリックするだけです。</value></data>
+<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>これにより、貢献中のすべての画像が明確に表示され、より大きな形式で表示されます。</value></data>
+<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>これにより、選択したタグとのコントリビューションが表示されるか、それに応じてタグ付けされていないコントリビューションのみが表示されるかを決めることができます。</value></data>
+<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>当社のプライバシーポリシー、クッキー、利用条件に関するご質問は、できるだけ早く回答いたします。</value></data>
+<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>お気に入りのウェブサイトからの現在の貢献 - 一見</value></data>
+<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>異なるウェブサイトを頻繁に読んで調べたり、最新のニュースを一目で見たいですか? それから、あなたは正しい場所に来ました!</value></data>
+<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>選択したウェブサイトからすべての新しい投稿を一目でご覧ください。</value></data>
+<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>docx、pdf、json、html でドキュメントを生成します。</value></data>
+<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>「タグリスト」のマーク投稿(例:「いいね」「uninteresting」「already download」など)。 この目的のために利用可能な10設定可能なタグがあります。</value></data>
+<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>フォローアップ - 最新のオンラインコンテンツで最新の最新情報を知りたい人のための究極のツール。 ユーザーフレンドリーなWebスクレイピング機能により、URLを入力するだけで、目的のWebサイトのすべての新しい投稿が即座に表示されます。</value></data>
+<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>各投稿はワンクリックでフルに表示できますので、重要な情報が見逃せません。 投稿の慢性的な順序は、関連するコンテンツをナビゲートし、見つけやすくなります。</value></data>
+<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>特定のハイライトは、docx、pdf、json、html形式の各コントリビューションからドキュメントを作成する機能です。アーカイブやさらに情報を処理するのに最適です。</value></data>
+<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>これは、あなたが新しい貢献を見逃すことはありませんし、常に最新の状態であることを意味します</value></data>
+<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>無料プランをアクティブにするための登録 すると、プロプランにアップグレードできます。</value></data>
+<data name="you do not have access to this resource." xml:space="preserve"><value>このリソースにアクセスできません。</value></data>
+<data name="thank you for confirming your email." xml:space="preserve"><value>メールでのお問い合わせ</value></data>
+<data name="error confirming your email." xml:space="preserve"><value>電子メールを確認するエラー。</value></data>
+<data name="i accept the terms and conditions" xml:space="preserve"><value>規約に同意します</value></data>
+<data name="error: invalid email change confirmation link." xml:space="preserve"><value>エラー:無効なメール変更確認リンク。</value></data>
+<data name="error changing email." xml:space="preserve"><value>電子メールの変更エラー。</value></data>
+<data name="thank you for confirming your email change." xml:space="preserve"><value>メールでのお問い合わせ</value></data>
+<data name="you've successfully authenticated with" xml:space="preserve"><value>認証済み</value></data>
+<data name="use another service to register." xml:space="preserve"><value>別のサービスを使用して登録します。</value></data>
+<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>下記のメールアドレスを入力して、登録ボタンを押してログインを完了してください。</value></data>
+<data name="please enter your email." xml:space="preserve"><value>メールアドレスを入力してください。</value></data>
+<data name="error loading external login information." xml:space="preserve"><value>外部ログイン情報をロードするエラー。</value></data>
+<data name="error loading external login information during confirmation." xml:space="preserve"><value>確認時に外部のログイン情報をロードするエラー。</value></data>
+<data name="reset your password." xml:space="preserve"><value>パスワードのリセット</value></data>
+<data name="the default ui requires a user store with email support." xml:space="preserve"><value>デフォルト ui では、ユーザストアにメール サポートが必要です。</value></data>
+<data name="enter your email." xml:space="preserve"><value>メールアドレスを入力してください。</value></data>
+<data name="please check your email to reset your password." xml:space="preserve"><value>パスワードをリセットするには、メールアドレスをご確認ください。</value></data>
+<data name="the password reset link is invalid." xml:space="preserve"><value>パスワードリセットリンクが無効です。</value></data>
+<data name="please confirm your password." xml:space="preserve"><value>パスワードをご確認下さい。</value></data>
+<data name="this account has been locked out, please try again later." xml:space="preserve"><value>このアカウントはロックアウトしておりますので、もう一度お試しください。</value></data>
+<data name="use a local account to log in." xml:space="preserve"><value>ローカルアカウントを使用してログインします。</value></data>
+<data name="log in with a passkey" xml:space="preserve"><value>パスキーでログイン</value></data>
+<data name="use another service to log in." xml:space="preserve"><value>別のサービスを使用してログインします。</value></data>
+<data name="please enter your password." xml:space="preserve"><value>パスワードを入力してください。</value></data>
+<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>ログインは認証アプリで保護されます。 認証コードを入力してください。</value></data>
+<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>認証デバイスにアクセスできませんか? お問い合わせ</value></data>
+<data name="error: invalid authenticator code." xml:space="preserve"><value>エラー: 不正な認証コード。</value></data>
+<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>回復コードでログインするように要求しました。 このログインは、ログイン時に認証アプリコードを提供したり、2fa を無効にしたり、再度ログインするまで記憶されません。</value></data>
+<data name="recoverycode" xml:space="preserve"><value>回復コード</value></data>
+<data name="for how to configure a real email sender" xml:space="preserve"><value>実際のメール送信者の設定方法</value></data>
+<data name="normally this would be emailed:" xml:space="preserve"><value>通常、メールが送信されます。</value></data>
+<data name="please check your email to confirm your account." xml:space="preserve"><value>確認のため、Eメールアドレスをご確認ください。</value></data>
+<data name="verification email sent. please check your email." xml:space="preserve"><value>確認メールが送信されました。 お問い合わせ</value></data>
+<data name="enter the code" xml:space="preserve"><value>コードを入力する</value></data>
+<data name="your password has been reset. please" xml:space="preserve"><value>パスワードがリセットされました。 お問い合わせ</value></data>
+<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>外部認証サービスの設定はありません。 お問い合わせ</value></data>
+<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>外部サービスによるロギングをサポートするこのasp.netアプリケーションの設定に関する記事</value></data>
+<data name="put these codes in a safe place." xml:space="preserve"><value>これらのコードを安全な場所に置きます。</value></data>
+<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>デバイスを紛失し、回復コードがない場合、アカウントへのアクセスを失います。</value></data>
+<data name="enter the old password" xml:space="preserve"><value>古いパスワードを入力してください</value></data>
+<data name="enter the new password" xml:space="preserve"><value>新しいパスワードを入力してください</value></data>
+<data name="user changed their password successfully." xml:space="preserve"><value>ユーザーがパスワードを正常に変更しました。</value></data>
+<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>このデータを削除すると、アカウントを永久に削除し、これは回復できません。</value></data>
+<data name="unexpected error occurred deleting user." xml:space="preserve"><value>予期しないエラーが削除されたユーザ。</value></data>
+<data name="this action only disables 2fa." xml:space="preserve"><value>このアクションは2faのみを無効にします。</value></data>
+<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>2fa を無効にすると、認証アプリで使用されるキーは変更されません。 認証アプリで使用されているキーを変更したい場合は、</value></data>
+<data name="set your authenticator keys." xml:space="preserve"><value>認証キーを設定します。</value></data>
+<data name="reset your authenticator keys." xml:space="preserve"><value>認証鍵をリセットします。</value></data>
+<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>現在有効になっていないため、ユーザが2faを無効にできません。</value></data>
+<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>予期しないエラーが2faを無効化しました。</value></data>
+<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2faは無効になっています。 認証アプリをセットアップする際に2faを再有効化できます</value></data>
+<data name="enter your email" xml:space="preserve"><value>メールアドレスを入力してください</value></data>
+<data name="your email is unchanged." xml:space="preserve"><value>電子メールは変更されません。</value></data>
+<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>送信されたメールを変更するための確認リンク お問い合わせ</value></data>
+<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>認証アプリを使用するには、次の手順を実行します。</value></data>
+<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>microsoft Authenticatorのような2要素認証アプリをダウンロード</value></data>
+<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>qrコードをスキャンしたり、上のキーを入力すると、2つのファクター認証アプリは、ユニークなコードを提供します。 確認ボックスにコードを入力してください。</value></data>
+<data name="error: verification code is invalid." xml:space="preserve"><value>エラー: 認証コードが無効です。</value></data>
+<data name="your authenticator app has been verified." xml:space="preserve"><value>認証アプリが検証されています。</value></data>
+<data name="add another service to log in." xml:space="preserve"><value>別のサービスを追加してログインします。</value></data>
+<data name="error: the external login was not removed." xml:space="preserve"><value>エラー:外部のログインは削除されません。</value></data>
+<data name="error: could not load external login info." xml:space="preserve"><value>エラー:外部のログイン情報を読み込むことができません。</value></data>
+<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>エラー:外部のログインは追加されません。 外部のログインは1つのアカウントにのみ関連付けられます。</value></data>
+<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>2要素認証(2fa)回復コードを生成</value></data>
+<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>新しい回復コードを生成することは、認証アプリで使用したキーを変更しません。 認証アプリで使用されているキーを変更したい場合は、</value></data>
+<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>2fa が有効になっていないため、ユーザーの回復コードを生成できません。</value></data>
+<data name="you have generated new recovery codes." xml:space="preserve"><value>新しい回復コードを生成しました。</value></data>
+<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>id '{userid}' を持つユーザーは、新しい 2fa 回復コードを生成しました。</value></data>
+<data name="choose your username." xml:space="preserve"><value>ユーザー名を選択します。</value></data>
+<data name="you have no recovery codes left." xml:space="preserve"><value>回復コードは残されていません。</value></data>
+<data name="error: failed to set phone number." xml:space="preserve"><value>エラー:電話番号を設定できません。</value></data>
+<data name="manage your passkeys" xml:space="preserve"><value>パスキーを管理する</value></data>
+<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>許可されたパスキーの最大数に達しました。 新規追加前に削除してください。</value></data>
+<data name="add a new passkey" xml:space="preserve"><value>新しいパスキーを追加する</value></data>
+<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>エラー:ブラウザはパスキーを提供していませんでした。</value></data>
+<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>エラー: パスキーがアカウントに追加できません。</value></data>
+<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>エラー:指定されたパスキーIDは無効な形式でした。</value></data>
+<data name="error: the passkey could not be deleted." xml:space="preserve"><value>エラー: パスキーは削除できませんでした。</value></data>
+<data name="passkey deleted successfully." xml:space="preserve"><value>Passkeyは正常に削除されました。</value></data>
+<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>お客様のアカウントには、当社に与えられた個人データが含まれています。 このページでは、そのデータをダウンロードまたは削除することができます。</value></data>
+<data name="enter a new name for your" xml:space="preserve"><value>お名前を入力してください</value></data>
+<data name="passkey" xml:space="preserve"><value>パスキー</value></data>
+<data name="my passkey" xml:space="preserve"><value>私のパスキー</value></data>
+<data name="passkey name" xml:space="preserve"><value>パスキー名</value></data>
+<data name="continue" xml:space="preserve"><value>お問い合わせ</value></data>
+<data name="error: the specified passkey could not be found." xml:space="preserve"><value>エラー:指定されたパスキーが見つかりませんでした。</value></data>
+<data name="error: the passkey could not be updated." xml:space="preserve"><value>エラー: パスキーを更新できませんでした。</value></data>
+<data name="passkey updated successfully." xml:space="preserve"><value>Passkeyが正常に更新されました。</value></data>
+<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>認証者キーをリセットすると、認証アプリが再設定するまでは機能しません。</value></data>
+<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>このプロセスは、認証アプリを確認するまで2faを無効にします。</value></data>
+<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>認証アプリの設定が完了しない場合は、アカウントへのアクセスを失う可能性があります。</value></data>
+<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>認証アプリキーがリセットされ、新しいキーを使用して認証アプリを設定する必要があります。</value></data>
+<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>当サイトではローカルのユーザー名/パスワードはありません。 外部のログインなしでログインできるように、ローカルアカウントを追加します。</value></data>
+<data name="your password has been set." xml:space="preserve"><value>パスワードが設定されました。</value></data>
+<data name="before you can log in with a recovery code." xml:space="preserve"><value>回復コードでログインする前に。</value></data>
+<data name="you have 1 recovery code left." xml:space="preserve"><value>回復コードが残っています。</value></data>
+<data name="inline text" xml:space="preserve"><value>インラインテキスト</value></data>
+<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>プライバシーとクッキーポリシーは認められていません。</value></data>
+<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>2つの要素認証を有効にする前に、ポリシーを承諾する必要があります。</value></data>
+<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>現在のブラウザを忘れてしまいました。 このブラウザから再度ログインすると、2faコードのプロンプトが表示されます。</value></data>
+<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>このアプリは、現在、実際のメール送信者を登録していません。</value></data>
+<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>元の投稿を表示する(新しいブラウザタブで開きます)</value></data>
+<data name="to display options." xml:space="preserve"><value>オプションを表示する。</value></data>
+<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>モニタリングコントリビューションの新しいページを追加する。</value></data>
+<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>簡略化されたhtmlビューを表示するために。</value></data>
+<data name="to display filters." xml:space="preserve"><value>フィルターを表示する</value></data>
+<data name="to rotate the map view." xml:space="preserve"><value>マップビューを回転させる。</value></data>
+<data name="to display the image gallery." xml:space="preserve"><value>画像ギャラリーを表示する.</value></data>
+<data name="italic text" xml:space="preserve"><value>斜体テキスト</value></data>
+<data name="summary" xml:space="preserve"><value>概要</value></data>
+<data name="expandable section" xml:space="preserve"><value>展開可能なセクション</value></data>
+<data name="strong emphasis" xml:space="preserve"><value>強い強調</value></data>
+<data name="emphasis (italic)" xml:space="preserve"><value>強調（斜体）</value></data>
+<data name="highlighted text" xml:space="preserve"><value>ハイライトされたテキスト</value></data>
+<data name="code snippet" xml:space="preserve"><value>コードスニペット</value></data>
+<data name="code block" xml:space="preserve"><value>コードブロック</value></data>
+<data name="block quote" xml:space="preserve"><value>ブロック引用</value></data>
+<data name="citation" xml:space="preserve"><value>引用</value></data>
+<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>投稿を「タグリスト」（例：「いいね」、「興味なし」、「既にダウンロード済み」など）でマークします。この目的のために10個の設定可能な「タグ」が利用可能です。</value></data>
+<data name="heading 1" xml:space="preserve"><value>見出し 1</value></data>
+<data name="sample output" xml:space="preserve"><value>サンプル出力</value></data>
+<data name="variable" xml:space="preserve"><value>変数</value></data>
+<data name="small text" xml:space="preserve"><value>小さいテキスト</value></data>
+<data name="figure with caption" xml:space="preserve"><value>キャプション付き図</value></data>
+<data name="figure caption" xml:space="preserve"><value>図のキャプション</value></data>
+<data name="keyboard input" xml:space="preserve"><value>キーボード入力</value></data>
+<data name="bold text" xml:space="preserve"><value>太字テキスト</value></data>
+<data name="subscript" xml:space="preserve"><value>下付き文字</value></data>
+<data name="superscript" xml:space="preserve"><value>上付き文字</value></data>
+<data name="are displayed." xml:space="preserve"><value>表示されます。</value></data>
+<data name="block container" xml:space="preserve"><value>ブロックコンテナ</value></data>
+<data name="abbreviation" xml:space="preserve"><value>略語</value></data>
+<data name="custom" xml:space="preserve"><value>カスタム</value></data>
+</root>

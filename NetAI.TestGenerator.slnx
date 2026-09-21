@@ -1,0 +1,23 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Projektmappenelemente/">
+    <File Path="../../../Downloads/unitAnIntegrationTestEnvironment.md" />
+    <File Path="buisinessPlanTranslatorNuget.md" />
+    <File Path="INFRASTRUKTUR.md" />
+    <File Path="RebuildNetAIResxTranslator.bat" />
+    <File Path="TODO.md" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Libraries/">
+    <Project Path="src/Libraries/AiTranslator.Core/NetAI.ResxTranslator.Core.csproj" />
+    <Project Path="src/Libraries/AiTranslator.Tasks/NetAI.ResxTranslator.Tasks.csproj" />
+  </Folder>
+  <Folder Name="/src/UI/">
+    <Project Path="WpftranlationTestApp/WpftranlationTestApp.csproj" Id="75b1d199-bf94-4125-a7c8-3d747b94fa39" />
+  </Folder>
+
+</Solution>

@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?><root><xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"><xsd:import namespace="http://www.w3.org/XML/1998/namespace" /><xsd:element name="root" msdata:IsDataSet="true"><xsd:complexType><xsd:choice maxOccurs="unbounded"><xsd:element name="metadata"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" use="required" type="xsd:string" /><xsd:attribute name="type" type="xsd:string" /><xsd:attribute name="mimetype" type="xsd:string" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="assembly"><xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType></xsd:element><xsd:element name="data"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /><xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /><xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /><xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="resheader"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType></xsd:element></xsd:choice></xsd:complexType></xsd:element></xsd:schema><resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="and" xml:space="preserve"><value>И</value></data>
+<data name="account" xml:space="preserve"><value>Счет</value></data>
+<data name="full name" xml:space="preserve"><value>Полное имя</value></data>
+<data name="imprint" xml:space="preserve"><value>Оттиск</value></data>
+<data name="login" xml:space="preserve"><value>Войти</value></data>
+<data name="date from" xml:space="preserve"><value>Дата от</value></data>
+<data name="rotate" xml:space="preserve"><value>Повернуть</value></data>
+<data name="contact" xml:space="preserve"><value>Контакт</value></data>
+<data name="getting started" xml:space="preserve"><value>Начало работы</value></data>
+<data name="show filter" xml:space="preserve"><value>Показать фильтр</value></data>
+<data name="first" xml:space="preserve"><value>Первый</value></data>
+<data name="paragraphs" xml:space="preserve"><value>Пункты</value></data>
+<data name="close" xml:space="preserve"><value>Закрыть</value></data>
+<data name="contribution" xml:space="preserve"><value>Вклад</value></data>
+<data name="invalid user" xml:space="preserve"><value>Неверный пользователь</value></data>
+<data name="logout" xml:space="preserve"><value>Выход</value></data>
+<data name="manage your account" xml:space="preserve"><value>Управление учетной записью</value></data>
+<data name="message" xml:space="preserve"><value>Сообщение</value></data>
+<data name="order abandoned" xml:space="preserve"><value>Заказ оставлен</value></data>
+<data name="picture gallery" xml:space="preserve"><value>Галерея изображений</value></data>
+<data name="download" xml:space="preserve"><value>Скачать</value></data>
+<data name="delete" xml:space="preserve"><value>Удалить</value></data>
+<data name="profile" xml:space="preserve"><value>Профиль</value></data>
+<data name="recovery codes" xml:space="preserve"><value>Коды восстановления</value></data>
+<data name="register as a new user" xml:space="preserve"><value>Зарегистрируйтесь как новый пользователь</value></data>
+<data name="remove" xml:space="preserve"><value>Удалить</value></data>
+<data name="click here to log in" xml:space="preserve"><value>Нажмите здесь чтобы войти в систему</value></data>
+<data name="date to" xml:space="preserve"><value>Дата до</value></data>
+<data name="save" xml:space="preserve"><value>Сохранить</value></data>
+<data name="filter reset" xml:space="preserve"><value>Сброс фильтра</value></data>
+<data name="previous" xml:space="preserve"><value>Предыдущий</value></data>
+<data name="add page" xml:space="preserve"><value>Добавить страницу</value></data>
+<data name="password" xml:space="preserve"><value>Пароль</value></data>
+<data name="assign categories to your pages or delete them" xml:space="preserve"><value>Назначить категории вашим страницам или удалить их</value></data>
+<data name="max" xml:space="preserve"><value>Макс</value></data>
+<data name="send" xml:space="preserve"><value>Отправить</value></data>
+<data name="error" xml:space="preserve"><value>Ошибка</value></data>
+<data name="log in" xml:space="preserve"><value>Войти</value></data>
+<data name="conveniently filter and search contributions" xml:space="preserve"><value>Удобно фильтровать и искать вклады</value></data>
+<data name="confirm password" xml:space="preserve"><value>Подтвердить пароль</value></data>
+<data name="enter url." xml:space="preserve"><value>Введите URL.</value></data>
+<data name="italicized" xml:space="preserve"><value>Курсив</value></data>
+<data name="email" xml:space="preserve"><value>Эл почта</value></data>
+<data name="heading 6" xml:space="preserve"><value>Заголовок 6</value></data>
+<data name="access denied" xml:space="preserve"><value>Доступ запрещен</value></data>
+<data name="heading 5" xml:space="preserve"><value>Заголовок 5</value></data>
+<data name="add authenticator app" xml:space="preserve"><value>Добавить приложение аутентификатора</value></data>
+<data name="associate your" xml:space="preserve"><value>Соедините вашу</value></data>
+<data name="change email" xml:space="preserve"><value>Изменить электронную почту</value></data>
+<data name="change password" xml:space="preserve"><value>Изменить пароль</value></data>
+<data name="change your account settings" xml:space="preserve"><value>Изменить настройки учетной записи</value></data>
+<data name="choose plan" xml:space="preserve"><value>Выберите план</value></data>
+<data name="click here to confirm your account" xml:space="preserve"><value>Нажмите здесь чтобы подтвердить свою учетную запись</value></data>
+<data name="heading 4" xml:space="preserve"><value>Заголовок 4</value></data>
+<data name="properties" xml:space="preserve"><value>Свойства</value></data>
+<data name="log in with a recovery code" xml:space="preserve"><value>Войти в систему с помощью кода восстановления</value></data>
+<data name="configure authenticator app" xml:space="preserve"><value>Настройка приложения аутентификатора</value></data>
+<data name="title contains" xml:space="preserve"><value>Заголовок содержит</value></data>
+<data name="toggle view" xml:space="preserve"><value>Переключить вид</value></data>
+<data name="these docs" xml:space="preserve"><value>Эту документацию</value></data>
+<data name="terms and conditions" xml:space="preserve"><value>Правила и условия</value></data>
+<data name="xxx" xml:space="preserve"><value>Xxx</value></data>
+<data name="all" xml:space="preserve"><value>Все</value></data>
+<data name="confirm email" xml:space="preserve"><value>Подтвердите электронную почту</value></data>
+<data name="confirm email change" xml:space="preserve"><value>Подтвердите изменение электронной почты</value></data>
+<data name="hyperlink" xml:space="preserve"><value>Гиперссылка</value></data>
+<data name="also see a preview of the" xml:space="preserve"><value>Также смотрите предварительный просмотр</value></data>
+<data name="delete data and close my account" xml:space="preserve"><value>Удалить данные и закрыть учетную запись</value></data>
+<data name="delete personal data" xml:space="preserve"><value>Удалить личные данные</value></data>
+<data name="disable 2fa" xml:space="preserve"><value>Отключить 2FA</value></data>
+<data name="max lenght 14" xml:space="preserve"><value>Макс Лента 14</value></data>
+<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>Выберите из меню следующее: дом, начало работы, регистрация, вход в систему, обновление, выход из системы, отпечаток, контакт, учетная запись. Во втором меню выберите: показать фильтр, повернуть, переключить вид, свойства, добавить, вперед, назад. В диалоговой коробке можно: сохранить, отменить, представить.</value></data>
+<data name="authenticator app" xml:space="preserve"><value>Приложение Authenticator</value></data>
+<data name="recovery codes left." xml:space="preserve"><value>Коды восстановления остались.</value></data>
+<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>Эффективный веб скраппинг с помощью простого ввода URL адреса</value></data>
+<data name="enable qr code generation" xml:space="preserve"><value>Включить генерацию QR кода</value></data>
+<data name="external logins" xml:space="preserve"><value>Внешние логины</value></data>
+<data name="no passkeys are registered." xml:space="preserve"><value>Никаких подсказок не зарегистрировано.</value></data>
+<data name="forget this browser" xml:space="preserve"><value>Забыть этот браузер</value></data>
+<data name="forgot password confirmation" xml:space="preserve"><value>Подтверждение забытого пароля</value></data>
+<data name="generate a new set of recovery codes" xml:space="preserve"><value>Сгенерировать новый набор кодов восстановления</value></data>
+<data name="generate recovery codes" xml:space="preserve"><value>Сгенерировать коды восстановления</value></data>
+<data name="the external login was removed." xml:space="preserve"><value>Внешний логин был удален.</value></data>
+<data name="learn how to" xml:space="preserve"><value>Узнайте как</value></data>
+<data name="legal inquiry" xml:space="preserve"><value>Юридический запрос</value></data>
+<data name="locked out" xml:space="preserve"><value>Заблокирован</value></data>
+<data name="manage email" xml:space="preserve"><value>Управление электронной почтой</value></data>
+<data name="just browse" xml:space="preserve"><value>Просто просмотреть</value></data>
+<data name="manage your external logins" xml:space="preserve"><value>Управление внешними логинами</value></data>
+<data name="new password" xml:space="preserve"><value>Новый пароль</value></data>
+<data name="old password" xml:space="preserve"><value>Старый пароль</value></data>
+<data name="options" xml:space="preserve"><value>Опции</value></data>
+<data name="google authenticator for" xml:space="preserve"><value>Google для аутентификации</value></data>
+<data name="order complete" xml:space="preserve"><value>Заказ завершен</value></data>
+<data name="personal data" xml:space="preserve"><value>Личные данные</value></data>
+<data name="phone number" xml:space="preserve"><value>Номер телефона</value></data>
+<data name="min" xml:space="preserve"><value>Минь</value></data>
+<data name="recovery code" xml:space="preserve"><value>Код восстановления</value></data>
+<data name="recovery code verification" xml:space="preserve"><value>Проверка кода восстановления</value></data>
+<data name="register" xml:space="preserve"><value>Регистрация</value></data>
+<data name="register confirmation" xml:space="preserve"><value>Подтверждение регистрации</value></data>
+<data name="registered logins" xml:space="preserve"><value>Зарегистрированные логины</value></data>
+<data name="remember me" xml:space="preserve"><value>Запомнить меня</value></data>
+<data name="remember this machine" xml:space="preserve"><value>Запомните это устройство</value></data>
+<data name="resend" xml:space="preserve"><value>Повторная отправка</value></data>
+<data name="resend email confirmation" xml:space="preserve"><value>Повторная отправка подтверждения по электронной почте</value></data>
+<data name="reset" xml:space="preserve"><value>Сбросить</value></data>
+<data name="reset authenticator app" xml:space="preserve"><value>Сбросить приложение аутентификатора</value></data>
+<data name="reset authenticator key" xml:space="preserve"><value>Сброс ключа аутентификатора</value></data>
+<data name="reset filters" xml:space="preserve"><value>Сбросить фильтры</value></data>
+<data name="reset password" xml:space="preserve"><value>Сбросить пароль</value></data>
+<data name="reset password confirmation" xml:space="preserve"><value>Подтверждение сброса пароля</value></data>
+<data name="reset recovery codes" xml:space="preserve"><value>Сбросить коды восстановления</value></data>
+<data name="user name" xml:space="preserve"><value>Имя пользователя</value></data>
+<data name="scan the qr code or enter this key" xml:space="preserve"><value>Отсканируйте QR код или введите этот ключ</value></data>
+<data name="selected categories" xml:space="preserve"><value>Выбранные категории</value></data>
+<data name="selected websites" xml:space="preserve"><value>Выбранные веб сайты</value></data>
+<data name="send verification email" xml:space="preserve"><value>Отправить проверочное электронное письмо</value></data>
+<data name="set password" xml:space="preserve"><value>Установить пароль</value></data>
+<data name="set your password" xml:space="preserve"><value>Установите пароль</value></data>
+<data name="subject" xml:space="preserve"><value>Тема</value></data>
+<data name="define the names of your categories" xml:space="preserve"><value>Определите названия категорий</value></data>
+<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>В вашем двухфакторном приложении для аутентификации. Пространства и корпус не имеют значения.</value></data>
+<data name="update password" xml:space="preserve"><value>Обновить пароль</value></data>
+<data name="main heading" xml:space="preserve"><value>Основной заголовок</value></data>
+<data name="error finding user for unspecified email" xml:space="preserve"><value>Ошибка при поиске пользователя для неуказанного адреса электронной почты</value></data>
+<data name="home" xml:space="preserve"><value>Главная</value></data>
+<data name="invalid password reset" xml:space="preserve"><value>Неверный сброс пароля</value></data>
+<data name="of" xml:space="preserve"><value>Из</value></data>
+<data name="paragraph" xml:space="preserve"><value>Пункт</value></data>
+<data name="success" xml:space="preserve"><value>Успех</value></data>
+<data name="set up authenticator app" xml:space="preserve"><value>Настроить приложение аутентификатора</value></data>
+<data name="username" xml:space="preserve"><value>Имя пользователя</value></data>
+<data name="verification code" xml:space="preserve"><value>Код подтверждения</value></data>
+<data name="verify" xml:space="preserve"><value>Проверить</value></data>
+<data name="next" xml:space="preserve"><value>Дальше</value></data>
+<data name="subscriptions" xml:space="preserve"><value>Подписки</value></data>
+<data name="you have" xml:space="preserve"><value>У вас</value></data>
+<data name="you must" xml:space="preserve"><value>Вам необходимо</value></data>
+<data name="your password has been changed" xml:space="preserve"><value>Ваш пароль был изменен</value></data>
+<data name="your profile has been updated" xml:space="preserve"><value>Ваш профиль был обновлен</value></data>
+<data name="nter a name for your passkey" xml:space="preserve"><value>Введите имя для вашего ключа</value></data>
+<data name="forgot your password?" xml:space="preserve"><value>Забыли пароль?</value></data>
+<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>Полное отображение вкладов, нажав на название вклада</value></data>
+<data name="privacy policy" xml:space="preserve"><value>Политика конфиденциальности</value></data>
+<data name="pro version" xml:space="preserve"><value>Профессиональная версия</value></data>
+<data name="new project" xml:space="preserve"><value>Новый проект</value></data>
+<data name="reset filter" xml:space="preserve"><value>Сброс фильтра</value></data>
+<data name="save changes" xml:space="preserve"><value>Сохранение изменений</value></data>
+<data name="last" xml:space="preserve"><value>Последний</value></data>
+<data name="open original" xml:space="preserve"><value>Открыть оригинал</value></data>
+<data name="download documents" xml:space="preserve"><value>Скачивать документы</value></data>
+<data name="tagging and filtering" xml:space="preserve"><value>Тегирование и фильтрация</value></data>
+<data name="open local" xml:space="preserve"><value>Открыть локальный</value></data>
+<data name="download single" xml:space="preserve"><value>Загрузка одного</value></data>
+<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>Иконка для переключения между видом карты и видом стола.</value></data>
+<data name="add custom tag" xml:space="preserve"><value>Добавить пользовательский тег</value></data>
+<data name="define the name of the tag for individual posts" xml:space="preserve"><value>Определите название тега для отдельных постов</value></data>
+<data name="tagging contributions" xml:space="preserve"><value>Тагирование взносов</value></data>
+<data name="filter your pages" xml:space="preserve"><value>Фильтр страниц</value></data>
+<data name="download txt or json documents without images" xml:space="preserve"><value>Скачать документы в формате txt или json без изображений</value></data>
+<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>В фильтрах вы можете отфильтровать посты по тегам</value></data>
+<data name="click on the" xml:space="preserve"><value>Нажмите на кнопку</value></data>
+<data name="to display download options" xml:space="preserve"><value>отобразить параметры загрузки</value></data>
+<data name="click save word document." xml:space="preserve"><value>Нажмите Сохранить документ Word.</value></data>
+<data name="error changing user name." xml:space="preserve"><value>Ошибка изменения имени пользователя.</value></data>
+<data name="add" xml:space="preserve"><value>Создать</value></data>
+<data name="document." xml:space="preserve"><value>Документ.</value></data>
+<data name="a new tab." xml:space="preserve"><value>Новая вкладка.</value></data>
+<data name="and json will open. you will" xml:space="preserve"><value>и JSON откроется. Вы будете</value></data>
+<data name="json download" xml:space="preserve"><value>Скачать JSON</value></data>
+<data name="the external login was added." xml:space="preserve"><value>Добавлен внешний логин.</value></data>
+<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>Отключить двухфакторную аутентификацию (2fa)</value></data>
+<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>Используйте переключатель, чтобы выбрать между «где есть» и «где нет».</value></data>
+<data name="loc[are displayed.]" xml:space="preserve"><value>Loc[править править код]</value></data>
+<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>Простой, разделенный на вкладки формат, хорошо подходящий для дальнейшей обработки в электронных таблицах или базах данных.</value></data>
+<data name="save to your download directory." xml:space="preserve"><value>Сохраните в каталоге загрузки.</value></data>
+<data name="two-factor authentication (2fa)" xml:space="preserve"><value>Двухфакторная аутентификация (2fa)</value></data>
+<data name="cards" xml:space="preserve"><value>Карточки</value></data>
+<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>Красный значок рециркуляции может появиться под значком фильтра. Нажатие на этот значок удаляет все активные фильтры и снова отображает полный обзор вклада.</value></data>
+<data name="two-factor authentication" xml:space="preserve"><value>Двухфакторная аутентификация</value></data>
+<data name="enter a new email" xml:space="preserve"><value>Введите новое электронное письмо</value></data>
+<data name="select columns for scraping" xml:space="preserve"><value>Выберите столбцы для парсинга</value></data>
+<data name="click one or more tags for a post." xml:space="preserve"><value>Нажмите один или несколько тегов для сообщения.</value></data>
+<data name="cards and table" xml:space="preserve"><value>Карточки и таблица</value></data>
+<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>Иконка для просмотра оригинального вклада в первоисточнике и макете.</value></data>
+<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>В представлении отдельных вкладов вы можете скачать их.</value></data>
+<data name="rename" xml:space="preserve"><value>Переименовать</value></data>
+<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>Для отображения помеченных вкладов можно выбрать соответствующий тег из списка текста.</value></data>
+<data name="toggle help visibility" xml:space="preserve"><value>Переключить видимость справки</value></data>
+<data name="enter / select url" xml:space="preserve"><value>Введите / выберите URL</value></data>
+<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>Параметры загрузки PDF, DOCX, TXT, HTML</value></data>
+<data name="to display filter dialog" xml:space="preserve"><value>Отображение диалогового фильтра</value></data>
+<data name="enter your phone number" xml:space="preserve"><value>Введите свой номер телефона</value></data>
+<data name="no contributions were found on the page" xml:space="preserve"><value>Вкладов на странице не найдено</value></data>
+<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>Откроется новое окно с предварительным просмотром вашего документа на pdf. Этот предварительный просмотр обеспечивает первоначальный обзор содержания и макета документа.</value></data>
+<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>Лучший способ связаться с нами - использовать нашу контактную форму ниже. Пожалуйста, заполните все необходимые поля, и мы вернемся к вам как можно скорее.</value></data>
+<data name="export" xml:space="preserve"><value>Экспортировать</value></data>
+<data name="underlined" xml:space="preserve"><value>Подчёркнутый</value></data>
+<data name="add to followed projects" xml:space="preserve"><value>Добавить в отслеживаемые проекты</value></data>
+<data name="follow" xml:space="preserve"><value>Следить</value></data>
+<data name="scraping view" xml:space="preserve"><value>Вид парсинга</value></data>
+<data name="authenticator code" xml:space="preserve"><value>Код аутентификации</value></data>
+<data name="heading 3" xml:space="preserve"><value>Заголовок 3</value></data>
+<data name="heading 2" xml:space="preserve"><value>Заголовок 2</value></data>
+<data name="image" xml:space="preserve"><value>Изображение</value></data>
+<data name="the created document will open in" xml:space="preserve"><value>Созданный документ откроется в</value></data>
+<data name="click on download a view with" xml:space="preserve"><value>Нажмите, чтобы загрузить вид с</value></data>
+<data name="file saving failed:" xml:space="preserve"><value>Сохранение файлов не удалось:</value></data>
+<data name="file saved to:" xml:space="preserve"><value>Файл сохранен для:</value></data>
+<data name="an error occurred during download:" xml:space="preserve"><value>Во время загрузки произошла ошибка:</value></data>
+<data name="thank you for your message." xml:space="preserve"><value>Спасибо за сообщение.</value></data>
+<data name="file" xml:space="preserve"><value>Файл</value></data>
+<data name="an error has occurred." xml:space="preserve"><value>Произошла ошибка.</value></data>
+<data name="table" xml:space="preserve"><value>Таблица</value></data>
+<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>Форматы документов: docx, pdf, html, json, txt</value></data>
+<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>Фильтр по категориям (для этого вы должны пометить свои страницы)</value></data>
+<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>Затем можно скачать PDF, docx и html документы с изображениями</value></data>
+<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>Вы можете определить имя ваших тегов индивидуально в соответствии с опциями.</value></data>
+<data name="show help (dynamic, static, off)" xml:space="preserve"><value>Показать помощь (динамическая, статическая, выключенная)</value></data>
+<data name="enter a part that the title must contain." xml:space="preserve"><value>Введите часть, которую должно содержать название.</value></data>
+<data name="switch view" xml:space="preserve"><value>Вид переключателя</value></data>
+<data name="custoum" xml:space="preserve"><value>Кустоум</value></data>
+<data name="download document" xml:space="preserve"><value>Скачать документ</value></data>
+<data name="csv download" xml:space="preserve"><value>Скачать CSV</value></data>
+<data name="excel download" xml:space="preserve"><value>Скачать Excel</value></data>
+<data name="single document download" xml:space="preserve"><value>Скачать отдельный документ</value></data>
+<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>С помощью «closerpage-for-windows» можно получить до 200 изображений.</value></data>
+<data name="the contributions for" xml:space="preserve"><value>Взносы на</value></data>
+<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>Чтобы автоматически собирать новые взносы в будущем, нажмите на</value></data>
+<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>Вы можете выбрать отдельные проекты, чтобы отображать только вклады, которые принадлежат этим проектам.</value></data>
+<data name="available predefined tags" xml:space="preserve"><value>Доступные предопределенные теги</value></data>
+<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>Если вы определили категории для своих веб-страниц, вы также можете фильтровать по этим категориям. Просто выберите нужные веб-страницы или категории из списка.</value></data>
+<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>После того, как вы сделали свой выбор, нажмите на кнопку «Отправить», чтобы применить фильтр. Затем будет обновлено представление о вкладе и будут показаны только отфильтрованные результаты.</value></data>
+<data name="to display options" xml:space="preserve"><value>Для отображения опций</value></data>
+<data name="this will rotate all cards." xml:space="preserve"><value>Это перевернет все карты.</value></data>
+<data name="button" xml:space="preserve"><value>Кнопка</value></data>
+<data name="preview the images" xml:space="preserve"><value>Предварительный просмотр изображений</value></data>
+<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>Если ваш документ содержит файлы изображений, они также будут отображаться в предварительном просмотре.</value></data>
+<data name="download options" xml:space="preserve"><value>Скачать опции</value></data>
+<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>Чтобы скачать документ, выберите нужный формат из доступных вариантов.</value></data>
+<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>Идеально подходит для готовых к печати документов и совместного использования в профессиональном макете.</value></data>
+<data name="error: incorrect password." xml:space="preserve"><value>Ошибка: неправильный пароль.</value></data>
+<data name="useful if you want to edit the document further." xml:space="preserve"><value>Полезно, если вы хотите отредактировать документ.</value></data>
+<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>Полезно для встраивания контента на сайт или другой цифровой носитель.</value></data>
+<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>Содержит только простой текст, без форматирования. Подходит для простой дальнейшей обработки.</value></data>
+<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>Содержит все изображения документа в виде отдельных файлов в случае необходимости.</value></data>
+<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>Чтобы найти веб-сайт для вкладов, введите URL и нажмите на значок увеличительного стекла. В качестве альтернативы вы можете нажать клавишу ввода на клавиатуре.</value></data>
+<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>Если вы вошли в систему и уже отслеживаете URL-адреса для изменений, вы также можете выбрать URL-адрес из выпадающего списка.</value></data>
+<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>Текущие сообщения на выбранном веб-сайте автоматически захватываются нашим алгоритмом. Старые и недавно обнаруженные сообщения затем отображаются на веб-сайте.</value></data>
+<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>Я вхожу в URL, и ничего не отображается. Почему?</value></data>
+<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>К сожалению, это не редкость и может иметь много причин, например:</value></data>
+<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>Никакие вклады не связаны на веб-сайте, который вы ищете. (например, вы ввели страницу контакта в виде URL: «https://mysite/contact»)</value></data>
+<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>Связанные сообщения не находятся в домене. Например, вы ввели «https://mysite.com/products», но все вклады относятся к «https://otherpage.com/productxy».</value></data>
+<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>Запрашиваемая страница блокирует ботов (закрытая страница — это бот).</value></data>
+<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>Запрашиваемая страница отображает только сообщения для зарегистрированных пользователей.</value></data>
+<data name="table structure (sorted by priority)" xml:space="preserve"><value>Структура таблицы (сортированная по приоритету)</value></data>
+<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>Таблица организована таким образом, чтобы сначала отображалась самая важная информация, что позволяет быстро ориентироваться и эффективно обрабатывать информацию.</value></data>
+<data name="tags" xml:space="preserve"><value>Тэги</value></data>
+<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>Затем вклад откроется в новом окне браузера или вкладке. Там вы увидите вклад, как он был опубликован на оригинальном веб-сайте, включая все форматирование, изображения, ссылки и другой контент, который не может быть включен в просмотр.</value></data>
+<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>Здесь отображаются любые существующие теги или категории, присвоенные вкладам. Это поможет вам быстро отфильтровать вклады по теме или фокусу.</value></data>
+<data name="headings and titles" xml:space="preserve"><value>Заголовки и названия</value></data>
+<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>Заголовки и названия взносов указаны вторые. Они обеспечивают первоначальный обзор содержания и позволяют быстро идентифицировать соответствующие вклады.</value></data>
+<data name="date and author" xml:space="preserve"><value>Дата и автор</value></data>
+<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>Эта колонка содержит дату публикации и автора вклада. Это позволяет увидеть, когда и кем был создан вклад.</value></data>
+<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>Фактическое содержание взносов, разделенных на пункты, составляет заключительную часть таблицы. Именно здесь вы найдете подробный текст, который был удален.</value></data>
+<data name="table functions" xml:space="preserve"><value>Функции таблицы</value></data>
+<data name="tagging" xml:space="preserve"><value>Маркировка</value></data>
+<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>Вклады можно пометить и пометить, выбрав флажок. Это облегчает сортировку, фильтрацию и управление вкладами в будущем, особенно при работе с большими объемами данных.</value></data>
+<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>Всю таблицу или выбранные вклады можно скачать в различных форматах.</value></data>
+<data name="select tagged contributions" xml:space="preserve"><value>Выберите теговые вклады</value></data>
+<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>Хорошо известный формат таблицы, предлагающий дополнительные варианты форматирования, особенно подходящие для отчетов или презентаций.</value></data>
+<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>Структурированный формат данных, особенно подходящий для дальнейшей обработки в программах или веб-приложениях.</value></data>
+<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>Функция тегирования позволяет классифицировать и организовывать вклады, облегчая их поиск или фильтрацию в дальнейшем.</value></data>
+<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>Эта функция доступна как в карточках, так и в просмотре таблиц. Эта функция позволяет скрывать конкретные вклады или отмечать их как особенно важные.</value></data>
+<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>Отметьте вклады, которые являются особенно важными, актуальными или выдающимися.</value></data>
+<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>Указывает, что вклад уже загружен.</value></data>
+<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>Отметки вкладов, которые были созданы или отредактированы с использованием технологий ai.</value></data>
+<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>Скрывает вклады, которые вы больше не хотите отображать, но не удаляет их полностью.</value></data>
+<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>Если ссылка не работает или вклад больше не доступен, это может быть связано с изменениями на оригинальной странице.</value></data>
+<data name="show contribution" xml:space="preserve"><value>Показать вклад</value></data>
+<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>Нажмите на заголовок, чтобы открыть новое окно с содержанием вклада.</value></data>
+<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>Идеально подходит для быстрого чтения, проверки или редактирования вкладов без необходимости вызывать исходный источник.</value></data>
+<data name="create a new account." xml:space="preserve"><value>Создайте новый аккаунт.</value></data>
+<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>Если вклад содержит файлы изображений, в предварительном просмотре будет отображаться небольшое изображение предварительного просмотра.</value></data>
+<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>Вы увидите номер в верхнем углу изображения предварительного просмотра. Это число указывает, сколько изображений содержится в вкладе.</value></data>
+<data name="simply click on the preview image." xml:space="preserve"><value>Просто нажмите на изображение предварительного просмотра.</value></data>
+<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>Это откроет галерею, в которой все изображения в вкладе отображаются четко и в большем формате.</value></data>
+<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>Это позволяет вам решить, отображаются ли вклады с выбранным тегом или отображаются только вклады, которые не отмечены соответствующим образом.</value></data>
+<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>На любые вопросы, которые у вас есть о нашей политике конфиденциальности, файлах cookie или условиях использования, будут даны ответы как можно скорее.</value></data>
+<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>Текущие вклады с ваших любимых сайтов - с первого взгляда</value></data>
+<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>Вы часто читаете или исследуете различные веб-сайты и хотите получить последние новости в одном месте? Тогда вы пришли в нужное место!</value></data>
+<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>Все новые сообщения с выбранных вами сайтов с первого взгляда.</value></data>
+<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>Создавайте документы в docx, pdf, json или html.</value></data>
+<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>Маркируйте сообщения с нашим «списком тегов» (например, «нравится», «неинтересно», «уже загружено», ...). Для этой цели доступно 10 настраиваемых «меток».</value></data>
+<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>Откройте для себя более близкую страницу - лучший инструмент для тех, кто хочет быть в курсе последних новостей онлайн. С помощью удобной функции веб-скребинга просто введите URL и мгновенно посмотрите все новые сообщения на желаемом веб-сайте.</value></data>
+<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>Каждый пост может отображаться в полном объеме одним щелчком мыши, поэтому вы не пропустите никакой важной информации. Хронологический порядок сообщений облегчает навигацию и поиск релевантного контента.</value></data>
+<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>Особое внимание уделяется возможности создания документов из каждого вклада в формате docx, pdf, json или html, что идеально подходит для архивирования или дальнейшей обработки информации.</value></data>
+<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>Это означает, что вы никогда не пропустите новый вклад и всегда в курсе.</value></data>
+<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>Зарегистрируйтесь, чтобы активировать бесплатный план. Затем вы можете перейти на профессиональный план.</value></data>
+<data name="you do not have access to this resource." xml:space="preserve"><value>У вас нет доступа к этому ресурсу.</value></data>
+<data name="thank you for confirming your email." xml:space="preserve"><value>Спасибо, что подтвердили свою электронную почту.</value></data>
+<data name="error confirming your email." xml:space="preserve"><value>Ошибка, подтверждающая вашу электронную почту.</value></data>
+<data name="i accept the terms and conditions" xml:space="preserve"><value>Я принимаю условия и положения</value></data>
+<data name="error: invalid email change confirmation link." xml:space="preserve"><value>Ошибка: недействительная ссылка подтверждения изменения электронной почты.</value></data>
+<data name="error changing email." xml:space="preserve"><value>Ошибка изменения электронной почты.</value></data>
+<data name="thank you for confirming your email change." xml:space="preserve"><value>Спасибо за подтверждение изменения электронной почты.</value></data>
+<data name="you've successfully authenticated with" xml:space="preserve"><value>Вы успешно прошли аутентификацию</value></data>
+<data name="use another service to register." xml:space="preserve"><value>Используйте другой сервис для регистрации.</value></data>
+<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>Пожалуйста, введите адрес электронной почты для этого сайта ниже и нажмите кнопку регистрации, чтобы закончить вход.</value></data>
+<data name="please enter your email." xml:space="preserve"><value>Пожалуйста, введите свою электронную почту.</value></data>
+<data name="error loading external login information." xml:space="preserve"><value>Ошибка загрузки внешней регистрационной информации.</value></data>
+<data name="error loading external login information during confirmation." xml:space="preserve"><value>Ошибка загрузки внешней информации входа во время подтверждения.</value></data>
+<data name="reset your password." xml:space="preserve"><value>Сбросьте пароль.</value></data>
+<data name="the default ui requires a user store with email support." xml:space="preserve"><value>Для пользовательского интерфейса по умолчанию требуется хранилище пользователей с поддержкой электронной почты.</value></data>
+<data name="enter your email." xml:space="preserve"><value>Введите свою электронную почту.</value></data>
+<data name="please check your email to reset your password." xml:space="preserve"><value>Пожалуйста, проверьте свою электронную почту, чтобы сбросить пароль.</value></data>
+<data name="the password reset link is invalid." xml:space="preserve"><value>Ссылка сброса пароля недействительна.</value></data>
+<data name="please confirm your password." xml:space="preserve"><value>Пожалуйста, подтвердите свой пароль.</value></data>
+<data name="this account has been locked out, please try again later." xml:space="preserve"><value>Эта учетная запись была заблокирована, пожалуйста, попробуйте позже.</value></data>
+<data name="use a local account to log in." xml:space="preserve"><value>Используйте локальный аккаунт для входа.</value></data>
+<data name="log in with a passkey" xml:space="preserve"><value>Войти с помощью Passkey</value></data>
+<data name="use another service to log in." xml:space="preserve"><value>Используйте другой сервис для входа.</value></data>
+<data name="please enter your password." xml:space="preserve"><value>Пожалуйста, введите свой пароль.</value></data>
+<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>Ваш логин защищен приложением аутентификатора. Введите свой код аутентификации ниже.</value></data>
+<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>У вас нет доступа к вашему устройству аутентификации? Вы можете</value></data>
+<data name="error: invalid authenticator code." xml:space="preserve"><value>Ошибка: недействительный код аутентификации.</value></data>
+<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>Вы попросили войти с кодом восстановления. Этот логин не запомнится, пока вы не предоставите код приложения аутентификатора при входе в систему или отключите 2fa и снова войдете.</value></data>
+<data name="recoverycode" xml:space="preserve"><value>Восстановительный код</value></data>
+<data name="for how to configure a real email sender" xml:space="preserve"><value>Как настроить реального отправителя электронной почты</value></data>
+<data name="normally this would be emailed:" xml:space="preserve"><value>Обычно это будет отправлено по электронной почте:</value></data>
+<data name="please check your email to confirm your account." xml:space="preserve"><value>Пожалуйста, проверьте свою электронную почту, чтобы подтвердить свою учетную запись.</value></data>
+<data name="verification email sent. please check your email." xml:space="preserve"><value>Проверка отправлена по электронной почте. Пожалуйста, проверьте свою электронную почту.</value></data>
+<data name="enter the code" xml:space="preserve"><value>Введите код</value></data>
+<data name="your password has been reset. please" xml:space="preserve"><value>Ваш пароль был сброшен. Пожалуйста.</value></data>
+<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>Внешние службы аутентификации не настроены. Посмотри.</value></data>
+<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>Статья о настройке этого приложения asp.net для поддержки входа в систему через внешние службы</value></data>
+<data name="put these codes in a safe place." xml:space="preserve"><value>Поместите эти коды в безопасное место.</value></data>
+<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>Если вы потеряете свое устройство и у вас не будет кодов восстановления, вы потеряете доступ к своей учетной записи.</value></data>
+<data name="enter the old password" xml:space="preserve"><value>Введите старый пароль</value></data>
+<data name="enter the new password" xml:space="preserve"><value>Введите новый пароль</value></data>
+<data name="user changed their password successfully." xml:space="preserve"><value>Пользователь успешно изменил пароль.</value></data>
+<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>Удаление этих данных навсегда удалит вашу учетную запись, и это не может быть восстановлено.</value></data>
+<data name="unexpected error occurred deleting user." xml:space="preserve"><value>Неожиданная ошибка произошла при удалении пользователя.</value></data>
+<data name="this action only disables 2fa." xml:space="preserve"><value>Это действие отключает только 2fa.</value></data>
+<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Отключение 2fa не изменяет ключи, используемые в приложениях аутентификации. Если вы хотите изменить ключ, используемый в приложении аутентификатора, вы должны</value></data>
+<data name="set your authenticator keys." xml:space="preserve"><value>Установите ключи аутентификации.</value></data>
+<data name="reset your authenticator keys." xml:space="preserve"><value>Сбросьте ключи аутентификации.</value></data>
+<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>Невозможно отключить 2fa для пользователя, поскольку в настоящее время он не включен.</value></data>
+<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>Неожиданная ошибка произошла при отключении 2fa.</value></data>
+<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2FA отключена. Вы можете повторно включить 2FA, когда настроите приложение аутентификатора.</value></data>
+<data name="enter your email" xml:space="preserve"><value>Введите свою электронную почту</value></data>
+<data name="your email is unchanged." xml:space="preserve"><value>Ваша электронная почта неизменна.</value></data>
+<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>Подтверждение ссылки для изменения отправленной электронной почты. Пожалуйста, проверьте свою электронную почту.</value></data>
+<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>Чтобы использовать приложение аутентификатора, выполните следующие шаги:</value></data>
+<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>Скачать двухфакторное приложение для аутентификации, такое как microsoft authenticator</value></data>
+<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>После того, как вы отсканировали код qr или ввели ключ выше, ваше приложение для аутентификации двух факторов предоставит вам уникальный код. Введите код в поле подтверждения ниже.</value></data>
+<data name="error: verification code is invalid." xml:space="preserve"><value>Ошибка: код проверки недействителен.</value></data>
+<data name="your authenticator app has been verified." xml:space="preserve"><value>Ваше приложение для аутентификации было проверено.</value></data>
+<data name="add another service to log in." xml:space="preserve"><value>Добавьте еще один сервис для входа.</value></data>
+<data name="error: the external login was not removed." xml:space="preserve"><value>Ошибка: внешний логин не был удален.</value></data>
+<data name="error: could not load external login info." xml:space="preserve"><value>Ошибка: не удалось загрузить внешние данные.</value></data>
+<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>Ошибка: внешний логин не был добавлен. Внешние входы могут быть связаны только с одной учетной записью.</value></data>
+<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>Создание двухфакторной аутентификации (2fa) кодов восстановления</value></data>
+<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Создание новых кодов восстановления не изменяет ключи, используемые в приложениях аутентификации. Если вы хотите изменить ключ, используемый в приложении аутентификатора, вы должны</value></data>
+<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>Не может генерировать коды восстановления для пользователя, потому что у них нет 2fa.</value></data>
+<data name="you have generated new recovery codes." xml:space="preserve"><value>Вы создали новые коды восстановления.</value></data>
+<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>Пользователь с идентификатором {userid} генерирует новые коды восстановления 2fa.</value></data>
+<data name="choose your username." xml:space="preserve"><value>Выберите свое имя пользователя.</value></data>
+<data name="you have no recovery codes left." xml:space="preserve"><value>У вас не осталось кодов восстановления.</value></data>
+<data name="error: failed to set phone number." xml:space="preserve"><value>Ошибка: не удалось установить номер телефона.</value></data>
+<data name="manage your passkeys" xml:space="preserve"><value>Управляйте своими ключами</value></data>
+<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>Вы достигли максимального количества разрешенных ключей. Пожалуйста, удалите один, прежде чем добавлять новый.</value></data>
+<data name="add a new passkey" xml:space="preserve"><value>Добавить новый Passkey</value></data>
+<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>Ошибка: браузер не предоставил пароль.</value></data>
+<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>Ошибка: ключ не может быть добавлен в ваш аккаунт.</value></data>
+<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>Ошибка: указанный идентификатор Passkey имел недействительный формат.</value></data>
+<data name="error: the passkey could not be deleted." xml:space="preserve"><value>Ошибка: ключ нельзя удалить.</value></data>
+<data name="passkey deleted successfully." xml:space="preserve"><value>Passkey был успешно удален.</value></data>
+<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>Ваш аккаунт содержит персональные данные, которые вы нам предоставили. Эта страница позволяет загружать или удалять эти данные.</value></data>
+<data name="enter a new name for your" xml:space="preserve"><value>Введите новое имя для своего</value></data>
+<data name="passkey" xml:space="preserve"><value>Пассик</value></data>
+<data name="my passkey" xml:space="preserve"><value>Мой ключ</value></data>
+<data name="passkey name" xml:space="preserve"><value>Имя ключа</value></data>
+<data name="continue" xml:space="preserve"><value>Продолжать</value></data>
+<data name="error: the specified passkey could not be found." xml:space="preserve"><value>Ошибка: указанный пароль найти не удалось.</value></data>
+<data name="error: the passkey could not be updated." xml:space="preserve"><value>Ошибка: ключ не может быть обновлен.</value></data>
+<data name="passkey updated successfully." xml:space="preserve"><value>Passkey успешно обновляется.</value></data>
+<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>Если вы сбросите ключ аутентификации, ваше приложение аутентификации не будет работать, пока вы не перенастроите его.</value></data>
+<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>Этот процесс отключает 2fa, пока вы не проверите приложение аутентификации.</value></data>
+<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>Если вы не заполните конфигурацию приложения аутентификатора, вы можете потерять доступ к своей учетной записи.</value></data>
+<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>Ваш ключ приложения аутентификатора был сброшен, вам нужно будет настроить приложение аутентификатора с помощью нового ключа.</value></data>
+<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>У вас нет локального имени пользователя / пароля для этого сайта. Добавьте локальную учетную запись, чтобы вы могли войти без внешнего входа.</value></data>
+<data name="your password has been set." xml:space="preserve"><value>Ваш пароль был установлен.</value></data>
+<data name="before you can log in with a recovery code." xml:space="preserve"><value>Прежде чем вы сможете войти в систему с кодом восстановления.</value></data>
+<data name="you have 1 recovery code left." xml:space="preserve"><value>У вас остался 1 код восстановления.</value></data>
+<data name="inline text" xml:space="preserve"><value>Строчный текст</value></data>
+<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>Политика конфиденциальности и cookie-файлы не были приняты.</value></data>
+<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>Вы должны принять политику, прежде чем вы сможете включить двухфакторную аутентификацию.</value></data>
+<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>Нынешний браузер был забыт. При повторном входе в систему из этого браузера вам будет предложен код 2fa.</value></data>
+<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>В настоящее время это приложение не имеет реального отправителя электронной почты, см.</value></data>
+<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>Для отображения исходного сообщения (он открывается в новой вкладке браузера)</value></data>
+<data name="to display options." xml:space="preserve"><value>Чтобы показать варианты.</value></data>
+<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>Добавить новую страницу для мониторинга вкладов.</value></data>
+<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>Отображение упрощенного html-вида вклада.</value></data>
+<data name="to display filters." xml:space="preserve"><value>Для отображения фильтров.</value></data>
+<data name="to rotate the map view." xml:space="preserve"><value>Чтобы повернуть карту.</value></data>
+<data name="to display the image gallery." xml:space="preserve"><value>Чтобы отобразить галерею изображений.</value></data>
+<data name="italic text" xml:space="preserve"><value>Курсивный текст</value></data>
+<data name="summary" xml:space="preserve"><value>Сводка</value></data>
+<data name="expandable section" xml:space="preserve"><value>Раскрывающийся раздел</value></data>
+<data name="strong emphasis" xml:space="preserve"><value>Сильное выделение</value></data>
+<data name="emphasis (italic)" xml:space="preserve"><value>Выделение (курсив)</value></data>
+<data name="highlighted text" xml:space="preserve"><value>Выделенный текст</value></data>
+<data name="code snippet" xml:space="preserve"><value>Фрагмент кода</value></data>
+<data name="code block" xml:space="preserve"><value>Блок кода</value></data>
+<data name="block quote" xml:space="preserve"><value>Блочная цитата</value></data>
+<data name="citation" xml:space="preserve"><value>Цитирование</value></data>
+<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>отмечайте посты с помощью нашего «списка тегов» (например, «нравится», «неинтересно», «уже загружено», ...). Для этой цели доступно 10 настраиваемых «тегов».</value></data>
+<data name="heading 1" xml:space="preserve"><value>Заголовок 1</value></data>
+<data name="sample output" xml:space="preserve"><value>Пример вывода</value></data>
+<data name="variable" xml:space="preserve"><value>Переменная</value></data>
+<data name="small text" xml:space="preserve"><value>Мелкий текст</value></data>
+<data name="figure with caption" xml:space="preserve"><value>Рисунок с подписью</value></data>
+<data name="figure caption" xml:space="preserve"><value>Подпись к рисунку</value></data>
+<data name="keyboard input" xml:space="preserve"><value>Ввод с клавиатуры</value></data>
+<data name="bold text" xml:space="preserve"><value>Жирный текст</value></data>
+<data name="subscript" xml:space="preserve"><value>Нижний индекс</value></data>
+<data name="superscript" xml:space="preserve"><value>Верхний индекс</value></data>
+<data name="are displayed." xml:space="preserve"><value>отображаются.</value></data>
+<data name="block container" xml:space="preserve"><value>Блочный контейнер</value></data>
+<data name="abbreviation" xml:space="preserve"><value>Аббревиатура</value></data>
+<data name="custom" xml:space="preserve"><value>Пользовательский</value></data>
+</root>

@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?><root><xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"><xsd:import namespace="http://www.w3.org/XML/1998/namespace" /><xsd:element name="root" msdata:IsDataSet="true"><xsd:complexType><xsd:choice maxOccurs="unbounded"><xsd:element name="metadata"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" use="required" type="xsd:string" /><xsd:attribute name="type" type="xsd:string" /><xsd:attribute name="mimetype" type="xsd:string" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="assembly"><xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType></xsd:element><xsd:element name="data"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /><xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /><xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /><xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="resheader"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType></xsd:element></xsd:choice></xsd:complexType></xsd:element></xsd:schema><resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="and" xml:space="preserve"><value>a </value></data>
+<data name="account" xml:space="preserve"><value>Účet</value></data>
+<data name="full name" xml:space="preserve"><value>Celé jméno</value></data>
+<data name="imprint" xml:space="preserve"><value>Otisk</value></data>
+<data name="login" xml:space="preserve"><value>Přihlášení</value></data>
+<data name="date from" xml:space="preserve"><value>datum od</value></data>
+<data name="rotate" xml:space="preserve"><value>Otočit</value></data>
+<data name="contact" xml:space="preserve"><value>Kontakt</value></data>
+<data name="getting started" xml:space="preserve"><value>Začínáme</value></data>
+<data name="show filter" xml:space="preserve"><value>Zobrazit filtr</value></data>
+<data name="first" xml:space="preserve"><value>první ai </value></data>
+<data name="paragraphs" xml:space="preserve"><value>Odstavce</value></data>
+<data name="close" xml:space="preserve"><value>Zavřít</value></data>
+<data name="contribution" xml:space="preserve"><value>Příspěvek</value></data>
+<data name="invalid user" xml:space="preserve"><value>Neplatný uživatel</value></data>
+<data name="logout" xml:space="preserve"><value>Odhlášení</value></data>
+<data name="manage your account" xml:space="preserve"><value>Správa účtu</value></data>
+<data name="message" xml:space="preserve"><value>zpráva</value></data>
+<data name="order abandoned" xml:space="preserve"><value>Opuštěná objednávka</value></data>
+<data name="picture gallery" xml:space="preserve"><value>galerie obrázků</value></data>
+<data name="download" xml:space="preserve"><value>Stáhnout</value></data>
+<data name="delete" xml:space="preserve"><value>Smazat</value></data>
+<data name="profile" xml:space="preserve"><value>Profil</value></data>
+<data name="recovery codes" xml:space="preserve"><value>Kódy pro obnovení</value></data>
+<data name="register as a new user" xml:space="preserve"><value>Zaregistrujte se jako nový uživatel</value></data>
+<data name="remove" xml:space="preserve"><value>Odstranit</value></data>
+<data name="click here to log in" xml:space="preserve"><value>klikněte zde a přihlaste se</value></data>
+<data name="date to" xml:space="preserve"><value>datum do</value></data>
+<data name="save" xml:space="preserve"><value>Uložit</value></data>
+<data name="filter reset" xml:space="preserve"><value>reset filtru ai </value></data>
+<data name="previous" xml:space="preserve"><value>předchozí ai </value></data>
+<data name="add page" xml:space="preserve"><value>přidat stránku ai </value></data>
+<data name="password" xml:space="preserve"><value>Heslo</value></data>
+<data name="assign categories to your pages or delete them" xml:space="preserve"><value>přiřadit kategorie na vaše stránky nebo je smazat ai </value></data>
+<data name="max" xml:space="preserve"><value>Maxi.</value></data>
+<data name="send" xml:space="preserve"><value>Odeslat</value></data>
+<data name="error" xml:space="preserve"><value>Chyba</value></data>
+<data name="log in" xml:space="preserve"><value>přihlásit se ai </value></data>
+<data name="conveniently filter and search contributions" xml:space="preserve"><value>Příhodně filtrovat a vyhledávat příspěvky</value></data>
+<data name="confirm password" xml:space="preserve"><value>Potvrzení hesla</value></data>
+<data name="enter url." xml:space="preserve"><value>Vstupte.</value></data>
+<data name="italicized" xml:space="preserve"><value>italicid ai </value></data>
+<data name="email" xml:space="preserve"><value>Email</value></data>
+<data name="heading 6" xml:space="preserve"><value>položka 6 ai </value></data>
+<data name="access denied" xml:space="preserve"><value>Přístup odepřen</value></data>
+<data name="heading 5" xml:space="preserve"><value>položka 5 ai </value></data>
+<data name="add authenticator app" xml:space="preserve"><value>Přidat aplikaci autentizátoru</value></data>
+<data name="associate your" xml:space="preserve"><value>Přiřaďte svůj</value></data>
+<data name="change email" xml:space="preserve"><value>Změnit e mail</value></data>
+<data name="change password" xml:space="preserve"><value>změnit heslo ai </value></data>
+<data name="change your account settings" xml:space="preserve"><value>Změna nastavení účtu</value></data>
+<data name="choose plan" xml:space="preserve"><value>Vyberte si plán</value></data>
+<data name="click here to confirm your account" xml:space="preserve"><value>Klikněte zde pro potvrzení vašeho účtu</value></data>
+<data name="heading 4" xml:space="preserve"><value>položka 4 ai </value></data>
+<data name="properties" xml:space="preserve"><value>Vlastnosti</value></data>
+<data name="log in with a recovery code" xml:space="preserve"><value>přihlásit se pomocí kódu pro obnovení</value></data>
+<data name="configure authenticator app" xml:space="preserve"><value>Konfigurace aplikace autentizátor</value></data>
+<data name="title contains" xml:space="preserve"><value>Název obsahuje</value></data>
+<data name="toggle view" xml:space="preserve"><value>Přepnout zobrazení</value></data>
+<data name="these docs" xml:space="preserve"><value>tyto dokumenty</value></data>
+<data name="terms and conditions" xml:space="preserve"><value>podmínky ai </value></data>
+<data name="xxx" xml:space="preserve"><value>xxx</value></data>
+<data name="all" xml:space="preserve"><value>vše</value></data>
+<data name="confirm email" xml:space="preserve"><value>Potvrďte e mail</value></data>
+<data name="confirm email change" xml:space="preserve"><value>Potvrzení změny e mailu</value></data>
+<data name="hyperlink" xml:space="preserve"><value>hyperodkaz ai </value></data>
+<data name="also see a preview of the" xml:space="preserve"><value>také viz náhled ai </value></data>
+<data name="delete data and close my account" xml:space="preserve"><value>Odstranění údajů a uzavření mého účtu</value></data>
+<data name="delete personal data" xml:space="preserve"><value>Smazat osobní údaje</value></data>
+<data name="disable 2fa" xml:space="preserve"><value>Zakázat 2FA</value></data>
+<data name="max lenght 14" xml:space="preserve"><value>Maximální délka 14</value></data>
+<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>Z menu vyberte následující: domácí, začínající, registrace, přihlášení, upgrade, přihlášení, tisk, kontakt, účet. Ve druhém menu vyberte: zobrazit filtr, otočit, přepnout pohled, vlastnosti, přidat, dopředu, dozadu. V dialogovém okně můžete: uložit, zrušit, odeslat.</value></data>
+<data name="authenticator app" xml:space="preserve"><value>Authenticator app</value></data>
+<data name="recovery codes left." xml:space="preserve"><value>Odvolací kódy zbývají.</value></data>
+<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>Efektivní vyhledávání na webu pouhým zadáním adresy URL</value></data>
+<data name="enable qr code generation" xml:space="preserve"><value>povolit generování QR kódu</value></data>
+<data name="external logins" xml:space="preserve"><value>Externí přihlašování</value></data>
+<data name="no passkeys are registered." xml:space="preserve"><value>Žádné hesla nejsou registrovány.</value></data>
+<data name="forget this browser" xml:space="preserve"><value>Zapomenout na tento prohlížeč</value></data>
+<data name="forgot password confirmation" xml:space="preserve"><value>Potvrzení zapomenutého hesla</value></data>
+<data name="generate a new set of recovery codes" xml:space="preserve"><value>vygenerovat novou sadu kódů pro obnovení</value></data>
+<data name="generate recovery codes" xml:space="preserve"><value>Vygenerovat kódy pro obnovení</value></data>
+<data name="the external login was removed." xml:space="preserve"><value>Externí přihlášení bylo odstraněno.</value></data>
+<data name="learn how to" xml:space="preserve"><value>Naučte se jak</value></data>
+<data name="legal inquiry" xml:space="preserve"><value>Právní dotaz</value></data>
+<data name="locked out" xml:space="preserve"><value>Zablokováno</value></data>
+<data name="manage email" xml:space="preserve"><value>Správa e mailu</value></data>
+<data name="just browse" xml:space="preserve"><value>jen se podívejte ai </value></data>
+<data name="manage your external logins" xml:space="preserve"><value>Správa externích přihlašovacích údajů</value></data>
+<data name="new password" xml:space="preserve"><value>Nové heslo</value></data>
+<data name="old password" xml:space="preserve"><value>Staré heslo</value></data>
+<data name="options" xml:space="preserve"><value>Možnosti</value></data>
+<data name="google authenticator for" xml:space="preserve"><value>Google autentizátor pro</value></data>
+<data name="order complete" xml:space="preserve"><value>Objednávka dokončena</value></data>
+<data name="personal data" xml:space="preserve"><value>Osobní údaje</value></data>
+<data name="phone number" xml:space="preserve"><value>Telefonní číslo</value></data>
+<data name="min" xml:space="preserve"><value>Min</value></data>
+<data name="recovery code" xml:space="preserve"><value>Kód obnovení</value></data>
+<data name="recovery code verification" xml:space="preserve"><value>Ověření kódu obnovení</value></data>
+<data name="register" xml:space="preserve"><value>Registrace</value></data>
+<data name="register confirmation" xml:space="preserve"><value>Potvrzení registrace</value></data>
+<data name="registered logins" xml:space="preserve"><value>Registrované přihlašovací údaje</value></data>
+<data name="remember me" xml:space="preserve"><value>Zapamatovat si mě</value></data>
+<data name="remember this machine" xml:space="preserve"><value>Zapamatujte si toto zařízení</value></data>
+<data name="resend" xml:space="preserve"><value>Znovu odeslat</value></data>
+<data name="resend email confirmation" xml:space="preserve"><value>Opětovné zaslání potvrzovacího e mailu</value></data>
+<data name="reset" xml:space="preserve"><value>Obnovit</value></data>
+<data name="reset authenticator app" xml:space="preserve"><value>Obnovit aplikaci autentizátoru</value></data>
+<data name="reset authenticator key" xml:space="preserve"><value>Obnovení autentizačního klíče</value></data>
+<data name="reset filters" xml:space="preserve"><value>Obnovení filtrů</value></data>
+<data name="reset password" xml:space="preserve"><value>Obnovit heslo</value></data>
+<data name="reset password confirmation" xml:space="preserve"><value>Potvrzení obnovení hesla</value></data>
+<data name="reset recovery codes" xml:space="preserve"><value>Obnovit kódy pro obnovení</value></data>
+<data name="user name" xml:space="preserve"><value>uživatelské jméno ai </value></data>
+<data name="scan the qr code or enter this key" xml:space="preserve"><value>Naskenujte QR kód nebo zadejte tento klíč</value></data>
+<data name="selected categories" xml:space="preserve"><value>Vybrané kategorie</value></data>
+<data name="selected websites" xml:space="preserve"><value>Vybrané webové stránky</value></data>
+<data name="send verification email" xml:space="preserve"><value>Odeslat ověřovací e mail</value></data>
+<data name="set password" xml:space="preserve"><value>Nastavení hesla</value></data>
+<data name="set your password" xml:space="preserve"><value>Nastavení hesla</value></data>
+<data name="subject" xml:space="preserve"><value>předmět</value></data>
+<data name="define the names of your categories" xml:space="preserve"><value>definovat jména kategorií ai </value></data>
+<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>Do aplikace pro ověřování dvou faktorů.</value></data>
+<data name="update password" xml:space="preserve"><value>Aktualizovat heslo</value></data>
+<data name="main heading" xml:space="preserve"><value>hlavní nadpis ai </value></data>
+<data name="error finding user for unspecified email" xml:space="preserve"><value>Chyba při hledání uživatele pro nezadaný e mail</value></data>
+<data name="home" xml:space="preserve"><value>Domů</value></data>
+<data name="invalid password reset" xml:space="preserve"><value>Neplatné obnovení hesla</value></data>
+<data name="of" xml:space="preserve"><value>z</value></data>
+<data name="paragraph" xml:space="preserve"><value>odstavec ai </value></data>
+<data name="success" xml:space="preserve"><value>Úspěch</value></data>
+<data name="set up authenticator app" xml:space="preserve"><value>Nastavit aplikaci autentizátoru</value></data>
+<data name="username" xml:space="preserve"><value>Uživatelské jméno</value></data>
+<data name="verification code" xml:space="preserve"><value>Ověřovací kód</value></data>
+<data name="verify" xml:space="preserve"><value>Ověření na adrese</value></data>
+<data name="next" xml:space="preserve"><value>Další</value></data>
+<data name="subscriptions" xml:space="preserve"><value>Odběry</value></data>
+<data name="you have" xml:space="preserve"><value>Máte</value></data>
+<data name="you must" xml:space="preserve"><value>Musíte</value></data>
+<data name="your password has been changed" xml:space="preserve"><value>Vaše heslo bylo změněno</value></data>
+<data name="your profile has been updated" xml:space="preserve"><value>Váš profil byl aktualizován</value></data>
+<data name="nter a name for your passkey" xml:space="preserve"><value>Nter jméno vašeho hesla</value></data>
+<data name="forgot your password?" xml:space="preserve"><value>Zapomněl jsi heslo?</value></data>
+<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>Plné zobrazení příspěvků kliknutím na název příspěvku</value></data>
+<data name="privacy policy" xml:space="preserve"><value>zásady ochrany soukromí ai </value></data>
+<data name="pro version" xml:space="preserve"><value>pro verze ai </value></data>
+<data name="new project" xml:space="preserve"><value>nový projekt ai </value></data>
+<data name="reset filter" xml:space="preserve"><value>reset filtr ai </value></data>
+<data name="save changes" xml:space="preserve"><value>uložit změny ai </value></data>
+<data name="last" xml:space="preserve"><value>poslední ai </value></data>
+<data name="open original" xml:space="preserve"><value>otevřít originál ai </value></data>
+<data name="download documents" xml:space="preserve"><value>stahovat dokumenty ai </value></data>
+<data name="tagging and filtering" xml:space="preserve"><value>označení a filtrování ai </value></data>
+<data name="open local" xml:space="preserve"><value>otevřít místní ai </value></data>
+<data name="download single" xml:space="preserve"><value>stahovat ai </value></data>
+<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>Ikona pro přepínání mezi zobrazení karet a zobrazení tabulky.</value></data>
+<data name="add custom tag" xml:space="preserve"><value>Přidat vlastní značku</value></data>
+<data name="define the name of the tag for individual posts" xml:space="preserve"><value>definovat název značky pro jednotlivé příspěvky ai </value></data>
+<data name="tagging contributions" xml:space="preserve"><value>Příspěvky na označování</value></data>
+<data name="filter your pages" xml:space="preserve"><value>filtrovat stránky ai </value></data>
+<data name="download txt or json documents without images" xml:space="preserve"><value>stáhnout txt nebo json dokumenty bez obrázků ai </value></data>
+<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>ve filtrech můžete filtrovat označenými příspěvky ai </value></data>
+<data name="click on the" xml:space="preserve"><value>klepněte na tlačítko ai </value></data>
+<data name="to display download options" xml:space="preserve"><value>zobrazovat možnosti stahování ai </value></data>
+<data name="click save word document." xml:space="preserve"><value>Klikněte na uložený dokument.</value></data>
+<data name="error changing user name." xml:space="preserve"><value>Chyba při změně uživatelského jména.</value></data>
+<data name="add" xml:space="preserve"><value>Přidat</value></data>
+<data name="document." xml:space="preserve"><value>Dokument.</value></data>
+<data name="a new tab." xml:space="preserve"><value>Nový účet.</value></data>
+<data name="and json will open. you will" xml:space="preserve"><value>A Json otevře. Budeš.</value></data>
+<data name="json download" xml:space="preserve"><value>Json ke stažení</value></data>
+<data name="the external login was added." xml:space="preserve"><value>Vnější přihlášení bylo přidáno.</value></data>
+<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>Zakázat ověřování dvou faktorů (2fa)</value></data>
+<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>Použijte přepínač pro volbu mezi 'kde je' a 'kde není'.</value></data>
+<data name="loc[are displayed.]" xml:space="preserve"><value>Loc [jsou zobrazeny.]</value></data>
+<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>Jednoduchý, tab- oddělený formát dobře vhodný pro další zpracování v tabulkách nebo databázích.</value></data>
+<data name="save to your download directory." xml:space="preserve"><value>Uložit do adresáře ke stažení.</value></data>
+<data name="two-factor authentication (2fa)" xml:space="preserve"><value>Ověřování Two- faktoru (2fa)</value></data>
+<data name="cards" xml:space="preserve"><value>Karty</value></data>
+<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>Pod ikonou filtru se objeví červená ikona recyclebinu. Kliknutím na tuto ikonu vymažete všechny aktivní filtry a znovu zobrazí kompletní přehled příspěvků.</value></data>
+<data name="two-factor authentication" xml:space="preserve"><value>Ověření faktoru T2</value></data>
+<data name="enter a new email" xml:space="preserve"><value>Zadejte nový email</value></data>
+<data name="select columns for scraping" xml:space="preserve"><value>Vybrat sloupce pro škrabání</value></data>
+<data name="click one or more tags for a post." xml:space="preserve"><value>Klikněte na jednu nebo více značek pro příspěvek.</value></data>
+<data name="cards and table" xml:space="preserve"><value>Karty a tabulky</value></data>
+<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>Ikona pro zobrazení původního příspěvku ve svém původním zdroji a rozložení.</value></data>
+<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>Z pohledu jednotlivých příspěvků si je můžete stáhnout.</value></data>
+<data name="rename" xml:space="preserve"><value>Přejmenovat</value></data>
+<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>Chcete-li zobrazit označené příspěvky, můžete vybrat odpovídající značku ze seznamu textu.</value></data>
+<data name="toggle help visibility" xml:space="preserve"><value>Přepnout pomoc při viditelnosti</value></data>
+<data name="enter / select url" xml:space="preserve"><value>Zadejte / vyberte url</value></data>
+<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>Možnosti stahování pdf, docs, txt, html</value></data>
+<data name="to display filter dialog" xml:space="preserve"><value>Zobrazovat dialogové okno filtru</value></data>
+<data name="enter your phone number" xml:space="preserve"><value>Zadejte své telefonní číslo</value></data>
+<data name="no contributions were found on the page" xml:space="preserve"><value>Na stránce nebyly nalezeny žádné příspěvky</value></data>
+<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>Nové okno otevře zobrazení PDF náhledu vašeho dokumentu. Tento náhled poskytuje počáteční přehled obsahu a uspořádání dokumentu.</value></data>
+<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>Nejlepší způsob, jak nás kontaktovat, je použít náš kontaktní formulář níže. Vyplňte prosím všechna požadovaná pole a my se vám ozveme co nejdříve.</value></data>
+<data name="export" xml:space="preserve"><value>Exportovat</value></data>
+<data name="underlined" xml:space="preserve"><value>Podtržený</value></data>
+<data name="add to followed projects" xml:space="preserve"><value>přidat k dalším projektům ai </value></data>
+<data name="follow" xml:space="preserve"><value>sledovat ai </value></data>
+<data name="scraping view" xml:space="preserve"><value>pohled na škrabání ai </value></data>
+<data name="authenticator code" xml:space="preserve"><value>kód ověřovatele ai </value></data>
+<data name="heading 3" xml:space="preserve"><value>položka 3 ai </value></data>
+<data name="heading 2" xml:space="preserve"><value>položka 2 ai </value></data>
+<data name="image" xml:space="preserve"><value>obrázek ai </value></data>
+<data name="the created document will open in" xml:space="preserve"><value>vytvořený dokument se otevře v ai </value></data>
+<data name="click on download a view with" xml:space="preserve"><value>kliknutím na možnost stáhnout si pohled ai </value></data>
+<data name="file saving failed:" xml:space="preserve"><value>Ukládání souborů selhalo:</value></data>
+<data name="file saved to:" xml:space="preserve"><value>Soubor uložen do:</value></data>
+<data name="an error occurred during download:" xml:space="preserve"><value>Při stahování došlo k chybě:</value></data>
+<data name="thank you for your message." xml:space="preserve"><value>Děkuji za váš vzkaz.</value></data>
+<data name="file" xml:space="preserve"><value>Soubor</value></data>
+<data name="an error has occurred." xml:space="preserve"><value>Nastala chyba.</value></data>
+<data name="table" xml:space="preserve"><value>Tabulka</value></data>
+<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>formáty dokumentů: docx, pdf, html, json, txt</value></data>
+<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>Filtrovat podle kategorie (k tomu jste museli označit své stránky)</value></data>
+<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>Pak si můžete stáhnout dokumenty pdf, docx a html s obrázky</value></data>
+<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>Název vašich značek můžete definovat individuálně pod možnostmi.</value></data>
+<data name="show help (dynamic, static, off)" xml:space="preserve"><value>Zobrazit nápovědu (dynamická, statická, vypnutá)</value></data>
+<data name="enter a part that the title must contain." xml:space="preserve"><value>Zadejte část, kterou musí název obsahovat.</value></data>
+<data name="switch view" xml:space="preserve"><value>Přepínač</value></data>
+<data name="custoum" xml:space="preserve"><value>Vlastní</value></data>
+<data name="download document" xml:space="preserve"><value>Dokument ke stažení</value></data>
+<data name="csv download" xml:space="preserve"><value>Csv stahování</value></data>
+<data name="excel download" xml:space="preserve"><value>Excel stahování</value></data>
+<data name="single document download" xml:space="preserve"><value>Stáhnout jeden dokument</value></data>
+<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>S 'closerpage- for-windows' můžete získat až 200 snímků.</value></data>
+<data name="the contributions for" xml:space="preserve"><value>Příspěvky pro</value></data>
+<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>Chcete-li automaticky sbírat nové příspěvky v budoucnosti, klikněte na</value></data>
+<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>Můžete si vybrat jednotlivé projekty pro zobrazení pouze příspěvků, které k nim patří.</value></data>
+<data name="available predefined tags" xml:space="preserve"><value>Dostupné předdefinované značky</value></data>
+<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>Pokud jste přiřadili kategorie na své webové stránky, můžete také filtrovat podle těchto kategorií. Jednoduše vyberte požadované webové stránky nebo kategorie ze seznamu.</value></data>
+<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>Jakmile si zvolíte, klikněte na tlačítko "Odeslat" a aplikujte filtr. Pohled na příspěvek bude pak aktualizován a ukáže pouze filtrované výsledky.</value></data>
+<data name="to display options" xml:space="preserve"><value>Zobrazovat možnosti</value></data>
+<data name="this will rotate all cards." xml:space="preserve"><value>Tohle otočí všechny karty.</value></data>
+<data name="button" xml:space="preserve"><value>Tlačítko</value></data>
+<data name="preview the images" xml:space="preserve"><value>Náhled obrázků</value></data>
+<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>Pokud váš dokument obsahuje obrazové soubory, budou také zobrazeny v náhledu.</value></data>
+<data name="download options" xml:space="preserve"><value>Možnosti stahování</value></data>
+<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>Ke stažení dokumentu zvolte požadovaný formát z dostupných možností.</value></data>
+<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>Ideální pro print- ready dokumenty a sdílení v profesionálním uspořádání.</value></data>
+<data name="error: incorrect password." xml:space="preserve"><value>Chyba: nesprávné heslo.</value></data>
+<data name="useful if you want to edit the document further." xml:space="preserve"><value>Užitečné, pokud chcete dokument dále upravovat.</value></data>
+<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>Užitečné pro vložení obsahu na webové stránky nebo jiné digitální médium.</value></data>
+<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>Obsahuje pouze prostý text, bez formátování. Vhodné pro jednoduché další zpracování.</value></data>
+<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>Obsahuje všechny obrázky dokumentu jako samostatné soubory v případě, že je potřebujete jednotlivě.</value></data>
+<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>Chcete-li vyhledávat webové stránky pro příspěvky, zadejte url a klikněte na ikonu lupy. Případně můžete stisknout klávesu enter na klávesnici.</value></data>
+<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>Pokud jste přihlášeni a již sledujete URL pro změny, můžete také vybrat url ze seznamu drop- down.</value></data>
+<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>Aktuální příspěvky na vybraných webových stránkách jsou automaticky zachyceny naším algoritmem. Staré a nově zjištěné příspěvky jsou pak zobrazeny na webových stránkách.</value></data>
+<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>Vstupuji do url a nic není zobrazeno. Proč?</value></data>
+<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>Bohužel, to není neobvyklé a může mít mnoho příčin, např.:</value></data>
+<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>Žádné příspěvky nejsou spojeny na webových stránkách, které hledáte. (např. jste zadali kontaktní stránku jako url: "https: / / mysite / contact")</value></data>
+<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>Spojovaná místa nejsou v oblasti působnosti. Například jste zadali "https: / / mysite.com / products", ale všechny příspěvky se vztahují na "https: / / other page.com / productxy".</value></data>
+<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>Požadovaná stránka blokuje boty (closerpage je robot).</value></data>
+<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>Požadovaná stránka zobrazuje pouze příspěvky pro registrované uživatele.</value></data>
+<data name="table structure (sorted by priority)" xml:space="preserve"><value>Struktura tabulky (seřazeno podle priorit)</value></data>
+<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>Tabulka je uspořádána tak, aby byly nejdříve zobrazeny nejdůležitější informace umožňující rychlou orientaci a efektivní zpracování.</value></data>
+<data name="tags" xml:space="preserve"><value>Značky</value></data>
+<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>Příspěvek se poté otevře v novém okně nebo záložce prohlížeče. Tam budete vidět příspěvek, jak byl zveřejněn na původní webové stránce - včetně všech formátování, obrázky, odkazy, a další obsah, který nemusí být zahrnuty v zobrazení škrabání.</value></data>
+<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>Zde jsou zobrazeny všechny existující značky nebo kategorie přiřazené příspěvkům. To vám pomůže rychle filtrovat příspěvky podle tématu nebo zaměření.</value></data>
+<data name="headings and titles" xml:space="preserve"><value>Čísla a názvy</value></data>
+<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>Položky a názvy příspěvků jsou uvedeny na druhém místě. Poskytují počáteční přehled obsahu a umožňují rychlou identifikaci příslušných příspěvků.</value></data>
+<data name="date and author" xml:space="preserve"><value>Datum a autor</value></data>
+<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>Tento sloupec obsahuje datum zveřejnění a autora příspěvku. To vám umožní vidět, kdy a kým byl příspěvek vytvořen.</value></data>
+<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>Konečnou část tabulky tvoří skutečný obsah příspěvků rozdělených do odstavců. Zde najdete podrobný text, který byl seškrábnut.</value></data>
+<data name="table functions" xml:space="preserve"><value>Funkce tabulky</value></data>
+<data name="tagging" xml:space="preserve"><value>Označení</value></data>
+<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>Příspěvky lze označit a označit výběrem políčka. To usnadňuje třídění, filtrování a správu příspěvků později, zejména při řešení velkého množství dat.</value></data>
+<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>Celá tabulka nebo vybrané příspěvky lze stáhnout v různých formátech</value></data>
+<data name="select tagged contributions" xml:space="preserve"><value>Vybrat označené příspěvky</value></data>
+<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>Známý formát tabulky nabízí další možnosti formátování, zejména vhodné pro zprávy nebo prezentace.</value></data>
+<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>Strukturovaný datový formát vhodný zejména pro další zpracování v programech nebo webových aplikacích.</value></data>
+<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>Funkce označování vám umožní kategorizovat a organizovat příspěvky, takže je jednodušší najít nebo filtrovat později.</value></data>
+<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>Tato funkce je k dispozici jak v kartách a škrabání tabulky zobrazení. Tato funkce vám umožní skrýt konkrétní příspěvky nebo je označit jako zvláště důležité.</value></data>
+<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>Označit příspěvky, které jsou zvláště důležité, relevantní nebo nesplacené.</value></data>
+<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>To znamená, že příspěvek byl již stažen.</value></data>
+<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>Označuje příspěvky, které byly vytvořeny nebo upraveny pomocí ai technologií.</value></data>
+<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>Skládá příspěvky, které již nechcete zobrazit, ale nesmaže je úplně.</value></data>
+<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>Pokud odkaz nefunguje nebo příspěvek již není k dispozici, může to být způsobeno změnami na původní stránce.</value></data>
+<data name="show contribution" xml:space="preserve"><value>Zobrazit příspěvek</value></data>
+<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>Pro zobrazení karty klikněte na titulek a otevřete nové okno s obsahem příspěvku.</value></data>
+<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>Ideální pro rychlé čtení, kontrolu nebo editaci příspěvků, aniž by museli volat původní zdroj.</value></data>
+<data name="create a new account." xml:space="preserve"><value>Vytvořit nový účet.</value></data>
+<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>Pokud příspěvek obsahuje obrazové soubory, zobrazí se v náhled příspěvku malý náhled.</value></data>
+<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>V horním rohu náhledu uvidíte číslo. Toto číslo označuje, kolik obrázků je obsaženo v příspěvku.</value></data>
+<data name="simply click on the preview image." xml:space="preserve"><value>Stačí kliknout na náhled obrázku.</value></data>
+<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>Tím se otevře zobrazení galerie, ve které budou všechny obrázky v příspěvku zobrazeny jasně a ve větším formátu.</value></data>
+<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>To vám umožní rozhodnout, zda jsou zobrazeny příspěvky s vybranou značkou nebo zda jsou zobrazeny pouze příspěvky, které nejsou podle toho označeny.</value></data>
+<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>Veškeré dotazy týkající se našich zásad ochrany soukromí, cookies nebo podmínek používání budou zodpovězeny co nejdříve.</value></data>
+<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>Aktuální příspěvky z Vašich oblíbených webových stránek - na první pohled</value></data>
+<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>Čtete často nebo studujete na různých webových stránkách a chcete aktuální zprávy na jednom místě na první pohled? Tak to jste na správném místě!</value></data>
+<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>Všechny nové příspěvky z vybraných webových stránek na první pohled.</value></data>
+<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>Vytvořit dokumenty v docx, pdf, json nebo html.</value></data>
+<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>Označit příspěvky s naším seznamem značek (např. "jako", "nezajímavé", "již stažené",...). K tomuto účelu je k dispozici 10 konfigurovatelných 'tagů'.</value></data>
+<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>Objevte closerpage - konečný nástroj pro každého, kdo chce držet krok s nejnovějším on-line obsahem. S uživatelsky-přátelské webové škrabání funkce, jednoduše zadejte url a okamžitě vidět všechny nové příspěvky na požadované webové stránky.</value></data>
+<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>Každý příspěvek může být zobrazen v plném rozsahu jedním kliknutím, takže nebudete chybět žádné důležité informace. Chronologické pořadí příspěvků usnadňuje navigaci a nalezení relevantního obsahu.</value></data>
+<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>Zvláštní zvýraznění je schopnost vytvářet dokumenty z každého příspěvku ve formátu docx, pdf, json nebo html - ideální pro archivaci nebo další zpracování informací.</value></data>
+<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>To znamená, že nikdy nezmeškáte nový příspěvek a jsou vždy aktuální</value></data>
+<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>Zaregistrujte se pro aktivaci volného plánu. Pak můžete přejít na profesionální plán.</value></data>
+<data name="you do not have access to this resource." xml:space="preserve"><value>K tomuto zdroji nemáte přístup.</value></data>
+<data name="thank you for confirming your email." xml:space="preserve"><value>Děkuji za potvrzení vašeho e-mailu.</value></data>
+<data name="error confirming your email." xml:space="preserve"><value>Chyba při potvrzení e-mailu.</value></data>
+<data name="i accept the terms and conditions" xml:space="preserve"><value>Přijímám podmínky</value></data>
+<data name="error: invalid email change confirmation link." xml:space="preserve"><value>Chyba: neplatný odkaz na potvrzení změny e-mailu.</value></data>
+<data name="error changing email." xml:space="preserve"><value>Chyba při změně e-mailu.</value></data>
+<data name="thank you for confirming your email change." xml:space="preserve"><value>Děkuji za potvrzení změny e-mailu.</value></data>
+<data name="you've successfully authenticated with" xml:space="preserve"><value>Úspěšně jste ověřili</value></data>
+<data name="use another service to register." xml:space="preserve"><value>Použijte jinou službu k registraci.</value></data>
+<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>Prosím zadejte e-mailovou adresu pro tuto stránku níže a klikněte na tlačítko Register pro dokončení přihlášení.</value></data>
+<data name="please enter your email." xml:space="preserve"><value>Prosím zadejte svůj e-mail.</value></data>
+<data name="error loading external login information." xml:space="preserve"><value>Chyba při načítání externích přihlašovacích informací.</value></data>
+<data name="error loading external login information during confirmation." xml:space="preserve"><value>Chyba při načítání externích přihlašovacích informací při potvrzení.</value></data>
+<data name="reset your password." xml:space="preserve"><value>Obnovte heslo.</value></data>
+<data name="the default ui requires a user store with email support." xml:space="preserve"><value>Výchozí ui vyžaduje uživatelský obchod s emailovou podporou.</value></data>
+<data name="enter your email." xml:space="preserve"><value>Zadejte svůj e-mail.</value></data>
+<data name="please check your email to reset your password." xml:space="preserve"><value>Prosím, zkontrolujte svůj e-mail pro resetování hesla.</value></data>
+<data name="the password reset link is invalid." xml:space="preserve"><value>Odkaz na resetování hesla je neplatný.</value></data>
+<data name="please confirm your password." xml:space="preserve"><value>Prosím potvrďte heslo.</value></data>
+<data name="this account has been locked out, please try again later." xml:space="preserve"><value>Tento účet byl uzavřen, zkuste to později.</value></data>
+<data name="use a local account to log in." xml:space="preserve"><value>Pro přihlášení použijte místní účet.</value></data>
+<data name="log in with a passkey" xml:space="preserve"><value>Přihlaste se s heslem</value></data>
+<data name="use another service to log in." xml:space="preserve"><value>Použijte jinou službu k přihlášení.</value></data>
+<data name="please enter your password." xml:space="preserve"><value>Prosím zadejte heslo.</value></data>
+<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>Vaše přihlášení je chráněno pomocí ověřovací aplikace. Zadejte svůj ověřovací kód níže.</value></data>
+<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>Nemáte přístup k vašemu ověřovacímu zařízení? Můžeš.</value></data>
+<data name="error: invalid authenticator code." xml:space="preserve"><value>Chyba: neplatný ověřovací kód.</value></data>
+<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>Požádali jste o přihlášení s návratovým kódem. Toto přihlášení nebude zapamatováno, dokud neposkytnete autentický kód aplikace při přihlášení nebo vypnutí 2fa a přihlášení se znovu.</value></data>
+<data name="recoverycode" xml:space="preserve"><value>Recoverycode</value></data>
+<data name="for how to configure a real email sender" xml:space="preserve"><value>Jak nastavit skutečný e-mailový odesílatel</value></data>
+<data name="normally this would be emailed:" xml:space="preserve"><value>Normálně by to bylo emailem:</value></data>
+<data name="please check your email to confirm your account." xml:space="preserve"><value>Prosím, zkontrolujte svůj e-mail potvrdit svůj účet.</value></data>
+<data name="verification email sent. please check your email." xml:space="preserve"><value>Ověřovací email odeslán. Prosím, zkontrolujte svůj e-mail.</value></data>
+<data name="enter the code" xml:space="preserve"><value>Zadejte kód</value></data>
+<data name="your password has been reset. please" xml:space="preserve"><value>Vaše heslo bylo resetováno. Prosím.</value></data>
+<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>Nejsou nastaveny žádné externí ověřovací služby. Podívej.</value></data>
+<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>Článek o nastavení této aplikace asp.net na podporu přihlášení prostřednictvím externích služeb</value></data>
+<data name="put these codes in a safe place." xml:space="preserve"><value>Dejte ty kódy na bezpečné místo.</value></data>
+<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>Pokud ztratíte zařízení a nebudete mít kódy k zotavení, ztratíte přístup ke svému účtu.</value></data>
+<data name="enter the old password" xml:space="preserve"><value>Zadejte staré heslo</value></data>
+<data name="enter the new password" xml:space="preserve"><value>Zadejte nové heslo</value></data>
+<data name="user changed their password successfully." xml:space="preserve"><value>Uživatel úspěšně změnil heslo.</value></data>
+<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>Smazání těchto dat trvale odstraní váš účet, a to nelze obnovit.</value></data>
+<data name="unexpected error occurred deleting user." xml:space="preserve"><value>Neočekávaná chyba nastala při smazání uživatele.</value></data>
+<data name="this action only disables 2fa." xml:space="preserve"><value>Tato akce zakáže pouze 2fa.</value></data>
+<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Vypnutí 2fa nemění klávesy používané v ověřovacích aplikacích. Pokud si přejete změnit klíč použitý v ověřovací aplikaci, měli byste</value></data>
+<data name="set your authenticator keys." xml:space="preserve"><value>Nastavte si ověřovací klíče.</value></data>
+<data name="reset your authenticator keys." xml:space="preserve"><value>Obnovte své ověřovací klíče.</value></data>
+<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>Nelze vypnout 2fa pro uživatele, protože není momentálně zapnutý.</value></data>
+<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>Neočekávaná chyba nastala vyřazení 2fa.</value></data>
+<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2fa byl vyřazen. Při nastavení ověřovací aplikace můžete obnovit 2fa</value></data>
+<data name="enter your email" xml:space="preserve"><value>Zadejte svůj email</value></data>
+<data name="your email is unchanged." xml:space="preserve"><value>Váš e-mail je nezměněn.</value></data>
+<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>Potvrzovací odkaz pro změnu zaslaného e-mailu. Prosím, zkontrolujte svůj e-mail.</value></data>
+<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>Pro použití ověřovací aplikace projděte následující kroky:</value></data>
+<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>Stáhněte si dvoufaktorovou ověřovací aplikaci jako je mikroměkký ověřovač pro</value></data>
+<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>Jakmile naskenujete qr kód nebo zadáte výše uvedený klíč, vaše aplikace autentizace dvou faktorů vám poskytne jedinečný kód. Zadejte kód v níže uvedeném potvrzení.</value></data>
+<data name="error: verification code is invalid." xml:space="preserve"><value>Chyba: ověřovací kód je neplatný.</value></data>
+<data name="your authenticator app has been verified." xml:space="preserve"><value>Vaše ověřovací aplikace byla ověřena.</value></data>
+<data name="add another service to log in." xml:space="preserve"><value>Přidejte další službu pro přihlášení.</value></data>
+<data name="error: the external login was not removed." xml:space="preserve"><value>Chyba: externí přihlášení nebylo odstraněno.</value></data>
+<data name="error: could not load external login info." xml:space="preserve"><value>Chyba: nemohl načíst externí přihlašovací údaje.</value></data>
+<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>Chyba: externí přihlášení nebylo přidáno. Vnější loginy mohou být spojeny pouze s jedním účtem.</value></data>
+<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>Vygenerovat dva-faktor autentizace (2fa) ozdravné kódy</value></data>
+<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Vygenerování nových kódů recovery nemění klíče používané v aplikacích ověřovatele. Pokud si přejete změnit klíč použitý v ověřovací aplikaci, měli byste</value></data>
+<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>Nelze generovat kódy pro uživatele, protože nemají povoleno 2fa.</value></data>
+<data name="you have generated new recovery codes." xml:space="preserve"><value>Vygenerovali jste nové kódy.</value></data>
+<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>Uživatel s id '{userid}' vytvořil nové 2fa recovery kódy.</value></data>
+<data name="choose your username." xml:space="preserve"><value>Vyberte si uživatelské jméno.</value></data>
+<data name="you have no recovery codes left." xml:space="preserve"><value>Už nemáte žádné kódy.</value></data>
+<data name="error: failed to set phone number." xml:space="preserve"><value>Chyba: selhalo nastavení telefonního čísla.</value></data>
+<data name="manage your passkeys" xml:space="preserve"><value>Správa hesel</value></data>
+<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>Dosáhli jste maximálního počtu povolených hesel. Před přidáním nového odstraňte jeden.</value></data>
+<data name="add a new passkey" xml:space="preserve"><value>Přidat nový klíč</value></data>
+<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>Chyba: prohlížeč neposkytl klíč.</value></data>
+<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>Chyba: na váš účet nelze přidat klíč.</value></data>
+<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>Chyba: zadaný passkey id měl neplatný formát.</value></data>
+<data name="error: the passkey could not be deleted." xml:space="preserve"><value>Chyba: hesla nelze smazat.</value></data>
+<data name="passkey deleted successfully." xml:space="preserve"><value>Heslo úspěšně vymazáno.</value></data>
+<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>Váš účet obsahuje osobní údaje, které jste nám dali. Tato stránka vám umožní stáhnout nebo smazat tato data.</value></data>
+<data name="enter a new name for your" xml:space="preserve"><value>Zadejte nové jméno</value></data>
+<data name="passkey" xml:space="preserve"><value>Heslo</value></data>
+<data name="my passkey" xml:space="preserve"><value>Můj klíč</value></data>
+<data name="passkey name" xml:space="preserve"><value>Jméno hesla</value></data>
+<data name="continue" xml:space="preserve"><value>Pokračovat</value></data>
+<data name="error: the specified passkey could not be found." xml:space="preserve"><value>Chyba: zadaný klíč nelze nalézt.</value></data>
+<data name="error: the passkey could not be updated." xml:space="preserve"><value>Chyba: klíč nelze aktualizovat.</value></data>
+<data name="passkey updated successfully." xml:space="preserve"><value>Heslo úspěšně aktualizováno.</value></data>
+<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>Pokud resetujete klíč k ověřovateli, vaše aplikace nebude fungovat, dokud ji nepřekonfigurujete.</value></data>
+<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>Tento proces zakáže 2fa, dokud si neověříte svou ověřovací aplikaci.</value></data>
+<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>Pokud nedokončíte konfiguraci ověřovací aplikace, můžete ztratit přístup ke svému účtu.</value></data>
+<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>Váš klíč k ověřovací aplikaci byl resetován, budete muset konfigurovat svou ověřovací aplikaci pomocí nového klíče.</value></data>
+<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>Nemáte lokální uživatelské jméno / heslo pro tuto stránku. Přidat lokální účet, takže se můžete přihlásit bez externího přihlášení.</value></data>
+<data name="your password has been set." xml:space="preserve"><value>Vaše heslo bylo nastaveno.</value></data>
+<data name="before you can log in with a recovery code." xml:space="preserve"><value>Než se můžete přihlásit s recovery kód.</value></data>
+<data name="you have 1 recovery code left." xml:space="preserve"><value>Zbývá vám jeden kód.</value></data>
+<data name="inline text" xml:space="preserve"><value>Řádkový text</value></data>
+<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>Zásady ochrany soukromí a cookie nebyly přijaty.</value></data>
+<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>Musíte přijmout politiku, než můžete povolit dva faktory ověření.</value></data>
+<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>Současný prohlížeč byl zapomenut. Po opětovném přihlášení z tohoto prohlížeče budete vyzváni pro váš 2fa kód.</value></data>
+<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>Tato aplikace v současné době nemá skutečný e-mailový odesílatel registrován, viz</value></data>
+<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>Chcete-li zobrazit původní příspěvek (otevře se v nové záložce prohlížeče)</value></data>
+<data name="to display options." xml:space="preserve"><value>Pro zobrazení možností.</value></data>
+<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>Chcete-li přidat novou stránku pro sledování příspěvků.</value></data>
+<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>Zobrazení zjednodušeného html pohledu na příspěvek.</value></data>
+<data name="to display filters." xml:space="preserve"><value>Pro zobrazení filtrů.</value></data>
+<data name="to rotate the map view." xml:space="preserve"><value>Chcete-li otočit pohled na mapu.</value></data>
+<data name="to display the image gallery." xml:space="preserve"><value>Zobrazení obrazové galerie.</value></data>
+<data name="italic text" xml:space="preserve"><value>Kurzíva</value></data>
+<data name="summary" xml:space="preserve"><value>Shrnutí</value></data>
+<data name="expandable section" xml:space="preserve"><value>Rozbalitelná sekce</value></data>
+<data name="strong emphasis" xml:space="preserve"><value>Silné zvýraznění</value></data>
+<data name="emphasis (italic)" xml:space="preserve"><value>Zvýraznění (kurzíva)</value></data>
+<data name="highlighted text" xml:space="preserve"><value>Zvýrazněný text</value></data>
+<data name="code snippet" xml:space="preserve"><value>Úryvek kódu</value></data>
+<data name="code block" xml:space="preserve"><value>Blok kódu</value></data>
+<data name="block quote" xml:space="preserve"><value>Bloková citace</value></data>
+<data name="citation" xml:space="preserve"><value>Citace</value></data>
+<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>označte příspěvky naším 'seznamem štítků' (např. 'líbí se', 'nezajímavé', 'již staženo', ...). K tomuto účelu je k dispozici 10 konfigurovatelných 'štítků'.</value></data>
+<data name="heading 1" xml:space="preserve"><value>Nadpis 1</value></data>
+<data name="sample output" xml:space="preserve"><value>Ukázkový výstup</value></data>
+<data name="variable" xml:space="preserve"><value>Proměnná</value></data>
+<data name="small text" xml:space="preserve"><value>Malý text</value></data>
+<data name="figure with caption" xml:space="preserve"><value>Obrázek s popiskem</value></data>
+<data name="figure caption" xml:space="preserve"><value>Popisek obrázku</value></data>
+<data name="keyboard input" xml:space="preserve"><value>Vstup z klávesnice</value></data>
+<data name="bold text" xml:space="preserve"><value>Tučný text</value></data>
+<data name="subscript" xml:space="preserve"><value>Dolní index</value></data>
+<data name="superscript" xml:space="preserve"><value>Horní index</value></data>
+<data name="are displayed." xml:space="preserve"><value>jsou zobrazeny.</value></data>
+<data name="block container" xml:space="preserve"><value>Blokový kontejner</value></data>
+<data name="abbreviation" xml:space="preserve"><value>Zkratka</value></data>
+<data name="custom" xml:space="preserve"><value>Vlastní</value></data>
+</root>

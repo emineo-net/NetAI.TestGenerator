@@ -1,0 +1,1 @@
+Testet Core & Application (Mocks für Infrastructure)

@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?><root><xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"><xsd:import namespace="http://www.w3.org/XML/1998/namespace" /><xsd:element name="root" msdata:IsDataSet="true"><xsd:complexType><xsd:choice maxOccurs="unbounded"><xsd:element name="metadata"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" use="required" type="xsd:string" /><xsd:attribute name="type" type="xsd:string" /><xsd:attribute name="mimetype" type="xsd:string" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="assembly"><xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType></xsd:element><xsd:element name="data"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /><xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /><xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /><xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="resheader"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType></xsd:element></xsd:choice></xsd:complexType></xsd:element></xsd:schema><resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="and" xml:space="preserve"><value>og</value></data>
+<data name="account" xml:space="preserve"><value>account</value></data>
+<data name="full name" xml:space="preserve"><value>Fuldt navn</value></data>
+<data name="imprint" xml:space="preserve"><value>Imprint</value></data>
+<data name="login" xml:space="preserve"><value>Login</value></data>
+<data name="date from" xml:space="preserve"><value>dato fra</value></data>
+<data name="rotate" xml:space="preserve"><value>roter</value></data>
+<data name="contact" xml:space="preserve"><value>Contact</value></data>
+<data name="getting started" xml:space="preserve"><value>Getting Started</value></data>
+<data name="show filter" xml:space="preserve"><value>vis filter</value></data>
+<data name="first" xml:space="preserve"><value>første ai </value></data>
+<data name="paragraphs" xml:space="preserve"><value>Afsnit</value></data>
+<data name="close" xml:space="preserve"><value>Luk</value></data>
+<data name="contribution" xml:space="preserve"><value>Bidrag</value></data>
+<data name="invalid user" xml:space="preserve"><value>Ugyldig bruger</value></data>
+<data name="logout" xml:space="preserve"><value>Logout</value></data>
+<data name="manage your account" xml:space="preserve"><value>Administrer din konto</value></data>
+<data name="message" xml:space="preserve"><value>besked</value></data>
+<data name="order abandoned" xml:space="preserve"><value>Ordre forladt</value></data>
+<data name="picture gallery" xml:space="preserve"><value>Billedgalleri</value></data>
+<data name="download" xml:space="preserve"><value>Hent</value></data>
+<data name="delete" xml:space="preserve"><value>Slet</value></data>
+<data name="profile" xml:space="preserve"><value>Profil</value></data>
+<data name="recovery codes" xml:space="preserve"><value>Genoprettelseskoder</value></data>
+<data name="register as a new user" xml:space="preserve"><value>Registrer dig som ny bruger</value></data>
+<data name="remove" xml:space="preserve"><value>Fjern</value></data>
+<data name="click here to log in" xml:space="preserve"><value>klik her for at logge ind</value></data>
+<data name="date to" xml:space="preserve"><value>dato til</value></data>
+<data name="save" xml:space="preserve"><value>Gem</value></data>
+<data name="filter reset" xml:space="preserve"><value>filternulstilling ai </value></data>
+<data name="previous" xml:space="preserve"><value>tidligere ai </value></data>
+<data name="add page" xml:space="preserve"><value>tilføj side ai </value></data>
+<data name="password" xml:space="preserve"><value>Kodeord</value></data>
+<data name="assign categories to your pages or delete them" xml:space="preserve"><value>tildele kategorier til dine sider eller slette dem ai </value></data>
+<data name="max" xml:space="preserve"><value>Max</value></data>
+<data name="send" xml:space="preserve"><value>Send</value></data>
+<data name="error" xml:space="preserve"><value>Error</value></data>
+<data name="log in" xml:space="preserve"><value>login ai </value></data>
+<data name="conveniently filter and search contributions" xml:space="preserve"><value>Praktisk filtrere og søge bidrag</value></data>
+<data name="confirm password" xml:space="preserve"><value>Bekræft adgangskode</value></data>
+<data name="enter url." xml:space="preserve"><value>Indtast url.</value></data>
+<data name="italicized" xml:space="preserve"><value>italiseret ai </value></data>
+<data name="email" xml:space="preserve"><value>E mail</value></data>
+<data name="heading 6" xml:space="preserve"><value>afsnit 6 ai </value></data>
+<data name="access denied" xml:space="preserve"><value>Adgang nægtet</value></data>
+<data name="heading 5" xml:space="preserve"><value>afsnit 5 ai </value></data>
+<data name="add authenticator app" xml:space="preserve"><value>Tilføj godkendelsesapp</value></data>
+<data name="associate your" xml:space="preserve"><value>Tilknyt din</value></data>
+<data name="change email" xml:space="preserve"><value>Skift e mail</value></data>
+<data name="change password" xml:space="preserve"><value>ændr adgangskode ai </value></data>
+<data name="change your account settings" xml:space="preserve"><value>Skift dine kontoindstillinger</value></data>
+<data name="choose plan" xml:space="preserve"><value>Vælg plan</value></data>
+<data name="click here to confirm your account" xml:space="preserve"><value>Klik her for at bekræfte din konto</value></data>
+<data name="heading 4" xml:space="preserve"><value>afsnit 4 ai </value></data>
+<data name="properties" xml:space="preserve"><value>egenskaber</value></data>
+<data name="log in with a recovery code" xml:space="preserve"><value>logge ind med en gendannelseskode</value></data>
+<data name="configure authenticator app" xml:space="preserve"><value>Konfigurer authenticator appen</value></data>
+<data name="title contains" xml:space="preserve"><value>titel indeholder</value></data>
+<data name="toggle view" xml:space="preserve"><value>skift visning</value></data>
+<data name="these docs" xml:space="preserve"><value>disse dokumenter</value></data>
+<data name="terms and conditions" xml:space="preserve"><value>vilkår og betingelser ai </value></data>
+<data name="xxx" xml:space="preserve"><value>xxx</value></data>
+<data name="all" xml:space="preserve"><value>all</value></data>
+<data name="confirm email" xml:space="preserve"><value>Bekræft e mail</value></data>
+<data name="confirm email change" xml:space="preserve"><value>Bekræft ændring af e mail</value></data>
+<data name="hyperlink" xml:space="preserve"><value>hyperlinks ai </value></data>
+<data name="also see a preview of the" xml:space="preserve"><value>også se en preview af ai </value></data>
+<data name="delete data and close my account" xml:space="preserve"><value>Slet data og luk min konto</value></data>
+<data name="delete personal data" xml:space="preserve"><value>Slet personlige data</value></data>
+<data name="disable 2fa" xml:space="preserve"><value>Deaktiver 2FA</value></data>
+<data name="max lenght 14" xml:space="preserve"><value>Max Langht 14</value></data>
+<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>Vælg følgende fra menuen: hjem, komme i gang, registrere, login, opgradere, logout, aftryk, kontakt, konto. I den anden menu, vælg: Vis filter, rotere, skifte visning, egenskaber, tilføje, fremad, bagud. I dialogboksen kan du: gemme, annullere, indsende.</value></data>
+<data name="authenticator app" xml:space="preserve"><value>App til authenticator</value></data>
+<data name="recovery codes left." xml:space="preserve"><value>Der er koder tilbage.</value></data>
+<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>Effektiv webscraping ved blot at indtaste en URL</value></data>
+<data name="enable qr code generation" xml:space="preserve"><value>aktivere generering af QR koder</value></data>
+<data name="external logins" xml:space="preserve"><value>Eksterne logins</value></data>
+<data name="no passkeys are registered." xml:space="preserve"><value>Ingen taster er registreret.</value></data>
+<data name="forget this browser" xml:space="preserve"><value>Glem denne browser</value></data>
+<data name="forgot password confirmation" xml:space="preserve"><value>Bekræftelse af glemt adgangskode</value></data>
+<data name="generate a new set of recovery codes" xml:space="preserve"><value>generere et nyt sæt gendannelseskoder</value></data>
+<data name="generate recovery codes" xml:space="preserve"><value>Generere gendannelseskoder</value></data>
+<data name="the external login was removed." xml:space="preserve"><value>Den eksterne login blev fjernet.</value></data>
+<data name="learn how to" xml:space="preserve"><value>Lær hvordan du</value></data>
+<data name="legal inquiry" xml:space="preserve"><value>Juridisk forespørgsel</value></data>
+<data name="locked out" xml:space="preserve"><value>Låst ude</value></data>
+<data name="manage email" xml:space="preserve"><value>Administrer e mail</value></data>
+<data name="just browse" xml:space="preserve"><value>bare gennemse ai </value></data>
+<data name="manage your external logins" xml:space="preserve"><value>Administrer dine eksterne logins</value></data>
+<data name="new password" xml:space="preserve"><value>Ny adgangskode</value></data>
+<data name="old password" xml:space="preserve"><value>Gammel adgangskode</value></data>
+<data name="options" xml:space="preserve"><value>Indstillinger</value></data>
+<data name="google authenticator for" xml:space="preserve"><value>Google-autentifikator til</value></data>
+<data name="order complete" xml:space="preserve"><value>Ordre gennemført</value></data>
+<data name="personal data" xml:space="preserve"><value>Personlige data</value></data>
+<data name="phone number" xml:space="preserve"><value>Telefonnummer</value></data>
+<data name="min" xml:space="preserve"><value>Min</value></data>
+<data name="recovery code" xml:space="preserve"><value>Genoprettelseskode</value></data>
+<data name="recovery code verification" xml:space="preserve"><value>Bekræftelse af gendannelseskode</value></data>
+<data name="register" xml:space="preserve"><value>Register</value></data>
+<data name="register confirmation" xml:space="preserve"><value>Registrer bekræftelse</value></data>
+<data name="registered logins" xml:space="preserve"><value>Registrerede logins</value></data>
+<data name="remember me" xml:space="preserve"><value>Husk mig</value></data>
+<data name="remember this machine" xml:space="preserve"><value>Husk denne maskine</value></data>
+<data name="resend" xml:space="preserve"><value>Send igen</value></data>
+<data name="resend email confirmation" xml:space="preserve"><value>Send e mailbekræftelse igen</value></data>
+<data name="reset" xml:space="preserve"><value>Nulstil</value></data>
+<data name="reset authenticator app" xml:space="preserve"><value>Nulstil authenticator app</value></data>
+<data name="reset authenticator key" xml:space="preserve"><value>Nulstil godkendelsesnøgle</value></data>
+<data name="reset filters" xml:space="preserve"><value>Nulstil filtre</value></data>
+<data name="reset password" xml:space="preserve"><value>Nulstil adgangskode</value></data>
+<data name="reset password confirmation" xml:space="preserve"><value>Bekræftelse af nulstilling af adgangskode</value></data>
+<data name="reset recovery codes" xml:space="preserve"><value>Nulstil gendannelseskoder</value></data>
+<data name="user name" xml:space="preserve"><value>brugernavn ai </value></data>
+<data name="scan the qr code or enter this key" xml:space="preserve"><value>Scan QR koden eller indtast denne nøgle</value></data>
+<data name="selected categories" xml:space="preserve"><value>Udvalgte kategorier</value></data>
+<data name="selected websites" xml:space="preserve"><value>Udvalgte hjemmesider</value></data>
+<data name="send verification email" xml:space="preserve"><value>Send bekræftelses e mail</value></data>
+<data name="set password" xml:space="preserve"><value>Indstil adgangskode</value></data>
+<data name="set your password" xml:space="preserve"><value>Indstil din adgangskode</value></data>
+<data name="subject" xml:space="preserve"><value>emne</value></data>
+<data name="define the names of your categories" xml:space="preserve"><value>definere navnene på dine kategorier ai </value></data>
+<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>Ind i din app til autentificering af to faktorer.</value></data>
+<data name="update password" xml:space="preserve"><value>Opdater adgangskode</value></data>
+<data name="main heading" xml:space="preserve"><value>hovedafsnit ai </value></data>
+<data name="error finding user for unspecified email" xml:space="preserve"><value>Fejl ved at finde bruger til uspecificeret e mail</value></data>
+<data name="home" xml:space="preserve"><value>Hjem</value></data>
+<data name="invalid password reset" xml:space="preserve"><value>Ugyldig nulstilling af adgangskode</value></data>
+<data name="of" xml:space="preserve"><value>af</value></data>
+<data name="paragraph" xml:space="preserve"><value>stk ai </value></data>
+<data name="success" xml:space="preserve"><value>Succes</value></data>
+<data name="set up authenticator app" xml:space="preserve"><value>Opsæt authenticator app</value></data>
+<data name="username" xml:space="preserve"><value>Brugernavn</value></data>
+<data name="verification code" xml:space="preserve"><value>Bekræftelseskode</value></data>
+<data name="verify" xml:space="preserve"><value>Bekræft</value></data>
+<data name="next" xml:space="preserve"><value>næste ai </value></data>
+<data name="subscriptions" xml:space="preserve"><value>abonnementer ai </value></data>
+<data name="you have" xml:space="preserve"><value>Du har</value></data>
+<data name="you must" xml:space="preserve"><value>Du skal</value></data>
+<data name="your password has been changed" xml:space="preserve"><value>Din adgangskode er blevet ændret</value></data>
+<data name="your profile has been updated" xml:space="preserve"><value>Din profil er blevet opdateret</value></data>
+<data name="nter a name for your passkey" xml:space="preserve"><value>Nter et navn til din nøgle</value></data>
+<data name="forgot your password?" xml:space="preserve"><value>Har du glemt dit kodeord?</value></data>
+<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>Fuld visning af bidragene ved at klikke på bidragets titel</value></data>
+<data name="privacy policy" xml:space="preserve"><value>fortrolighedspolitik ai </value></data>
+<data name="pro version" xml:space="preserve"><value>proversion ai </value></data>
+<data name="new project" xml:space="preserve"><value>nyt projekt ai </value></data>
+<data name="reset filter" xml:space="preserve"><value>nulstil filter ai </value></data>
+<data name="save changes" xml:space="preserve"><value>gem ændringer ai </value></data>
+<data name="last" xml:space="preserve"><value>sidste ai </value></data>
+<data name="open original" xml:space="preserve"><value>åben original ai </value></data>
+<data name="download documents" xml:space="preserve"><value>download dokumenter ai </value></data>
+<data name="tagging and filtering" xml:space="preserve"><value>mærkning og filtrering ai </value></data>
+<data name="open local" xml:space="preserve"><value>åbent lokalt ai </value></data>
+<data name="download single" xml:space="preserve"><value>download enkelt ai </value></data>
+<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>Ikon for at skifte mellem kortvisningen og tabelvisningen.</value></data>
+<data name="add custom tag" xml:space="preserve"><value>Tilføj brugerdefineret mærke</value></data>
+<data name="define the name of the tag for individual posts" xml:space="preserve"><value>definere navnet på mærket for de enkelte indlæg ai </value></data>
+<data name="tagging contributions" xml:space="preserve"><value>Mærkningsbidrag</value></data>
+<data name="filter your pages" xml:space="preserve"><value>filtrere dine sider ai </value></data>
+<data name="download txt or json documents without images" xml:space="preserve"><value>download txt eller json dokumenter uden billeder ai </value></data>
+<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>i filtrene kan du filtrere ved mærkede indlæg ai </value></data>
+<data name="click on the" xml:space="preserve"><value>klik på ai </value></data>
+<data name="to display download options" xml:space="preserve"><value>til at vise download indstillinger ai </value></data>
+<data name="click save word document." xml:space="preserve"><value>Klik på gem orddokument.</value></data>
+<data name="error changing user name." xml:space="preserve"><value>Fejl ved ændring af brugernavn.</value></data>
+<data name="add" xml:space="preserve"><value>Tilføj</value></data>
+<data name="document." xml:space="preserve"><value>Dokument.</value></data>
+<data name="a new tab." xml:space="preserve"><value>En ny regning.</value></data>
+<data name="and json will open. you will" xml:space="preserve"><value>Og Json åbner. Du vil</value></data>
+<data name="json download" xml:space="preserve"><value>Json download</value></data>
+<data name="the external login was added." xml:space="preserve"><value>Den eksterne login blev tilføjet.</value></data>
+<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>Deaktivér tofaktorgodkendelse (2fa)</value></data>
+<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>Brug kontakten til at vælge mellem "hvor er" og "hvor er ikke".</value></data>
+<data name="loc[are displayed.]" xml:space="preserve"><value>Loc [vises.]</value></data>
+<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>Et enkelt, tabuleret format, der er velegnet til videre behandling i regneark eller databaser.</value></data>
+<data name="save to your download directory." xml:space="preserve"><value>Gem til din download mappe.</value></data>
+<data name="two-factor authentication (2fa)" xml:space="preserve"><value>Twofaktorgodkendelse (2fa)</value></data>
+<data name="cards" xml:space="preserve"><value>Kort</value></data>
+<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>En rød rekyclebin kan ikon vises under filterikonet. Klik på dette ikon sletter alle aktive filtre og viser den komplette bidragsoversigt igen.</value></data>
+<data name="two-factor authentication" xml:space="preserve"><value>Twofaktorgodkendelse</value></data>
+<data name="enter a new email" xml:space="preserve"><value>Indtast en ny e- mail</value></data>
+<data name="select columns for scraping" xml:space="preserve"><value>Vælg kolonner til skrabning</value></data>
+<data name="click one or more tags for a post." xml:space="preserve"><value>Klik på et eller flere tags til et indlæg.</value></data>
+<data name="cards and table" xml:space="preserve"><value>Kort og bord</value></data>
+<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>Ikon at se det oprindelige bidrag i sin oprindelige kilde og layout.</value></data>
+<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>Du kan downloade dem for individuelle bidrag.</value></data>
+<data name="rename" xml:space="preserve"><value>Omdøb</value></data>
+<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>For at vise mærkede bidrag, kan du vælge det tilsvarende mærke fra listen over tekst.</value></data>
+<data name="toggle help visibility" xml:space="preserve"><value>Slå hjælpesigtbarhed til / fra</value></data>
+<data name="enter / select url" xml:space="preserve"><value>Indtast / vælg url</value></data>
+<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>Download indstillinger pdf, docs, txt, html</value></data>
+<data name="to display filter dialog" xml:space="preserve"><value>Sådan vises filterdialogen</value></data>
+<data name="enter your phone number" xml:space="preserve"><value>Indtast dit telefonnummer</value></data>
+<data name="no contributions were found on the page" xml:space="preserve"><value>Ingen bidrag blev fundet på siden</value></data>
+<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>Et nyt vindue vil åbne vise en pdf preview af dit dokument. Denne forhåndsvisning giver et første overblik over dokumentets indhold og layout.</value></data>
+<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>Den bedste måde at kontakte os er at bruge vores kontakt formular nedenfor. Udfyld venligst alle de krævede felter, så vender vi tilbage hurtigst muligt.</value></data>
+<data name="export" xml:space="preserve"><value>eksport ai </value></data>
+<data name="underlined" xml:space="preserve"><value>Understreget</value></data>
+<data name="add to followed projects" xml:space="preserve"><value>tilføj til efterfølgende projekter ai </value></data>
+<data name="follow" xml:space="preserve"><value>følg ai </value></data>
+<data name="scraping view" xml:space="preserve"><value>skrabevisning ai </value></data>
+<data name="authenticator code" xml:space="preserve"><value>autentifikationskode ai </value></data>
+<data name="heading 3" xml:space="preserve"><value>afsnit 3 ai </value></data>
+<data name="heading 2" xml:space="preserve"><value>afsnit 2 ai </value></data>
+<data name="image" xml:space="preserve"><value>billede ai </value></data>
+<data name="the created document will open in" xml:space="preserve"><value>det oprettede dokument vil åbne i ai </value></data>
+<data name="click on download a view with" xml:space="preserve"><value>klik på download af en visning med ai </value></data>
+<data name="file saving failed:" xml:space="preserve"><value>Filbesparelse mislykkedes:</value></data>
+<data name="file saved to:" xml:space="preserve"><value>Fil gemt til:</value></data>
+<data name="an error occurred during download:" xml:space="preserve"><value>En fejl opstod under download:</value></data>
+<data name="thank you for your message." xml:space="preserve"><value>Tak for din besked.</value></data>
+<data name="file" xml:space="preserve"><value>Fil</value></data>
+<data name="an error has occurred." xml:space="preserve"><value>Der er sket en fejl.</value></data>
+<data name="table" xml:space="preserve"><value>Tabel</value></data>
+<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>Dokument formater: docx, pdf, html, json, txt</value></data>
+<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>Filtrér efter kategori (du skal have mærket dine sider for at gøre dette)</value></data>
+<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>Derefter kan du downloade pdf, docx og html dokumenter med billeder</value></data>
+<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>Du kan definere navnet på dine tags individuelt under indstillinger.</value></data>
+<data name="show help (dynamic, static, off)" xml:space="preserve"><value>Vis hjælp (dynamisk, statisk, slukket)</value></data>
+<data name="enter a part that the title must contain." xml:space="preserve"><value>Indtast en del som titlen skal indeholde.</value></data>
+<data name="switch view" xml:space="preserve"><value>Skift visning</value></data>
+<data name="custoum" xml:space="preserve"><value>Brugerdefineret</value></data>
+<data name="download document" xml:space="preserve"><value>Download dokument</value></data>
+<data name="csv download" xml:space="preserve"><value>Csv download</value></data>
+<data name="excel download" xml:space="preserve"><value>Excel download</value></data>
+<data name="single document download" xml:space="preserve"><value>Et enkelt dokument download</value></data>
+<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>Med 'closerpage- for- windows' kan du modtage op til 200 billeder.</value></data>
+<data name="the contributions for" xml:space="preserve"><value>Bidragene til</value></data>
+<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>Klik på</value></data>
+<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>Du kan vælge individuelle projekter til kun at vise de bidrag, der tilhører disse projekter.</value></data>
+<data name="available predefined tags" xml:space="preserve"><value>Tilgængelige prædefinerede mærker</value></data>
+<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>Hvis du har tildelt kategorier til dine websider, kan du også filtrere efter disse kategorier. Du skal blot vælge de ønskede websider eller kategorier fra listen.</value></data>
+<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>Når du har foretaget dit valg, skal du klikke på "send" knappen for at anvende filteret. Bidraget vil derefter blive opdateret og vil kun vise de filtrerede resultater.</value></data>
+<data name="to display options" xml:space="preserve"><value>For at vise indstillinger</value></data>
+<data name="this will rotate all cards." xml:space="preserve"><value>Dette vil rotere alle kort.</value></data>
+<data name="button" xml:space="preserve"><value>Knap</value></data>
+<data name="preview the images" xml:space="preserve"><value>Vise billederne</value></data>
+<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>Hvis dit dokument indeholder billedfiler, vil disse også blive vist i forhåndsvisningen.</value></data>
+<data name="download options" xml:space="preserve"><value>Hent indstillinger</value></data>
+<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>For at downloade dokumentet, skal du vælge det ønskede format fra de tilgængelige muligheder.</value></data>
+<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>Ideel til print- ready dokumenter og deling i et professionelt layout.</value></data>
+<data name="error: incorrect password." xml:space="preserve"><value>Fejl: forkert adgangskode.</value></data>
+<data name="useful if you want to edit the document further." xml:space="preserve"><value>Nyttigt hvis du ønsker at redigere dokumentet yderligere.</value></data>
+<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>Nyttig til indlejring af indhold på en hjemmeside eller andet digitalt medium.</value></data>
+<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>Indeholder kun almindelig tekst, uden formatering. Egnet til simpel viderebehandling.</value></data>
+<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>Indeholder alle dokumentets billeder som separate filer, hvis du har brug for dem individuelt.</value></data>
+<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>For at søge en hjemmeside for bidrag, skal du indtaste en url og klikke på forstørrelsesglas ikonet. Alternativt kan du trykke på indtastningstasten på tastaturet.</value></data>
+<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>Hvis du er logget ind og allerede sporer urls for ændringer, kan du også vælge url fra drop- down listen.</value></data>
+<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>Aktuelle indlæg på den valgte hjemmeside optages automatisk af vores algoritme. De gamle og nyligt opdagede indlæg vises derefter på hjemmesiden.</value></data>
+<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>Jeg indtaster en url og intet vises. Hvorfor?</value></data>
+<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>Desværre er dette ikke usædvanligt og kan have mange årsager, f.eks.:</value></data>
+<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>Ingen bidrag er knyttet til den hjemmeside, du søger efter. (De kom f.eks. ind på kontaktsiden som url: "https: / / mysit / contact")</value></data>
+<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>De tilknyttede indlæg er ikke inden for domænet. For eksempel, du indtastede "https: / / mysite.com / products", men alle bidrag refererer til "https: / / otherphe.com / productxy".</value></data>
+<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>Den ønskede side blokerer bots (closerpage er en bot).</value></data>
+<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>Den ønskede side viser kun indlæg for registrerede brugere.</value></data>
+<data name="table structure (sorted by priority)" xml:space="preserve"><value>Tabelstruktur (sorteret efter prioritet)</value></data>
+<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>Tabellen er organiseret således, at de vigtigste oplysninger vises først, så der er mulighed for hurtig orientering og effektiv behandling.</value></data>
+<data name="tags" xml:space="preserve"><value>Mærker</value></data>
+<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>Bidraget vil derefter åbne i et nyt browservindue eller fane. Der vil du se bidraget som det blev offentliggjort på den oprindelige hjemmeside - herunder alle formatering, billeder, links, og andet indhold, der måske ikke er inkluderet i skrabning visning.</value></data>
+<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>Alle eksisterende mærker eller kategorier, der er tildelt bidragene, vises her. Dette hjælper dig med hurtigt at filtrere bidrag efter emne eller fokus.</value></data>
+<data name="headings and titles" xml:space="preserve"><value>Overskrifter og titler</value></data>
+<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>Overskrifter og titler på bidrag er anført i anden del. De giver et første overblik over indholdet og gør det muligt hurtigt at identificere relevante bidrag.</value></data>
+<data name="date and author" xml:space="preserve"><value>Dato og forfatter</value></data>
+<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>Denne kolonne indeholder udgivelsesdatoen og bidragets ophavsmand. Dette giver dig mulighed for at se, hvornår og af hvem bidraget blev skabt.</value></data>
+<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>Det faktiske indhold af bidragene, opdelt i afsnit, udgør den sidste del af tabellen. Her finder du den detaljerede tekst, der er blevet skrabet.</value></data>
+<data name="table functions" xml:space="preserve"><value>Tabelfunktioner</value></data>
+<data name="tagging" xml:space="preserve"><value>Mærkning</value></data>
+<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>Bidrag kan markeres og mærkes ved at vælge afkrydsningsfeltet. Dette gør det lettere at sortere, filtrere og forvalte bidrag senere, især når det drejer sig om store mængder data.</value></data>
+<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>Hele tabellen eller valgte bidrag kan downloades i forskellige formater</value></data>
+<data name="select tagged contributions" xml:space="preserve"><value>Vælg mærkede bidrag</value></data>
+<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>Et velkendt tabelformat med yderligere formateringsmuligheder, der er specielt velegnet til rapporter eller præsentationer.</value></data>
+<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>Et struktureret dataformat, der er specielt velegnet til viderebehandling i programmer eller webapplikationer.</value></data>
+<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>Den mærkning funktion giver dig mulighed for at kategorisere og organisere bidrag, hvilket gør dem lettere at finde eller filtrere senere.</value></data>
+<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>Denne funktion er tilgængelig i både kort og skrabning tabel visninger. Denne funktion giver dig mulighed for at skjule specifikke bidrag eller flag dem som særligt vigtigt.</value></data>
+<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>Marker bidrag, der er særlig vigtige, relevante eller udestående.</value></data>
+<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>Angiver, at bidraget allerede er blevet downloadet.</value></data>
+<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>Marker bidrag, der er blevet oprettet eller redigeret ved hjælp af ai teknologier.</value></data>
+<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>Giver bidrag, som du ikke længere ønsker at vise, men ikke slette dem helt.</value></data>
+<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>Hvis linket ikke fungerer, eller bidraget ikke længere er tilgængeligt, kan dette skyldes ændringer på den oprindelige side.</value></data>
+<data name="show contribution" xml:space="preserve"><value>Vis bidrag</value></data>
+<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>I kortvisning, klik på overskriften for at åbne et nyt vindue med indholdet af bidraget.</value></data>
+<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>Ideel til hurtigt at læse, kontrollere eller redigere bidrag uden at skulle ringe til den oprindelige kilde.</value></data>
+<data name="create a new account." xml:space="preserve"><value>Opret en ny konto.</value></data>
+<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>Hvis et bidrag indeholder billedfiler, en lille preview billede vil blive vist i bidraget preview.</value></data>
+<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>Du vil se et nummer i øverste hjørne af forhåndsvisning billede. Dette tal angiver, hvor mange billeder der er indeholdt i bidraget.</value></data>
+<data name="simply click on the preview image." xml:space="preserve"><value>Du skal blot klikke på forhåndsvisning billede.</value></data>
+<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>Dette vil åbne et galleri visning, hvor alle billeder i bidraget vises klart og i et større format.</value></data>
+<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>Dette giver dig mulighed for at beslutte, om bidrag med det valgte mærke vises, eller om kun bidrag, der ikke er mærket tilsvarende vises.</value></data>
+<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>Eventuelle spørgsmål om vores privatlivspolitik, cookies eller brugsvilkår vil blive besvaret så hurtigt som muligt.</value></data>
+<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>Aktuelle bidrag fra dine foretrukne hjemmesider - på et øjeblik</value></data>
+<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>Læser du ofte eller forsker på forskellige hjemmesider og ønsker de nyeste nyheder på ét sted på et øjeblik? Så er du kommet til det rigtige sted!</value></data>
+<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>Alle nye indlæg fra dine valgte hjemmesider på et øjeblik.</value></data>
+<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>Generér dokumenter i docx, pdf, json eller html.</value></data>
+<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>Markér indlæg med vores 'tagliste' (f.eks. "gerne", "uinteressant", "allerede downloadet", "...). Der er 10 konfigurerbare 'tags' til rådighed til dette formål.</value></data>
+<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>Oplev closerpage - det ultimative værktøj for alle, der ønsker at holde sig opdateret med det nyeste online indhold. Med brugervenlig web skrabning funktion, skal du blot indtaste en url og straks se alle nye indlæg på den ønskede hjemmeside.</value></data>
+<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>Hvert indlæg kan vises fuldt ud med et enkelt klik, så du vil ikke gå glip af nogen vigtige oplysninger. Den kronologiske rækkefølge af indlæg gør det lettere at navigere og finde relevant indhold.</value></data>
+<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>Et særligt højdepunkt er muligheden for at oprette dokumenter fra hvert bidrag i docx, pdf, json eller html format - ideel til arkivering eller yderligere behandling af information.</value></data>
+<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>Det betyder, at du aldrig glip af et nyt bidrag og er altid up to date</value></data>
+<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>Registrer for at aktivere den gratis plan. Så kan du opgradere til pro-planen.</value></data>
+<data name="you do not have access to this resource." xml:space="preserve"><value>Du har ikke adgang til denne ressource.</value></data>
+<data name="thank you for confirming your email." xml:space="preserve"><value>Tak for at bekræfte din e-mail.</value></data>
+<data name="error confirming your email." xml:space="preserve"><value>Fejl ved bekræftelse af din e-mail.</value></data>
+<data name="i accept the terms and conditions" xml:space="preserve"><value>Jeg accepterer vilkårene og betingelserne</value></data>
+<data name="error: invalid email change confirmation link." xml:space="preserve"><value>Fejl: Ugyldigt bekræftelseslink til e- mail- ændring.</value></data>
+<data name="error changing email." xml:space="preserve"><value>Fejl ved ændring af e-mail.</value></data>
+<data name="thank you for confirming your email change." xml:space="preserve"><value>Tak for at bekræfte din e-mail ændring.</value></data>
+<data name="you've successfully authenticated with" xml:space="preserve"><value>Du har med succes godkendt med</value></data>
+<data name="use another service to register." xml:space="preserve"><value>Brug en anden tjeneste til at registrere.</value></data>
+<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>Indtast en e-mailadresse for dette websted nedenfor og klik på Registrer knappen for at afslutte logning.</value></data>
+<data name="please enter your email." xml:space="preserve"><value>Indtast din e-mail.</value></data>
+<data name="error loading external login information." xml:space="preserve"><value>Fejl ved indlæsning af ekstern login information.</value></data>
+<data name="error loading external login information during confirmation." xml:space="preserve"><value>Fejl ved indlæsning af ekstern login-information under bekræftelse.</value></data>
+<data name="reset your password." xml:space="preserve"><value>Nulstil din adgangskode.</value></data>
+<data name="the default ui requires a user store with email support." xml:space="preserve"><value>Standard ui kræver en brugerbutik med e-mail support.</value></data>
+<data name="enter your email." xml:space="preserve"><value>Indtast din email.</value></data>
+<data name="please check your email to reset your password." xml:space="preserve"><value>Tjek venligst din e-mail for at nulstille din adgangskode.</value></data>
+<data name="the password reset link is invalid." xml:space="preserve"><value>Adgangskoden nulstil link er ugyldig.</value></data>
+<data name="please confirm your password." xml:space="preserve"><value>Bekræft venligst din adgangskode.</value></data>
+<data name="this account has been locked out, please try again later." xml:space="preserve"><value>Kontoen er låst ude. Prøv igen senere.</value></data>
+<data name="use a local account to log in." xml:space="preserve"><value>Brug en lokal konto til at logge ind.</value></data>
+<data name="log in with a passkey" xml:space="preserve"><value>Log ind med en adgangskode</value></data>
+<data name="use another service to log in." xml:space="preserve"><value>Brug en anden tjeneste til at logge ind.</value></data>
+<data name="please enter your password." xml:space="preserve"><value>Indtast venligst din adgangskode.</value></data>
+<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>Dit login er beskyttet med en autentificeringsapp. Indtast din autentifikationskode nedenfor.</value></data>
+<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>Har du ikke adgang til din autentificeringsanordning? Du kan</value></data>
+<data name="error: invalid authenticator code." xml:space="preserve"><value>Fejl: ugyldig autentifikationskode.</value></data>
+<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>Du har bedt om at logge ind med en gendannelseskode. Dette login vil ikke blive husket, før du giver en autentifikator app kode på log i eller deaktivere 2fa og log i igen.</value></data>
+<data name="recoverycode" xml:space="preserve"><value>Genkøbskode</value></data>
+<data name="for how to configure a real email sender" xml:space="preserve"><value>For hvordan du konfigurerer en rigtig e- mail- afsender</value></data>
+<data name="normally this would be emailed:" xml:space="preserve"><value>Normalt ville dette blive mailet:</value></data>
+<data name="please check your email to confirm your account." xml:space="preserve"><value>Tjek venligst din e-mail for at bekræfte din konto.</value></data>
+<data name="verification email sent. please check your email." xml:space="preserve"><value>Bekræftelse e-mail sendt. Tjek venligst din e-mail.</value></data>
+<data name="enter the code" xml:space="preserve"><value>Indtast koden</value></data>
+<data name="your password has been reset. please" xml:space="preserve"><value>Dit kodeord er blevet nulstillet. Please</value></data>
+<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>Der er ingen eksterne autentificeringstjenester konfigureret. Se her.</value></data>
+<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>Artikel om oprettelse af denne asp.net ansøgning til støtte logning i via eksterne tjenester</value></data>
+<data name="put these codes in a safe place." xml:space="preserve"><value>Læg koderne et sikkert sted.</value></data>
+<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>Hvis du mister din enhed og ikke har gendannelseskoderne, vil du miste adgang til din konto.</value></data>
+<data name="enter the old password" xml:space="preserve"><value>Indtast det gamle kodeord</value></data>
+<data name="enter the new password" xml:space="preserve"><value>Indtast den nye adgangskode</value></data>
+<data name="user changed their password successfully." xml:space="preserve"><value>Brugeren ændrede deres adgangskode med succes.</value></data>
+<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>Sletning af disse data vil permanent fjerne din konto, og dette kan ikke inddrives.</value></data>
+<data name="unexpected error occurred deleting user." xml:space="preserve"><value>Uventet fejl opstod sletning bruger.</value></data>
+<data name="this action only disables 2fa." xml:space="preserve"><value>Denne handling kun deaktiverer 2fa.</value></data>
+<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Deaktivering 2fa ændrer ikke de nøgler, der bruges i autentificeringsapps. Hvis du ønsker at ændre den nøgle, der bruges i en autentificeringsapp, skal du</value></data>
+<data name="set your authenticator keys." xml:space="preserve"><value>Sæt dine autentificeringsnøgler.</value></data>
+<data name="reset your authenticator keys." xml:space="preserve"><value>Nulstil dine godkendelsesnøgler.</value></data>
+<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>Kan ikke deaktivere 2fa for brugeren, da den ikke er aktiveret i øjeblikket.</value></data>
+<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>Uventet fejl opstod deaktivering 2fa.</value></data>
+<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2fa er blevet deaktiveret. Du kan genaktivere 2fa, når du opsætter en autentificeringsapp</value></data>
+<data name="enter your email" xml:space="preserve"><value>Indtast din e-mail</value></data>
+<data name="your email is unchanged." xml:space="preserve"><value>Din e-mail er uændret.</value></data>
+<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>Bekræftelse link til at ændre e-mail sendt. Tjek venligst din e-mail.</value></data>
+<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>For at bruge en autentificeringsapp gå gennem følgende trin:</value></data>
+<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>Download en to-faktor autentificering app som microsoft autentificering til</value></data>
+<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>Når du har scannet qr-koden eller indtastet nøglen ovenfor, vil din to faktor godkendelse app give dig en unik kode. Indtast koden i bekræftelsesfeltet nedenfor.</value></data>
+<data name="error: verification code is invalid." xml:space="preserve"><value>Fejl: Verifikationskode er ugyldig.</value></data>
+<data name="your authenticator app has been verified." xml:space="preserve"><value>Din autentificeringsapp er blevet verificeret.</value></data>
+<data name="add another service to log in." xml:space="preserve"><value>Tilføj en anden tjeneste til at logge ind.</value></data>
+<data name="error: the external login was not removed." xml:space="preserve"><value>Fejl: Den eksterne login blev ikke fjernet.</value></data>
+<data name="error: could not load external login info." xml:space="preserve"><value>Fejl: Kunne ikke indlæse ekstern login info.</value></data>
+<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>Fejl: det eksterne login blev ikke tilføjet. Ekstern login kan kun forbindes med én konto.</value></data>
+<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>Generér to-faktor autentificering (2fa) recovery koder</value></data>
+<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Generering af nye opsving koder ændrer ikke de nøgler, der anvendes i autentificeringsapps. Hvis du ønsker at ændre den nøgle, der bruges i en autentificeringsapp, skal du</value></data>
+<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>Kan ikke generere gendannelseskoder for brugeren, fordi de ikke har 2fa aktiveret.</value></data>
+<data name="you have generated new recovery codes." xml:space="preserve"><value>Du har genereret nye gendannelseskoder.</value></data>
+<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>Bruger med id '{userid}' har genereret nye 2fa recovery koder.</value></data>
+<data name="choose your username." xml:space="preserve"><value>Vælg dit brugernavn.</value></data>
+<data name="you have no recovery codes left." xml:space="preserve"><value>Du har ingen koder tilbage.</value></data>
+<data name="error: failed to set phone number." xml:space="preserve"><value>Fejl: Kunne ikke indstille telefonnummer.</value></data>
+<data name="manage your passkeys" xml:space="preserve"><value>Administrer dine adgangskoder</value></data>
+<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>Du har nået det maksimale antal tilladte adgangskort. Slet en før du tilføjer en ny.</value></data>
+<data name="add a new passkey" xml:space="preserve"><value>Tilføj en ny adgangskode</value></data>
+<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>Fejl: browseren gav ikke en adgangskode.</value></data>
+<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>Fejl: Hovednøglen kunne ikke tilføjes til din konto.</value></data>
+<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>Fejl: det angivne kodenøgle- id havde et ugyldigt format.</value></data>
+<data name="error: the passkey could not be deleted." xml:space="preserve"><value>Fejl: Hovednøglen kunne ikke slettes.</value></data>
+<data name="passkey deleted successfully." xml:space="preserve"><value>Passkey slettet med succes.</value></data>
+<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>Din konto indeholder personlige data, som du har givet os. Denne side giver dig mulighed for at downloade eller slette disse data.</value></data>
+<data name="enter a new name for your" xml:space="preserve"><value>Indtast et nyt navn for din</value></data>
+<data name="passkey" xml:space="preserve"><value>Passkey</value></data>
+<data name="my passkey" xml:space="preserve"><value>Min nøgle</value></data>
+<data name="passkey name" xml:space="preserve"><value>Identifikationsnr.</value></data>
+<data name="continue" xml:space="preserve"><value>Fortsæt</value></data>
+<data name="error: the specified passkey could not be found." xml:space="preserve"><value>Fejl: den angivne adgangskode kunne ikke findes.</value></data>
+<data name="error: the passkey could not be updated." xml:space="preserve"><value>Fejl: Hovednøglen kunne ikke opdateres.</value></data>
+<data name="passkey updated successfully." xml:space="preserve"><value>Passkey opdateret med succes.</value></data>
+<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>Hvis du nulstiller din autentificeringsnøgle, vil din autentificeringsapp ikke virke før du genkonfigurerer den.</value></data>
+<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>Denne proces deaktiverer 2fa, indtil du verificerer din autentificeringsapp.</value></data>
+<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>Hvis du ikke fuldfører din godkendelse app konfiguration, kan du miste adgang til din konto.</value></data>
+<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>Din autentifikationsapp-nøgle er blevet nulstillet, du bliver nødt til at indstille din autentifikationsapp ved hjælp af den nye nøgle.</value></data>
+<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>Du har ikke et lokalt brugernavn / kodeord til dette websted. Tilføj en lokal konto, så du kan logge ind uden en ekstern login.</value></data>
+<data name="your password has been set." xml:space="preserve"><value>Dit kodeord er sat.</value></data>
+<data name="before you can log in with a recovery code." xml:space="preserve"><value>Før du kan logge ind med en recovery kode.</value></data>
+<data name="you have 1 recovery code left." xml:space="preserve"><value>Du har 1 gendannelseskode tilbage.</value></data>
+<data name="inline text" xml:space="preserve"><value>Indlejret tekst</value></data>
+<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>Privacy and cookie policy er ikke blevet accepteret.</value></data>
+<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>Du skal acceptere den politik, før du kan aktivere to faktor godkendelse.</value></data>
+<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>Den aktuelle browser er blevet glemt. Når du logger ind igen fra denne browser, vil du blive bedt om din 2fa kode.</value></data>
+<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>Denne app har ikke i øjeblikket en rigtig e-mail sender registreret, se</value></data>
+<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>For at vise det oprindelige indlæg (det åbnes i en ny browser fane)</value></data>
+<data name="to display options." xml:space="preserve"><value>For at vise indstillinger.</value></data>
+<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>At tilføje en ny side til overvågning af bidrag.</value></data>
+<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>For at vise en forenklet html visning af bidraget.</value></data>
+<data name="to display filters." xml:space="preserve"><value>For at vise filtre.</value></data>
+<data name="to rotate the map view." xml:space="preserve"><value>For at rotere kortvisningen.</value></data>
+<data name="to display the image gallery." xml:space="preserve"><value>For at vise billedgalleri.</value></data>
+<data name="italic text" xml:space="preserve"><value>Kursiv tekst</value></data>
+<data name="summary" xml:space="preserve"><value>Resumé</value></data>
+<data name="expandable section" xml:space="preserve"><value>Udfoldeligt afsnit</value></data>
+<data name="strong emphasis" xml:space="preserve"><value>Stærk fremhævelse</value></data>
+<data name="emphasis (italic)" xml:space="preserve"><value>Fremhævelse (kursiv)</value></data>
+<data name="highlighted text" xml:space="preserve"><value>Fremhævet tekst</value></data>
+<data name="code snippet" xml:space="preserve"><value>Kodeudsnit</value></data>
+<data name="code block" xml:space="preserve"><value>Kodeblok</value></data>
+<data name="block quote" xml:space="preserve"><value>Blokcitat</value></data>
+<data name="citation" xml:space="preserve"><value>Citation</value></data>
+<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>marker indlæg med vores 'tag-liste' (f.eks. 'synes godt om', 'uinteressant', 'allerede downloadet', ...). Der er 10 konfigurerbare 'tags' til rådighed til dette formål.</value></data>
+<data name="heading 1" xml:space="preserve"><value>Overskrift 1</value></data>
+<data name="sample output" xml:space="preserve"><value>Eksempeloutput</value></data>
+<data name="variable" xml:space="preserve"><value>Variabel</value></data>
+<data name="small text" xml:space="preserve"><value>Lille tekst</value></data>
+<data name="figure with caption" xml:space="preserve"><value>Figur med billedtekst</value></data>
+<data name="figure caption" xml:space="preserve"><value>Billedtekst</value></data>
+<data name="keyboard input" xml:space="preserve"><value>Tastaturinput</value></data>
+<data name="bold text" xml:space="preserve"><value>Fed tekst</value></data>
+<data name="subscript" xml:space="preserve"><value>Sænket skrift</value></data>
+<data name="superscript" xml:space="preserve"><value>Hævet skrift</value></data>
+<data name="are displayed." xml:space="preserve"><value>vises.</value></data>
+<data name="block container" xml:space="preserve"><value>Blokcontainer</value></data>
+<data name="abbreviation" xml:space="preserve"><value>Forkortelse</value></data>
+<data name="custom" xml:space="preserve"><value>Brugerdefineret</value></data>
+</root>

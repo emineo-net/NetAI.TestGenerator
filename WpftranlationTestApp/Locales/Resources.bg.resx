@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?><root><xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"><xsd:import namespace="http://www.w3.org/XML/1998/namespace" /><xsd:element name="root" msdata:IsDataSet="true"><xsd:complexType><xsd:choice maxOccurs="unbounded"><xsd:element name="metadata"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" use="required" type="xsd:string" /><xsd:attribute name="type" type="xsd:string" /><xsd:attribute name="mimetype" type="xsd:string" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="assembly"><xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType></xsd:element><xsd:element name="data"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /><xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /><xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /><xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="resheader"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType></xsd:element></xsd:choice></xsd:complexType></xsd:element></xsd:schema><resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="and" xml:space="preserve"><value>и</value></data>
+<data name="account" xml:space="preserve"><value>акаунт</value></data>
+<data name="full name" xml:space="preserve"><value>пълно име</value></data>
+<data name="imprint" xml:space="preserve"><value>импринт</value></data>
+<data name="login" xml:space="preserve"><value>вход</value></data>
+<data name="date from" xml:space="preserve"><value>дата от</value></data>
+<data name="rotate" xml:space="preserve"><value>завъртане</value></data>
+<data name="contact" xml:space="preserve"><value>контакт</value></data>
+<data name="getting started" xml:space="preserve"><value>първи стъпки</value></data>
+<data name="show filter" xml:space="preserve"><value>показване на филтър</value></data>
+<data name="first" xml:space="preserve"><value>първо</value></data>
+<data name="paragraphs" xml:space="preserve"><value>параграфи</value></data>
+<data name="close" xml:space="preserve"><value>затвори</value></data>
+<data name="contribution" xml:space="preserve"><value>принос</value></data>
+<data name="invalid user" xml:space="preserve"><value>невалиден потребител</value></data>
+<data name="logout" xml:space="preserve"><value>изход</value></data>
+<data name="manage your account" xml:space="preserve"><value>управление на вашия акаунт</value></data>
+<data name="message" xml:space="preserve"><value>съобщение</value></data>
+<data name="order abandoned" xml:space="preserve"><value>поръчката е изоставена</value></data>
+<data name="picture gallery" xml:space="preserve"><value>галерия с изображения</value></data>
+<data name="download" xml:space="preserve"><value>изтегляне</value></data>
+<data name="delete" xml:space="preserve"><value>изтрий</value></data>
+<data name="profile" xml:space="preserve"><value>профил</value></data>
+<data name="recovery codes" xml:space="preserve"><value>кодове за възстановяване</value></data>
+<data name="register as a new user" xml:space="preserve"><value>регистрирайте се като нов потребител</value></data>
+<data name="remove" xml:space="preserve"><value>премахване</value></data>
+<data name="click here to log in" xml:space="preserve"><value>щракнете тук за вход</value></data>
+<data name="date to" xml:space="preserve"><value>дата до</value></data>
+<data name="save" xml:space="preserve"><value>запази</value></data>
+<data name="filter reset" xml:space="preserve"><value>нулиране на филтъра</value></data>
+<data name="previous" xml:space="preserve"><value>предишна</value></data>
+<data name="add page" xml:space="preserve"><value>добавяне на страница</value></data>
+<data name="password" xml:space="preserve"><value>парола</value></data>
+<data name="assign categories to your pages or delete them" xml:space="preserve"><value>присвояване на категории на страниците ви или изтриването им</value></data>
+<data name="max" xml:space="preserve"><value>макс.</value></data>
+<data name="send" xml:space="preserve"><value>изпрати</value></data>
+<data name="error" xml:space="preserve"><value>грешка</value></data>
+<data name="log in" xml:space="preserve"><value>вход</value></data>
+<data name="conveniently filter and search contributions" xml:space="preserve"><value>удобно филтриране и търсене на приноси</value></data>
+<data name="confirm password" xml:space="preserve"><value>потвърждаване на паролата</value></data>
+<data name="enter url." xml:space="preserve"><value>въведете URL.</value></data>
+<data name="italicized" xml:space="preserve"><value>курсив</value></data>
+<data name="email" xml:space="preserve"><value>имейл</value></data>
+<data name="heading 6" xml:space="preserve"><value>заглавие 6</value></data>
+<data name="access denied" xml:space="preserve"><value>отказан достъп</value></data>
+<data name="heading 5" xml:space="preserve"><value>заглавие 5</value></data>
+<data name="add authenticator app" xml:space="preserve"><value>добавяне на приложение за удостоверяване</value></data>
+<data name="associate your" xml:space="preserve"><value>свържете вашия</value></data>
+<data name="change email" xml:space="preserve"><value>промяна на имейл</value></data>
+<data name="change password" xml:space="preserve"><value>промяна на паролата</value></data>
+<data name="change your account settings" xml:space="preserve"><value>промяна на настройките на профила ви</value></data>
+<data name="choose plan" xml:space="preserve"><value>изберете план</value></data>
+<data name="click here to confirm your account" xml:space="preserve"><value>щракнете тук, за да потвърдите профила си</value></data>
+<data name="heading 4" xml:space="preserve"><value>заглавие 4</value></data>
+<data name="properties" xml:space="preserve"><value>свойства</value></data>
+<data name="log in with a recovery code" xml:space="preserve"><value>влезте с код за възстановяване</value></data>
+<data name="configure authenticator app" xml:space="preserve"><value>конфигуриране на приложението за удостоверяване</value></data>
+<data name="title contains" xml:space="preserve"><value>заглавието съдържа</value></data>
+<data name="toggle view" xml:space="preserve"><value>превключване на изглед</value></data>
+<data name="these docs" xml:space="preserve"><value>тези документи</value></data>
+<data name="terms and conditions" xml:space="preserve"><value>общи условия</value></data>
+<data name="xxx" xml:space="preserve"><value>xxx</value></data>
+<data name="all" xml:space="preserve"><value>всички</value></data>
+<data name="confirm email" xml:space="preserve"><value>потвърдете имейл</value></data>
+<data name="confirm email change" xml:space="preserve"><value>потвърди промяна на имейл</value></data>
+<data name="hyperlink" xml:space="preserve"><value>хипервръзка</value></data>
+<data name="also see a preview of the" xml:space="preserve"><value>вижте също преглед на</value></data>
+<data name="delete data and close my account" xml:space="preserve"><value>изтриване на данни и затваряне на профила ми</value></data>
+<data name="delete personal data" xml:space="preserve"><value>изтриване на лични данни</value></data>
+<data name="disable 2fa" xml:space="preserve"><value>деактивиране на 2FA</value></data>
+<data name="max lenght 14" xml:space="preserve"><value>макс. дължина 14</value></data>
+<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>Изберете следното от менюто: Начало, Първи стъпки, Регистрация, Вход, Надграждане, Изход, Импринт, Контакт, Акаунт. Във второто меню изберете: Покажи филтър, Завъртане, Превключване на изглед, Свойства, Добавяне, Напред, Назад. В диалоговия прозорец можете: Запази, Отмени, Изпрати.</value></data>
+<data name="authenticator app" xml:space="preserve"><value>приложение за удостоверяване</value></data>
+<data name="recovery codes left." xml:space="preserve"><value>останали кодове за възстановяване.</value></data>
+<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>ефективно извличане на информация от уебсайтове чрез просто въвеждане на URL адрес</value></data>
+<data name="enable qr code generation" xml:space="preserve"><value>включване на генериране на QR код</value></data>
+<data name="external logins" xml:space="preserve"><value>външни влизания</value></data>
+<data name="no passkeys are registered." xml:space="preserve"><value>няма регистрирани пароли за достъп (passkeys).</value></data>
+<data name="forget this browser" xml:space="preserve"><value>забравяне на този браузър</value></data>
+<data name="forgot password confirmation" xml:space="preserve"><value>потвърждение за забравена парола</value></data>
+<data name="generate a new set of recovery codes" xml:space="preserve"><value>генерирайте нов набор от кодове за възстановяване</value></data>
+<data name="generate recovery codes" xml:space="preserve"><value>генериране на кодове за възстановяване</value></data>
+<data name="the external login was removed." xml:space="preserve"><value>външният вход беше премахнат.</value></data>
+<data name="learn how to" xml:space="preserve"><value>научете как да</value></data>
+<data name="legal inquiry" xml:space="preserve"><value>правно запитване</value></data>
+<data name="locked out" xml:space="preserve"><value>блокиран</value></data>
+<data name="manage email" xml:space="preserve"><value>управление на имейл</value></data>
+<data name="just browse" xml:space="preserve"><value>просто разглеждам</value></data>
+<data name="manage your external logins" xml:space="preserve"><value>управление на вашите външни влизания</value></data>
+<data name="new password" xml:space="preserve"><value>нова парола</value></data>
+<data name="old password" xml:space="preserve"><value>стара парола</value></data>
+<data name="options" xml:space="preserve"><value>опции</value></data>
+<data name="google authenticator for" xml:space="preserve"><value>Google Authenticator за</value></data>
+<data name="order complete" xml:space="preserve"><value>поръчката е завършена</value></data>
+<data name="personal data" xml:space="preserve"><value>лични данни</value></data>
+<data name="phone number" xml:space="preserve"><value>телефонен номер</value></data>
+<data name="min" xml:space="preserve"><value>мин.</value></data>
+<data name="recovery code" xml:space="preserve"><value>код за възстановяване</value></data>
+<data name="recovery code verification" xml:space="preserve"><value>проверка на код за възстановяване</value></data>
+<data name="register" xml:space="preserve"><value>регистрация</value></data>
+<data name="register confirmation" xml:space="preserve"><value>потвърждение на регистрацията</value></data>
+<data name="registered logins" xml:space="preserve"><value>регистрирани влизания</value></data>
+<data name="remember me" xml:space="preserve"><value>запомни ме</value></data>
+<data name="remember this machine" xml:space="preserve"><value>запомни тази машина</value></data>
+<data name="resend" xml:space="preserve"><value>изпрати отново</value></data>
+<data name="resend email confirmation" xml:space="preserve"><value>изпрати отново имейл за потвърждение</value></data>
+<data name="reset" xml:space="preserve"><value>нулиране</value></data>
+<data name="reset authenticator app" xml:space="preserve"><value>нулиране на приложението за удостоверяване</value></data>
+<data name="reset authenticator key" xml:space="preserve"><value>нулиране на ключа за удостоверител</value></data>
+<data name="reset filters" xml:space="preserve"><value>нулиране на филтри</value></data>
+<data name="reset password" xml:space="preserve"><value>нулиране на парола</value></data>
+<data name="reset password confirmation" xml:space="preserve"><value>потвърждение за нулиране на парола</value></data>
+<data name="reset recovery codes" xml:space="preserve"><value>нулиране на кодовете за възстановяване</value></data>
+<data name="user name" xml:space="preserve"><value>потребителско име</value></data>
+<data name="scan the qr code or enter this key" xml:space="preserve"><value>сканирайте QR кода или въведете този ключ</value></data>
+<data name="selected categories" xml:space="preserve"><value>избрани категории</value></data>
+<data name="selected websites" xml:space="preserve"><value>избрани уебсайтове</value></data>
+<data name="send verification email" xml:space="preserve"><value>изпрати имейл за проверка</value></data>
+<data name="set password" xml:space="preserve"><value>задаване на парола</value></data>
+<data name="set your password" xml:space="preserve"><value>задайте паролата си</value></data>
+<data name="subject" xml:space="preserve"><value>тема</value></data>
+<data name="define the names of your categories" xml:space="preserve"><value>определете имената на вашите категории</value></data>
+<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>във вашето приложение за двуфакторно удостоверяване. Интервалите и главните букви нямат значение.</value></data>
+<data name="update password" xml:space="preserve"><value>актуализиране на парола</value></data>
+<data name="main heading" xml:space="preserve"><value>основно заглавие</value></data>
+<data name="error finding user for unspecified email" xml:space="preserve"><value>грешка при намиране на потребител за неуточнен имейл</value></data>
+<data name="home" xml:space="preserve"><value>начало</value></data>
+<data name="invalid password reset" xml:space="preserve"><value>невалидно нулиране на парола</value></data>
+<data name="of" xml:space="preserve"><value>на</value></data>
+<data name="paragraph" xml:space="preserve"><value>параграф</value></data>
+<data name="success" xml:space="preserve"><value>успех</value></data>
+<data name="set up authenticator app" xml:space="preserve"><value>настройка на приложение за удостоверяване</value></data>
+<data name="username" xml:space="preserve"><value>потребителско име</value></data>
+<data name="verification code" xml:space="preserve"><value>код за проверка</value></data>
+<data name="verify" xml:space="preserve"><value>провери</value></data>
+<data name="next" xml:space="preserve"><value>следващ</value></data>
+<data name="subscriptions" xml:space="preserve"><value>абонаменти</value></data>
+<data name="you have" xml:space="preserve"><value>имате</value></data>
+<data name="you must" xml:space="preserve"><value>трябва</value></data>
+<data name="your password has been changed" xml:space="preserve"><value>вашата парола е променена</value></data>
+<data name="your profile has been updated" xml:space="preserve"><value>вашият профил е актуализиран</value></data>
+<data name="nter a name for your passkey" xml:space="preserve"><value>въведете име за паролата за достъп (passkey)</value></data>
+<data name="forgot your password?" xml:space="preserve"><value>забравили сте паролата си?</value></data>
+<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>пълно показване на приносите чрез щракване върху заглавието на приноса</value></data>
+<data name="privacy policy" xml:space="preserve"><value>политика за поверителност</value></data>
+<data name="pro version" xml:space="preserve"><value>про версия</value></data>
+<data name="new project" xml:space="preserve"><value>нов проект</value></data>
+<data name="reset filter" xml:space="preserve"><value>нулиране на филтър</value></data>
+<data name="save changes" xml:space="preserve"><value>запазване на промените</value></data>
+<data name="last" xml:space="preserve"><value>последно</value></data>
+<data name="open original" xml:space="preserve"><value>отвори оригинал</value></data>
+<data name="download documents" xml:space="preserve"><value>изтегляне на документи</value></data>
+<data name="tagging and filtering" xml:space="preserve"><value>маркиране и филтриране</value></data>
+<data name="open local" xml:space="preserve"><value>отвори локално</value></data>
+<data name="download single" xml:space="preserve"><value>изтегли единичен</value></data>
+<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>икона за превключване между изгледа на карти и изгледа на таблица.</value></data>
+<data name="add custom tag" xml:space="preserve"><value>добави персонализиран таг</value></data>
+<data name="define the name of the tag for individual posts" xml:space="preserve"><value>определете името на тага за отделните публикации</value></data>
+<data name="tagging contributions" xml:space="preserve"><value>маркиране на приноси</value></data>
+<data name="filter your pages" xml:space="preserve"><value>филтрирайте страниците си</value></data>
+<data name="download txt or json documents without images" xml:space="preserve"><value>изтегляне на TXT или JSON документи без изображения</value></data>
+<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>във филтрите можете да филтрирате по маркирани публикации</value></data>
+<data name="click on the" xml:space="preserve"><value>щракнете върху</value></data>
+<data name="to display download options" xml:space="preserve"><value>за показване на опциите за изтегляне</value></data>
+<data name="click save word document." xml:space="preserve"><value>щракнете, за да запишете Word документ.</value></data>
+<data name="error changing user name." xml:space="preserve"><value>грешка при промяна на потребителското име.</value></data>
+<data name="add" xml:space="preserve"><value>добави</value></data>
+<data name="document." xml:space="preserve"><value>документ.</value></data>
+<data name="a new tab." xml:space="preserve"><value>нов раздел.</value></data>
+<data name="and json will open. you will" xml:space="preserve"><value>и JSON ще се отвори. Ще</value></data>
+<data name="json download" xml:space="preserve"><value>изтегляне на JSON</value></data>
+<data name="the external login was added." xml:space="preserve"><value>външният вход беше добавен.</value></data>
+<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>деактивиране на двуфакторното удостоверяване (2FA)</value></data>
+<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>използвайте превключвателя, за да избирате между „къде е“ и „къде не е“.</value></data>
+<data name="loc[are displayed.]" xml:space="preserve"><value>са показани.</value></data>
+<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>прост, разделен с табулация формат, подходящ за допълнителна обработка в таблици или бази данни.</value></data>
+<data name="save to your download directory." xml:space="preserve"><value>запис в директорията за изтегляне.</value></data>
+<data name="two-factor authentication (2fa)" xml:space="preserve"><value>двуфакторно удостоверяване (2FA)</value></data>
+<data name="cards" xml:space="preserve"><value>карти</value></data>
+<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>под иконата на филтъра се появява червена икона за кошче за отпадъци. Щракването върху тази икона изтрива всички активни филтри и отново показва пълния преглед на приносите.</value></data>
+<data name="two-factor authentication" xml:space="preserve"><value>двуфакторно удостоверяване</value></data>
+<data name="enter a new email" xml:space="preserve"><value>въведете нов имейл</value></data>
+<data name="select columns for scraping" xml:space="preserve"><value>избор на колони за извличане</value></data>
+<data name="click one or more tags for a post." xml:space="preserve"><value>щракнете върху един или повече тагове за публикация.</value></data>
+<data name="cards and table" xml:space="preserve"><value>карти и таблица</value></data>
+<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>икона за преглед на оригиналния принос в неговия първоначален източник и оформление.</value></data>
+<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>в изгледа за отделни приноси можете да ги изтеглите.</value></data>
+<data name="rename" xml:space="preserve"><value>преименуване</value></data>
+<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>за да покажете маркирани приноси, можете да изберете съответния таг от списъка с текст.</value></data>
+<data name="toggle help visibility" xml:space="preserve"><value>превключване на видимостта на помощта</value></data>
+<data name="enter / select url" xml:space="preserve"><value>въведете / изберете URL</value></data>
+<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>опции за изтегляне PDF, DOCS, TXT, HTML</value></data>
+<data name="to display filter dialog" xml:space="preserve"><value>за показване на филтърен прозорец</value></data>
+<data name="enter your phone number" xml:space="preserve"><value>въведете телефонния си номер</value></data>
+<data name="no contributions were found on the page" xml:space="preserve"><value>на страницата не бяха намерени приноси</value></data>
+<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>ще се отвори нов прозорец, показващ PDF преглед на вашия документ. Този преглед предоставя първоначален преглед на съдържанието и оформлението на документа.</value></data>
+<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>най-добрият начин да се свържете с нас е да използвате нашата форма за контакт по-долу. Моля, попълнете всички задължителни полета и ние ще се свържем с вас възможно най-скоро.</value></data>
+<data name="export" xml:space="preserve"><value>експорт</value></data>
+<data name="underlined" xml:space="preserve"><value>Подчертан</value></data>
+<data name="add to followed projects" xml:space="preserve"><value>добавяне към следваните проекти</value></data>
+<data name="follow" xml:space="preserve"><value>следвай</value></data>
+<data name="scraping view" xml:space="preserve"><value>изглед за извличане</value></data>
+<data name="authenticator code" xml:space="preserve"><value>код за удостоверяване</value></data>
+<data name="heading 3" xml:space="preserve"><value>позиция 3</value></data>
+<data name="heading 2" xml:space="preserve"><value>позиция 2</value></data>
+<data name="image" xml:space="preserve"><value>изображение</value></data>
+<data name="the created document will open in" xml:space="preserve"><value>създаденият документ ще се отвори в</value></data>
+<data name="click on download a view with" xml:space="preserve"><value>щракнете върху изтегляне – изглед с</value></data>
+<data name="file saving failed:" xml:space="preserve"><value>грешка при запис на файл:</value></data>
+<data name="file saved to:" xml:space="preserve"><value>файлът е записан в:</value></data>
+<data name="an error occurred during download:" xml:space="preserve"><value>възникна грешка при изтегляне:</value></data>
+<data name="thank you for your message." xml:space="preserve"><value>благодаря ви за съобщението.</value></data>
+<data name="file" xml:space="preserve"><value>файл</value></data>
+<data name="an error has occurred." xml:space="preserve"><value>възникна грешка.</value></data>
+<data name="table" xml:space="preserve"><value>таблица</value></data>
+<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>формати на документите: DOCX, PDF, HTML, JSON, TXT</value></data>
+<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>филтър по категория (трябва да сте маркирали страниците си, за да направите това)</value></data>
+<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>след това можете да изтеглите PDF, DOCX и HTML документи с изображения</value></data>
+<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>можете да определите името на вашите тагове индивидуално под опции.</value></data>
+<data name="show help (dynamic, static, off)" xml:space="preserve"><value>покажи помощ (динамична, статична, изкл.)</value></data>
+<data name="enter a part that the title must contain." xml:space="preserve"><value>въведете част, която заглавието трябва да съдържа.</value></data>
+<data name="switch view" xml:space="preserve"><value>смяна на изглед</value></data>
+<data name="custoum" xml:space="preserve"><value>по избор</value></data>
+<data name="download document" xml:space="preserve"><value>изтегляне на документ</value></data>
+<data name="csv download" xml:space="preserve"><value>изтегляне на CSV</value></data>
+<data name="excel download" xml:space="preserve"><value>изтегляне на Excel</value></data>
+<data name="single document download" xml:space="preserve"><value>изтегляне на единичен документ</value></data>
+<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>с 'closerpage-for-windows' можете да получите до 200 изображения.</value></data>
+<data name="the contributions for" xml:space="preserve"><value>приносите за</value></data>
+<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>за автоматично събиране на нови приноси в бъдеще, щракнете върху</value></data>
+<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>можете да изберете отделни проекти, за да показвате само приносите, които принадлежат към тях.</value></data>
+<data name="available predefined tags" xml:space="preserve"><value>налични предварително дефинирани тагове</value></data>
+<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>Ако сте присвоили категории на уеб страниците си, можете също да филтрирате по тези категории. Просто изберете желаните уеб страници или категории от списъка.</value></data>
+<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>след като направите избора си, щракнете върху бутона „Изпрати“, за да приложите филтъра. След това изгледът на приносите ще бъде актуализиран и ще показва само филтрираните резултати.</value></data>
+<data name="to display options" xml:space="preserve"><value>за показване на опции</value></data>
+<data name="this will rotate all cards." xml:space="preserve"><value>това ще завърти всички карти.</value></data>
+<data name="button" xml:space="preserve"><value>бутон</value></data>
+<data name="preview the images" xml:space="preserve"><value>преглед на изображенията</value></data>
+<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>ако документът ви съдържа файлове с изображения, те също ще бъдат показани в прегледа.</value></data>
+<data name="download options" xml:space="preserve"><value>опции за изтегляне</value></data>
+<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>за да изтеглите документа, изберете желания формат от наличните опции.</value></data>
+<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>идеален за готови за печат документи и споделяне в професионално оформление.</value></data>
+<data name="error: incorrect password." xml:space="preserve"><value>грешка: неправилна парола.</value></data>
+<data name="useful if you want to edit the document further." xml:space="preserve"><value>полезно, ако искате да редактирате документа допълнително.</value></data>
+<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>полезно за вграждане на съдържание в уебсайт или друга цифрова среда.</value></data>
+<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>съдържа само обикновен текст, без форматиране. Подходящ за проста допълнителна обработка.</value></data>
+<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>съдържа всички изображения на документа като отделни файлове в случай, че се нуждаете от тях поотделно.</value></data>
+<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>За да търсите уебсайт за приноси, въведете URL и щракнете върху иконата на лупа. Като алтернатива можете да натиснете клавиша Enter на клавиатурата.</value></data>
+<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>Ако сте влезли и вече проследявате URL адреси за промени, можете също да изберете URL от падащия списък.</value></data>
+<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>текущите публикации на избрания уебсайт автоматично се улавят от нашия алгоритъм. След това старите и новооткритите публикации се показват на уебсайта.</value></data>
+<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>Въвеждам URL и нищо не се показва. Защо?</value></data>
+<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>за съжаление, това не е необичайно и може да има много причини, напр.:</value></data>
+<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>на уебсайта, който търсите, няма свързани приноси. (напр. сте въвели страницата за контакт като URL: „https://mysite/contact“)</value></data>
+<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>свързаните публикации не са в рамките на домейна. Например, сте въвели „https://mysite.com/products“, но всички приноси се отнасят до „https://otherpage.com/productxy“.</value></data>
+<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>заявената страница блокира ботове (CloserPage е бот).</value></data>
+<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>заявената страница показва само публикации за регистрирани потребители.</value></data>
+<data name="table structure (sorted by priority)" xml:space="preserve"><value>структура на таблицата (сортирана по приоритет)</value></data>
+<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>таблицата е организирана така, че най-важната информация да се показва на първо място, което позволява бърза ориентация и ефективна обработка.</value></data>
+<data name="tags" xml:space="preserve"><value>етикети</value></data>
+<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>След това приносът ще се отвори в нов прозорец или раздел на браузъра. Там ще видите приноса така, както е публикуван на оригиналния уебсайт – включително всичко форматиране, изображения, връзки и друго съдържание, което може да не е включено в извлечения изглед.</value></data>
+<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>всички съществуващи тагове или категории, присвоени на приносите, се показват тук. Това ви помага бързо да филтрирате приноси по тема или фокус.</value></data>
+<data name="headings and titles" xml:space="preserve"><value>заглавия и заглавия</value></data>
+<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>заглавията и заглавията на приносите са изброени на второ място. Те предоставят първоначален преглед на съдържанието и позволяват бърза идентификация на подходящи приноси.</value></data>
+<data name="date and author" xml:space="preserve"><value>дата и автор</value></data>
+<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>тази колона съдържа датата на публикуване и автора на приноса. Това ви позволява да видите кога и от кого е създаден приносът.</value></data>
+<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>Действителното съдържание на приносите, разделено на параграфи, съставя последната част от таблицата. Тук ще намерите подробния текст, който е извлечен.</value></data>
+<data name="table functions" xml:space="preserve"><value>функции на таблицата</value></data>
+<data name="tagging" xml:space="preserve"><value>маркиране</value></data>
+<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>Приносите могат да бъдат маркирани и тагнати чрез избор на квадратчето за отметка. Това улеснява сортирането, филтрирането и управлението на приносите по-късно, особено когато се работи с големи количества данни.</value></data>
+<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>цялата таблица или избрани приноси могат да бъдат изтеглени в различни формати</value></data>
+<data name="select tagged contributions" xml:space="preserve"><value>избор на маркирани приноси</value></data>
+<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>добре познат табличен формат, предлагащ допълнителни опции за форматиране, особено подходящ за отчети или презентации.</value></data>
+<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>структуриран формат на данни, особено подходящ за допълнителна обработка в програми или уеб приложения.</value></data>
+<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>функцията за маркиране ви позволява да категоризирате и организирате приноси, което ги прави по-лесни за намиране или филтриране по-късно.</value></data>
+<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>тази функция е достъпна както в изгледа на карти, така и в извлечения изглед на таблица. Тя ви позволява да скриете конкретни приноси или да ги маркирате като особено важни.</value></data>
+<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>маркирайте приноси, които са особено важни, значими или изключителни.</value></data>
+<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>показва, че приносът вече е изтеглен.</value></data>
+<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>маркира приноси, които са създадени или редактирани с помощта на AI технологии.</value></data>
+<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>скрива приноси, които вече не искате да показвате, но не ги изтрива напълно.</value></data>
+<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>ако връзката не работи или приносът вече не е наличен, това може да се дължи на промени в оригиналната страница.</value></data>
+<data name="show contribution" xml:space="preserve"><value>показване на принос</value></data>
+<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>в изгледа на карта щракнете върху заглавието, за да отворите нов прозорец със съдържанието на приноса.</value></data>
+<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>идеален за бързо четене, проверка или редактиране на приноси, без да се налага да се обаждате на оригиналния източник.</value></data>
+<data name="create a new account." xml:space="preserve"><value>създайте нов акаунт.</value></data>
+<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>ако даден принос съдържа файлове с изображения, в прегледа на приноса ще бъде показано малко изображение за преглед.</value></data>
+<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>ще видите число в горния ъгъл на изображението за преглед. Това число показва колко изображения се съдържат в приноса.</value></data>
+<data name="simply click on the preview image." xml:space="preserve"><value>просто щракнете върху изображението за преглед.</value></data>
+<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>това ще отвори галерия, в която всички изображения в приноса се показват ясно и в по-голям формат.</value></data>
+<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>това ви позволява да решите дали да се показват приноси с избрания таг, или само приноси, които не са маркирани съответно.</value></data>
+<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>На всички въпроси, които имате относно нашата политика за поверителност, бисквитки или условия за ползване, ще отговорим възможно най-скоро.</value></data>
+<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>текущи приноси от любимите ви уебсайтове – с един поглед</value></data>
+<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>Често ли четете или проучвате различни уебсайтове и искате последните новини на едно място с един поглед? Тогава сте попаднали на правилното място!</value></data>
+<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>всички нови публикации от избраните от вас уебсайтове с един поглед.</value></data>
+<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>Генериране на документи в DOCX, PDF, JSON или HTML.</value></data>
+<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>Маркирайте публикации с нашия „списък с тагове“ (напр. „харесвам“, „безинтересно“, „вече изтеглено“, ...). За тази цел са налични 10 конфигурируеми тага.</value></data>
+<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>Открийте CloserPage – най-добрият инструмент за всеки, който иска да следи най-новото онлайн съдържание. С лесната функция за извличане на данни от уеб просто въведете URL и веднага вижте всички нови публикации на желания уебсайт.</value></data>
+<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>Всяка публикация може да бъде показана изцяло с едно щракване, така че няма да пропуснете важна информация. Хронологичният ред на публикациите улеснява навигацията и намирането на подходящо съдържание.</value></data>
+<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>Особен акцент е възможността за създаване на документи от всеки принос във формат DOCX, PDF, JSON или HTML – идеално за архивиране или допълнителна обработка на информацията.</value></data>
+<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>това означава, че никога не пропускате нов принос и винаги сте в крак с актуалното</value></data>
+<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>регистрирайте се, за да активирате безплатния план. След това можете да надстроите до PRO план.</value></data>
+<data name="you do not have access to this resource." xml:space="preserve"><value>нямате достъп до този ресурс.</value></data>
+<data name="thank you for confirming your email." xml:space="preserve"><value>благодарим ви, че потвърдихте имейла си.</value></data>
+<data name="error confirming your email." xml:space="preserve"><value>грешка при потвърждаване на имейла.</value></data>
+<data name="i accept the terms and conditions" xml:space="preserve"><value>приемам условията</value></data>
+<data name="error: invalid email change confirmation link." xml:space="preserve"><value>грешка: невалидна връзка за потвърждение на промяна на имейл.</value></data>
+<data name="error changing email." xml:space="preserve"><value>грешка при промяна на имейл.</value></data>
+<data name="thank you for confirming your email change." xml:space="preserve"><value>благодаря ви, че потвърдихте промяната на имейла.</value></data>
+<data name="you've successfully authenticated with" xml:space="preserve"><value>успешно сте удостоверени с</value></data>
+<data name="use another service to register." xml:space="preserve"><value>използвайте друга услуга, за да се регистрирате.</value></data>
+<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>моля, въведете имейл адрес за този сайт по-долу и щракнете върху бутона за регистрация, за да завършите влизането.</value></data>
+<data name="please enter your email." xml:space="preserve"><value>моля, въведете вашия имейл.</value></data>
+<data name="error loading external login information." xml:space="preserve"><value>грешка при зареждане на външна информация за вход.</value></data>
+<data name="error loading external login information during confirmation." xml:space="preserve"><value>грешка при зареждане на външна информация за вход по време на потвърждение.</value></data>
+<data name="reset your password." xml:space="preserve"><value>нулирайте паролата си.</value></data>
+<data name="the default ui requires a user store with email support." xml:space="preserve"><value>потребителският интерфейс по подразбиране изисква потребителски магазин с поддръжка на имейл.</value></data>
+<data name="enter your email." xml:space="preserve"><value>въведете имейла си.</value></data>
+<data name="please check your email to reset your password." xml:space="preserve"><value>моля, проверете имейла си, за да нулирате паролата си.</value></data>
+<data name="the password reset link is invalid." xml:space="preserve"><value>връзката за нулиране на паролата е невалидна.</value></data>
+<data name="please confirm your password." xml:space="preserve"><value>моля, потвърдете паролата си.</value></data>
+<data name="this account has been locked out, please try again later." xml:space="preserve"><value>този акаунт е заключен, моля, опитайте отново по-късно.</value></data>
+<data name="use a local account to log in." xml:space="preserve"><value>използвайте локален акаунт, за да влезете.</value></data>
+<data name="log in with a passkey" xml:space="preserve"><value>влезте с парола за достъп (passkey)</value></data>
+<data name="use another service to log in." xml:space="preserve"><value>използвайте друга услуга, за да влезете.</value></data>
+<data name="please enter your password." xml:space="preserve"><value>моля, въведете паролата си.</value></data>
+<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>вашият вход е защитен с приложение за удостоверяване. Въведете кода за удостоверяване по-долу.</value></data>
+<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>нямате достъп до устройството си за удостоверяване? Можете</value></data>
+<data name="error: invalid authenticator code." xml:space="preserve"><value>грешка: невалиден код за удостоверяване.</value></data>
+<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>поискахте да влезете с код за възстановяване. Този вход няма да бъде запомнен, докато не предоставите код на приложението за удостоверяване при влизане или не деактивирате 2FA и не влезете отново.</value></data>
+<data name="recoverycode" xml:space="preserve"><value>код за възстановяване</value></data>
+<data name="for how to configure a real email sender" xml:space="preserve"><value>за това как да конфигурирате реален изпращач на имейли</value></data>
+<data name="normally this would be emailed:" xml:space="preserve"><value>обикновено това би било изпратено по имейл:</value></data>
+<data name="please check your email to confirm your account." xml:space="preserve"><value>моля, проверете имейла си, за да потвърдите профила си.</value></data>
+<data name="verification email sent. please check your email." xml:space="preserve"><value>изпратен е имейл за проверка. Моля, проверете имейла си.</value></data>
+<data name="enter the code" xml:space="preserve"><value>въведете кода</value></data>
+<data name="your password has been reset. please" xml:space="preserve"><value>паролата ви е нулирана. Моля,</value></data>
+<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>няма конфигурирани външни услуги за удостоверяване. Вижте това.</value></data>
+<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>статия за настройка на това ASP.NET приложение за поддръжка на влизане чрез външни услуги</value></data>
+<data name="put these codes in a safe place." xml:space="preserve"><value>съхранявайте тези кодове на сигурно място.</value></data>
+<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>ако загубите устройството си и нямате кодовете за възстановяване, ще загубите достъп до акаунта си.</value></data>
+<data name="enter the old password" xml:space="preserve"><value>въведете старата парола</value></data>
+<data name="enter the new password" xml:space="preserve"><value>въведете новата парола</value></data>
+<data name="user changed their password successfully." xml:space="preserve"><value>потребителят успешно промени паролата си.</value></data>
+<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>изтриването на тези данни ще премахне завинаги акаунта ви и това не може да бъде възстановено.</value></data>
+<data name="unexpected error occurred deleting user." xml:space="preserve"><value>възникна неочаквана грешка при изтриване на потребителя.</value></data>
+<data name="this action only disables 2fa." xml:space="preserve"><value>това действие само деактивира 2FA.</value></data>
+<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>деактивирането на 2FA не променя ключовете, използвани в приложенията за удостоверяване. Ако желаете да промените ключа, използван в приложение за удостоверяване, трябва</value></data>
+<data name="set your authenticator keys." xml:space="preserve"><value>задайте ключовете за удостоверител.</value></data>
+<data name="reset your authenticator keys." xml:space="preserve"><value>нулирайте ключовете на удостоверителя.</value></data>
+<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>не може да се деактивира 2FA за потребителя, тъй като в момента не е активиран.</value></data>
+<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>възникна неочаквана грешка при деактивиране на 2FA.</value></data>
+<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2FA е деактивиран. Можете да активирате отново 2FA, когато настроите приложение за удостоверяване.</value></data>
+<data name="enter your email" xml:space="preserve"><value>въведете вашия имейл</value></data>
+<data name="your email is unchanged." xml:space="preserve"><value>имейлът ви е непроменен.</value></data>
+<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>изпратена е връзка за потвърждение за промяна на имейл. Моля, проверете имейла си.</value></data>
+<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>за да използвате приложение за удостоверяване, преминете през следните стъпки:</value></data>
+<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>изтеглете приложение за двуфакторно удостоверяване като Microsoft Authenticator за</value></data>
+<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>След като сканирате QR кода или въведете ключа по-горе, приложението ви за двуфакторно удостоверяване ще ви предостави уникален код. Въведете кода в полето за потвърждение по-долу.</value></data>
+<data name="error: verification code is invalid." xml:space="preserve"><value>грешка: кодът за проверка е невалиден.</value></data>
+<data name="your authenticator app has been verified." xml:space="preserve"><value>приложението ви за удостоверяване е проверено.</value></data>
+<data name="add another service to log in." xml:space="preserve"><value>добавяне на друга услуга за влизане.</value></data>
+<data name="error: the external login was not removed." xml:space="preserve"><value>грешка: външният вход не беше премахнат.</value></data>
+<data name="error: could not load external login info." xml:space="preserve"><value>грешка: не може да се зареди външна информация за вход.</value></data>
+<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>грешка: външният вход не беше добавен. Външните влизания могат да бъдат свързани само с един акаунт.</value></data>
+<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>генериране на кодове за възстановяване на двуфакторно удостоверяване (2FA)</value></data>
+<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>генерирането на нови кодове за възстановяване не променя ключовете, използвани в приложенията за удостоверяване. Ако желаете да промените ключа, използван в приложение за удостоверяване, трябва</value></data>
+<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>не могат да се генерират кодове за възстановяване за потребителя, защото не е активиран 2FA.</value></data>
+<data name="you have generated new recovery codes." xml:space="preserve"><value>генерирали сте нови кодове за възстановяване.</value></data>
+<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>потребител с ID '{userId}' е генерирал нови 2FA кодове за възстановяване.</value></data>
+<data name="choose your username." xml:space="preserve"><value>изберете потребителското си име.</value></data>
+<data name="you have no recovery codes left." xml:space="preserve"><value>не са ви останали кодове за възстановяване.</value></data>
+<data name="error: failed to set phone number." xml:space="preserve"><value>грешка: не може да се зададе телефонен номер.</value></data>
+<data name="manage your passkeys" xml:space="preserve"><value>управление на вашите пароли за достъп (passkeys)</value></data>
+<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>достигнахте максималния брой разрешени пароли за достъп (passkeys). Моля, изтрийте една, преди да добавите нова.</value></data>
+<data name="add a new passkey" xml:space="preserve"><value>добавяне на нова парола за достъп (passkey)</value></data>
+<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>грешка: браузърът не предостави парола за достъп (passkey).</value></data>
+<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>грешка: паролата за достъп (passkey) не може да бъде добавена към акаунта ви.</value></data>
+<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>грешка: посоченият идентификатор на passkey има невалиден формат.</value></data>
+<data name="error: the passkey could not be deleted." xml:space="preserve"><value>грешка: паролата за достъп не може да бъде изтрита.</value></data>
+<data name="passkey deleted successfully." xml:space="preserve"><value>паролата за достъп (passkey) е изтрита успешно.</value></data>
+<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>вашият акаунт съдържа лични данни, които сте ни предоставили. Тази страница ви позволява да изтеглите или изтриете тези данни.</value></data>
+<data name="enter a new name for your" xml:space="preserve"><value>въведете ново име за вашия</value></data>
+<data name="passkey" xml:space="preserve"><value>ключ за достъп (passkey)</value></data>
+<data name="my passkey" xml:space="preserve"><value>моята парола за достъп</value></data>
+<data name="passkey name" xml:space="preserve"><value>име на парола за достъп (passkey)</value></data>
+<data name="continue" xml:space="preserve"><value>продължи</value></data>
+<data name="error: the specified passkey could not be found." xml:space="preserve"><value>грешка: посочената парола за достъп (passkey) не може да бъде намерена.</value></data>
+<data name="error: the passkey could not be updated." xml:space="preserve"><value>грешка: паролата за достъп не може да бъде актуализирана.</value></data>
+<data name="passkey updated successfully." xml:space="preserve"><value>паролата за достъп (passkey) е актуализирана успешно.</value></data>
+<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>ако нулирате ключа за удостоверител, приложението ви няма да работи, докато не го конфигурирате отново.</value></data>
+<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>този процес деактивира 2FA, докато не потвърдите приложението си за удостоверяване.</value></data>
+<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>ако не завършите конфигурацията на приложението за удостоверяване, може да загубите достъп до акаунта си.</value></data>
+<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>вашият ключ за приложение за удостоверяване е нулиран. Ще трябва да конфигурирате приложението си с новия ключ.</value></data>
+<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>нямате локално потребителско име/парола за този сайт. Добавете локален акаунт, за да можете да влизате без външен вход.</value></data>
+<data name="your password has been set." xml:space="preserve"><value>паролата ви е зададена.</value></data>
+<data name="before you can log in with a recovery code." xml:space="preserve"><value>преди да можете да влезете с код за възстановяване.</value></data>
+<data name="you have 1 recovery code left." xml:space="preserve"><value>остава ви 1 код за възстановяване.</value></data>
+<data name="inline text" xml:space="preserve"><value>Вграден текст</value></data>
+<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>политиката за поверителност и бисквитките не са приети.</value></data>
+<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>трябва да приемете политиката, преди да можете да включите двуфакторно удостоверяване.</value></data>
+<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>текущият браузър е забравен. Когато влезете отново от този браузър, ще бъдете подканени за вашия 2FA код.</value></data>
+<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>това приложение в момента няма регистриран реален изпращач на имейли. Вижте</value></data>
+<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>за показване на оригиналната публикация (отваря се в нов раздел на браузъра)</value></data>
+<data name="to display options." xml:space="preserve"><value>за показване на опции.</value></data>
+<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>за добавяне на нова страница за наблюдение на приноси.</value></data>
+<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>за показване на опростен HTML изглед на приноса.</value></data>
+<data name="to display filters." xml:space="preserve"><value>за показване на филтри.</value></data>
+<data name="to rotate the map view." xml:space="preserve"><value>за завъртане на изгледа на картата.</value></data>
+<data name="to display the image gallery." xml:space="preserve"><value>за показване на галерията с изображения.</value></data>
+<data name="italic text" xml:space="preserve"><value>Курсивен текст</value></data>
+<data name="summary" xml:space="preserve"><value>Резюме</value></data>
+<data name="expandable section" xml:space="preserve"><value>Разгъваема секция</value></data>
+<data name="strong emphasis" xml:space="preserve"><value>Силно подчертаване</value></data>
+<data name="emphasis (italic)" xml:space="preserve"><value>Подчертаване (курсив)</value></data>
+<data name="highlighted text" xml:space="preserve"><value>Маркиран текст</value></data>
+<data name="code snippet" xml:space="preserve"><value>Фрагмент от код</value></data>
+<data name="code block" xml:space="preserve"><value>Блок с код</value></data>
+<data name="block quote" xml:space="preserve"><value>Блоков цитат</value></data>
+<data name="citation" xml:space="preserve"><value>Цитат</value></data>
+<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>маркирайте публикациите с нашия 'списък с тагове' (напр. 'харесвам', 'безинтересно', 'вече изтеглено', ...). За целта са налични 10 конфигурируеми 'тага'.</value></data>
+<data name="heading 1" xml:space="preserve"><value>Заглавие 1</value></data>
+<data name="sample output" xml:space="preserve"><value>Примерен изход</value></data>
+<data name="variable" xml:space="preserve"><value>Променлива</value></data>
+<data name="small text" xml:space="preserve"><value>Малък текст</value></data>
+<data name="figure with caption" xml:space="preserve"><value>Фигура с надпис</value></data>
+<data name="figure caption" xml:space="preserve"><value>Надпис на фигура</value></data>
+<data name="keyboard input" xml:space="preserve"><value>Вход от клавиатура</value></data>
+<data name="bold text" xml:space="preserve"><value>Удебелен текст</value></data>
+<data name="subscript" xml:space="preserve"><value>Долен индекс</value></data>
+<data name="superscript" xml:space="preserve"><value>Горен индекс</value></data>
+<data name="are displayed." xml:space="preserve"><value>се показват.</value></data>
+<data name="block container" xml:space="preserve"><value>Блоков контейнер</value></data>
+<data name="abbreviation" xml:space="preserve"><value>Абревиатура</value></data>
+<data name="custom" xml:space="preserve"><value>Персонализиран</value></data>
+</root>

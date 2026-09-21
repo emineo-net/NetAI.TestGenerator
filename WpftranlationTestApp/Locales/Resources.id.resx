@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?><root><xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"><xsd:import namespace="http://www.w3.org/XML/1998/namespace" /><xsd:element name="root" msdata:IsDataSet="true"><xsd:complexType><xsd:choice maxOccurs="unbounded"><xsd:element name="metadata"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" use="required" type="xsd:string" /><xsd:attribute name="type" type="xsd:string" /><xsd:attribute name="mimetype" type="xsd:string" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="assembly"><xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType></xsd:element><xsd:element name="data"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /><xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /><xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /><xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="resheader"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType></xsd:element></xsd:choice></xsd:complexType></xsd:element></xsd:schema><resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="and" xml:space="preserve"><value>dan ai </value></data>
+<data name="account" xml:space="preserve"><value>akun ai </value></data>
+<data name="full name" xml:space="preserve"><value>Nama Lengkap</value></data>
+<data name="imprint" xml:space="preserve"><value>jejak ai </value></data>
+<data name="login" xml:space="preserve"><value>Login</value></data>
+<data name="date from" xml:space="preserve"><value>tanggal dari ai </value></data>
+<data name="rotate" xml:space="preserve"><value>memutar ai </value></data>
+<data name="contact" xml:space="preserve"><value>kontak ai </value></data>
+<data name="getting started" xml:space="preserve"><value>memulai ai </value></data>
+<data name="show filter" xml:space="preserve"><value>tampilkan filter ai </value></data>
+<data name="first" xml:space="preserve"><value>pertama ai </value></data>
+<data name="paragraphs" xml:space="preserve"><value>Paragraf</value></data>
+<data name="close" xml:space="preserve"><value>Tutup</value></data>
+<data name="contribution" xml:space="preserve"><value>Konsep</value></data>
+<data name="invalid user" xml:space="preserve"><value>Invalid user</value></data>
+<data name="logout" xml:space="preserve"><value>log keluar ai </value></data>
+<data name="manage your account" xml:space="preserve"><value>mengelola akun anda ai </value></data>
+<data name="message" xml:space="preserve"><value>pesan</value></data>
+<data name="order abandoned" xml:space="preserve"><value>perintah ditinggalkan ai </value></data>
+<data name="picture gallery" xml:space="preserve"><value>galeri gambar ai </value></data>
+<data name="download" xml:space="preserve"><value>Unduh</value></data>
+<data name="delete" xml:space="preserve"><value>Hapus</value></data>
+<data name="profile" xml:space="preserve"><value>Profil</value></data>
+<data name="recovery codes" xml:space="preserve"><value>kode pemulihan ai </value></data>
+<data name="register as a new user" xml:space="preserve"><value>register sebagai pengguna baru ai </value></data>
+<data name="remove" xml:space="preserve"><value>hapus</value></data>
+<data name="click here to log in" xml:space="preserve"><value>klik di sini untuk log masuk ai </value></data>
+<data name="date to" xml:space="preserve"><value>tanggal ke ai </value></data>
+<data name="save" xml:space="preserve"><value>Simpan</value></data>
+<data name="filter reset" xml:space="preserve"><value>saringan reset ai </value></data>
+<data name="previous" xml:space="preserve"><value>sebelumnya ai </value></data>
+<data name="add page" xml:space="preserve"><value>tambahkan halaman ai </value></data>
+<data name="password" xml:space="preserve"><value>Kata Sandi</value></data>
+<data name="assign categories to your pages or delete them" xml:space="preserve"><value>assign kategori ke halaman anda atau hapus mereka ai </value></data>
+<data name="max" xml:space="preserve"><value>Max</value></data>
+<data name="send" xml:space="preserve"><value>Kirim</value></data>
+<data name="error" xml:space="preserve"><value>Galat</value></data>
+<data name="log in" xml:space="preserve"><value>log masuk ai </value></data>
+<data name="conveniently filter and search contributions" xml:space="preserve"><value>Penyaring dan kontribusi pencarian yang nyaman</value></data>
+<data name="confirm password" xml:space="preserve"><value>konfirmasi kata sandi ai </value></data>
+<data name="enter url." xml:space="preserve"><value>Masukkan url.</value></data>
+<data name="italicized" xml:space="preserve"><value>miring ai </value></data>
+<data name="email" xml:space="preserve"><value>Email</value></data>
+<data name="heading 6" xml:space="preserve"><value>tajuk 6 ai </value></data>
+<data name="access denied" xml:space="preserve"><value>akses ditolak ai </value></data>
+<data name="heading 5" xml:space="preserve"><value>tajuk 5 ai </value></data>
+<data name="add authenticator app" xml:space="preserve"><value>tambahkan aplikasi otentikasi ai </value></data>
+<data name="associate your" xml:space="preserve"><value>associate anda ai </value></data>
+<data name="change email" xml:space="preserve"><value>ganti email ai </value></data>
+<data name="change password" xml:space="preserve"><value>ubah sandi ai </value></data>
+<data name="change your account settings" xml:space="preserve"><value>ubah pengaturan akun anda ai </value></data>
+<data name="choose plan" xml:space="preserve"><value>pilih rencana ai </value></data>
+<data name="click here to confirm your account" xml:space="preserve"><value>klik di sini untuk mengkonfirmasi akun anda ai </value></data>
+<data name="heading 4" xml:space="preserve"><value>tajuk 4 ai </value></data>
+<data name="properties" xml:space="preserve"><value>properti ai </value></data>
+<data name="log in with a recovery code" xml:space="preserve"><value>log masuk dengan kode pemulihan ai </value></data>
+<data name="configure authenticator app" xml:space="preserve"><value>konfigurasi aplikasi otentikasi ai </value></data>
+<data name="title contains" xml:space="preserve"><value>judul berisi ai </value></data>
+<data name="toggle view" xml:space="preserve"><value>view action ai </value></data>
+<data name="these docs" xml:space="preserve"><value>docs ini ai </value></data>
+<data name="terms and conditions" xml:space="preserve"><value>kondisi dan syarat ai </value></data>
+<data name="xxx" xml:space="preserve"><value>xxxname ai </value></data>
+<data name="all" xml:space="preserve"><value>all</value></data>
+<data name="confirm email" xml:space="preserve"><value>konfirmasi email ai </value></data>
+<data name="confirm email change" xml:space="preserve"><value>konfirmasi perubahan email ai </value></data>
+<data name="hyperlink" xml:space="preserve"><value>hyperlinks ai </value></data>
+<data name="also see a preview of the" xml:space="preserve"><value>juga melihat pratinjau ai </value></data>
+<data name="delete data and close my account" xml:space="preserve"><value>hapus data dan tutup akun saya ai </value></data>
+<data name="delete personal data" xml:space="preserve"><value>hapus data pribadi ai </value></data>
+<data name="disable 2fa" xml:space="preserve"><value>non aktifkan 2fa ai </value></data>
+<data name="max lenght 14" xml:space="preserve"><value>Max lenght 14</value></data>
+<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>Pilih menu berikut dari menu: home, getting started, register, login, upgrade, log keluar, jejak, kontak, akun. Dalam menu kedua, pilih: tampilkan filter, putar, ubah tampilan, properti, tambahkan, maju, mundur. Dalam kotak dialog Anda bisa: simpan, batalkan, kirim.</value></data>
+<data name="authenticator app" xml:space="preserve"><value>Aplikasi otentikasi</value></data>
+<data name="recovery codes left." xml:space="preserve"><value>Kode pemulihan kiri.</value></data>
+<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>efisien web menggores dengan hanya memasuki sebuah url ai </value></data>
+<data name="enable qr code generation" xml:space="preserve"><value>aktifkan pembuatan kode qr ai </value></data>
+<data name="external logins" xml:space="preserve"><value>log masuk eksternal ai </value></data>
+<data name="no passkeys are registered." xml:space="preserve"><value>Tidak ada kode akses yang terdaftar.</value></data>
+<data name="forget this browser" xml:space="preserve"><value>lupakan peramban ini ai </value></data>
+<data name="forgot password confirmation" xml:space="preserve"><value>lupa konfirmasi sandi ai </value></data>
+<data name="generate a new set of recovery codes" xml:space="preserve"><value>hasilkan set baru kode pemulihan ai </value></data>
+<data name="generate recovery codes" xml:space="preserve"><value>buat kode pemulihan ai </value></data>
+<data name="the external login was removed." xml:space="preserve"><value>Log masuk eksternal telah dihapus.</value></data>
+<data name="learn how to" xml:space="preserve"><value>belajar bagaimana untuk ai </value></data>
+<data name="legal inquiry" xml:space="preserve"><value>penyelidikan legal ai </value></data>
+<data name="locked out" xml:space="preserve"><value>terkunci ai </value></data>
+<data name="manage email" xml:space="preserve"><value>mengelola email ai </value></data>
+<data name="just browse" xml:space="preserve"><value>hanya melihat lihat ai </value></data>
+<data name="manage your external logins" xml:space="preserve"><value>mengelola log masuk eksternal anda ai </value></data>
+<data name="new password" xml:space="preserve"><value>sandi baru ai </value></data>
+<data name="old password" xml:space="preserve"><value>sandi lama ai </value></data>
+<data name="options" xml:space="preserve"><value>pilihan ai </value></data>
+<data name="google authenticator for" xml:space="preserve"><value>Otentikasi Google bagi</value></data>
+<data name="order complete" xml:space="preserve"><value>orde selesai ai </value></data>
+<data name="personal data" xml:space="preserve"><value>data pribadi ai </value></data>
+<data name="phone number" xml:space="preserve"><value>nomor telepon ai </value></data>
+<data name="min" xml:space="preserve"><value>Min</value></data>
+<data name="recovery code" xml:space="preserve"><value>kode pemulihan ai </value></data>
+<data name="recovery code verification" xml:space="preserve"><value>verifikasi kode pemulihan ai </value></data>
+<data name="register" xml:space="preserve"><value>mendaftar ai </value></data>
+<data name="register confirmation" xml:space="preserve"><value>konfirmasi register ai </value></data>
+<data name="registered logins" xml:space="preserve"><value>log masuk yang terdaftar ai </value></data>
+<data name="remember me" xml:space="preserve"><value>ingat aku ai </value></data>
+<data name="remember this machine" xml:space="preserve"><value>ingat mesin ini ai </value></data>
+<data name="resend" xml:space="preserve"><value>kirim ulang ai </value></data>
+<data name="resend email confirmation" xml:space="preserve"><value>mengirim ulang konfirmasi email ai </value></data>
+<data name="reset" xml:space="preserve"><value>ulang ai </value></data>
+<data name="reset authenticator app" xml:space="preserve"><value>aplikasi otentikasi reset ai </value></data>
+<data name="reset authenticator key" xml:space="preserve"><value>reset kunci otentikasi ai </value></data>
+<data name="reset filters" xml:space="preserve"><value>penyaring ulang ai </value></data>
+<data name="reset password" xml:space="preserve"><value>reset sandi ai </value></data>
+<data name="reset password confirmation" xml:space="preserve"><value>konfirmasi ulang sandi ai </value></data>
+<data name="reset recovery codes" xml:space="preserve"><value>reset kode pemulihan ai </value></data>
+<data name="user name" xml:space="preserve"><value>nama pengguna ai </value></data>
+<data name="scan the qr code or enter this key" xml:space="preserve"><value>memindai kode qr atau masukkan kunci ini ai </value></data>
+<data name="selected categories" xml:space="preserve"><value>kategori yang dipilih ai </value></data>
+<data name="selected websites" xml:space="preserve"><value>situs web terpilih ai </value></data>
+<data name="send verification email" xml:space="preserve"><value>mengirim surel verifikasi ai </value></data>
+<data name="set password" xml:space="preserve"><value>set sandi ai </value></data>
+<data name="set your password" xml:space="preserve"><value>set sandi anda ai </value></data>
+<data name="subject" xml:space="preserve"><value>subyek</value></data>
+<data name="define the names of your categories" xml:space="preserve"><value>definisikan nama dari kategori anda ai </value></data>
+<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>Ke dua faktor aplikasi keaslian Anda. Spaces dan casing tidak masalah.</value></data>
+<data name="update password" xml:space="preserve"><value>perbarui sandi ai </value></data>
+<data name="main heading" xml:space="preserve"><value>tajuk utama ai </value></data>
+<data name="error finding user for unspecified email" xml:space="preserve"><value>error menemukan pengguna untuk email tidak dispesifikasikan ai </value></data>
+<data name="home" xml:space="preserve"><value>Beranda</value></data>
+<data name="invalid password reset" xml:space="preserve"><value>reset sandi tidak valid ai </value></data>
+<data name="of" xml:space="preserve"><value>dari</value></data>
+<data name="paragraph" xml:space="preserve"><value>paragraf ai </value></data>
+<data name="success" xml:space="preserve"><value>Sukses</value></data>
+<data name="set up authenticator app" xml:space="preserve"><value>mengatur aplikasi otentikasi ai </value></data>
+<data name="username" xml:space="preserve"><value>Nama Pengguna</value></data>
+<data name="verification code" xml:space="preserve"><value>kode verifikasi ai </value></data>
+<data name="verify" xml:space="preserve"><value>verifikasi ai </value></data>
+<data name="next" xml:space="preserve"><value>Berikutnya</value></data>
+<data name="subscriptions" xml:space="preserve"><value>Langganan</value></data>
+<data name="you have" xml:space="preserve"><value>anda memiliki ai </value></data>
+<data name="you must" xml:space="preserve"><value>anda harus ai </value></data>
+<data name="your password has been changed" xml:space="preserve"><value>sandi anda telah diubah ai </value></data>
+<data name="your profile has been updated" xml:space="preserve"><value>profil anda telah diperbarui ai </value></data>
+<data name="nter a name for your passkey" xml:space="preserve"><value>Nter a name for your passkey</value></data>
+<data name="forgot your password?" xml:space="preserve"><value>Lupa kata sandi Anda?</value></data>
+<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>Tampilan penuh dari kontribusi dengan mengklik judul kontribusi</value></data>
+<data name="privacy policy" xml:space="preserve"><value>kebijakan privasi ai </value></data>
+<data name="pro version" xml:space="preserve"><value>versi pro ai </value></data>
+<data name="new project" xml:space="preserve"><value>proyek baru ai </value></data>
+<data name="reset filter" xml:space="preserve"><value>filter ulang ai </value></data>
+<data name="save changes" xml:space="preserve"><value>simpan perubahan ai </value></data>
+<data name="last" xml:space="preserve"><value>terakhir ai </value></data>
+<data name="open original" xml:space="preserve"><value>buka asli ai </value></data>
+<data name="download documents" xml:space="preserve"><value>unduh dokumen ai </value></data>
+<data name="tagging and filtering" xml:space="preserve"><value>tag dan penyaringan ai </value></data>
+<data name="open local" xml:space="preserve"><value>buka lokal ai </value></data>
+<data name="download single" xml:space="preserve"><value>unduh tunggal ai </value></data>
+<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>Ikon untuk berpindah antara tampilan kartu dan tampilan tabel.</value></data>
+<data name="add custom tag" xml:space="preserve"><value>Tambah tag gubahan</value></data>
+<data name="define the name of the tag for individual posts" xml:space="preserve"><value>definisikan nama tag untuk posting individu ai </value></data>
+<data name="tagging contributions" xml:space="preserve"><value>Kontribusi tersumbat</value></data>
+<data name="filter your pages" xml:space="preserve"><value>saring halaman anda ai </value></data>
+<data name="download txt or json documents without images" xml:space="preserve"><value>unduh dokumen txt atau json tanpa gambar ai </value></data>
+<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>dalam filter anda dapat menyaring dengan posting ditandai ai </value></data>
+<data name="click on the" xml:space="preserve"><value>klik pada ai </value></data>
+<data name="to display download options" xml:space="preserve"><value>untuk menampilkan opsi unduh ai </value></data>
+<data name="click save word document." xml:space="preserve"><value>Klik simpan dokumen kata.</value></data>
+<data name="error changing user name." xml:space="preserve"><value>Galat mengubah nama pengguna.</value></data>
+<data name="add" xml:space="preserve"><value>Tambah</value></data>
+<data name="document." xml:space="preserve"><value>Dokumen.</value></data>
+<data name="a new tab." xml:space="preserve"><value>Sebuah tab baru.</value></data>
+<data name="and json will open. you will" xml:space="preserve"><value>Dan json akan terbuka. Anda akan</value></data>
+<data name="json download" xml:space="preserve"><value>Pengunduhan Json</value></data>
+<data name="the external login was added." xml:space="preserve"><value>Login eksternal ditambahkan.</value></data>
+<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>Nonaktifkan otentikasi dua faktor (2fa)</value></data>
+<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>Gunakan tombol untuk memilih antara 'dimana' dan 'dimana bukan'.</value></data>
+<data name="loc[are displayed.]" xml:space="preserve"><value>Loc [yang ditampilkan.]</value></data>
+<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>Format sederhana yang dipisah dengan baik untuk memproses lebih lanjut dalam lembar kerja atau basis data.</value></data>
+<data name="save to your download directory." xml:space="preserve"><value>Simpan ke direktori unduh Anda.</value></data>
+<data name="two-factor authentication (2fa)" xml:space="preserve"><value>Otentikasi faktor ganda (2fa)</value></data>
+<data name="cards" xml:space="preserve"><value>Daftar Kartu</value></data>
+<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>Ikon daur ulang merah dapat muncul di bawah ikon filter. Mengklik ikon ini menghapus semua penyaring aktif dan menampilkan gambaran kontribusi lengkap lagi.</value></data>
+<data name="two-factor authentication" xml:space="preserve"><value>Otentikasi dua faktor</value></data>
+<data name="enter a new email" xml:space="preserve"><value>Masukkan surel baru</value></data>
+<data name="select columns for scraping" xml:space="preserve"><value>Pilih kolom untuk Scraping</value></data>
+<data name="click one or more tags for a post." xml:space="preserve"><value>Klik satu atau lebih tag untuk sebuah posting.</value></data>
+<data name="cards and table" xml:space="preserve"><value>Kartu dan meja</value></data>
+<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>Ikon untuk melihat kontribusi asli pada sumber dan tata letak aslinya.</value></data>
+<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>Dalam pandangan untuk kontribusi individu Anda dapat mengunduhnya.</value></data>
+<data name="rename" xml:space="preserve"><value>Ganti Nama</value></data>
+<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>Untuk menampilkan kontribusi yang ditandai, Anda dapat memilih tag yang sesuai dari daftar teks.</value></data>
+<data name="toggle help visibility" xml:space="preserve"><value>Jungkitkan kenampakan bantuan</value></data>
+<data name="enter / select url" xml:space="preserve"><value>Masukkan / pilih url</value></data>
+<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>Unduh pilihan pdf, docs, txt, html</value></data>
+<data name="to display filter dialog" xml:space="preserve"><value>Untuk menampilkan dialog filter</value></data>
+<data name="enter your phone number" xml:space="preserve"><value>Masukkan nomor telepon Anda</value></data>
+<data name="no contributions were found on the page" xml:space="preserve"><value>Tidak ada kontribusi ditemukan di halaman</value></data>
+<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>Jendela baru akan membuka pratinjau pdf dari dokumen Anda. Pratinjau ini menyediakan tinjauan awal dari isi dan tata letak dokumen.</value></data>
+<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>Cara terbaik untuk menghubungi kami adalah menggunakan bentuk kontak kami di bawah ini. Harap isi semua bidang yang diperlukan dan kami akan kembali kepada Anda sesegera mungkin.</value></data>
+<data name="export" xml:space="preserve"><value>Ekspor</value></data>
+<data name="underlined" xml:space="preserve"><value>Bergaris bawah</value></data>
+<data name="add to followed projects" xml:space="preserve"><value>tambahkan ke proyek yang diikuti ai </value></data>
+<data name="follow" xml:space="preserve"><value>ikuti ai </value></data>
+<data name="scraping view" xml:space="preserve"><value>scraping tampilan ai </value></data>
+<data name="authenticator code" xml:space="preserve"><value>kode otentikasi ai </value></data>
+<data name="heading 3" xml:space="preserve"><value>tajuk 3 ai </value></data>
+<data name="heading 2" xml:space="preserve"><value>tajuk 2 ai </value></data>
+<data name="image" xml:space="preserve"><value>gambar ai </value></data>
+<data name="the created document will open in" xml:space="preserve"><value>dokumen yang dibuat akan dibuka ai </value></data>
+<data name="click on download a view with" xml:space="preserve"><value>klik saat mengunduh tampilan dengan ai </value></data>
+<data name="file saving failed:" xml:space="preserve"><value>Penyimpanan berkas gagal:</value></data>
+<data name="file saved to:" xml:space="preserve"><value>Berkas disimpan ke:</value></data>
+<data name="an error occurred during download:" xml:space="preserve"><value>Terjadi galat ketika mengunduh:</value></data>
+<data name="thank you for your message." xml:space="preserve"><value>Terima kasih atas pesanmu.</value></data>
+<data name="file" xml:space="preserve"><value>Berkas</value></data>
+<data name="an error has occurred." xml:space="preserve"><value>Terjadi kesalahan.</value></data>
+<data name="table" xml:space="preserve"><value>Tabel</value></data>
+<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>Format dokumen: docx, pdf, html, json, txt</value></data>
+<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>Filter menurut kategori (Anda mesti menandai halaman Anda untuk melakukan ini)</value></data>
+<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>Kemudian Anda dapat mengunduh dokumen pdf, dox, dan html dengan gambar</value></data>
+<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>Anda dapat menentukan nama tag Anda secara individual di bawah pilihan.</value></data>
+<data name="show help (dynamic, static, off)" xml:space="preserve"><value>Tampilkan bantuan (dinamis, statis, mati)</value></data>
+<data name="enter a part that the title must contain." xml:space="preserve"><value>Masukkan bagian yang harus memuat judul.</value></data>
+<data name="switch view" xml:space="preserve"><value>Ganti tampilan</value></data>
+<data name="custoum" xml:space="preserve"><value>Custoum</value></data>
+<data name="download document" xml:space="preserve"><value>Unduh dokumen</value></data>
+<data name="csv download" xml:space="preserve"><value>Download Csv</value></data>
+<data name="excel download" xml:space="preserve"><value>Download Excel</value></data>
+<data name="single document download" xml:space="preserve"><value>Unduhan dokumen tunggal</value></data>
+<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>Dengan 'closerpages-for- windows' Anda dapat menerima sampai 200 gambar.</value></data>
+<data name="the contributions for" xml:space="preserve"><value>Kontribusi untuk</value></data>
+<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>Untuk secara otomatis mengumpulkan kontribusi baru di masa depan, klik pada</value></data>
+<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>Anda dapat memilih proyek individu untuk menampilkan kontribusi yang dimiliki oleh proyek-proyek tersebut.</value></data>
+<data name="available predefined tags" xml:space="preserve"><value>Tag yang telah ditentukan tersedia</value></data>
+<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>Bila Anda telah menempatkan kategori ke halaman web Anda, Anda juga dapat menyaring dengan kategori-kategori ini. Cukup pilih halaman web yang diinginkan atau kategori dari daftar.</value></data>
+<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>Setelah Anda membuat pilihan, klik tombol "kirim" untuk menerapkan filter. Tampilan kontribusi kemudian akan diperbarui dan hanya akan menunjukkan hasil disaring.</value></data>
+<data name="to display options" xml:space="preserve"><value>Untuk menampilkan opsi</value></data>
+<data name="this will rotate all cards." xml:space="preserve"><value>Ini akan memutar semua kartu.</value></data>
+<data name="button" xml:space="preserve"><value>Tombol</value></data>
+<data name="preview the images" xml:space="preserve"><value>Pratilik gambar</value></data>
+<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>Bila dokumen Anda berisi berkas citra, berkas ini juga akan ditampilkan dalam pratilik.</value></data>
+<data name="download options" xml:space="preserve"><value>Opsi unduh</value></data>
+<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>Untuk mengunduh dokumen, pilih format yang diinginkan dari opsi yang tersedia.</value></data>
+<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>Ideal untuk cetakan-siap dokumen dan berbagi dalam tata letak profesional.</value></data>
+<data name="error: incorrect password." xml:space="preserve"><value>Galat: sandi salah.</value></data>
+<data name="useful if you want to edit the document further." xml:space="preserve"><value>Berguna jika Anda ingin mengedit dokumen lebih lanjut.</value></data>
+<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>Berguna untuk menggabungkan konten dalam situs web atau media digital lainnya.</value></data>
+<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>Hanya berisi teks polos, tanpa format. Cocok untuk pemrosesan lebih lanjut sederhana.</value></data>
+<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>Berisi semua gambar dokumen sebagai file terpisah jika Anda membutuhkannya secara individual.</value></data>
+<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>Untuk mencari di website kontribusi, masukkan sebuah url dan klik pada ikon kaca pembesar. Alternatif, Anda dapat menekan tombol enter pada papan ketik Anda.</value></data>
+<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>Bila Anda log masuk dan telah melacak URI perubahan, Anda juga dapat memilih URI dari daftar drop-down.</value></data>
+<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>Postingan saat ini di website terpilih secara otomatis ditangkap oleh algoritma kami. Postingan lama dan baru terdeteksi kemudian ditampilkan di website.</value></data>
+<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>Saya memasukkan sebuah url dan tidak ada yang ditampilkan. Itu sebabnya?</value></data>
+<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>Sayangnya, ini tidak biasa dan dapat memiliki banyak penyebab, misalnya:</value></data>
+<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>Tidak ada kontribusi yang terkait di website yang Anda cari. (misalnya, anda memasukkan halaman kontak sebagai url: "https: / / mysite / contact")</value></data>
+<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>Postingan terkait tidak dalam domain. Sebagai contoh, Anda memasukkan "https: / / mysetite .com / produk", tapi semua kontribusi mengacu ke "https: / / othercone.com / productxy".</value></data>
+<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>Blokir halaman yang diminta adalah robot.</value></data>
+<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>Halaman yang diminta hanya menampilkan posting bagi pengguna yang terdaftar.</value></data>
+<data name="table structure (sorted by priority)" xml:space="preserve"><value>Struktur tabel (diurutkan oleh prioritas)</value></data>
+<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>Tabel diatur sehingga informasi yang paling penting ditampilkan pertama, memungkinkan untuk orientasi cepat dan efisien pengolahan.</value></data>
+<data name="tags" xml:space="preserve"><value>Tag</value></data>
+<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>Kontribusi kemudian akan terbuka dalam jendela peramban baru atau tab. Di sana Anda akan melihat kontribusi seperti yang diterbitkan di situs asli - termasuk semua format, gambar, tautan, dan konten lainnya yang mungkin tidak disertakan dalam tampilan garukan.</value></data>
+<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>Setiap tag atau kategori yang ada yang diberikan pada kontribusi ditampilkan di sini. Hal ini membantu Anda untuk cepat menyaring kontribusi dengan topik atau fokus.</value></data>
+<data name="headings and titles" xml:space="preserve"><value>Heading dan judul</value></data>
+<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>Kepala dan judul kontribusi terdaftar kedua. Mereka memberikan gambaran awal dari isi dan memungkinkan identifikasi cepat dari kontribusi yang relevan.</value></data>
+<data name="date and author" xml:space="preserve"><value>Tanggal dan penulis</value></data>
+<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>Kolom ini berisi tanggal publikasi dan penulis kontribusi. Hal ini memungkinkan Anda untuk melihat kapan dan oleh siapa kontribusi diciptakan.</value></data>
+<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>Isi sebenarnya dari kontribusi, dibagi menjadi paragraf, membuat bagian akhir dari tabel. Di sinilah Anda akan menemukan teks rinci yang telah tergores.</value></data>
+<data name="table functions" xml:space="preserve"><value>Fungsi tabel</value></data>
+<data name="tagging" xml:space="preserve"><value>Tagging</value></data>
+<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>Kontribusi dapat ditandai dan ditandai dengan memilih checkbox. Hal ini membuat lebih mudah untuk mengurutkan, menyaring dan mengelola kontribusi nantinya, terutama ketika berhadapan dengan sejumlah besar data.</value></data>
+<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>Seluruh tabel atau kontribusi yang dipilih dapat diunduh dalam berbagai format</value></data>
+<data name="select tagged contributions" xml:space="preserve"><value>Pilih kontribusi yang ditandai</value></data>
+<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>Format tabel yang dikenal baik menawarkan opsi pemformatan tambahan, khususnya cocok untuk laporan atau presentasi.</value></data>
+<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>Format data terstruktur sangat cocok untuk memproses lebih lanjut dalam aplikasi program atau web.</value></data>
+<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>Fitur penandaan memungkinkan Anda untuk mengkategorikan dan mengatur kontribusi, membuatnya lebih mudah untuk menemukan atau menyaring nanti.</value></data>
+<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>Fitur ini tersedia di kedua kartu dan tampilan tabel menggores. Fitur ini memungkinkan Anda untuk menyembunyikan kontribusi tertentu atau menandai mereka sebagai hal yang penting.</value></data>
+<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>Tandai kontribusi yang sangat penting, relevan atau luar biasa.</value></data>
+<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>Menandakan bahwa kontribusi telah diunduh.</value></data>
+<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>Marks kontribusi yang telah dibuat atau diedit menggunakan teknologi ai.</value></data>
+<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>Menyembunyikan kontribusi yang tidak ingin Anda tampilkan lagi, tetapi tidak menghapus sepenuhnya.</value></data>
+<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>Jika link tidak bekerja atau kontribusi tidak lagi tersedia, ini mungkin karena perubahan pada halaman asli.</value></data>
+<data name="show contribution" xml:space="preserve"><value>Tampilkan kontribusi</value></data>
+<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>Dalam tampilan kartu, klik headline untuk membuka jendela baru dengan isi kontribusi.</value></data>
+<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>Ideal untuk cepat membaca, memeriksa, atau mengedit kontribusi tanpa harus memanggil sumber asli.</value></data>
+<data name="create a new account." xml:space="preserve"><value>Buat akun baru.</value></data>
+<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>Bila suatu kontribusi memuat berkas gambar, gambar pratinjau kecil akan ditampilkan dalam pratinjau kontribusi.</value></data>
+<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>Anda akan melihat angka di sudut atas gambar pratilik. Nomor ini menunjukkan berapa banyak gambar yang terkandung dalam kontribusi.</value></data>
+<data name="simply click on the preview image." xml:space="preserve"><value>Klik secara sederhana pada gambar pratinjau.</value></data>
+<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>Ini akan membuka tampilan galeri di mana semua gambar dalam kontribusi ditampilkan dengan jelas dan dalam format yang lebih besar.</value></data>
+<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>Hal ini memungkinkan Anda untuk memutuskan apakah kontribusi dengan tag terpilih ditampilkan atau hanya kontribusi yang tidak ditandai ditampilkan sesuai.</value></data>
+<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>Setiap pertanyaan yang Anda miliki tentang kebijakan privasi kami, cookies atau istilah penggunaan akan dijawab secepat mungkin.</value></data>
+<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>Kontribusi saat ini dari situs web favorit Anda - sekilas</value></data>
+<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>Apakah Anda sering membaca atau penelitian di situs yang berbeda dan ingin berita terbaru di satu tempat sekilas? Kalau begitu kau datang ke tempat yang tepat!</value></data>
+<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>Semua posting baru dari situs web yang Anda pilih sekilas.</value></data>
+<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>Hasilkan dokumen dalam docx, pdf, json atau html.</value></data>
+<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>Tandai postingan dengan 'tag list' (mis. "seperti", "tidak menarik", "sudah diunduh",...). Ada 10 'tag' yang dapat diatur yang tersedia untuk tujuan ini.</value></data>
+<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>Temukan closerpage - alat akhir bagi siapa saja yang ingin tetap terkini dengan konten online terbaru. Dengan menggunakan fungsi garing web ramah, cukup masukkan sebuah url dan langsung melihat semua posting baru di website yang diinginkan.</value></data>
+<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>Setiap posting dapat ditampilkan secara penuh dengan klik tunggal, sehingga Anda tidak akan kehilangan informasi penting. Urutan kronologis pos membuat lebih mudah untuk menavigasi dan menemukan konten yang relevan.</value></data>
+<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>Sorotan khusus adalah kemampuan untuk membuat dokumen dari setiap kontribusi dalam docx, pdf, json atau html format - ideal untuk arsip atau pemrosesan informasi lebih lanjut.</value></data>
+<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>Ini berarti Anda tidak pernah melewatkan kontribusi baru dan selalu up to date</value></data>
+<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>Daftar untuk mengaktifkan rencana gratis. Kemudian, Anda dapat meng-upgrade ke rencana pro.</value></data>
+<data name="you do not have access to this resource." xml:space="preserve"><value>Anda tidak memiliki akses ke sumber daya ini.</value></data>
+<data name="thank you for confirming your email." xml:space="preserve"><value>Terima kasih untuk mengkonfirmasi email Anda.</value></data>
+<data name="error confirming your email." xml:space="preserve"><value>Kesalahan mengkonfirmasi email Anda.</value></data>
+<data name="i accept the terms and conditions" xml:space="preserve"><value>Aku menerima syarat dan syarat</value></data>
+<data name="error: invalid email change confirmation link." xml:space="preserve"><value>Galat: sambungan konfirmasi perubahan surel tak valid.</value></data>
+<data name="error changing email." xml:space="preserve"><value>Error mengubah email.</value></data>
+<data name="thank you for confirming your email change." xml:space="preserve"><value>Terima kasih untuk mengkonfirmasi perubahan email Anda.</value></data>
+<data name="you've successfully authenticated with" xml:space="preserve"><value>Anda telah berhasil terotentikasi dengan</value></data>
+<data name="use another service to register." xml:space="preserve"><value>Gunakan layanan lain untuk mendaftar.</value></data>
+<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>Silakan masukkan alamat email untuk situs ini di bawah dan klik tombol register untuk menyelesaikan log masuk.</value></data>
+<data name="please enter your email." xml:space="preserve"><value>Silakan masukkan email Anda.</value></data>
+<data name="error loading external login information." xml:space="preserve"><value>Galat saat memuat informasi log masuk eksternal.</value></data>
+<data name="error loading external login information during confirmation." xml:space="preserve"><value>Galat sewaktu memuat informasi log masuk eksternal selama konfirmasi.</value></data>
+<data name="reset your password." xml:space="preserve"><value>Atur ulang kata sandimu.</value></data>
+<data name="the default ui requires a user store with email support." xml:space="preserve"><value>Ui bawaan membutuhkan sebuah toko pengguna dengan dukungan email.</value></data>
+<data name="enter your email." xml:space="preserve"><value>Masukkan email Anda.</value></data>
+<data name="please check your email to reset your password." xml:space="preserve"><value>Silakan periksa email Anda untuk me-reset sandi Anda.</value></data>
+<data name="the password reset link is invalid." xml:space="preserve"><value>Link reset sandi tidak valid.</value></data>
+<data name="please confirm your password." xml:space="preserve"><value>Silahkan konfirmasi kata sandi anda.</value></data>
+<data name="this account has been locked out, please try again later." xml:space="preserve"><value>Akun ini telah dikunci, silakan coba lagi nanti.</value></data>
+<data name="use a local account to log in." xml:space="preserve"><value>Gunakan akun lokal untuk log masuk.</value></data>
+<data name="log in with a passkey" xml:space="preserve"><value>Log in dengan kode akses</value></data>
+<data name="use another service to log in." xml:space="preserve"><value>Gunakan layanan lain untuk log masuk.</value></data>
+<data name="please enter your password." xml:space="preserve"><value>Silakan masukkan sandi Anda.</value></data>
+<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>Log masuk Anda dilindungi dengan aplikasi otentikasi. Masukkan kode otentikasi Anda di bawah ini.</value></data>
+<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>Tidak memiliki akses ke perangkat otentikasi Anda? Anda dapat</value></data>
+<data name="error: invalid authenticator code." xml:space="preserve"><value>Galat: kode otentikasi tak valid.</value></data>
+<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>Anda telah meminta untuk masuk dengan kode pemulihan. Log masuk ini tidak akan diingat sampai Anda memberikan kode aplikasi otentikasi pada log masuk atau menonaktifkan 2fa dan log masuk lagi.</value></data>
+<data name="recoverycode" xml:space="preserve"><value>Reoverycode</value></data>
+<data name="for how to configure a real email sender" xml:space="preserve"><value>Untuk bagaimana menata pengirim surel yang sebenarnya</value></data>
+<data name="normally this would be emailed:" xml:space="preserve"><value>Biasanya ini akan diemail:</value></data>
+<data name="please check your email to confirm your account." xml:space="preserve"><value>Silakan periksa email Anda untuk mengkonfirmasi akun Anda.</value></data>
+<data name="verification email sent. please check your email." xml:space="preserve"><value>Email verifikasi dikirim. Tolong periksa emailmu.</value></data>
+<data name="enter the code" xml:space="preserve"><value>Masukkan kode</value></data>
+<data name="your password has been reset. please" xml:space="preserve"><value>Sandi Anda telah direset. Silahkan</value></data>
+<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>Tidak ada layanan otentikasi eksternal yang dikonfigurasi. Lihat ini</value></data>
+<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>Artikel tentang pengaturan aplikasi asp.net ini untuk mendukung log masuk melalui layanan eksternal</value></data>
+<data name="put these codes in a safe place." xml:space="preserve"><value>Masukan kode ini di tempat yang aman.</value></data>
+<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>Jika Anda kehilangan perangkat Anda dan tidak memiliki kode pemulihan Anda akan kehilangan akses ke account Anda.</value></data>
+<data name="enter the old password" xml:space="preserve"><value>Masukkan sandi lama</value></data>
+<data name="enter the new password" xml:space="preserve"><value>Masukkan sandi baru</value></data>
+<data name="user changed their password successfully." xml:space="preserve"><value>Pengguna mengubah sandi mereka dengan sukses.</value></data>
+<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>Menghapus data ini akan menghapus akun Anda secara permanen, dan ini tidak dapat dipulihkan.</value></data>
+<data name="unexpected error occurred deleting user." xml:space="preserve"><value>Terjadi galat tak diharapkan saat menghapus pengguna.</value></data>
+<data name="this action only disables 2fa." xml:space="preserve"><value>Aksi ini hanya mematikan 2fa.</value></data>
+<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Menonaktifkan 2fa tidak mengubah kunci yang digunakan dalam aplikasi otentikasi. Bila Anda ingin mengubah kunci yang dipakai dalam aplikasi otentikasi Anda mesti</value></data>
+<data name="set your authenticator keys." xml:space="preserve"><value>Atur kunci otentikasi Anda.</value></data>
+<data name="reset your authenticator keys." xml:space="preserve"><value>Reset kunci otentikasi Anda.</value></data>
+<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>Tak bisa menonaktifkan 2fa bagi pengguna karena kini tak diaktifkan.</value></data>
+<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>Terjadi galat tak diharapkan mematikan 2fa.</value></data>
+<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2fa telah dinonaktifkan. Anda dapat mengaktifkan kembali 2fa ketika Anda membuat aplikasi otentikasi</value></data>
+<data name="enter your email" xml:space="preserve"><value>Masukkan surel Anda</value></data>
+<data name="your email is unchanged." xml:space="preserve"><value>Email Anda tidak berubah.</value></data>
+<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>Konfirmasi link untuk mengubah email yang dikirim. Tolong periksa emailmu.</value></data>
+<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>Untuk menggunakan aplikasi otentikasi melalui langkah-langkah berikut:</value></data>
+<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>Unduh dua faktor aplikasi otentikasi seperti otentikasi mikroft untuk</value></data>
+<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>Setelah Anda telah memindai kode qr atau masukan kunci di atas, dua faktor aplikasi otentikasi Anda akan memberikan Anda dengan kode unik. Masukkan kode dalam kotak konfirmasi di bawah ini.</value></data>
+<data name="error: verification code is invalid." xml:space="preserve"><value>Galat: kode verifikasi tak valid.</value></data>
+<data name="your authenticator app has been verified." xml:space="preserve"><value>Aplikasi otentikasi Anda telah diverifikasi.</value></data>
+<data name="add another service to log in." xml:space="preserve"><value>Tambahkan layanan lain untuk log masuk</value></data>
+<data name="error: the external login was not removed." xml:space="preserve"><value>Galat: log masuk eksternal tak dihapus.</value></data>
+<data name="error: could not load external login info." xml:space="preserve"><value>Galat: tak bisa memuat info log masuk eksternal.</value></data>
+<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>Galat: log masuk eksternal tak ditambahkan. Log masuk eksternal hanya dapat diasosiasikan dengan satu akun.</value></data>
+<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>Hasilkan dua faktor otentikasi (2fa) kode pemulihan</value></data>
+<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Membuat kode pemulihan baru tidak mengubah kunci yang digunakan dalam aplikasi otentikasi. Bila Anda ingin mengubah kunci yang dipakai dalam aplikasi otentikasi Anda mesti</value></data>
+<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>Tidak dapat membuat kode pemulihan untuk pengguna karena mereka tidak memiliki 2fa diaktifkan.</value></data>
+<data name="you have generated new recovery codes." xml:space="preserve"><value>Anda telah menghasilkan kode pemulihan baru.</value></data>
+<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>Pengguna dengan id '{userid}' telah menghasilkan kode pemulihan 2fa baru.</value></data>
+<data name="choose your username." xml:space="preserve"><value>Pilih nama pengguna Anda.</value></data>
+<data name="you have no recovery codes left." xml:space="preserve"><value>Anda tidak memiliki kode pemulihan kiri.</value></data>
+<data name="error: failed to set phone number." xml:space="preserve"><value>Galat: gagal menata nomor telepon.</value></data>
+<data name="manage your passkeys" xml:space="preserve"><value>Kelola passkeys Anda</value></data>
+<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>Anda telah mencapai jumlah maksimum dari passkeys diperbolehkan. Silakan hapus sebelum menambahkan yang baru.</value></data>
+<data name="add a new passkey" xml:space="preserve"><value>Tambah kode akses baru</value></data>
+<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>Galat: peramban tak menyediakan kode akses.</value></data>
+<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>Galat: kode akses tak dapat ditambahkan ke akun Anda.</value></data>
+<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>Galat: id kode akses yang dinyatakan memiliki format yang tidak valid.</value></data>
+<data name="error: the passkey could not be deleted." xml:space="preserve"><value>Galat: kode akses tak dapat dihapus.</value></data>
+<data name="passkey deleted successfully." xml:space="preserve"><value>Passkey dihapus dengan sukses.</value></data>
+<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>Rekeningmu berisi data pribadi yang kau berikan pada kami. Halaman ini memungkinkan Anda mengunduh atau menghapus data tersebut.</value></data>
+<data name="enter a new name for your" xml:space="preserve"><value>Masukkan nama baru bagi Anda</value></data>
+<data name="passkey" xml:space="preserve"><value>Passkey</value></data>
+<data name="my passkey" xml:space="preserve"><value>Passkey saya</value></data>
+<data name="passkey name" xml:space="preserve"><value>Nama sandi</value></data>
+<data name="continue" xml:space="preserve"><value>Lanjutkan</value></data>
+<data name="error: the specified passkey could not be found." xml:space="preserve"><value>Galat: passkey yang dinyatakan tak ditemukan.</value></data>
+<data name="error: the passkey could not be updated." xml:space="preserve"><value>Galat: kode akses tak dapat diperbarui.</value></data>
+<data name="passkey updated successfully." xml:space="preserve"><value>Passkey diperbarui dengan sukses.</value></data>
+<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>Jika Anda me-reset kunci otentikasi aplikasi otentikasi Anda tidak akan bekerja sampai Anda mengkonfigurasi ulang itu.</value></data>
+<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>Proses ini mematikan 2fa sampai Anda memverifikasi aplikasi otentikasi Anda.</value></data>
+<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>Jika Anda tidak menyelesaikan konfigurasi aplikasi otentikasi Anda Anda mungkin kehilangan akses ke akun Anda.</value></data>
+<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>Kunci aplikasi otentikasi Anda telah direset, Anda perlu mengatur aplikasi otentikasi Anda menggunakan kunci baru.</value></data>
+<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>Anda tidak memiliki username / password lokal untuk situs ini. Tambahkan akun lokal sehingga Anda dapat masuk tanpa log masuk eksternal.</value></data>
+<data name="your password has been set." xml:space="preserve"><value>Sandi Anda telah ditetapkan.</value></data>
+<data name="before you can log in with a recovery code." xml:space="preserve"><value>Sebelum kau bisa masuk dengan kode pemulihan.</value></data>
+<data name="you have 1 recovery code left." xml:space="preserve"><value>Anda memiliki 1 kode pemulihan kiri.</value></data>
+<data name="inline text" xml:space="preserve"><value>Teks sebaris</value></data>
+<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>Privasi dan kebijakan kue belum diterima.</value></data>
+<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>Anda harus menerima kebijakan sebelum Anda dapat mengaktifkan dua otentikasi faktor.</value></data>
+<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>Peramban saat ini telah dilupakan. Ketika Anda login lagi dari peramban ini Anda akan diminta untuk kode 2fa Anda.</value></data>
+<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>Aplikasi ini saat ini tidak memiliki pengirim email yang terdaftar, lihat</value></data>
+<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>Untuk menampilkan posting asli (terbuka dalam tab peramban baru)</value></data>
+<data name="to display options." xml:space="preserve"><value>Untuk menampilkan opsi.</value></data>
+<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>Untuk menambahkan halaman baru untuk memonitor kontribusi.</value></data>
+<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>Untuk menampilkan tampilan html sederhana dari kontribusi.</value></data>
+<data name="to display filters." xml:space="preserve"><value>Untuk menampilkan filter.</value></data>
+<data name="to rotate the map view." xml:space="preserve"><value>Untuk memutar tampilan peta.</value></data>
+<data name="to display the image gallery." xml:space="preserve"><value>Untuk menampilkan galeri gambar.</value></data>
+<data name="italic text" xml:space="preserve"><value>Teks miring</value></data>
+<data name="summary" xml:space="preserve"><value>Ringkasan</value></data>
+<data name="expandable section" xml:space="preserve"><value>Bagian yang dapat diperluas</value></data>
+<data name="strong emphasis" xml:space="preserve"><value>Penekanan kuat</value></data>
+<data name="emphasis (italic)" xml:space="preserve"><value>Penekanan (miring)</value></data>
+<data name="highlighted text" xml:space="preserve"><value>Teks yang disorot</value></data>
+<data name="code snippet" xml:space="preserve"><value>Cuplikan kode</value></data>
+<data name="code block" xml:space="preserve"><value>Blok kode</value></data>
+<data name="block quote" xml:space="preserve"><value>Kutipan blok</value></data>
+<data name="citation" xml:space="preserve"><value>Kutipan</value></data>
+<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>tandai postingan dengan 'daftar tag' kami (mis. 'suka', 'tidak menarik', 'sudah diunduh', ...). Ada 10 'tag' yang dapat dikonfigurasi untuk tujuan ini.</value></data>
+<data name="heading 1" xml:space="preserve"><value>Judul 1</value></data>
+<data name="sample output" xml:space="preserve"><value>Keluaran contoh</value></data>
+<data name="variable" xml:space="preserve"><value>Variabel</value></data>
+<data name="small text" xml:space="preserve"><value>Teks kecil</value></data>
+<data name="figure with caption" xml:space="preserve"><value>Gambar dengan keterangan</value></data>
+<data name="figure caption" xml:space="preserve"><value>Keterangan gambar</value></data>
+<data name="keyboard input" xml:space="preserve"><value>Masukan keyboard</value></data>
+<data name="bold text" xml:space="preserve"><value>Teks tebal</value></data>
+<data name="subscript" xml:space="preserve"><value>Subskrip</value></data>
+<data name="superscript" xml:space="preserve"><value>Superskrip</value></data>
+<data name="are displayed." xml:space="preserve"><value>ditampilkan.</value></data>
+<data name="block container" xml:space="preserve"><value>Kontainer blok</value></data>
+<data name="abbreviation" xml:space="preserve"><value>Singkatan</value></data>
+<data name="custom" xml:space="preserve"><value>Kustom</value></data>
+</root>

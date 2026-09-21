@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?><root><xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"><xsd:import namespace="http://www.w3.org/XML/1998/namespace" /><xsd:element name="root" msdata:IsDataSet="true"><xsd:complexType><xsd:choice maxOccurs="unbounded"><xsd:element name="metadata"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" use="required" type="xsd:string" /><xsd:attribute name="type" type="xsd:string" /><xsd:attribute name="mimetype" type="xsd:string" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="assembly"><xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType></xsd:element><xsd:element name="data"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /><xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /><xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /><xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="resheader"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType></xsd:element></xsd:choice></xsd:complexType></xsd:element></xsd:schema><resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="and" xml:space="preserve"><value>і</value></data>
+<data name="account" xml:space="preserve"><value>Обліковий запис</value></data>
+<data name="full name" xml:space="preserve"><value>Full Name</value></data>
+<data name="imprint" xml:space="preserve"><value>Відбиток</value></data>
+<data name="login" xml:space="preserve"><value>Login</value></data>
+<data name="date from" xml:space="preserve"><value>дата від</value></data>
+<data name="rotate" xml:space="preserve"><value>обертати</value></data>
+<data name="contact" xml:space="preserve"><value>Контакти</value></data>
+<data name="getting started" xml:space="preserve"><value>Початок роботи</value></data>
+<data name="show filter" xml:space="preserve"><value>показати фільтр</value></data>
+<data name="first" xml:space="preserve"><value>перший ai </value></data>
+<data name="paragraphs" xml:space="preserve"><value>Публікації</value></data>
+<data name="close" xml:space="preserve"><value>Закрити</value></data>
+<data name="contribution" xml:space="preserve"><value>Сприяння</value></data>
+<data name="invalid user" xml:space="preserve"><value>Invalid user</value></data>
+<data name="logout" xml:space="preserve"><value>Вихід</value></data>
+<data name="manage your account" xml:space="preserve"><value>Керування обліковим записом</value></data>
+<data name="message" xml:space="preserve"><value>повідомлення</value></data>
+<data name="order abandoned" xml:space="preserve"><value>Замовлення скасовано</value></data>
+<data name="picture gallery" xml:space="preserve"><value>галерея зображень</value></data>
+<data name="download" xml:space="preserve"><value>Завантажити</value></data>
+<data name="delete" xml:space="preserve"><value>Видалити</value></data>
+<data name="profile" xml:space="preserve"><value>Profile</value></data>
+<data name="recovery codes" xml:space="preserve"><value>Коди відновлення</value></data>
+<data name="register as a new user" xml:space="preserve"><value>Зареєструватися як новий користувач</value></data>
+<data name="remove" xml:space="preserve"><value>Видалити</value></data>
+<data name="click here to log in" xml:space="preserve"><value>натисніть тут щоб увійти</value></data>
+<data name="date to" xml:space="preserve"><value>дата до</value></data>
+<data name="save" xml:space="preserve"><value>Зберегти</value></data>
+<data name="filter reset" xml:space="preserve"><value>скидання фільтра ai </value></data>
+<data name="previous" xml:space="preserve"><value>попередній ai </value></data>
+<data name="add page" xml:space="preserve"><value>додати сторінку ai </value></data>
+<data name="password" xml:space="preserve"><value>Password</value></data>
+<data name="assign categories to your pages or delete them" xml:space="preserve"><value>призначте категорії до ваших сторінок або видаліть їх ai </value></data>
+<data name="max" xml:space="preserve"><value>Макс.</value></data>
+<data name="send" xml:space="preserve"><value>Send</value></data>
+<data name="error" xml:space="preserve"><value>Помилка</value></data>
+<data name="log in" xml:space="preserve"><value>увійти ai </value></data>
+<data name="conveniently filter and search contributions" xml:space="preserve"><value>Зручно фільтрувати та шукати внески</value></data>
+<data name="confirm password" xml:space="preserve"><value>Підтвердити пароль</value></data>
+<data name="enter url." xml:space="preserve"><value>Введіть виворіт.</value></data>
+<data name="italicized" xml:space="preserve"><value>італійки ai </value></data>
+<data name="email" xml:space="preserve"><value>Email</value></data>
+<data name="heading 6" xml:space="preserve"><value>напляскване 6 ai </value></data>
+<data name="access denied" xml:space="preserve"><value>У доступі відмовлено</value></data>
+<data name="heading 5" xml:space="preserve"><value>голова 5 ai </value></data>
+<data name="add authenticator app" xml:space="preserve"><value>Додати додаток автентифікатор</value></data>
+<data name="associate your" xml:space="preserve"><value>Прив яжіть свій</value></data>
+<data name="change email" xml:space="preserve"><value>Змінити електронну пошту</value></data>
+<data name="change password" xml:space="preserve"><value>змінити пароль ai </value></data>
+<data name="change your account settings" xml:space="preserve"><value>Зміна налаштувань облікового запису</value></data>
+<data name="choose plan" xml:space="preserve"><value>Оберіть план</value></data>
+<data name="click here to confirm your account" xml:space="preserve"><value>Натисніть тут щоб підтвердити свій обліковий запис</value></data>
+<data name="heading 4" xml:space="preserve"><value>голова 4 ai </value></data>
+<data name="properties" xml:space="preserve"><value>властивості</value></data>
+<data name="log in with a recovery code" xml:space="preserve"><value>увійти за допомогою коду відновлення</value></data>
+<data name="configure authenticator app" xml:space="preserve"><value>Налаштування програми автентифікатора</value></data>
+<data name="title contains" xml:space="preserve"><value>заголовок містить</value></data>
+<data name="toggle view" xml:space="preserve"><value>перемикання виду</value></data>
+<data name="these docs" xml:space="preserve"><value>ці документи</value></data>
+<data name="terms and conditions" xml:space="preserve"><value>умови та умови ai </value></data>
+<data name="xxx" xml:space="preserve"><value>xxx</value></data>
+<data name="all" xml:space="preserve"><value>all</value></data>
+<data name="confirm email" xml:space="preserve"><value>Підтвердити електронну пошту</value></data>
+<data name="confirm email change" xml:space="preserve"><value>Підтвердіть зміну електронної пошти</value></data>
+<data name="hyperlink" xml:space="preserve"><value>гіперпосилання ai </value></data>
+<data name="also see a preview of the" xml:space="preserve"><value>також див попередній перегляд ai </value></data>
+<data name="delete data and close my account" xml:space="preserve"><value>Видалити дані та закрити мій акаунт</value></data>
+<data name="delete personal data" xml:space="preserve"><value>Видалити особисті дані</value></data>
+<data name="disable 2fa" xml:space="preserve"><value>Вимкнути 2FA</value></data>
+<data name="max lenght 14" xml:space="preserve"><value>Макс. лангхт 14</value></data>
+<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>Виберіть наступний з меню: додому, початок, реєстрація, логін, оновлення, логотип, відбиток, контакт, обліковий запис. У другому меню виберіть: показати фільтр, обертати, Перегляд зображень, властивості, додати, вперед, назад. У діалоговому вікні можна: зберегти, скасувати, подати.</value></data>
+<data name="authenticator app" xml:space="preserve"><value>Додаток Authenticator</value></data>
+<data name="recovery codes left." xml:space="preserve"><value>Відновлення кодів зліва.</value></data>
+<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>Ефективний веб скрепінг простим введенням URL адреси</value></data>
+<data name="enable qr code generation" xml:space="preserve"><value>увімкнути генерацію QR коду</value></data>
+<data name="external logins" xml:space="preserve"><value>Зовнішні логіни</value></data>
+<data name="no passkeys are registered." xml:space="preserve"><value>Не зареєстровані пастки.</value></data>
+<data name="forget this browser" xml:space="preserve"><value>Забути цей браузер</value></data>
+<data name="forgot password confirmation" xml:space="preserve"><value>Забули підтвердження пароля</value></data>
+<data name="generate a new set of recovery codes" xml:space="preserve"><value>згенерувати новий набір кодів відновлення</value></data>
+<data name="generate recovery codes" xml:space="preserve"><value>Згенерувати коди відновлення</value></data>
+<data name="the external login was removed." xml:space="preserve"><value>Вийшов зовнішній логін.</value></data>
+<data name="learn how to" xml:space="preserve"><value>Дізнайтеся як</value></data>
+<data name="legal inquiry" xml:space="preserve"><value>Юридичний запит</value></data>
+<data name="locked out" xml:space="preserve"><value>Заблоковано</value></data>
+<data name="manage email" xml:space="preserve"><value>Керування електронною поштою</value></data>
+<data name="just browse" xml:space="preserve"><value>просто перегляд ai </value></data>
+<data name="manage your external logins" xml:space="preserve"><value>Керування зовнішніми входами</value></data>
+<data name="new password" xml:space="preserve"><value>Новий пароль</value></data>
+<data name="old password" xml:space="preserve"><value>Старий пароль</value></data>
+<data name="options" xml:space="preserve"><value>Параметри</value></data>
+<data name="google authenticator for" xml:space="preserve"><value>Google автентифікатор</value></data>
+<data name="order complete" xml:space="preserve"><value>Замовлення завершено</value></data>
+<data name="personal data" xml:space="preserve"><value>Особисті дані</value></data>
+<data name="phone number" xml:space="preserve"><value>Номер телефону</value></data>
+<data name="min" xml:space="preserve"><value>Мінуси</value></data>
+<data name="recovery code" xml:space="preserve"><value>Код відновлення</value></data>
+<data name="recovery code verification" xml:space="preserve"><value>Перевірка коду відновлення</value></data>
+<data name="register" xml:space="preserve"><value>Реєстрація</value></data>
+<data name="register confirmation" xml:space="preserve"><value>Підтвердження реєстрації</value></data>
+<data name="registered logins" xml:space="preserve"><value>Зареєстровані входи</value></data>
+<data name="remember me" xml:space="preserve"><value>Запам ятати мене</value></data>
+<data name="remember this machine" xml:space="preserve"><value>Запам ятайте цей пристрій</value></data>
+<data name="resend" xml:space="preserve"><value>Повторно надіслати</value></data>
+<data name="resend email confirmation" xml:space="preserve"><value>Повторно надіслати підтвердження електронною поштою</value></data>
+<data name="reset" xml:space="preserve"><value>Скинути</value></data>
+<data name="reset authenticator app" xml:space="preserve"><value>Скинути додаток автентифікатор</value></data>
+<data name="reset authenticator key" xml:space="preserve"><value>Скинути ключ автентифікатора</value></data>
+<data name="reset filters" xml:space="preserve"><value>Скинути фільтри</value></data>
+<data name="reset password" xml:space="preserve"><value>Скинути пароль</value></data>
+<data name="reset password confirmation" xml:space="preserve"><value>Скинути підтвердження пароля</value></data>
+<data name="reset recovery codes" xml:space="preserve"><value>Скинути коди відновлення</value></data>
+<data name="user name" xml:space="preserve"><value>ім я користувача ai </value></data>
+<data name="scan the qr code or enter this key" xml:space="preserve"><value>Відскануйте QR код або введіть цей ключ</value></data>
+<data name="selected categories" xml:space="preserve"><value>Вибрані категорії</value></data>
+<data name="selected websites" xml:space="preserve"><value>Вибрані веб сайти</value></data>
+<data name="send verification email" xml:space="preserve"><value>Надіслати лист для підтвердження</value></data>
+<data name="set password" xml:space="preserve"><value>Встановити пароль</value></data>
+<data name="set your password" xml:space="preserve"><value>Встановіть пароль</value></data>
+<data name="subject" xml:space="preserve"><value>Об єкт</value></data>
+<data name="define the names of your categories" xml:space="preserve"><value>визначити імена ваших категорій ai </value></data>
+<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>Для вашого двофакторного додатка автентифікатора. Простір і касування не важливо.</value></data>
+<data name="update password" xml:space="preserve"><value>Оновити пароль</value></data>
+<data name="main heading" xml:space="preserve"><value>головний заголовок ai </value></data>
+<data name="error finding user for unspecified email" xml:space="preserve"><value>Помилка пошуку користувача для невказаної адреси електронної пошти</value></data>
+<data name="home" xml:space="preserve"><value>Home</value></data>
+<data name="invalid password reset" xml:space="preserve"><value>Неправильне скидання пароля</value></data>
+<data name="of" xml:space="preserve"><value>of</value></data>
+<data name="paragraph" xml:space="preserve"><value>абзац ai </value></data>
+<data name="success" xml:space="preserve"><value>Про нас</value></data>
+<data name="set up authenticator app" xml:space="preserve"><value>Налаштувати додаток автентифікатор</value></data>
+<data name="username" xml:space="preserve"><value>Username</value></data>
+<data name="verification code" xml:space="preserve"><value>Код підтвердження</value></data>
+<data name="verify" xml:space="preserve"><value>Підтвердити</value></data>
+<data name="next" xml:space="preserve"><value>увійти ai </value></data>
+<data name="subscriptions" xml:space="preserve"><value>Підписки</value></data>
+<data name="you have" xml:space="preserve"><value>У вас залишилося</value></data>
+<data name="you must" xml:space="preserve"><value>Вам необхідно</value></data>
+<data name="your password has been changed" xml:space="preserve"><value>Ваш пароль змінено</value></data>
+<data name="your profile has been updated" xml:space="preserve"><value>Ваш профіль оновлено</value></data>
+<data name="nter a name for your passkey" xml:space="preserve"><value>Введіть ім'я для вашого запиту</value></data>
+<data name="forgot your password?" xml:space="preserve"><value>Забули пароль?</value></data>
+<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>Повний дисплей внесків, натиснувши на назву внеску</value></data>
+<data name="privacy policy" xml:space="preserve"><value>політика конфіденційності ai </value></data>
+<data name="pro version" xml:space="preserve"><value>версія ai </value></data>
+<data name="new project" xml:space="preserve"><value>новий проект ai </value></data>
+<data name="reset filter" xml:space="preserve"><value>скидання фільтра ai </value></data>
+<data name="save changes" xml:space="preserve"><value>збереження змін ai </value></data>
+<data name="last" xml:space="preserve"><value>останні ai </value></data>
+<data name="open original" xml:space="preserve"><value>відкрити оригінальний ai </value></data>
+<data name="download documents" xml:space="preserve"><value>завантаження документів ai </value></data>
+<data name="tagging and filtering" xml:space="preserve"><value>блювотні руху і фільтрування ai </value></data>
+<data name="open local" xml:space="preserve"><value>відкритий локальний ai </value></data>
+<data name="download single" xml:space="preserve"><value>завантажити один ai </value></data>
+<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>Ікона для переходу між картами та видом на стіл.</value></data>
+<data name="add custom tag" xml:space="preserve"><value>Додати користувальницький тег</value></data>
+<data name="define the name of the tag for individual posts" xml:space="preserve"><value>визначення назви тегу для окремих повідомлень ai </value></data>
+<data name="tagging contributions" xml:space="preserve"><value>Внески</value></data>
+<data name="filter your pages" xml:space="preserve"><value>фільтрувати сторінки ai </value></data>
+<data name="download txt or json documents without images" xml:space="preserve"><value>завантажити txt або json документи без зображень ai </value></data>
+<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>у фільтрах ви можете фільтрувати позначені повідомлення ai </value></data>
+<data name="click on the" xml:space="preserve"><value>натисніть на ai </value></data>
+<data name="to display download options" xml:space="preserve"><value>для відображення параметрів завантаження ai </value></data>
+<data name="click save word document." xml:space="preserve"><value>Натисніть зберегти документ Word.</value></data>
+<data name="error changing user name." xml:space="preserve"><value>Зміна кількості користувачів.</value></data>
+<data name="add" xml:space="preserve"><value>Додати</value></data>
+<data name="document." xml:space="preserve"><value>Документація.</value></data>
+<data name="a new tab." xml:space="preserve"><value>Нова вкладка.</value></data>
+<data name="and json will open. you will" xml:space="preserve"><value>І джсон відкриється. Ви будете</value></data>
+<data name="json download" xml:space="preserve"><value>Json завантажити</value></data>
+<data name="the external login was added." xml:space="preserve"><value>Додано зовнішній логін.</value></data>
+<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>Вимкнена двофакторна автентитація (2fa)</value></data>
+<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>Використовуйте перемикач, щоб вибрати між "де" і "де немає".</value></data>
+<data name="loc[are displayed.]" xml:space="preserve"><value>Loc[are відображається.]</value></data>
+<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>Простий формат вкладок, добре підходить для подальшої обробки в таблицях або базах даних.</value></data>
+<data name="save to your download directory." xml:space="preserve"><value>Заощаджуйте до вашого каталогу завантаження.</value></data>
+<data name="two-factor authentication (2fa)" xml:space="preserve"><value>Двофакторна автентитація (2fa)</value></data>
+<data name="cards" xml:space="preserve"><value>Картки</value></data>
+<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>Під іконкою фільтра з'являється червоний рециклбін. Натисніть на цю іконку, видаліть всі активні фільтри і виводить загальний огляд внеску.</value></data>
+<data name="two-factor authentication" xml:space="preserve"><value>Двофакторна автентитація</value></data>
+<data name="enter a new email" xml:space="preserve"><value>Введіть новий лист</value></data>
+<data name="select columns for scraping" xml:space="preserve"><value>Виберіть стовпчики для скребкування</value></data>
+<data name="click one or more tags for a post." xml:space="preserve"><value>Натисніть один або кілька тегів для повідомлення.</value></data>
+<data name="cards and table" xml:space="preserve"><value>Картки та таблиці</value></data>
+<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>Ікона для перегляду оригінального внеску в його оригінальне джерело і планування.</value></data>
+<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>У виді на індивідуальні внески ви можете завантажити їх.</value></data>
+<data name="rename" xml:space="preserve"><value>Перейменувати</value></data>
+<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>Щоб відобразити позначені внески, ви можете вибрати відповідний тег зі списку тексту.</value></data>
+<data name="toggle help visibility" xml:space="preserve"><value>Допомогти видимості</value></data>
+<data name="enter / select url" xml:space="preserve"><value>Введіть / виберіть URL</value></data>
+<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>JavaScript licenses API Веб-сайт Go1.13.8</value></data>
+<data name="to display filter dialog" xml:space="preserve"><value>Щоб відобразити діалогове вікно фільтра</value></data>
+<data name="enter your phone number" xml:space="preserve"><value>Введіть номер телефону</value></data>
+<data name="no contributions were found on the page" xml:space="preserve"><value>На сторінках</value></data>
+<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>Відкриється нове вікно для відображення попереднього перегляду PDF вашого документа. Цей перегляд надає початковий огляд вмісту та макету документа.</value></data>
+<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>Найкращий спосіб зв'язатися з нами Заповнивши всі необхідні поля і ми допоможемо вам.</value></data>
+<data name="export" xml:space="preserve"><value>Експорт</value></data>
+<data name="underlined" xml:space="preserve"><value>Підкреслений</value></data>
+<data name="add to followed projects" xml:space="preserve"><value>додати до наступних проектів ai </value></data>
+<data name="follow" xml:space="preserve"><value>підписатися ai </value></data>
+<data name="scraping view" xml:space="preserve"><value>вид брухту ai </value></data>
+<data name="authenticator code" xml:space="preserve"><value>код ідентифікації ai </value></data>
+<data name="heading 3" xml:space="preserve"><value>голова 3 ai </value></data>
+<data name="heading 2" xml:space="preserve"><value>головки 2 ai </value></data>
+<data name="image" xml:space="preserve"><value>зображення ai </value></data>
+<data name="the created document will open in" xml:space="preserve"><value>створений документ відкриється в ai </value></data>
+<data name="click on download a view with" xml:space="preserve"><value>натисніть на завантажити перегляд з ai </value></data>
+<data name="file saving failed:" xml:space="preserve"><value>Збереження файлів не вдалося:</value></data>
+<data name="file saved to:" xml:space="preserve"><value>Файл збережений в:</value></data>
+<data name="an error occurred during download:" xml:space="preserve"><value>При завантаженні:</value></data>
+<data name="thank you for your message." xml:space="preserve"><value>Дякуємо за Ваше повідомлення.</value></data>
+<data name="file" xml:space="preserve"><value>Головна</value></data>
+<data name="an error has occurred." xml:space="preserve"><value>Помилки.</value></data>
+<data name="table" xml:space="preserve"><value>Настільний</value></data>
+<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>Формати документів: docx, pdf, json, txt</value></data>
+<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>Copyright 2016   Всі права захищено</value></data>
+<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>Потім ви можете завантажити pdf, docx і html документи з зображеннями</value></data>
+<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>Ви можете вказати ім'я ваших тегів в індивідуальному порядку.</value></data>
+<data name="show help (dynamic, static, off)" xml:space="preserve"><value>Показати допомогу (динамічна, статична, вимкнена)</value></data>
+<data name="enter a part that the title must contain." xml:space="preserve"><value>Введіть номер, який повинен містити назву.</value></data>
+<data name="switch view" xml:space="preserve"><value>Перегляд перемикача</value></data>
+<data name="custoum" xml:space="preserve"><value>Сутум</value></data>
+<data name="download document" xml:space="preserve"><value>Завантажити документ</value></data>
+<data name="csv download" xml:space="preserve"><value>Csv завантажити</value></data>
+<data name="excel download" xml:space="preserve"><value>Завантажити Excel</value></data>
+<data name="single document download" xml:space="preserve"><value>Завантаження одного документа</value></data>
+<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>З 'closerpage-for-windows' ви можете отримати до 200 зображень.</value></data>
+<data name="the contributions for" xml:space="preserve"><value>Внески для</value></data>
+<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>Щоб автоматично зібрати нові внески в майбутньому, натисніть на</value></data>
+<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>Ви можете вибрати індивідуальні проекти для відображення тільки внесків, які належать до цих проектів.</value></data>
+<data name="available predefined tags" xml:space="preserve"><value>Доступні попередньо визначені теги</value></data>
+<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>Якщо ви присвоєні категорії до ваших веб-сторінок, ви також можете відфільтрувати ці категорії. Просто виберіть бажані веб-сторінки або категорії з списку.</value></data>
+<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>Після того, як ви зробили свій вибір, натисніть на кнопку "Додати", щоб застосувати фільтр. Після того, як буде оновлено і буде показувати лише результати фільтрації.</value></data>
+<data name="to display options" xml:space="preserve"><value>Параметри відображення</value></data>
+<data name="this will rotate all cards." xml:space="preserve"><value>Це буде обертати всі карти.</value></data>
+<data name="button" xml:space="preserve"><value>Логін</value></data>
+<data name="preview the images" xml:space="preserve"><value>Перегляд зображень</value></data>
+<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>Якщо ваш документ містить файли зображень, вони також будуть відображатися в попередній перегляд.</value></data>
+<data name="download options" xml:space="preserve"><value>Варіанти завантаження</value></data>
+<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>Щоб завантажити документ, виберіть бажаний формат з доступних варіантів.</value></data>
+<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>Ідеально підходить для друку документів і спільного використання в професійному макеті.</value></data>
+<data name="error: incorrect password." xml:space="preserve"><value>Помилка: неправильний пароль.</value></data>
+<data name="useful if you want to edit the document further." xml:space="preserve"><value>Корисно, якщо ви хочете змінити документ далі.</value></data>
+<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>Корисно для складання контенту на сайті або іншому цифровому середовищі.</value></data>
+<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>Містить лише звичайний текст, без форматування. Підходить для простої подальшої обробки.</value></data>
+<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>Містить всі зображення документа як окремі файли, якщо вам потрібно їх індивідуально.</value></data>
+<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>Для пошуку веб-сайту для внесків введіть виворіт і натисніть на значок збільшування скла. Крім того, ви можете натиснути клавішу введення на клавіатуру.</value></data>
+<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>Якщо ви ввійшли і вже відстежуйте виворіт на зміни, ви також можете вибрати виворіт з випадаючого списку.</value></data>
+<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>Поточні повідомлення на обраному веб-сайті автоматично охоплюються нашим алгоритмом. На веб-сайті виводяться старі та нещодавно виявлені повідомлення.</value></data>
+<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>Я введіть виворіт і нічого не відображається. Чому?</value></data>
+<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>На жаль, це не незвичайне і може мати багато причин, наприклад:</value></data>
+<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>Немає внесків, пов'язаних з сайтом, ви шукаєте. (наприклад, ви входите в контакт сторінку як URL: «https://mysite/contact»)</value></data>
+<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>Вказані повідомлення не знаходяться в домені. Наприклад, Ви входили «https://mysite.com/products», але всі внески відносяться до «https://otherpage.com/productxy.»</value></data>
+<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>За запитом на сторінці блокує боти (замовити – бота).</value></data>
+<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>Для зареєстрованих користувачів натисніть кнопку "Запитати".</value></data>
+<data name="table structure (sorted by priority)" xml:space="preserve"><value>Структура таблиці (сортовано пріоритетом)</value></data>
+<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>Для того, щоб найбільш важлива інформація була відображена в першу чергу, що дозволяє швидко орієнтуватися і ефективно обробляти.</value></data>
+<data name="tags" xml:space="preserve"><value>Панчохи</value></data>
+<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>Після відкриття в новому вікні браузера або вкладка. Ви побачите внесок, як це було опубліковано на оригінальному веб-сайті, включаючи всі форматування, зображення, посилання та інші матеріали, які не можуть бути включені в перегляд.</value></data>
+<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>Будь-які існуючі теги або категорії, призначені для внесків, відображаються тут. Це дозволяє швидко фільтрувати внески за темою або фокусом.</value></data>
+<data name="headings and titles" xml:space="preserve"><value>Заголовки та заголовки</value></data>
+<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>Заголовки та заголовки внесків перераховують другий. Ми надаємо початковий огляд вмісту та увімкніть швидку ідентифікацію відповідних внесків.</value></data>
+<data name="date and author" xml:space="preserve"><value>Дата та автор</value></data>
+<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>Цей стовпчик містить дату публікації та автор внеску. Це дозволяє бачити, коли і ким був створений внесок.</value></data>
+<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>Актуальний зміст внесків, розділених на абзаци, робить кінцеву частину таблиці. Це де ви знайдете докладний текст, який був збитий.</value></data>
+<data name="table functions" xml:space="preserve"><value>Функції таблиці</value></data>
+<data name="tagging" xml:space="preserve"><value>Пробити</value></data>
+<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>Внески можуть бути позначені і позначені, вибравши прапорець. Це полегшує сортування, фільтрування та управління внесками пізніше, зокрема при вирішенні великих обсягів даних.</value></data>
+<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>Весь таблиці або вибрані внески можна завантажити в різних форматах</value></data>
+<data name="select tagged contributions" xml:space="preserve"><value>Виберіть позначені внески</value></data>
+<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>Відомий формат таблиці пропонує додаткові параметри форматування, особливо придатні до звітів або презентацій.</value></data>
+<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>Призначений для подальшої обробки програм або веб-додатків.</value></data>
+<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>Функція блювання дозволяє класифікувати та організовувати внески, що полегшують пошук або фільтрувати пізніше.</value></data>
+<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>Ця функція доступна як в картах, так і на скребках. Ця функція дозволяє приховати певні внески або відрегулювати їх як особливо важливо.</value></data>
+<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>Маркові внески, які є особливо важливими, відповідними або видатними.</value></data>
+<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>Повідомляє, що вступ вже був завантажений.</value></data>
+<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>Внески позначок, які були створені або редаговані за допомогою технології Ai.</value></data>
+<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>Приховує внески, які ви більше не хочете відображати, але не видаліть їх повністю.</value></data>
+<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>Якщо посилання не працює або внесок не доступний, це може бути пов'язано з змінами на оригінальній сторінці.</value></data>
+<data name="show contribution" xml:space="preserve"><value>Показати внесок</value></data>
+<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>Введіть номер мобільного, який Ви вказали при укладаннi договору з банком - для ідентифікації.</value></data>
+<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>Ідеально підходить для швидкого читання, перевірки або редагування внесків без виклику оригінального джерела.</value></data>
+<data name="create a new account." xml:space="preserve"><value>Створити новий обліковий запис.</value></data>
+<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>Якщо внесок містить файли зображень, у попередньому перегляді буде показано зображення попереднього перегляду.</value></data>
+<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>Ви побачите номер у верхньому куті попереднього зображення. Цей номер показує, як багато зображень містяться в внеску.</value></data>
+<data name="simply click on the preview image." xml:space="preserve"><value>Просто натисніть на зображення попереднього перегляду.</value></data>
+<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>Це відкриє вид галереї, в якому відображаються всі зображення в внеску і в більшому форматі.</value></data>
+<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>Це дозволяє вирішити, чи відображаються внески з вибраним тегом, або чи відображаються лише внески, які не позначені відповідно.</value></data>
+<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>Будь-які питання, які ви маєте про нашу політику конфіденційності, файли cookie або умови використання, будуть відповідати якомога швидше.</value></data>
+<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>Поточні внески з ваших улюблених сайтів - на погляд</value></data>
+<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>Ви часто читаєте або досліджуєте на різних веб-сайтах і хочете отримати останні новини в одному місці на погляді? Тоді ви приїжджаєте в потрібне місце!</value></data>
+<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>Всі нові повідомлення від обраних сайтів на погляді.</value></data>
+<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>Генерувати документи в docx, pdf, json або html.</value></data>
+<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>Маркові повідомлення з нашим "tag list" (наприклад, "подібний", "незимовий", "прочитаний", ...). Для цього доступні 10 конфігураційних тегів.</value></data>
+<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>Відкрийте для себе більш детальну інформацію про веб-сайт. За допомогою зручної функції веб-брухтування просто введіть URL-адресу і миттєво ознайомтеся всі нові повідомлення на бажаному сайті.</value></data>
+<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>Кожна пошта може відображатися в повному обсязі з одним клацанням миші, щоб ви не пропустили важливу інформацію. Хронологічний порядок постів полегшує навігацію і пошуку відповідного вмісту.</value></data>
+<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>Особливою рисою є можливість створювати документи з кожного внеску у форматі docx, pdf, json або html - ідеальний для архівування або подальшої обробки інформації.</value></data>
+<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>Це означає, що ви ніколи не пропустили новий внесок і завжди до дати</value></data>
+<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>Зареєструватися для активації безкоштовного плану. Потім можна оновити до плану.</value></data>
+<data name="you do not have access to this resource." xml:space="preserve"><value>Ви не маєте доступу до цього ресурсу.</value></data>
+<data name="thank you for confirming your email." xml:space="preserve"><value>Дякуємо за підтвердження вашої електронної пошти.</value></data>
+<data name="error confirming your email." xml:space="preserve"><value>Помилка, що підтверджує вашу електронну пошту.</value></data>
+<data name="i accept the terms and conditions" xml:space="preserve"><value>Я приймаю умови</value></data>
+<data name="error: invalid email change confirmation link." xml:space="preserve"><value>Помилка: недійсне посилання на підтвердження електронної пошти.</value></data>
+<data name="error changing email." xml:space="preserve"><value>Зміна помилок електронної пошти.</value></data>
+<data name="thank you for confirming your email change." xml:space="preserve"><value>Дякуємо за підтвердження вашої зміни електронної пошти.</value></data>
+<data name="you've successfully authenticated with" xml:space="preserve"><value>Ви успішно оновили</value></data>
+<data name="use another service to register." xml:space="preserve"><value>Використовуйте інший сервіс для реєстрації.</value></data>
+<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>Будь ласка, введіть адресу електронної пошти для цього сайту нижче і натисніть кнопку "Регістр", щоб закінчити журнал.</value></data>
+<data name="please enter your email." xml:space="preserve"><value>Будь ласка, введіть електронну пошту.</value></data>
+<data name="error loading external login information." xml:space="preserve"><value>Завантажити зовнішній логін.</value></data>
+<data name="error loading external login information during confirmation." xml:space="preserve"><value>Помилки завантаження зовнішніх даних під час підтвердження.</value></data>
+<data name="reset your password." xml:space="preserve"><value>Відновити пароль.</value></data>
+<data name="the default ui requires a user store with email support." xml:space="preserve"><value>За замовчуванням ui вимагає магазину з підтримкою електронної пошти.</value></data>
+<data name="enter your email." xml:space="preserve"><value>Введіть свою електронну пошту.</value></data>
+<data name="please check your email to reset your password." xml:space="preserve"><value>Введіть номер мобільного, який Ви вказали при укладаннi договору з нами</value></data>
+<data name="the password reset link is invalid." xml:space="preserve"><value>Посилання на скидання пароля недійсним.</value></data>
+<data name="please confirm your password." xml:space="preserve"><value>Будь ласка, підтвердіть пароль.</value></data>
+<data name="this account has been locked out, please try again later." xml:space="preserve"><value>Цей обліковий запис був замкнений, будь ласка, спробуйте знову пізніше.</value></data>
+<data name="use a local account to log in." xml:space="preserve"><value>Використовуйте локальний обліковий запис для входу в систему.</value></data>
+<data name="log in with a passkey" xml:space="preserve"><value>Увійти за допомогою передпліччя</value></data>
+<data name="use another service to log in." xml:space="preserve"><value>Використовуйте інший сервіс для входу в систему.</value></data>
+<data name="please enter your password." xml:space="preserve"><value>Введіть пароль.</value></data>
+<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>Ваш логін захищений додатком автентифікатора. Введіть код одержувача нижче.</value></data>
+<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>Не мати доступу до пристрою автентифікатора? Ви можете</value></data>
+<data name="error: invalid authenticator code." xml:space="preserve"><value>Помилка: недійсний код автентифікації.</value></data>
+<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>Ви хочете увійти в систему з кодом відновлення. Цей логін не запам'ятається, поки ви не надаєте Код програми автентифікації в журналі або відключити 2fa і увійти знову.</value></data>
+<data name="recoverycode" xml:space="preserve"><value>Відновлення коду</value></data>
+<data name="for how to configure a real email sender" xml:space="preserve"><value>Для налаштування реального відправника електронної пошти</value></data>
+<data name="normally this would be emailed:" xml:space="preserve"><value>Зазвичай це буде надіслано:</value></data>
+<data name="please check your email to confirm your account." xml:space="preserve"><value>Будь ласка, перевірте електронну пошту, щоб підтвердити свій обліковий запис.</value></data>
+<data name="verification email sent. please check your email." xml:space="preserve"><value>Перевірка електронної пошти відправлено. Будь ласка, перевірте електронну пошту.</value></data>
+<data name="enter the code" xml:space="preserve"><value>Введіть код</value></data>
+<data name="your password has been reset. please" xml:space="preserve"><value>Ваш пароль було скидання. Про нас</value></data>
+<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>Настроювання зовнішніх автентифікаційних послуг немає. Дивитися це</value></data>
+<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>Стаття про налаштування цього додатка asp.net для підтримки входу в зовнішні послуги</value></data>
+<data name="put these codes in a safe place." xml:space="preserve"><value>Поставте ці коди в безпечне місце.</value></data>
+<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>Якщо ви втратите свій пристрій і не маєте коду відновлення, ви втратите доступ до облікового запису.</value></data>
+<data name="enter the old password" xml:space="preserve"><value>Введіть старий пароль</value></data>
+<data name="enter the new password" xml:space="preserve"><value>Введіть новий пароль</value></data>
+<data name="user changed their password successfully." xml:space="preserve"><value>Користувач успішно змінив пароль.</value></data>
+<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>Видаліть ці дані будуть остаточно видаляти свій обліковий запис, і це не може бути відновлено.</value></data>
+<data name="unexpected error occurred deleting user." xml:space="preserve"><value>Несподівана помилка стала вилученим користувачем.</value></data>
+<data name="this action only disables 2fa." xml:space="preserve"><value>Ця дія тільки відключити 2fa.</value></data>
+<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Відключення 2fa не змінює ключі, які використовуються в додатках автентитора. Якщо ви хочете змінити ключ, який використовується в додатку автентитора, ви повинні</value></data>
+<data name="set your authenticator keys." xml:space="preserve"><value>Налаштуйте ключі автентифікатора.</value></data>
+<data name="reset your authenticator keys." xml:space="preserve"><value>Відновити ключі автентифікації.</value></data>
+<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>Не вдається відключити 2fa для користувача, як це не вдається.</value></data>
+<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>Несподівана помилка сталася відключення 2fa.</value></data>
+<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2fa було вимкнено. Ви можете змінити 2fa, коли ви налаштовуєте програму автентифікатора</value></data>
+<data name="enter your email" xml:space="preserve"><value>Введіть свою електронну пошту</value></data>
+<data name="your email is unchanged." xml:space="preserve"><value>Ваша електронна адреса не змінюється.</value></data>
+<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>Підтвердження посилання для зміни електронної пошти відправлено. Будь ласка, перевірте електронну пошту.</value></data>
+<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>Щоб скористатися додатком автентифікатора, за допомогою наступних кроків:</value></data>
+<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>Завантажити двофакторний автентифікатор програми, як microsoft автентифікатор для</value></data>
+<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>Після того, як ви відсканували код qr або введіть ключ вище, ваш другий фактор автентифікації додаток забезпечить вам унікальний код. Введіть код у поле підтвердження нижче.</value></data>
+<data name="error: verification code is invalid." xml:space="preserve"><value>Помилка: код перевірки недійсний.</value></data>
+<data name="your authenticator app has been verified." xml:space="preserve"><value>Ваш додаток автентифікатора було перевірено.</value></data>
+<data name="add another service to log in." xml:space="preserve"><value>Додати ще один сервіс для входу в систему.</value></data>
+<data name="error: the external login was not removed." xml:space="preserve"><value>Помилка: зовнішній логін не знімався.</value></data>
+<data name="error: could not load external login info." xml:space="preserve"><value>Помилка: не може завантажувати інформацію про зовнішній логін.</value></data>
+<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>Помилка: зовнішній логін не додано. Зовнішні логіни можуть бути пов'язані з одним обліковим записом.</value></data>
+<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>Генерація двохфакторних кодів відновлення (2fa)</value></data>
+<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Створення нових кодів відновлення не змінює ключі, які використовуються в додатках автентифікації. Якщо ви хочете змінити ключ, який використовується в додатку автентитора, ви повинні</value></data>
+<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>Не генеруйте коди відновлення для користувача, оскільки вони не мають 2 ввімкнути.</value></data>
+<data name="you have generated new recovery codes." xml:space="preserve"><value>Ви створили нові коди відновлення.</value></data>
+<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>Користувач з id '{userid}' створив нові коди відновлення 2fa.</value></data>
+<data name="choose your username." xml:space="preserve"><value>Виберіть ім'я користувача.</value></data>
+<data name="you have no recovery codes left." xml:space="preserve"><value>Ви не можете відновити коди зліва.</value></data>
+<data name="error: failed to set phone number." xml:space="preserve"><value>Помилка: не вдалося встановити номер телефону.</value></data>
+<data name="manage your passkeys" xml:space="preserve"><value>Керуйте своїми пастиками</value></data>
+<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>Ви досягнете максимальної кількості дозволених пасток. Будь ласка, видаліть один перед додаванням нового.</value></data>
+<data name="add a new passkey" xml:space="preserve"><value>Додати новий під ключ</value></data>
+<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>Помилка: браузер не надав пароль.</value></data>
+<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>Помилки, які не можуть бути додані до вашого облікового запису.</value></data>
+<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>Помилка: вказана ідея мала недійсний формат.</value></data>
+<data name="error: the passkey could not be deleted." xml:space="preserve"><value>Помилки, які не можуть бути видалені.</value></data>
+<data name="passkey deleted successfully." xml:space="preserve"><value>Паскі успішно видалені.</value></data>
+<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>Ваш обліковий запис містить персональні дані, які ви надали нам. Ця сторінка дозволяє завантажувати або видаляти дані.</value></data>
+<data name="enter a new name for your" xml:space="preserve"><value>Введіть нове ім'я</value></data>
+<data name="passkey" xml:space="preserve"><value>Паскі</value></data>
+<data name="my passkey" xml:space="preserve"><value>Моя передня</value></data>
+<data name="passkey name" xml:space="preserve"><value>Ім'я файла</value></data>
+<data name="continue" xml:space="preserve"><value>Продовжити</value></data>
+<data name="error: the specified passkey could not be found." xml:space="preserve"><value>Помилка: вказаний ключ не можна знайти.</value></data>
+<data name="error: the passkey could not be updated." xml:space="preserve"><value>Помилка: перехідник не може бути оновлений.</value></data>
+<data name="passkey updated successfully." xml:space="preserve"><value>Passkey оновлено успішно.</value></data>
+<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>Якщо ви перезавантажте свій автентифікаторний додаток не буде працювати, поки ви не переналаштуваєте його.</value></data>
+<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>Цей процес відключає 2fa, поки ви не перевірите свій додаток автентифікатора.</value></data>
+<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>Якщо ви не завершите налаштування додатка автентифікатора, ви можете втратити доступ до облікового запису.</value></data>
+<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>Ви можете налаштувати додаток автентифікатора за допомогою нового ключа.</value></data>
+<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>Ви не маєте локального імені користувача/password для цього сайту. Додати локальний обліковий запис, щоб ви могли увійти без зовнішнього входу.</value></data>
+<data name="your password has been set." xml:space="preserve"><value>Ваш пароль було встановлено.</value></data>
+<data name="before you can log in with a recovery code." xml:space="preserve"><value>Перед тим як увійти в систему з кодом відновлення.</value></data>
+<data name="you have 1 recovery code left." xml:space="preserve"><value>У вас є 1 відновлення коду зліва.</value></data>
+<data name="inline text" xml:space="preserve"><value>Рядковий текст</value></data>
+<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>Політика конфіденційності та cookie не прийнята.</value></data>
+<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>Ви повинні прийняти політику, перш ніж увімкнути автентифікацію двох факторів.</value></data>
+<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>Забули поточний браузер. Після того, як ви знову ввійдіть з цього веб-переглядача, вам буде запропоновано для вашого коду 2.</value></data>
+<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>Цей додаток не в даний час є реальним відправником електронної пошти, зареєстрованим, див. інформацію</value></data>
+<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>Для відображення оригінального повідомлення (відкривається в новій вкладці браузера)</value></data>
+<data name="to display options." xml:space="preserve"><value>Для відображення параметрів.</value></data>
+<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>Щоб додати нову сторінку для моніторингу внесків.</value></data>
+<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>Для відображення спрощеного перегляду HTML внеску.</value></data>
+<data name="to display filters." xml:space="preserve"><value>Для відображення фільтрів.</value></data>
+<data name="to rotate the map view." xml:space="preserve"><value>Щоб повернути вигляд карти.</value></data>
+<data name="to display the image gallery." xml:space="preserve"><value>Для відображення галереї зображень.</value></data>
+<data name="italic text" xml:space="preserve"><value>Курсивний текст</value></data>
+<data name="summary" xml:space="preserve"><value>Підсумок</value></data>
+<data name="expandable section" xml:space="preserve"><value>Розкривний розділ</value></data>
+<data name="strong emphasis" xml:space="preserve"><value>Сильне виділення</value></data>
+<data name="emphasis (italic)" xml:space="preserve"><value>Виділення (курсив)</value></data>
+<data name="highlighted text" xml:space="preserve"><value>Виділений текст</value></data>
+<data name="code snippet" xml:space="preserve"><value>Фрагмент коду</value></data>
+<data name="code block" xml:space="preserve"><value>Блок коду</value></data>
+<data name="block quote" xml:space="preserve"><value>Блокова цитата</value></data>
+<data name="citation" xml:space="preserve"><value>Цитування</value></data>
+<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>позначайте дописи за допомогою нашого «списку тегів» (напр., «подобається», «нецікаво», «вже завантажено», ...). Для цього доступно 10 налаштовуваних «тегів».</value></data>
+<data name="heading 1" xml:space="preserve"><value>Заголовок 1</value></data>
+<data name="sample output" xml:space="preserve"><value>Приклад виводу</value></data>
+<data name="variable" xml:space="preserve"><value>Змінна</value></data>
+<data name="small text" xml:space="preserve"><value>Дрібний текст</value></data>
+<data name="figure with caption" xml:space="preserve"><value>Рисунок із підписом</value></data>
+<data name="figure caption" xml:space="preserve"><value>Підпис до рисунка</value></data>
+<data name="keyboard input" xml:space="preserve"><value>Введення з клавіатури</value></data>
+<data name="bold text" xml:space="preserve"><value>Жирний текст</value></data>
+<data name="subscript" xml:space="preserve"><value>Нижній індекс</value></data>
+<data name="superscript" xml:space="preserve"><value>Верхній індекс</value></data>
+<data name="are displayed." xml:space="preserve"><value>відображаються.</value></data>
+<data name="block container" xml:space="preserve"><value>Блоковий контейнер</value></data>
+<data name="abbreviation" xml:space="preserve"><value>Абревіатура</value></data>
+<data name="custom" xml:space="preserve"><value>Користувацький</value></data>
+</root>

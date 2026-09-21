@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?><root><xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"><xsd:import namespace="http://www.w3.org/XML/1998/namespace" /><xsd:element name="root" msdata:IsDataSet="true"><xsd:complexType><xsd:choice maxOccurs="unbounded"><xsd:element name="metadata"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" use="required" type="xsd:string" /><xsd:attribute name="type" type="xsd:string" /><xsd:attribute name="mimetype" type="xsd:string" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="assembly"><xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType></xsd:element><xsd:element name="data"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /><xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" /><xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" /><xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" /><xsd:attribute ref="xml:space" /></xsd:complexType></xsd:element><xsd:element name="resheader"><xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType></xsd:element></xsd:choice></xsd:complexType></xsd:element></xsd:schema><resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="and" xml:space="preserve"><value>oraz ai </value></data>
+<data name="account" xml:space="preserve"><value>konto ai </value></data>
+<data name="full name" xml:space="preserve"><value>Pełna nazwa</value></data>
+<data name="imprint" xml:space="preserve"><value>nadruk ai </value></data>
+<data name="login" xml:space="preserve"><value>Zaloguj się</value></data>
+<data name="date from" xml:space="preserve"><value>data ai </value></data>
+<data name="rotate" xml:space="preserve"><value>obróć ai </value></data>
+<data name="contact" xml:space="preserve"><value>kontakt ai </value></data>
+<data name="getting started" xml:space="preserve"><value>zaczynając ai </value></data>
+<data name="show filter" xml:space="preserve"><value>pokaż filtr ai </value></data>
+<data name="first" xml:space="preserve"><value>pierwszy ai </value></data>
+<data name="paragraphs" xml:space="preserve"><value>Punkty</value></data>
+<data name="close" xml:space="preserve"><value>Zamknij</value></data>
+<data name="contribution" xml:space="preserve"><value>Wkład</value></data>
+<data name="invalid user" xml:space="preserve"><value>Niepoprawna nazwa użytkownika</value></data>
+<data name="logout" xml:space="preserve"><value>wylogowanie ai </value></data>
+<data name="manage your account" xml:space="preserve"><value>zarządzanie kontem ai </value></data>
+<data name="message" xml:space="preserve"><value>wiadomość</value></data>
+<data name="order abandoned" xml:space="preserve"><value>porzucony rozkaz ai </value></data>
+<data name="picture gallery" xml:space="preserve"><value>galeria zdjęć ai </value></data>
+<data name="download" xml:space="preserve"><value>Pobierz</value></data>
+<data name="delete" xml:space="preserve"><value>Usuń</value></data>
+<data name="profile" xml:space="preserve"><value>Profil</value></data>
+<data name="recovery codes" xml:space="preserve"><value>kody odzysku ai </value></data>
+<data name="register as a new user" xml:space="preserve"><value>zarejestruj się jako nowy użytkownik ai </value></data>
+<data name="remove" xml:space="preserve"><value>Usuń</value></data>
+<data name="click here to log in" xml:space="preserve"><value>kliknij tutaj aby się zalogować ai </value></data>
+<data name="date to" xml:space="preserve"><value>data ai </value></data>
+<data name="save" xml:space="preserve"><value>Zapisz</value></data>
+<data name="filter reset" xml:space="preserve"><value>reset filtra ai </value></data>
+<data name="previous" xml:space="preserve"><value>poprzednia ai </value></data>
+<data name="add page" xml:space="preserve"><value>dodaj stronę ai </value></data>
+<data name="password" xml:space="preserve"><value>Hasło</value></data>
+<data name="assign categories to your pages or delete them" xml:space="preserve"><value>przypisywanie kategorii do twoich stron lub usuwanie ich ai </value></data>
+<data name="max" xml:space="preserve"><value>Max</value></data>
+<data name="send" xml:space="preserve"><value>Wyślij</value></data>
+<data name="error" xml:space="preserve"><value>Błąd</value></data>
+<data name="log in" xml:space="preserve"><value>loguj się ai </value></data>
+<data name="conveniently filter and search contributions" xml:space="preserve"><value>Wygodne filtrowanie i wyszukiwanie wkładów</value></data>
+<data name="confirm password" xml:space="preserve"><value>potwierdzić hasło ai </value></data>
+<data name="enter url." xml:space="preserve"><value>Wprowadź url.</value></data>
+<data name="italicized" xml:space="preserve"><value>italicyzowane ai </value></data>
+<data name="email" xml:space="preserve"><value>Email</value></data>
+<data name="heading 6" xml:space="preserve"><value>pozycja 6 ai </value></data>
+<data name="access denied" xml:space="preserve"><value>odmowy dostępu ai </value></data>
+<data name="heading 5" xml:space="preserve"><value>pozycja 5 ai </value></data>
+<data name="add authenticator app" xml:space="preserve"><value>dodaj aplikację uwierzytelniającą ai </value></data>
+<data name="associate your" xml:space="preserve"><value>kojarzy ai </value></data>
+<data name="change email" xml:space="preserve"><value>zmienić e mail ai </value></data>
+<data name="change password" xml:space="preserve"><value>zmienić hasło ai </value></data>
+<data name="change your account settings" xml:space="preserve"><value>zmienić ustawienia konta ai </value></data>
+<data name="choose plan" xml:space="preserve"><value>wybierz plan ai </value></data>
+<data name="click here to confirm your account" xml:space="preserve"><value>kliknij tutaj aby potwierdzić swoje konto ai </value></data>
+<data name="heading 4" xml:space="preserve"><value>pozycja 4 ai </value></data>
+<data name="properties" xml:space="preserve"><value>właściwości ai </value></data>
+<data name="log in with a recovery code" xml:space="preserve"><value>zaloguj się z kodem odzysku ai </value></data>
+<data name="configure authenticator app" xml:space="preserve"><value>skonfigurować aplikację uwierzytelniającą ai </value></data>
+<data name="title contains" xml:space="preserve"><value>tytuł zawiera ai </value></data>
+<data name="toggle view" xml:space="preserve"><value>przełącz widok ai </value></data>
+<data name="these docs" xml:space="preserve"><value>ci lekarze ai </value></data>
+<data name="terms and conditions" xml:space="preserve"><value>warunki ai </value></data>
+<data name="xxx" xml:space="preserve"><value>xxx ai </value></data>
+<data name="all" xml:space="preserve"><value>wszystkie</value></data>
+<data name="confirm email" xml:space="preserve"><value>potwierdź wiadomość e mail ai </value></data>
+<data name="confirm email change" xml:space="preserve"><value>potwierdzenie zmiany poczty elektronicznej ai </value></data>
+<data name="hyperlink" xml:space="preserve"><value>hiperłącze ai </value></data>
+<data name="also see a preview of the" xml:space="preserve"><value>również zobaczyć podgląd ai </value></data>
+<data name="delete data and close my account" xml:space="preserve"><value>usuń dane i zamknij moje konto ai </value></data>
+<data name="delete personal data" xml:space="preserve"><value>usuń dane osobowe ai </value></data>
+<data name="disable 2fa" xml:space="preserve"><value>wyłączyć 2fa ai </value></data>
+<data name="max lenght 14" xml:space="preserve"><value>Maksymalny limit 14</value></data>
+<data name="select the following from the menu: home, getting started, register, login, upgrade, logout, imprint, contact, account. in the second menu, select: show filter, rotate, toggle view, properties, add, forward, backward. in the dialogue box you can: save, cancel, submit." xml:space="preserve"><value>Wybierz z menu: dom, początek, rejestracja, login, aktualizacja, wylogowanie, odcisk, kontakt, konto. W drugim menu wybierz: pokaż filtr, obróć, przełącz widok, właściwości, dodaj, do przodu, do tyłu. W oknie dialogowym możesz: zapisać, anulować, złożyć.</value></data>
+<data name="authenticator app" xml:space="preserve"><value>Aplikacja uwierzytelniająca</value></data>
+<data name="recovery codes left." xml:space="preserve"><value>Zostały kody odzysku.</value></data>
+<data name="efficient web scraping by simply entering a url" xml:space="preserve"><value>wydajne skrobanie stron poprzez proste wprowadzenie url ai </value></data>
+<data name="enable qr code generation" xml:space="preserve"><value>włącz generowanie kodu qr ai </value></data>
+<data name="external logins" xml:space="preserve"><value>loginy zewnętrzne ai </value></data>
+<data name="no passkeys are registered." xml:space="preserve"><value>Nie są zarejestrowane.</value></data>
+<data name="forget this browser" xml:space="preserve"><value>zapomnij o tej przeglądarce ai </value></data>
+<data name="forgot password confirmation" xml:space="preserve"><value>zapomniane potwierdzenie hasła ai </value></data>
+<data name="generate a new set of recovery codes" xml:space="preserve"><value>wygenerować nowy zestaw kodów odzysku ai </value></data>
+<data name="generate recovery codes" xml:space="preserve"><value>generowanie kodów odzysku ai </value></data>
+<data name="the external login was removed." xml:space="preserve"><value>Zewnętrzne logowanie zostało usunięte.</value></data>
+<data name="learn how to" xml:space="preserve"><value>nauczyć się jak ai </value></data>
+<data name="legal inquiry" xml:space="preserve"><value>dochodzenie prawne ai </value></data>
+<data name="locked out" xml:space="preserve"><value>zablokowany ai </value></data>
+<data name="manage email" xml:space="preserve"><value>zarządzanie e mailem ai </value></data>
+<data name="just browse" xml:space="preserve"><value>tylko przeglądaj ai </value></data>
+<data name="manage your external logins" xml:space="preserve"><value>zarządzanie logami zewnętrznymi ai </value></data>
+<data name="new password" xml:space="preserve"><value>nowe hasło ai </value></data>
+<data name="old password" xml:space="preserve"><value>stare hasło ai </value></data>
+<data name="options" xml:space="preserve"><value>opcje ai </value></data>
+<data name="google authenticator for" xml:space="preserve"><value>Autoryzator Google dla</value></data>
+<data name="order complete" xml:space="preserve"><value>zamówienie kompletne ai </value></data>
+<data name="personal data" xml:space="preserve"><value>dane osobowe ai </value></data>
+<data name="phone number" xml:space="preserve"><value>numer telefonu ai </value></data>
+<data name="min" xml:space="preserve"><value>Min</value></data>
+<data name="recovery code" xml:space="preserve"><value>kod odzysku ai </value></data>
+<data name="recovery code verification" xml:space="preserve"><value>weryfikacja kodu odzysku ai </value></data>
+<data name="register" xml:space="preserve"><value>rejestr ai </value></data>
+<data name="register confirmation" xml:space="preserve"><value>potwierdzenie rejestracji ai </value></data>
+<data name="registered logins" xml:space="preserve"><value>zarejestrowane loginy ai </value></data>
+<data name="remember me" xml:space="preserve"><value>pamiętasz mnie ai </value></data>
+<data name="remember this machine" xml:space="preserve"><value>pamiętaj o tej maszynie ai </value></data>
+<data name="resend" xml:space="preserve"><value>ponownie ai </value></data>
+<data name="resend email confirmation" xml:space="preserve"><value>ponowne potwierdzenie wiadomości e mail ai </value></data>
+<data name="reset" xml:space="preserve"><value>resetuj ai </value></data>
+<data name="reset authenticator app" xml:space="preserve"><value>resetuj aplikację uwierzytelniającą ai </value></data>
+<data name="reset authenticator key" xml:space="preserve"><value>resetuj klucz uwierzytelniania ai </value></data>
+<data name="reset filters" xml:space="preserve"><value>filtry do resetowania ai </value></data>
+<data name="reset password" xml:space="preserve"><value>zresetuj hasło ai </value></data>
+<data name="reset password confirmation" xml:space="preserve"><value>resetuj potwierdzenie hasła ai </value></data>
+<data name="reset recovery codes" xml:space="preserve"><value>zresetuj kody odzysku ai </value></data>
+<data name="user name" xml:space="preserve"><value>nazwa użytkownika ai </value></data>
+<data name="scan the qr code or enter this key" xml:space="preserve"><value>skanuj kod qr lub wprowadź ten klucz ai </value></data>
+<data name="selected categories" xml:space="preserve"><value>wybrane kategorie ai </value></data>
+<data name="selected websites" xml:space="preserve"><value>wybrane strony internetowe ai </value></data>
+<data name="send verification email" xml:space="preserve"><value>wysyłanie e maili weryfikacji ai </value></data>
+<data name="set password" xml:space="preserve"><value>ustawić hasło ai </value></data>
+<data name="set your password" xml:space="preserve"><value>ustaw hasło ai </value></data>
+<data name="subject" xml:space="preserve"><value>temat</value></data>
+<data name="define the names of your categories" xml:space="preserve"><value>definiuj nazwy swoich kategorii ai </value></data>
+<data name="into your two factor authenticator app. spaces and casing do not matter." xml:space="preserve"><value>W aplikacji uwierzytelniającej dwa czynniki. Przestrzenie i obudowa nie mają znaczenia.</value></data>
+<data name="update password" xml:space="preserve"><value>aktualizacja hasła ai </value></data>
+<data name="main heading" xml:space="preserve"><value>pozycja główna ai </value></data>
+<data name="error finding user for unspecified email" xml:space="preserve"><value>użytkownik znajdujący błędy dla nieokreślonej wiadomości e mail ai </value></data>
+<data name="home" xml:space="preserve"><value>Strona główna</value></data>
+<data name="invalid password reset" xml:space="preserve"><value>nieprawidłowy reset hasła ai </value></data>
+<data name="of" xml:space="preserve"><value>z</value></data>
+<data name="paragraph" xml:space="preserve"><value>akapit ai </value></data>
+<data name="success" xml:space="preserve"><value>Sukces</value></data>
+<data name="set up authenticator app" xml:space="preserve"><value>skonfigurować aplikację uwierzytelniającą ai </value></data>
+<data name="username" xml:space="preserve"><value>Nazwa użytkownika</value></data>
+<data name="verification code" xml:space="preserve"><value>kod weryfikacji ai </value></data>
+<data name="verify" xml:space="preserve"><value>weryfikacja ai </value></data>
+<data name="next" xml:space="preserve"><value>Dalej</value></data>
+<data name="subscriptions" xml:space="preserve"><value>Subskrypcje</value></data>
+<data name="you have" xml:space="preserve"><value>jeśli ai </value></data>
+<data name="you must" xml:space="preserve"><value>należy ai </value></data>
+<data name="your password has been changed" xml:space="preserve"><value>twoje hasło zostało zmienione ai </value></data>
+<data name="your profile has been updated" xml:space="preserve"><value>twój profil został zaktualizowany ai </value></data>
+<data name="nter a name for your passkey" xml:space="preserve"><value>Nter nazwę hasła</value></data>
+<data name="forgot your password?" xml:space="preserve"><value>Zapomniałeś hasła?</value></data>
+<data name="full display of the contributions by clicking on the contribution title" xml:space="preserve"><value>Pełne wyświetlenie wkładu poprzez kliknięcie na tytuł wkładu</value></data>
+<data name="privacy policy" xml:space="preserve"><value>polityka prywatności ai </value></data>
+<data name="pro version" xml:space="preserve"><value>wersja pro ai </value></data>
+<data name="new project" xml:space="preserve"><value>nowy projekt ai </value></data>
+<data name="reset filter" xml:space="preserve"><value>filtr do resetowania ai </value></data>
+<data name="save changes" xml:space="preserve"><value>zapisz zmiany ai </value></data>
+<data name="last" xml:space="preserve"><value>ostatni ai </value></data>
+<data name="open original" xml:space="preserve"><value>otwarty oryginał ai </value></data>
+<data name="download documents" xml:space="preserve"><value>pobieranie dokumentów ai </value></data>
+<data name="tagging and filtering" xml:space="preserve"><value>znakowanie i filtrowanie ai </value></data>
+<data name="open local" xml:space="preserve"><value>otwarte lokalne ai </value></data>
+<data name="download single" xml:space="preserve"><value>pobierz jeden ai </value></data>
+<data name="icon to switch between the cards view and the table view." xml:space="preserve"><value>Ikona przełączania widoku kart i widoku tabeli.</value></data>
+<data name="add custom tag" xml:space="preserve"><value>Dodaj niestandardowy znacznik</value></data>
+<data name="define the name of the tag for individual posts" xml:space="preserve"><value>określić nazwę znacznika dla poszczególnych postów ai </value></data>
+<data name="tagging contributions" xml:space="preserve"><value>Składki związane z oznakowaniem</value></data>
+<data name="filter your pages" xml:space="preserve"><value>filtruj swoje strony ai </value></data>
+<data name="download txt or json documents without images" xml:space="preserve"><value>pobierz dokumenty txt lub json bez zdjęć ai </value></data>
+<data name="in the filters you can filter by tagged posts" xml:space="preserve"><value>w filtrach można filtrować przez oznaczone posty ai </value></data>
+<data name="click on the" xml:space="preserve"><value>kliknij na ai </value></data>
+<data name="to display download options" xml:space="preserve"><value>wyświetlanie opcji pobierania ai </value></data>
+<data name="click save word document." xml:space="preserve"><value>Kliknij przycisk "zapisz słowo" dokumentu.</value></data>
+<data name="error changing user name." xml:space="preserve"><value>Błąd przy zmianie nazwy użytkownika.</value></data>
+<data name="add" xml:space="preserve"><value>Dodaj</value></data>
+<data name="document." xml:space="preserve"><value>Dokument.</value></data>
+<data name="a new tab." xml:space="preserve"><value>Nowy rachunek.</value></data>
+<data name="and json will open. you will" xml:space="preserve"><value>A Json otworzy. Będziesz.</value></data>
+<data name="json download" xml:space="preserve"><value>Json pobierz</value></data>
+<data name="the external login was added." xml:space="preserve"><value>Dodano logowanie zewnętrzne.</value></data>
+<data name="disable two-factor authentication (2fa)" xml:space="preserve"><value>Wyłącz uwierzytelnianie dwóch czynników (2fa)</value></data>
+<data name="use the switch to choose between ‘where is’ and ‘where is not’." xml:space="preserve"><value>Użyj przełącznika, aby wybrać pomiędzy 'gdzie jest' a 'gdzie nie jest'.</value></data>
+<data name="loc[are displayed.]" xml:space="preserve"><value>Loc [są wyświetlane.]</value></data>
+<data name="a simple, tab-separated format well suited to further processing in spreadsheets or databases." xml:space="preserve"><value>Prosty, oddzielony tabletem format dobrze przystosowany do dalszego przetwarzania w arkuszach kalkulacyjnych lub bazach danych.</value></data>
+<data name="save to your download directory." xml:space="preserve"><value>Zapisz do katalogu pobierania.</value></data>
+<data name="two-factor authentication (2fa)" xml:space="preserve"><value>Uwierzytelnianie dwóch czynników (2fa)</value></data>
+<data name="cards" xml:space="preserve"><value>Karty</value></data>
+<data name="a red recyclebin can icon appears under the filter icon. clicking on this icon deletes all active filters and displays the complete contribution overview again." xml:space="preserve"><value>Pod ikoną filtra pojawia się ikona czerwonej puszki recyclebin. Kliknięcie na tej ikonie usuwa wszystkie aktywne filtry i ponownie wyświetla pełny przegląd wkładu.</value></data>
+<data name="two-factor authentication" xml:space="preserve"><value>Uwierzytelnianie dwóch czynników</value></data>
+<data name="enter a new email" xml:space="preserve"><value>Wpisz nowy email</value></data>
+<data name="select columns for scraping" xml:space="preserve"><value>Wybierz kolumny do skrobania</value></data>
+<data name="click one or more tags for a post." xml:space="preserve"><value>Kliknij jeden lub więcej znaczników na post.</value></data>
+<data name="cards and table" xml:space="preserve"><value>Karty i stół</value></data>
+<data name="icon to view the original contribution in its original source and layout." xml:space="preserve"><value>Ikona wyświetlania oryginalnego wkładu w oryginalnym źródle i układzie.</value></data>
+<data name="in the view for individual contributions you can download them." xml:space="preserve"><value>W odniesieniu do poszczególnych wkładów można je pobrać.</value></data>
+<data name="rename" xml:space="preserve"><value>Zmień nazwę</value></data>
+<data name="to display tagged contributions, you can select the corresponding tag from the list of text." xml:space="preserve"><value>Aby wyświetlić zaznaczone komentarze, można wybrać odpowiedni znacznik z listy tekstu.</value></data>
+<data name="toggle help visibility" xml:space="preserve"><value>Włączenie / wyłączenie pomocy widoczności</value></data>
+<data name="enter / select url" xml:space="preserve"><value>Enter / select url</value></data>
+<data name="download options pdf, docs, txt, html" xml:space="preserve"><value>Pobierz opcje pdf, docs, txt, html</value></data>
+<data name="to display filter dialog" xml:space="preserve"><value>Wyświetlanie okna dialogowego filtra</value></data>
+<data name="enter your phone number" xml:space="preserve"><value>Podaj swój numer telefonu</value></data>
+<data name="no contributions were found on the page" xml:space="preserve"><value>Nie znaleziono żadnych wkładów na stronie</value></data>
+<data name="a new window will open displaying a pdf preview of your document. this preview provides an initial overview of the document's content and layout." xml:space="preserve"><value>Nowe okno otworzy wyświetlanie podglądu PDF dokumentu. Podgląd ten zawiera wstępny przegląd treści i układu dokumentu.</value></data>
+<data name="the best way to contact us is to use our contact form below. please fill out all of the required fields and we will get back to you as soon as possible." xml:space="preserve"><value>Najlepszym sposobem, aby skontaktować się z nami jest wykorzystanie naszego formularza kontaktowego poniżej. Proszę wypełnić wszystkie wymagane pola i oddzwonimy jak najszybciej.</value></data>
+<data name="export" xml:space="preserve"><value>Eksportuj</value></data>
+<data name="underlined" xml:space="preserve"><value>Podkreślony</value></data>
+<data name="add to followed projects" xml:space="preserve"><value>dodać do kolejnych projektów ai </value></data>
+<data name="follow" xml:space="preserve"><value>następnie ai </value></data>
+<data name="scraping view" xml:space="preserve"><value>widok ze skrobaniem ai </value></data>
+<data name="authenticator code" xml:space="preserve"><value>kod uwierzytelniający ai </value></data>
+<data name="heading 3" xml:space="preserve"><value>pozycja 3 ai </value></data>
+<data name="heading 2" xml:space="preserve"><value>pozycja 2 ai </value></data>
+<data name="image" xml:space="preserve"><value>obrazek ai </value></data>
+<data name="the created document will open in" xml:space="preserve"><value>utworzony dokument zostanie otwarty w ai </value></data>
+<data name="click on download a view with" xml:space="preserve"><value>kliknij na pobranie widoku z ai </value></data>
+<data name="file saving failed:" xml:space="preserve"><value>Zapisywanie plików nie powiodło się:</value></data>
+<data name="file saved to:" xml:space="preserve"><value>Plik zapisany do:</value></data>
+<data name="an error occurred during download:" xml:space="preserve"><value>Podczas pobierania wystąpił błąd:</value></data>
+<data name="thank you for your message." xml:space="preserve"><value>Dziękuję za wiadomość.</value></data>
+<data name="file" xml:space="preserve"><value>Plik</value></data>
+<data name="an error has occurred." xml:space="preserve"><value>Wystąpił błąd.</value></data>
+<data name="table" xml:space="preserve"><value>Tabela</value></data>
+<data name="document formats: docx, pdf, html, json, txt" xml:space="preserve"><value>Formaty dokumentów: docx, pdf, html, json, txt</value></data>
+<data name="filter by category (you must have tagged your pages to do this)" xml:space="preserve"><value>Filtruj według kategorii (musisz oznaczyć swoje strony, aby to zrobić)</value></data>
+<data name="then you can download pdf, docx and html documents with images" xml:space="preserve"><value>Następnie można pobrać dokumenty pdf, docx i html ze zdjęciami</value></data>
+<data name="you can define the name of your tags individually under options." xml:space="preserve"><value>Możesz zdefiniować nazwę znaczników indywidualnie w opcji.</value></data>
+<data name="show help (dynamic, static, off)" xml:space="preserve"><value>Pokaż pomoc (dynamiczna, statyczna, wyłączona)</value></data>
+<data name="enter a part that the title must contain." xml:space="preserve"><value>Wprowadź część, którą musi zawierać tytuł.</value></data>
+<data name="switch view" xml:space="preserve"><value>Przełącz widok</value></data>
+<data name="custoum" xml:space="preserve"><value>Własny</value></data>
+<data name="download document" xml:space="preserve"><value>Pobierz dokument</value></data>
+<data name="csv download" xml:space="preserve"><value>Pobieranie Csv</value></data>
+<data name="excel download" xml:space="preserve"><value>Pobieranie Excel</value></data>
+<data name="single document download" xml:space="preserve"><value>Pobieranie jednego dokumentu</value></data>
+<data name="with 'closerpage-for-windows' you can receive up to 200 images." xml:space="preserve"><value>Z 'closerview-for-windows' możesz otrzymać do 200 obrazów.</value></data>
+<data name="the contributions for" xml:space="preserve"><value>Składki</value></data>
+<data name="to automatically collect new contributions in the future, click on" xml:space="preserve"><value>Aby automatycznie zbierać nowe składki w przyszłości, kliknij na</value></data>
+<data name="you can select individual projects to display only the contributions that belong to those projects." xml:space="preserve"><value>Możesz wybrać poszczególne projekty, aby wyświetlać tylko wkłady, które należą do tych projektów.</value></data>
+<data name="available predefined tags" xml:space="preserve"><value>Dostępne predefiniowane znaczniki</value></data>
+<data name="if you have assigned categories to your web pages, you can also filter by these categories. simply select the desired web pages or categories from the list." xml:space="preserve"><value>Jeśli przypisałeś kategorie do swoich stron internetowych, możesz również filtrować według tych kategorii. Wystarczy wybrać żądane strony lub kategorie z listy.</value></data>
+<data name="once you have made your selection, click on the “submit” button to apply the filter. the contribution view will then be updated and will only show the filtered results." xml:space="preserve"><value>Po dokonaniu wyboru kliknij przycisk "submit", aby zastosować filtr. Widok wkładu zostanie następnie zaktualizowany i pokaże tylko filtrowane wyniki.</value></data>
+<data name="to display options" xml:space="preserve"><value>Wyświetlanie opcji</value></data>
+<data name="this will rotate all cards." xml:space="preserve"><value>To obróci wszystkie karty.</value></data>
+<data name="button" xml:space="preserve"><value>Przycisk</value></data>
+<data name="preview the images" xml:space="preserve"><value>Podgląd obrazów</value></data>
+<data name="if your document contains image files, these will also be displayed in the preview." xml:space="preserve"><value>Jeśli Twój dokument zawiera pliki obrazkowe, będą one również wyświetlane w podglądzie.</value></data>
+<data name="download options" xml:space="preserve"><value>Opcje pobierania</value></data>
+<data name="to download the document, select the desired format from the available options." xml:space="preserve"><value>Aby pobrać dokument, wybierz żądany format z dostępnych opcji.</value></data>
+<data name="ideal for print-ready documents and sharing in a professional layout." xml:space="preserve"><value>Idealny do druku - gotowe dokumenty i dzielenie się w profesjonalnym układzie.</value></data>
+<data name="error: incorrect password." xml:space="preserve"><value>Błąd: nieprawidłowe hasło.</value></data>
+<data name="useful if you want to edit the document further." xml:space="preserve"><value>Przydatne, jeśli chcesz dalej edytować dokument.</value></data>
+<data name="useful for embedding content in a website or other digital medium." xml:space="preserve"><value>Przydatne do umieszczania treści na stronie internetowej lub innym nośniku cyfrowym.</value></data>
+<data name="contains only plain text, with no formatting. suitable for simple further processing." xml:space="preserve"><value>Zawiera tylko zwykły tekst, bez formatowania. Nadaje się do prostej dalszej obróbki.</value></data>
+<data name="contains all the document's images as separate files in case you need them individually." xml:space="preserve"><value>Zawiera wszystkie obrazy dokumentu jako oddzielne pliki w przypadku, gdy są potrzebne indywidualnie.</value></data>
+<data name="to search a website for contributions, enter a url and click on the magnifying glass icon. alternatively, you can press the enter key on your keyboard." xml:space="preserve"><value>Aby przeszukać stronę internetową, wpisz url i kliknij na ikonę szkła powiększającego. Alternatywnie, możesz nacisnąć klawisz enter na klawiaturze.</value></data>
+<data name="if you are logged in and already tracking urls for changes, you can also select the url from the drop-down list." xml:space="preserve"><value>Jeśli jesteś zalogowany i już śledzisz urls dla zmian, możesz również wybrać url z listy rozwijanej.</value></data>
+<data name="current posts on the selected website are automatically captured by our algorithm. the old and newly detected posts are then displayed on the website." xml:space="preserve"><value>Obecne posty na wybranej stronie są automatycznie rejestrowane przez nasz algorytm. Stare i nowo wykryte posty są następnie wyświetlane na stronie internetowej.</value></data>
+<data name="i enter a url and nothing is displayed. it´s why?" xml:space="preserve"><value>Wprowadzam url i nic nie jest wyświetlane. Dlaczego?</value></data>
+<data name="unfortunately, this is not unusual and can have many causes, e.g.:" xml:space="preserve"><value>Niestety, nie jest to niezwykłe i może mieć wiele przyczyn, np.:</value></data>
+<data name="no contributions are linked on the website you are searching for. (e.g., you entered the contact page as the url: “https://mysite/contact”)" xml:space="preserve"><value>Na stronie internetowej, której szukasz, nie znajdują się żadne powiązania. (np. wpisałeś stronę kontaktową jako url: "https: / / misite / contact")</value></data>
+<data name="the linked posts are not within the domain. for example, you entered “https://mysite.com/products,” but all contributions refer to “https://otherpage.com/productxy.”" xml:space="preserve"><value>Powiązane posty nie należą do domeny. Na przykład wpisałeś "https: / / mysite.com / products", ale wszystkie uwagi odnoszą się do "https: / / otherpage.com / productxy".</value></data>
+<data name="the requested page blocks bots (closerpage is a bot)." xml:space="preserve"><value>Żądana strona blokuje boty (closerpage jest bot).</value></data>
+<data name="the requested page only displays posts for registered users." xml:space="preserve"><value>Żądana strona wyświetla tylko posty dla zarejestrowanych użytkowników.</value></data>
+<data name="table structure (sorted by priority)" xml:space="preserve"><value>Struktura tabeli (posortowana według priorytetów)</value></data>
+<data name="the table is organised so that the most important information is displayed first, allowing for quick orientation and efficient processing." xml:space="preserve"><value>Tabela jest tak zorganizowana, że najważniejsze informacje są najpierw wyświetlane, co pozwala na szybką orientację i efektywne przetwarzanie.</value></data>
+<data name="tags" xml:space="preserve"><value>Tags</value></data>
+<data name="the contribution will then open in a new browser window or tab. there you will see the contribution as it was published on the original website—including all formatting, images, links, and other content that may not be included in the scraping view." xml:space="preserve"><value>Następnie wkład zostanie otwarty w nowym oknie przeglądarki lub zakładce. Tam zobaczysz wkład, jak został opublikowany na oryginalnej stronie internetowej - w tym wszystkie formatowanie, obrazy, linki i inne treści, które mogą nie być zawarte w widoku scrating.</value></data>
+<data name="any existing tags or categories assigned to the contributions are displayed here. this helps you to quickly filter contributions by topic or focus." xml:space="preserve"><value>Wszelkie istniejące znaczniki lub kategorie przypisane do wkładów są wyświetlane tutaj. Pomaga to szybko filtrować wkład według tematu lub ostrości.</value></data>
+<data name="headings and titles" xml:space="preserve"><value>Nagłówki i tytuły</value></data>
+<data name="the headings and titles of the contributions are listed second. they provide an initial overview of the content and enable the quick identification of relevant contributions." xml:space="preserve"><value>Nagłówki i tytuły wkładów są wymienione jako drugie. Stanowią one wstępny przegląd treści i umożliwiają szybką identyfikację odpowiednich wkładów.</value></data>
+<data name="date and author" xml:space="preserve"><value>Data i autor</value></data>
+<data name="this column contains the publication date and the author of the contribution. this allows you to see when and by whom the contribution was created." xml:space="preserve"><value>Ta kolumna zawiera datę publikacji i autora wkładu. Pozwala to zobaczyć, kiedy i przez kogo został stworzony wkład.</value></data>
+<data name="the actual content of the contributions, divided into paragraphs, makes up the final part of the table. this is where you will find the detailed text that has been scraped." xml:space="preserve"><value>Rzeczywista zawartość wkładów, podzielona na akapity, stanowi końcową część tabeli. Tutaj znajdziesz szczegółowy tekst, który został zeskrobany.</value></data>
+<data name="table functions" xml:space="preserve"><value>Funkcje tabeli</value></data>
+<data name="tagging" xml:space="preserve"><value>Oznakowanie</value></data>
+<data name="contributions can be marked and tagged by selecting the checkbox. this makes it easier to sort, filter and manage contributions later on, particularly when dealing with large amounts of data." xml:space="preserve"><value>Wkłady można oznaczyć i oznaczyć wybierając pole wyboru. Ułatwia to sortowanie, filtrowanie i zarządzanie wkładami później, szczególnie w przypadku dużych ilości danych.</value></data>
+<data name="the entire table or selected contributions can be downloaded in various formats" xml:space="preserve"><value>Cała tabela lub wybrane wkłady można pobrać w różnych formatach</value></data>
+<data name="select tagged contributions" xml:space="preserve"><value>Wybierz zaznaczone wkłady</value></data>
+<data name="a well-known table format offering additional formatting options, particularly suited to reports or presentations." xml:space="preserve"><value>Znany format tabeli oferuje dodatkowe opcje formatowania, szczególnie dostosowane do raportów lub prezentacji.</value></data>
+<data name="a structured data format particularly suited to further processing in programs or web applications." xml:space="preserve"><value>Zorganizowany format danych szczególnie dostosowany do dalszego przetwarzania w programach lub aplikacjach internetowych.</value></data>
+<data name="the tagging feature enables you to categorise and organise contributions, making them easier to find or filter later on." xml:space="preserve"><value>Funkcja znakowania pozwala na kategoryzację i organizację składek, ułatwiając ich znalezienie lub filtrowanie później.</value></data>
+<data name="this feature is available in both the cards and scraping table views. this feature enables you to hide specific contributions or flag them as particularly important." xml:space="preserve"><value>Funkcja ta jest dostępna zarówno w widoku kart, jak i tabeli scrating. Funkcja ta pozwala na ukrywanie konkretnych wkładów lub oznaczanie ich jako szczególnie ważnych.</value></data>
+<data name="mark contributions that are particularly important, relevant or outstanding." xml:space="preserve"><value>Zaznacz składki, które są szczególnie ważne, istotne lub pozostające do spłaty.</value></data>
+<data name="indicates that the contribution has already been downloaded." xml:space="preserve"><value>Wskazuje, że wkład został już pobrany.</value></data>
+<data name="marks contributions that have been created or edited using ai technologies." xml:space="preserve"><value>Znaki wkładów, które zostały utworzone lub edytowane przy użyciu technologii ai.</value></data>
+<data name="hides contributions that you no longer want to display, but does not delete them completely." xml:space="preserve"><value>Ukrywa wkłady, których nie chcesz już wyświetlać, ale nie usuwa ich całkowicie.</value></data>
+<data name="if the link does not work or the contribution is no longer available, this may be due to changes on the original page." xml:space="preserve"><value>Jeśli link nie działa lub wkład nie jest już dostępny, może to być spowodowane zmianami na pierwotnej stronie.</value></data>
+<data name="show contribution" xml:space="preserve"><value>Pokaż wkład</value></data>
+<data name="in card view, click on the headline to open a new window with the content of the contribution." xml:space="preserve"><value>W widoku karty kliknij nagłówek, aby otworzyć nowe okno z treścią wkładu.</value></data>
+<data name="ideal for quickly reading, checking, or editing contributions without having to call up the original source." xml:space="preserve"><value>Idealny do szybkiego czytania, sprawdzania lub edycji wkładów bez konieczności wywołania oryginalnego źródła.</value></data>
+<data name="create a new account." xml:space="preserve"><value>Utwórz nowe konto.</value></data>
+<data name="if an contribution contains image files, a small preview image will be displayed in the contribution preview." xml:space="preserve"><value>Jeśli wkład zawiera pliki obrazkowe, mały podgląd zostanie wyświetlony w podglądzie wkładu.</value></data>
+<data name="you will see a number in the upper corner of the preview image. this number indicates how many images are contained in the contribution." xml:space="preserve"><value>Zobaczysz numer w górnym rogu obrazka podglądu. Liczba ta wskazuje, ile obrazów zawiera wkład.</value></data>
+<data name="simply click on the preview image." xml:space="preserve"><value>Wystarczy kliknąć na podgląd.</value></data>
+<data name="this will open a gallery view in which all images in the contribution are displayed clearly and in a larger format." xml:space="preserve"><value>Otwiera to widok galerii, w którym wszystkie obrazy w wkładzie są wyświetlane wyraźnie i w szerszym formacie.</value></data>
+<data name="this allows you to decide whether contributions with the selected tag are displayed or whether only contributions that are not tagged accordingly are displayed." xml:space="preserve"><value>Pozwala to zdecydować, czy są wyświetlane wkłady z zaznaczonym znacznikiem, czy tylko te, które nie są odpowiednio oznaczone.</value></data>
+<data name="any questions you have about our privacy policy, cookies or terms of use will be answered as soon as possible." xml:space="preserve"><value>Odpowiedzi na wszelkie pytania dotyczące naszej polityki prywatności, plików cookie lub warunków korzystania zostaną udzielone tak szybko, jak to możliwe.</value></data>
+<data name="current contributions from your favorite websites - at a glance" xml:space="preserve"><value>Bieżące opinie z ulubionych stron internetowych - w skrócie</value></data>
+<data name="do you frequently read or research on different websites and want the latest news in one place at a glance? then you've come to the right place!" xml:space="preserve"><value>Czy często czytasz lub badasz na różnych stronach internetowych i chcesz najnowsze wiadomości w jednym miejscu na pierwszy rzut oka? Więc trafiłeś we właściwe miejsce!</value></data>
+<data name="all new posts from your selected websites at a glance." xml:space="preserve"><value>Wszystkie nowe posty z wybranych stron internetowych w skrócie.</value></data>
+<data name="generate documents in docx, pdf, json or html." xml:space="preserve"><value>Generuj dokumenty w docx, pdf, json lub html.</value></data>
+<data name="mark posts with our 'tag list' (e.g. “like”, “uninteresting”, “already downloaded”, ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>Zaznacz posty z naszą listą znaczników (np. "jak", "nieinteresujące", "już pobrane", "...). W tym celu dostępne są 10 konfigurowalnych znaczników.</value></data>
+<data name="discover closerpage - the ultimate tool for anyone who wants to keep up to date with the latest online content. with the user-friendly web scraping function, simply enter a url and instantly see all new posts on the desired website." xml:space="preserve"><value>Odkryj closserpage - ostateczne narzędzie dla każdego, kto chce być na bieżąco z najnowszymi treściami online. Z przyjazną dla użytkownika funkcją skrobania stron internetowych, wystarczy wprowadzić url i natychmiast zobaczyć wszystkie nowe posty na żądanej stronie internetowej.</value></data>
+<data name="each post can be displayed in full with a single click, so you won't miss any important information. the chronological order of the posts makes it easier to navigate and find relevant content." xml:space="preserve"><value>Każdy post może być wyświetlany w całości jednym kliknięciem, więc nie przegapisz żadnych ważnych informacji. Kolejność chronologiczna postów ułatwia nawigację i znalezienie odpowiedniej treści.</value></data>
+<data name="a particular highlight is the ability to create documents from each contribution in docx, pdf, json or html format - ideal for archiving or further processing the information." xml:space="preserve"><value>Szczególną atrakcją jest możliwość tworzenia dokumentów z każdego wkładu w formacie docx, pdf, json lub html - idealny do archiwizacji lub dalszego przetwarzania informacji.</value></data>
+<data name="this means you never miss a new contribution and are always up to date" xml:space="preserve"><value>Oznacza to, że nigdy nie przegapisz nowego wkładu i zawsze jesteś na bieżąco</value></data>
+<data name="register to activate the free plan. then, you can upgrade to the pro plan." xml:space="preserve"><value>Zarejestruj się, aby aktywować wolny plan. Potem możesz przejść do pro planu.</value></data>
+<data name="you do not have access to this resource." xml:space="preserve"><value>Nie masz dostępu do tego zasobu.</value></data>
+<data name="thank you for confirming your email." xml:space="preserve"><value>Dziękuję za potwierdzenie e-maila.</value></data>
+<data name="error confirming your email." xml:space="preserve"><value>Błąd potwierdzający e-mail.</value></data>
+<data name="i accept the terms and conditions" xml:space="preserve"><value>Akceptuję warunki</value></data>
+<data name="error: invalid email change confirmation link." xml:space="preserve"><value>Błąd: niepoprawny link do potwierdzenia.</value></data>
+<data name="error changing email." xml:space="preserve"><value>Błąd przy zmianie poczty elektronicznej.</value></data>
+<data name="thank you for confirming your email change." xml:space="preserve"><value>Dziękuję za potwierdzenie zmiany e-maila.</value></data>
+<data name="you've successfully authenticated with" xml:space="preserve"><value>Pomyślnie uwierzytelniłeś</value></data>
+<data name="use another service to register." xml:space="preserve"><value>Użyj innej usługi do rejestracji.</value></data>
+<data name="please enter an email address for this site below and click the register button to finish logging in." xml:space="preserve"><value>Proszę wpisać adres e-mail dla tej strony poniżej i kliknij przycisk rejestru, aby zakończyć logowanie.</value></data>
+<data name="please enter your email." xml:space="preserve"><value>Proszę wpisać swój e-mail.</value></data>
+<data name="error loading external login information." xml:space="preserve"><value>Błąd podczas wczytywania zewnętrznych informacji logowania.</value></data>
+<data name="error loading external login information during confirmation." xml:space="preserve"><value>Błąd podczas wczytywania zewnętrznych informacji logowania podczas potwierdzenia.</value></data>
+<data name="reset your password." xml:space="preserve"><value>Zresetuj hasło.</value></data>
+<data name="the default ui requires a user store with email support." xml:space="preserve"><value>Domyślny ui wymaga sklepu z obsługą e-mail.</value></data>
+<data name="enter your email." xml:space="preserve"><value>Wpisz swój e-mail.</value></data>
+<data name="please check your email to reset your password." xml:space="preserve"><value>Proszę sprawdzić e-mail, aby zresetować hasło.</value></data>
+<data name="the password reset link is invalid." xml:space="preserve"><value>Połączenie resetowania hasła jest nieprawidłowe.</value></data>
+<data name="please confirm your password." xml:space="preserve"><value>Proszę potwierdzić hasło.</value></data>
+<data name="this account has been locked out, please try again later." xml:space="preserve"><value>To konto zostało zablokowane, spróbuj ponownie później.</value></data>
+<data name="use a local account to log in." xml:space="preserve"><value>Użyj lokalnego konta, aby się zalogować.</value></data>
+<data name="log in with a passkey" xml:space="preserve"><value>Zaloguj się za pomocą klucza</value></data>
+<data name="use another service to log in." xml:space="preserve"><value>Użyj innej usługi do zalogowania się.</value></data>
+<data name="please enter your password." xml:space="preserve"><value>Proszę podać hasło.</value></data>
+<data name="your login is protected with an authenticator app. enter your authenticator code below." xml:space="preserve"><value>Twoje logowanie jest chronione za pomocą aplikacji uwierzytelniającej. Podaj kod uwierzytelniający poniżej.</value></data>
+<data name="don't have access to your authenticator device? you can" xml:space="preserve"><value>Nie masz dostępu do urządzenia uwierzytelniającego? Możesz.</value></data>
+<data name="error: invalid authenticator code." xml:space="preserve"><value>Błąd: nieprawidłowy kod uwierzytelniający.</value></data>
+<data name="you have requested to log in with a recovery code. this login will not be remembered until you provide an authenticator app code at log in or disable 2fa and log in again." xml:space="preserve"><value>Poprosiłeś o zalogowanie się kodem odzyskiwania. Logowanie to nie będzie zapamiętywane, dopóki nie podasz uwierzytelniającego kodu aplikacji przy zalogowaniu lub wyłączeniu 2fa i zalogować się ponownie.</value></data>
+<data name="recoverycode" xml:space="preserve"><value>Recoverycode</value></data>
+<data name="for how to configure a real email sender" xml:space="preserve"><value>Jak skonfigurować prawdziwego nadawcę poczty e-mail</value></data>
+<data name="normally this would be emailed:" xml:space="preserve"><value>Normalnie byłby to e-mail:</value></data>
+<data name="please check your email to confirm your account." xml:space="preserve"><value>Proszę sprawdzić swój e-mail, aby potwierdzić swoje konto.</value></data>
+<data name="verification email sent. please check your email." xml:space="preserve"><value>Wysłany e-mail z weryfikacji. Sprawdź swój e-mail.</value></data>
+<data name="enter the code" xml:space="preserve"><value>Wprowadź kod</value></data>
+<data name="your password has been reset. please" xml:space="preserve"><value>Twoje hasło zostało zresetowane. Proszę.</value></data>
+<data name="there are no external authentication services configured. see this" xml:space="preserve"><value>Nie ma zewnętrznych usług uwierzytelniania skonfigurowanych. Widzisz to?</value></data>
+<data name="article about setting up this asp.net application to support logging in via external services" xml:space="preserve"><value>Artykuł o tworzeniu aplikacji asp.net w celu wsparcia logowania się za pośrednictwem usług zewnętrznych</value></data>
+<data name="put these codes in a safe place." xml:space="preserve"><value>Umieść te kody w bezpiecznym miejscu.</value></data>
+<data name="if you lose your device and don't have the recovery codes you will lose access to your account." xml:space="preserve"><value>Jeśli stracisz urządzenie i nie będziesz miał kodów odzyskiwania, stracisz dostęp do swojego konta.</value></data>
+<data name="enter the old password" xml:space="preserve"><value>Wprowadź stare hasło</value></data>
+<data name="enter the new password" xml:space="preserve"><value>Wprowadź nowe hasło</value></data>
+<data name="user changed their password successfully." xml:space="preserve"><value>Użytkownik z powodzeniem zmienił hasło.</value></data>
+<data name="deleting this data will permanently remove your account, and this cannot be recovered." xml:space="preserve"><value>Usunięcie tych danych na stałe usunie Twoje konto, a tego nie można odzyskać.</value></data>
+<data name="unexpected error occurred deleting user." xml:space="preserve"><value>Niespodziewany błąd wystąpił usuwając użytkownika.</value></data>
+<data name="this action only disables 2fa." xml:space="preserve"><value>Ta akcja wyłącza tylko 2fa.</value></data>
+<data name="disabling 2fa does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Wyłączenie 2fa nie zmienia kluczy używanych w aplikacjach uwierzytelniających. Jeśli chcesz zmienić klucz używany w aplikacji uwierzytelniającej powinieneś</value></data>
+<data name="set your authenticator keys." xml:space="preserve"><value>Ustaw swoje klucze uwierzytelniające.</value></data>
+<data name="reset your authenticator keys." xml:space="preserve"><value>Zresetuj klucze uwierzytelniające.</value></data>
+<data name="cannot disable 2fa for user as it's not currently enabled." xml:space="preserve"><value>Nie można wyłączyć 2fa dla użytkownika, ponieważ nie jest aktualnie włączona.</value></data>
+<data name="unexpected error occurred disabling 2fa." xml:space="preserve"><value>Niespodziewany błąd wystąpił wyłączając 2fa.</value></data>
+<data name="2fa has been disabled. you can reenable 2fa when you setup an authenticator app" xml:space="preserve"><value>2fa została wyłączona. Możesz ponownie włączyć 2fa podczas konfiguracji aplikacji uwierzytelniającej</value></data>
+<data name="enter your email" xml:space="preserve"><value>Wpisz swój e-mail</value></data>
+<data name="your email is unchanged." xml:space="preserve"><value>Twój e-mail jest niezmieniony.</value></data>
+<data name="confirmation link to change email sent. please check your email." xml:space="preserve"><value>Link do potwierdzenia zmiany wysłanego e-maila. Sprawdź swój e-mail.</value></data>
+<data name="to use an authenticator app go through the following steps:" xml:space="preserve"><value>Aby korzystać z aplikacji uwierzytelniającej przejść przez następujące kroki:</value></data>
+<data name="download a two-factor authenticator app like microsoft authenticator for" xml:space="preserve"><value>Pobierz dwuczynnikową aplikację uwierzytelniającą jak mikrosoft uwierzytelniający dla</value></data>
+<data name="once you have scanned the qr code or input the key above, your two factor authentication app will provide you with a unique code. enter the code in the confirmation box below." xml:space="preserve"><value>Po zeskanowaniu kodu qr lub wprowadzeniu powyższego klucza, aplikacja uwierzytelniająca dwa czynniki zapewni unikalny kod. Wprowadź kod w polu potwierdzenia poniżej.</value></data>
+<data name="error: verification code is invalid." xml:space="preserve"><value>Błąd: kod weryfikacji jest nieprawidłowy.</value></data>
+<data name="your authenticator app has been verified." xml:space="preserve"><value>Twoja aplikacja uwierzytelniająca została zweryfikowana.</value></data>
+<data name="add another service to log in." xml:space="preserve"><value>Dodaj inną usługę do zalogowania.</value></data>
+<data name="error: the external login was not removed." xml:space="preserve"><value>Błąd: nie usunięto zewnętrznego logowania.</value></data>
+<data name="error: could not load external login info." xml:space="preserve"><value>Błąd: nie można wczytać zewnętrznych informacji logowania.</value></data>
+<data name="error: the external login was not added. external logins can only be associated with one account." xml:space="preserve"><value>Błąd: nie dodano zewnętrznego logowania. Loginy zewnętrzne mogą być powiązane tylko z jednym kontem.</value></data>
+<data name="generate two-factor authentication (2fa) recovery codes" xml:space="preserve"><value>Generuj kody uwierzytelniania dwuczynnikowego (2fa)</value></data>
+<data name="generating new recovery codes does not change the keys used in authenticator apps. if you wish to change the key used in an authenticator app you should" xml:space="preserve"><value>Generowanie nowych kodów odzyskiwania nie zmienia kluczy używanych w aplikacjach uwierzytelniających. Jeśli chcesz zmienić klucz używany w aplikacji uwierzytelniającej powinieneś</value></data>
+<data name="cannot generate recovery codes for user because they do not have 2fa enabled." xml:space="preserve"><value>Nie można wygenerować kodów odzyskiwania dla użytkownika, ponieważ nie mają 2fa włączone.</value></data>
+<data name="you have generated new recovery codes." xml:space="preserve"><value>Wygenerowałeś nowe kody odzyskiwania.</value></data>
+<data name="user with id '{userid}' has generated new 2fa recovery codes." xml:space="preserve"><value>Użytkownik z ID '{userid}' wygenerował nowe kody odzyskiwania 2fa.</value></data>
+<data name="choose your username." xml:space="preserve"><value>Wybierz nazwę użytkownika.</value></data>
+<data name="you have no recovery codes left." xml:space="preserve"><value>Nie masz już żadnych kodów.</value></data>
+<data name="error: failed to set phone number." xml:space="preserve"><value>Błąd: nie udało się ustawić numeru telefonu.</value></data>
+<data name="manage your passkeys" xml:space="preserve"><value>Zarządzanie hasłami</value></data>
+<data name="you have reached the maximum number of allowed passkeys. please delete one before adding a new one." xml:space="preserve"><value>Dodzwoniłeś się do maksymalnej liczby dozwolonych kluczy. Proszę usunąć jeden przed dodaniem nowego.</value></data>
+<data name="add a new passkey" xml:space="preserve"><value>Dodaj nowy klucz</value></data>
+<data name="error: the browser did not provide a passkey." xml:space="preserve"><value>Błąd: przeglądarka nie dostarczyła hasła.</value></data>
+<data name="error: the passkey could not be added to your account." xml:space="preserve"><value>Błąd: nie można dodać klucza do konta.</value></data>
+<data name="error: the specified passkey id had an invalid format." xml:space="preserve"><value>Błąd: określony identyfikator hasła miał nieprawidłowy format.</value></data>
+<data name="error: the passkey could not be deleted." xml:space="preserve"><value>Błąd: nie można usunąć klucza.</value></data>
+<data name="passkey deleted successfully." xml:space="preserve"><value>Hasło skasowane pomyślnie.</value></data>
+<data name="your account contains personal data that you have given us. this page allows you to download or delete that data." xml:space="preserve"><value>Twoje konto zawiera dane osobowe, które nam dałeś. Ta strona pozwala pobrać lub usunąć te dane.</value></data>
+<data name="enter a new name for your" xml:space="preserve"><value>Wprowadź nową nazwę</value></data>
+<data name="passkey" xml:space="preserve"><value>Hasło</value></data>
+<data name="my passkey" xml:space="preserve"><value>Mój klucz</value></data>
+<data name="passkey name" xml:space="preserve"><value>Nazwa hasła</value></data>
+<data name="continue" xml:space="preserve"><value>Kontynuuj</value></data>
+<data name="error: the specified passkey could not be found." xml:space="preserve"><value>Błąd: nie można znaleźć podanego hasła.</value></data>
+<data name="error: the passkey could not be updated." xml:space="preserve"><value>Błąd: nie można zaktualizować klucza.</value></data>
+<data name="passkey updated successfully." xml:space="preserve"><value>Hasło zaktualizowane pomyślnie.</value></data>
+<data name="if you reset your authenticator key your authenticator app will not work until you reconfigure it." xml:space="preserve"><value>Jeśli zresetujesz swój klucz uwierzytelniający, aplikacja uwierzytelniająca nie zadziała dopóki go nie skonfigurujesz.</value></data>
+<data name="this process disables 2fa until you verify your authenticator app." xml:space="preserve"><value>Proces ten wyłącza 2fa, dopóki nie zweryfikujesz swojej aplikacji uwierzytelniającej.</value></data>
+<data name="if you do not complete your authenticator app configuration you may lose access to your account." xml:space="preserve"><value>Jeśli nie ukończysz konfiguracji aplikacji uwierzytelniającej, możesz stracić dostęp do swojego konta.</value></data>
+<data name="your authenticator app key has been reset, you will need to configure your authenticator app using the new key." xml:space="preserve"><value>Twój klucz do uwierzytelniania aplikacji został zresetowany, musisz skonfigurować aplikację do uwierzytelniania używając nowego klucza.</value></data>
+<data name="you do not have a local username/password for this site. add a local account so you can log in without an external login." xml:space="preserve"><value>Nie masz lokalnej nazwy użytkownika / hasła dla tej strony. Dodaj lokalne konto, aby zalogować się bez zewnętrznego logowania.</value></data>
+<data name="your password has been set." xml:space="preserve"><value>Twoje hasło zostało ustawione.</value></data>
+<data name="before you can log in with a recovery code." xml:space="preserve"><value>Zanim się zalogujesz z kodem odzyskiwania.</value></data>
+<data name="you have 1 recovery code left." xml:space="preserve"><value>Zostało ci jeszcze 1 kod.</value></data>
+<data name="inline text" xml:space="preserve"><value>Tekst liniowy</value></data>
+<data name="privacy and cookie policy have not been accepted." xml:space="preserve"><value>Polityka prywatności i cookies nie zostały zaakceptowane.</value></data>
+<data name="you must accept the policy before you can enable two factor authentication." xml:space="preserve"><value>Musisz zaakceptować politykę, zanim będziesz mógł włączyć dwa uwierzytelnianie czynników.</value></data>
+<data name="the current browser has been forgotten. when you login again from this browser you will be prompted for your 2fa code." xml:space="preserve"><value>Bieżąca przeglądarka została zapomniana. Po ponownym zalogowaniu się z tej przeglądarki zostaniesz poproszony o kod 2fa.</value></data>
+<data name="this app does not currently have a real email sender registered, see" xml:space="preserve"><value>Ta aplikacja nie ma obecnie zarejestrowanego prawdziwego nadawcy e-mail, patrz</value></data>
+<data name="to display the original post (it opens in a new browser tab)" xml:space="preserve"><value>Aby wyświetlić oryginalny post (otwiera się w nowej zakładce przeglądarki)</value></data>
+<data name="to display options." xml:space="preserve"><value>Aby wyświetlić opcje.</value></data>
+<data name="to add a new page for monitoring contributions." xml:space="preserve"><value>Dodanie nowej strony do monitorowania wkładu.</value></data>
+<data name="to display a simplified html view of the contribution." xml:space="preserve"><value>Aby wyświetlić uproszczony widok html wkładu.</value></data>
+<data name="to display filters." xml:space="preserve"><value>Do wyświetlania filtrów.</value></data>
+<data name="to rotate the map view." xml:space="preserve"><value>Aby obrócić widok mapy.</value></data>
+<data name="to display the image gallery." xml:space="preserve"><value>Aby wyświetlić galerię zdjęć.</value></data>
+<data name="italic text" xml:space="preserve"><value>Tekst kursywą</value></data>
+<data name="summary" xml:space="preserve"><value>Podsumowanie</value></data>
+<data name="expandable section" xml:space="preserve"><value>Rozwijana sekcja</value></data>
+<data name="strong emphasis" xml:space="preserve"><value>Silne wyróżnienie</value></data>
+<data name="emphasis (italic)" xml:space="preserve"><value>Wyróżnienie (kursywa)</value></data>
+<data name="highlighted text" xml:space="preserve"><value>Podświetlony tekst</value></data>
+<data name="code snippet" xml:space="preserve"><value>Fragment kodu</value></data>
+<data name="code block" xml:space="preserve"><value>Blok kodu</value></data>
+<data name="block quote" xml:space="preserve"><value>Cytat blokowy</value></data>
+<data name="citation" xml:space="preserve"><value>Cytowanie</value></data>
+<data name="mark posts with our 'tag list' (e.g. 'like', 'uninteresting', 'already downloaded', ...). there are 10 configurable 'tags' available for this purpose." xml:space="preserve"><value>oznaczaj posty za pomocą naszej „listy tagów” (np. „lubię”, „nieciekawe”, „już pobrane”, ...). Do tego celu dostępnych jest 10 konfigurowalnych „tagów”.</value></data>
+<data name="heading 1" xml:space="preserve"><value>Nagłówek 1</value></data>
+<data name="sample output" xml:space="preserve"><value>Przykładowe wyjście</value></data>
+<data name="variable" xml:space="preserve"><value>Zmienna</value></data>
+<data name="small text" xml:space="preserve"><value>Mały tekst</value></data>
+<data name="figure with caption" xml:space="preserve"><value>Ilustracja z podpisem</value></data>
+<data name="figure caption" xml:space="preserve"><value>Podpis ilustracji</value></data>
+<data name="keyboard input" xml:space="preserve"><value>Wejście z klawiatury</value></data>
+<data name="bold text" xml:space="preserve"><value>Pogrubiony tekst</value></data>
+<data name="subscript" xml:space="preserve"><value>Indeks dolny</value></data>
+<data name="superscript" xml:space="preserve"><value>Indeks górny</value></data>
+<data name="are displayed." xml:space="preserve"><value>są wyświetlane.</value></data>
+<data name="block container" xml:space="preserve"><value>Kontener blokowy</value></data>
+<data name="abbreviation" xml:space="preserve"><value>Skrót</value></data>
+<data name="custom" xml:space="preserve"><value>Niestandardowy</value></data>
+</root>
