@@ -392,3 +392,9 @@ Logs/
 /src/Libraries/AiTranslator.Tasks/build/AiTranslator.Tasks.dll
 /src/Libraries/NetAI.TestGenerator.Tasks/build/NetAI.TestGenerator.Core.dll
 /src/Libraries/NetAI.TestGenerator.Tasks/build/NetAI.TestGenerator.Tasks.dll
+/src/Libraries/NetAI.TestGenerator.Tasks/build/Microsoft.Bcl.Memory.dll
+/src/Libraries/NetAI.TestGenerator.Tasks/build/Newtonsoft.Json.dll
+/src/Libraries/NetAI.TestGenerator.Tasks/build/System.Buffers.dll
+/src/Libraries/NetAI.TestGenerator.Tasks/build/System.Memory.dll
+/src/Libraries/NetAI.TestGenerator.Tasks/build/System.Numerics.Vectors.dll
+/src/Libraries/NetAI.TestGenerator.Tasks/build/System.Runtime.CompilerServices.Unsafe.dll
