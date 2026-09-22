@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
-  "title": "AiTranslator Configuration",
+  "title": "NetAI.TestGenerator Configuration",
   "type": "object",
   "required": [
     "version",

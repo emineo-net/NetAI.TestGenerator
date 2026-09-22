@@ -1,61 +1,93 @@
-﻿<Project>
+<Project>
 
 	<PropertyGroup>
-		<!-- Pfad zur Entwicklungs-DLL direkt im build-Ordner -->
-		<AiTranslatorTaskAssembly>$(MSBuildThisFileDirectory)AiTranslator.Tasks.dll</AiTranslatorTaskAssembly>
-		<!-- Wir prüfen, ob die DLL physisch existiert -->
-		<AiTranslatorTaskExists Condition="Exists('$(AiTranslatorTaskAssembly)')">true</AiTranslatorTaskExists>
+		<!-- DLL-Suche: 1. NuGet-Paket (build\ liegt neben tasks\), 2. lokale Entwicklung (DLL direkt in build\) -->
+		<TestGeneratorTaskAssembly Condition="Exists('$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\NetAI.TestGenerator.Tasks.dll')">$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\NetAI.TestGenerator.Tasks.dll</TestGeneratorTaskAssembly>
+		<TestGeneratorTaskAssembly Condition="'$(TestGeneratorTaskAssembly)' == ''">$(MSBuildThisFileDirectory)NetAI.TestGenerator.Tasks.dll</TestGeneratorTaskAssembly>
+		<TestGeneratorTaskExists Condition="Exists('$(TestGeneratorTaskAssembly)')">true</TestGeneratorTaskExists>
+
+		<!-- Abschalten mit: dotnet build -p:TestGeneratorEnabled=false -->
+		<TestGeneratorActive>false</TestGeneratorActive>
+		<TestGeneratorActive Condition="'$(TestGeneratorEnabled)' != 'false' And '$(DesignTimeBuild)' != 'true' And '$(TestGeneratorTaskExists)' == 'true' And !$(MSBuildProjectName.EndsWith('_wpftmp'))">true</TestGeneratorActive>
+
+		<!-- Bei Multi-Targeting soll die Übersetzung nur im ersten Target Framework laufen -->
+		<_TestGeneratorFirstTfm Condition="'$(TargetFrameworks)' != ''">$(TargetFrameworks.Split(';')[0])</_TestGeneratorFirstTfm>
+		<_TestGeneratorIsFirstTfm>false</_TestGeneratorIsFirstTfm>
+		<_TestGeneratorIsFirstTfm Condition="'$(TargetFrameworks)' == '' Or '$(TargetFramework)' == '$(_TestGeneratorFirstTfm)'">true</_TestGeneratorIsFirstTfm>
+
+		<!-- 'dotnet publish' setzt _IsPublishing schon VOR dem Kompilieren -->
+		<_TestGeneratorIsPublishing>false</_TestGeneratorIsPublishing>
+		<_TestGeneratorIsPublishing Condition="'$(_IsPublishing)' == 'true'">true</_TestGeneratorIsPublishing>
+
+		<_TestGeneratorProjectDir>$(MSBuildProjectDirectory)/</_TestGeneratorProjectDir>
 	</PropertyGroup>
 
 	<!-- TRICK: TaskHostFactory zwingt MSBuild, den Task in einem separaten Prozess zu starten. -->
 	<!-- Dadurch wird die DLL NIEMALS von Visual Studio selbst gesperrt! -->
-	<UsingTask Condition="'$(AiTranslatorTaskExists)' == 'true'"
-	           TaskName="AiTranslator.Tasks.ResxAiTranslatorTask"
-	           AssemblyFile="$(AiTranslatorTaskAssembly)"
+	<UsingTask Condition="'$(TestGeneratorTaskExists)' == 'true'"
+	           TaskName="NetAI.TestGenerator.Tasks.TestGeneratorTask"
+	           AssemblyFile="$(TestGeneratorTaskAssembly)"
 	           TaskFactory="TaskHostFactory" />
 
-	<!-- TARGET: Schema und Einstellungen erzeugen -->
-	<Target Name="SetupAiTranslatorSettings" BeforeTargets="AssignTargetPaths">
+	<!-- Warnung statt stillem Nichtstun, wenn die Task-DLL nicht gefunden wurde -->
+	<Target Name="TestGeneratorAssemblyMissing"
+	        BeforeTargets="PrepareForBuild"
+	        Condition="'$(TestGeneratorEnabled)' != 'false' And '$(DesignTimeBuild)' != 'true' And '$(TestGeneratorTaskExists)' != 'true'">
+		<Warning Code="RESXT001"
+		         Text="NetAI.TestGenerator: Task-Assembly nicht gefunden ($(TestGeneratorTaskAssembly)). Es wird nichts übersetzt." />
+	</Target>
+
+	<!-- Schema und Einstellungen bereitstellen -->
+	<Target Name="SetupTestGeneratorSettings" Condition="'$(TestGeneratorActive)' == 'true'">
 		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\aisettings-schema.json"
-		      DestinationFiles="$(ProjectDir)aisettings-schema.json"
-		      SkipUnchangedFiles="true"
-		      Condition="!Exists('$(ProjectDir)aisettings-schema.json')" />
+		      DestinationFiles="$(MSBuildProjectDirectory)\aisettings-schema.json"
+		      Condition="!Exists('$(MSBuildProjectDirectory)\aisettings-schema.json')" />
 
 		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\aisettings.json"
-		      DestinationFiles="$(ProjectDir)aisettings.json"
-		      SkipUnchangedFiles="true"
-		      Condition="!Exists('$(ProjectDir)aisettings.json')" />
+		      DestinationFiles="$(MSBuildProjectDirectory)\aisettings.json"
+		      Condition="!Exists('$(MSBuildProjectDirectory)\aisettings.json')" />
 
+		<!-- Remove + Include statt Update: funktioniert auch, wenn die Dateien erst jetzt erzeugt wurden -->
 		<ItemGroup>
-			<None Update="aisettings-schema.json">
-				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			</None>
-			<None Update="aisettings.json">
-				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			</None>
+			<None Remove="aisettings-schema.json" />
+			<None Remove="aisettings.json" />
+			<None Include="aisettings-schema.json" CopyToOutputDirectory="PreserveNewest" />
+			<None Include="aisettings.json" CopyToOutputDirectory="PreserveNewest" />
 		</ItemGroup>
 	</Target>
 
-	<!-- TARGET 1: Läuft beim normalen Build (NUR wenn DLL existiert) -->
-	<Target Name="RunAiTranslation"
-	        BeforeTargets="BeforeBuild"
-	        DependsOnTargets="SetupAiTranslatorSettings"
-	        Condition="'$(AiTranslatorTaskExists)' == 'true' And !$(MSBuildProjectName.EndsWith('_wpftmp'))">
+	<!-- Führt die Übersetzung aus (nur erstes TFM). -->
+	<Target Name="RunResxTranslation"
+	        DependsOnTargets="SetupTestGeneratorSettings"
+	        Condition="'$(TestGeneratorActive)' == 'true' And '$(_TestGeneratorIsFirstTfm)' == 'true'">
 
-		<ResxAiTranslatorTask ProjectDir="$(ProjectDir)"
-		                      CurrentConfiguration="$(Configuration)"
-		                      IsPublishing="false" />
+		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
+		                    CurrentConfiguration="$(Configuration)"
+		                    IsPublishing="$(_TestGeneratorIsPublishing)" />
 	</Target>
 
-	<!-- TARGET 2: Läuft beim Publish (NUR wenn DLL existiert) -->
-	<Target Name="RunAiTranslationOnPublish"
-	        BeforeTargets="PrepareForPublish"
-	        DependsOnTargets="SetupAiTranslatorSettings"
-	        Condition="'$(AiTranslatorTaskExists)' == 'true' And !$(MSBuildProjectName.EndsWith('_wpftmp'))">
+	<!-- Läuft vor dem eigentlichen Build: Übersetzen und neu erzeugte .resx-Dateien noch in diesem Build einbinden -->
+	<Target Name="IncludeGeneratedResx"
+	        BeforeTargets="PrepareForBuild"
+	        DependsOnTargets="RunResxTranslation"
+	        Condition="'$(TestGeneratorActive)' == 'true' And '$(EnableDefaultEmbeddedResourceItems)' != 'false'">
 
-		<ResxAiTranslatorTask ProjectDir="$(ProjectDir)"
-		                      CurrentConfiguration="$(Configuration)"
-		                      IsPublishing="true" />
+		<ItemGroup>
+			<_ResxOnDisk Include="**\*.resx" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+			<_ResxNotYetEmbedded Include="@(_ResxOnDisk)" Exclude="@(EmbeddedResource)" />
+			<EmbeddedResource Include="@(_ResxNotYetEmbedded)" />
+		</ItemGroup>
+	</Target>
+
+	<!-- Fallback für Publish-Wege ohne _IsPublishing (z. B. Visual Studio "Publish"-Button): läuft NACH dem Build -->
+	<Target Name="RunResxTranslationOnPublish"
+	        BeforeTargets="PrepareForPublish"
+	        DependsOnTargets="SetupTestGeneratorSettings"
+	        Condition="'$(TestGeneratorActive)' == 'true' And '$(_TestGeneratorIsFirstTfm)' == 'true' And '$(_TestGeneratorIsPublishing)' != 'true'">
+
+		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
+		                    CurrentConfiguration="$(Configuration)"
+		                    IsPublishing="true" />
 	</Target>
 
 </Project>

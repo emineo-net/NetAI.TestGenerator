@@ -1,11 +1,11 @@
-﻿using Microsoft.Build.Framework;
+using Microsoft.Build.Framework;
 using NetAI.TestGenerator.Core;
 using NetAI.TestGenerator.Core.Config;
 using Task = Microsoft.Build.Utilities.Task;
 
 namespace NetAI.TestGenerator.Tasks;
 
-public class ResxAiTranslatorTask : Task
+public class TestGeneratorTask : Task
 {
     [Required] public string ProjectDir { get; set; } = string.Empty;
 
@@ -29,7 +29,7 @@ public class ResxAiTranslatorTask : Task
         }
         catch (Exception ex)
         {
-            Log.LogError($"[AI-Translator] aisettings.json konnte nicht geladen werden: {ex.Message}");
+            Log.LogError($"[TestGenerator] aisettings.json konnte nicht geladen werden: {ex.Message}");
             return false;
         }
 
@@ -41,7 +41,7 @@ public class ResxAiTranslatorTask : Task
         var activeModes = modeInput.Split(',').Select(m => m.Trim()).ToList();
 
         Log.LogMessage(MessageImportance.High,
-            $"[AI-Translator] Mode check: Config={config_}, IsPublish={IsPublishing}, Active modes=[{string.Join(", ", activeModes)}]");
+            $"[TestGenerator] Mode check: Config={config_}, IsPublish={IsPublishing}, Active modes=[{string.Join(", ", activeModes)}]");
 
         var shouldRun = false;
 
@@ -70,24 +70,24 @@ public class ResxAiTranslatorTask : Task
         if (!shouldRun)
         {
             Log.LogMessage(MessageImportance.High,
-                $"🤖 [AI-Translator] Skipped. The current state (Config={CurrentConfiguration}, Publish={IsPublishing}) " +
+                $"🤖 [TestGenerator] Skipped. The current state (Config={CurrentConfiguration}, Publish={IsPublishing}) " +
                 $"is not included in the allowed modes '{translator.Mode}'.");
             return true;
         }
 
-        Log.LogMessage(MessageImportance.High, "🤖 [AI-Translator] Mode condition met. Starting analysis...");
+        Log.LogMessage(MessageImportance.High, "🤖 [TestGenerator] Mode condition met. Starting analysis...");
 
         if (!string.IsNullOrEmpty(translator.Context))
         {
-            Log.LogMessage(MessageImportance.High, $"[AI-Translator] App context received: {translator.Context}");
+            Log.LogMessage(MessageImportance.High, $"[TestGenerator] App context received: {translator.Context}");
         }
 
         if (!string.IsNullOrEmpty(translator.GlossaryPath))
         {
-            Log.LogMessage(MessageImportance.High, $"[AI-Translator] Glossary path received: {translator.GlossaryPath}");
+            Log.LogMessage(MessageImportance.High, $"[TestGenerator] Glossary path received: {translator.GlossaryPath}");
         }
 
-        Log.LogMessage(MessageImportance.High, "🤖 AI-Resx-Translator: Starting analysis...");
+        Log.LogMessage(MessageImportance.High, "🤖 NetAI.TestGenerator: Starting analysis...");
 
         var collectedIssues = new List<string>();
         var orchestrator = new ResxTranslationOrchestrator();
@@ -106,13 +106,13 @@ public class ResxAiTranslatorTask : Task
             if (isError)
             {
                 var cleanMessage = message.Replace("[AI-Translator Error]", "").Replace("[AI-Translator CRITICAL]", "").Trim();
-                Log.LogError($"AiTranslator: {cleanMessage}");
+                Log.LogError($"TestGenerator: {cleanMessage}");
                 collectedIssues.Add($"[ERROR] {cleanMessage}");
             }
             else if (isWarning)
             {
                 var cleanMessage = message.Replace("[AI-Translator Warning]", "").Replace("[AI-Translator]", "").Trim();
-                Log.LogWarning($"AiTranslator: {cleanMessage}");
+                Log.LogWarning($"TestGenerator: {cleanMessage}");
                 collectedIssues.Add($"[WARNING] {cleanMessage}");
             }
             else
@@ -121,13 +121,9 @@ public class ResxAiTranslatorTask : Task
             }
         }).GetAwaiter().GetResult();
 
-        // var result = orchestrator.ProcessProject(ProjectDir, translator, logInfo: message => { ... }).GetAwaiter().GetResult();
-
-        //bool isWarning = message.Contains("[AI-Translator Warning]");
-
         if (!result.Success)
         {
-            Log.LogError($"AiTranslator fatal error: {result.ErrorMessage}");
+            Log.LogError($"TestGenerator fatal error: {result.ErrorMessage}");
             collectedIssues.Add($"[FATAL ERROR] {result.ErrorMessage}");
         }
 
