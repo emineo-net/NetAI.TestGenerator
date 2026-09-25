@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
 using NetAI.TestGenerator.Core.Services;
 
 namespace WpftranlationTestApp;
@@ -22,6 +23,14 @@ public partial class MainWindow : Window
         // Angenommen, du analysierst gerade einen "OrderController"
         var finalPrompt = await builder.BuildSystemPromptAsync();
 
+        var classCode = File.ReadAllText(@"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs");
+
+        var fertigerPrompt = builder.GeneratePrompt(
+            klassenCode: classCode,
+            methodenName: "ProcessOrder",
+            methodenSignatur: " public async Task<string> AskAsync(string userMessage, string? systemMessage = null, CancellationToken ct = default)"
+        );
+
         Console.WriteLine(finalPrompt);
 
         //bool ok = AiTranslatorRunner.Run(@"C:\Users\steph\source\repos\WebObserver2\WpfExplorer");
@@ -31,9 +40,8 @@ public partial class MainWindow : Window
             ProjectDir = @"C:\Users\steph\source\repos\WebObserver2\src\UI\WpfExplorer",
             ApiKey = "sk-...",
             AppContext = "Rechnungs-Verwaltung für KMUs",
-            //GlossaryPath = @"C:\Users\steph\source\repos\WebObserver2\WpfExplorer\glossary.json",
             SupportedLanguages = "en, de, it" // optional: überschreibt <SupportedLanguage> aus der .csproj
         };
-        var ok = await runner.Run(msg => Console.WriteLine($"[Info]  {msg}"), msg => Console.WriteLine($"[Fehler] {msg}"));
+        var ok = await runner.Run(fertigerPrompt,msg => Console.WriteLine($"[Info]  {msg}"), msg => Console.WriteLine($"[Fehler] {msg}"));
     }
 }

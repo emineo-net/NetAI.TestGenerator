@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using NetAI.TestGenerator.Core.Config;
+using Scriban;
 
 namespace NetAI.TestGenerator.Core.Services;
 
@@ -95,4 +96,25 @@ public class AiPromptBuilder
 
         return Task.FromResult(promptBuilder.ToString());
     }
+
+
+    public string GeneratePrompt(string klassenCode, string methodenName, string methodenSignatur)
+    {
+        var template = Template.Parse(PromptTemplates.UnitTestGenerator);
+
+        var kontext = new Dictionary<string, object>
+        {
+            { "test_framework", "xUnit" },
+            { "mocking_library", "NSubstitute" },
+            { "ziel_methode_name", methodenName },
+            { "ziel_methode_signatur", methodenSignatur }, // Neu dabei für Eindeutigkeit
+            { "klassen_code", klassenCode }
+        };
+
+        return template.Render(kontext);
+    }
+
+
+
+
 }

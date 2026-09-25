@@ -1,15 +1,6 @@
 {
   "$schema": "aisettings-schema.json",
   "version": "1.1",
-  "translator": {
-    //"mode": "publish",
-    "mode": "all",
-    "apiKey": "",
-    "context": "",
-    "glossaryPath": "",
-    "defaultLanguage": "en",
-    "supportedLanguages": [ "de", "fr", "it" ]
-  },
   "environment": {
     "targetDotNetVersion": "net9.0",
     "testProjectName": "{ProjectName}.Tests"

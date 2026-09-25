@@ -33,108 +33,109 @@ public class TestGeneratorTask : Task
             return false;
         }
 
-        var translator = config.Translator ?? new TranslatorConfig();
+        //var translator = config.Translator ?? new TranslatorConfig();
 
-        var modeInput = (translator.Mode ?? "all").ToLowerInvariant();
+        //var modeInput = (translator.Mode ?? "all").ToLowerInvariant();
         var config_ = (CurrentConfiguration ?? "Debug").ToLowerInvariant();
 
-        var activeModes = modeInput.Split(',').Select(m => m.Trim()).ToList();
+        //var activeModes = modeInput.Split(',').Select(m => m.Trim()).ToList();
 
-        Log.LogMessage(MessageImportance.High,
-            $"[TestGenerator] Mode check: Config={config_}, IsPublish={IsPublishing}, Active modes=[{string.Join(", ", activeModes)}]");
+        //Log.LogMessage(MessageImportance.High,
+        //    $"[TestGenerator] Mode check: Config={config_}, IsPublish={IsPublishing}, Active modes=[{string.Join(", ", activeModes)}]");
 
-        var shouldRun = false;
+        //var shouldRun = false;
 
-        if (activeModes.Contains("all"))
-        {
-            shouldRun = true;
-        }
-        else
-        {
-            if (activeModes.Contains("debug") && config_ == "debug" && !IsPublishing)
-            {
-                shouldRun = true;
-            }
+        //if (activeModes.Contains("all"))
+        //{
+        //    shouldRun = true;
+        //}
+        //else
+        //{
+        //    if (activeModes.Contains("debug") && config_ == "debug" && !IsPublishing)
+        //    {
+        //        shouldRun = true;
+        //    }
 
-            if (activeModes.Contains("release") && config_ == "release" && !IsPublishing)
-            {
-                shouldRun = true;
-            }
+        //    if (activeModes.Contains("release") && config_ == "release" && !IsPublishing)
+        //    {
+        //        shouldRun = true;
+        //    }
 
-            if (activeModes.Contains("publish") && IsPublishing)
-            {
-                shouldRun = true;
-            }
-        }
+        //    if (activeModes.Contains("publish") && IsPublishing)
+        //    {
+        //        shouldRun = true;
+        //    }
+        //}
 
-        if (!shouldRun)
-        {
-            Log.LogMessage(MessageImportance.High,
-                $"🤖 [TestGenerator] Skipped. The current state (Config={CurrentConfiguration}, Publish={IsPublishing}) " +
-                $"is not included in the allowed modes '{translator.Mode}'.");
-            return true;
-        }
+        //if (!shouldRun)
+        //{
+        //    Log.LogMessage(MessageImportance.High,
+        //        $"🤖 [TestGenerator] Skipped. The current state (Config={CurrentConfiguration}, Publish={IsPublishing}) " +
+        //        $"is not included in the allowed modes '{translator.Mode}'.");
+        //    return true;
+        //}
 
-        Log.LogMessage(MessageImportance.High, "🤖 [TestGenerator] Mode condition met. Starting analysis...");
+        //Log.LogMessage(MessageImportance.High, "🤖 [TestGenerator] Mode condition met. Starting analysis...");
 
-        if (!string.IsNullOrEmpty(translator.Context))
-        {
-            Log.LogMessage(MessageImportance.High, $"[TestGenerator] App context received: {translator.Context}");
-        }
+        //if (!string.IsNullOrEmpty(translator.Context))
+        //{
+        //    Log.LogMessage(MessageImportance.High, $"[TestGenerator] App context received: {translator.Context}");
+        //}
 
-        if (!string.IsNullOrEmpty(translator.GlossaryPath))
-        {
-            Log.LogMessage(MessageImportance.High, $"[TestGenerator] Glossary path received: {translator.GlossaryPath}");
-        }
+        //if (!string.IsNullOrEmpty(translator.GlossaryPath))
+        //{
+        //    Log.LogMessage(MessageImportance.High, $"[TestGenerator] Glossary path received: {translator.GlossaryPath}");
+        //}
 
         Log.LogMessage(MessageImportance.High, "🤖 NetAI.TestGenerator: Starting analysis...");
 
         var collectedIssues = new List<string>();
-        var orchestrator = new ResxTranslationOrchestrator();
+        //var orchestrator = new ResxTranslationOrchestrator();
 
-        var result = orchestrator.ProcessProject(ProjectDir, translator, message =>
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                return;
-            }
+        //var result = orchestrator.ProcessProject(ProjectDir, translator, message =>
+        //{
+        //    if (string.IsNullOrWhiteSpace(message))
+        //    {
+        //        return;
+        //    }
 
-            var isError = message.Contains("[AI-Translator Error]") || message.Contains("[AI-Translator CRITICAL]");
-            var isWarning = message.Contains("[AI-Translator Warning]") ||
-                            (message.Contains("[AI-Translator]") && message.Contains("No <SupportedLanguage> tag found"));
+        //    var isError = message.Contains("[AI-Translator Error]") || message.Contains("[AI-Translator CRITICAL]");
+        //    var isWarning = message.Contains("[AI-Translator Warning]") ||
+        //                    (message.Contains("[AI-Translator]") && message.Contains("No <SupportedLanguage> tag found"));
 
-            if (isError)
-            {
-                var cleanMessage = message.Replace("[AI-Translator Error]", "").Replace("[AI-Translator CRITICAL]", "").Trim();
-                Log.LogError($"TestGenerator: {cleanMessage}");
-                collectedIssues.Add($"[ERROR] {cleanMessage}");
-            }
-            else if (isWarning)
-            {
-                var cleanMessage = message.Replace("[AI-Translator Warning]", "").Replace("[AI-Translator]", "").Trim();
-                Log.LogWarning($"TestGenerator: {cleanMessage}");
-                collectedIssues.Add($"[WARNING] {cleanMessage}");
-            }
-            else
-            {
-                Log.LogMessage(MessageImportance.High, message);
-            }
-        }).GetAwaiter().GetResult();
+        //    if (isError)
+        //    {
+        //        var cleanMessage = message.Replace("[AI-Translator Error]", "").Replace("[AI-Translator CRITICAL]", "").Trim();
+        //        Log.LogError($"TestGenerator: {cleanMessage}");
+        //        collectedIssues.Add($"[ERROR] {cleanMessage}");
+        //    }
+        //    else if (isWarning)
+        //    {
+        //        var cleanMessage = message.Replace("[AI-Translator Warning]", "").Replace("[AI-Translator]", "").Trim();
+        //        Log.LogWarning($"TestGenerator: {cleanMessage}");
+        //        collectedIssues.Add($"[WARNING] {cleanMessage}");
+        //    }
+        //    else
+        //    {
+        //        Log.LogMessage(MessageImportance.High, message);
+        //    }
+        //}).GetAwaiter().GetResult();
 
-        if (!result.Success)
-        {
-            Log.LogError($"TestGenerator fatal error: {result.ErrorMessage}");
-            collectedIssues.Add($"[FATAL ERROR] {result.ErrorMessage}");
-        }
+        //if (!result.Success)
+        //{
+        //    Log.LogError($"TestGenerator fatal error: {result.ErrorMessage}");
+        //    collectedIssues.Add($"[FATAL ERROR] {result.ErrorMessage}");
+        //}
 
-        var uniqueIssues = collectedIssues.Distinct().ToList();
+        //var uniqueIssues = collectedIssues.Distinct().ToList();
 
-        if (uniqueIssues.Count > 0)
-        {
-            TryOpenSummaryLog(uniqueIssues);
-        }
+        //if (uniqueIssues.Count > 0)
+        //{
+        //    TryOpenSummaryLog(uniqueIssues);
+        //}
 
-        return result.Success;
+        //return result.Success;
+        return true;
     }
 
     private void TryOpenSummaryLog(List<string> issues)

@@ -6,7 +6,7 @@ public record AiTestingConfig
 {
     [JsonConstructor]
     public AiTestingConfig(string version, EnvironmentConfig environment, FrameworksConfig frameworks, CodeStyleConfig codeStyle,
-        GenerationBehaviorConfig generationBehavior, AiConfigurationConfig aiConfiguration, TranslatorConfig? translator = null)
+        GenerationBehaviorConfig generationBehavior, AiConfigurationConfig aiConfiguration)
     {
         Version = version;
         Environment = environment;
@@ -14,7 +14,6 @@ public record AiTestingConfig
         CodeStyle = codeStyle;
         GenerationBehavior = generationBehavior;
         AiConfiguration = aiConfiguration;
-        Translator = translator;
     }
 
     [JsonProperty("version")] public string Version { get; set; }
@@ -29,7 +28,6 @@ public record AiTestingConfig
 
     [JsonProperty("aiConfiguration")] public AiConfigurationConfig AiConfiguration { get; set; }
 
-    [JsonProperty("translator")] public TranslatorConfig? Translator { get; set; }
 }
 
 public record EnvironmentConfig
