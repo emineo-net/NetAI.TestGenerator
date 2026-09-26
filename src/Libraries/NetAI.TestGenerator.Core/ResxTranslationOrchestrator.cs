@@ -40,14 +40,19 @@ public class ResxTranslationOrchestrator
 
 
             var localLlmClient = new LocalLlmClient();
-            var result = await localLlmClient.AskAsync(prompt, "");
+            var newTestClass = await localLlmClient.AskAsync(prompt, "");
 
 
-            var solutionDirectory = @"";
-            var sourceFilePath = "";
-            var testClassWithMethods = "";
-            var _manager = new TestProjectManager(solutionDirectory);
-            _manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
+            var sourceFilePath = @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs";
+            var testClassWithMethods = ExtractTestClass(newTestClass);
+
+
+
+            testClassWithMethods = testClassWithMethods.Replace("StringContent", "StrxxxingContent");
+
+
+            var manager = new TestProjectManager();
+            var result = await manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
 
 
 
@@ -62,4 +67,59 @@ public class ResxTranslationOrchestrator
         }
     }
 
-}
+
+
+    public static string ExtractTestClass(string aiResponse)
+        {
+            if (string.IsNullOrWhiteSpace(aiResponse))
+                return string.Empty;
+
+            // 1. Schritt: Extrahiere den Inhalt aus Markdown-Code-Blöcken, falls vorhanden
+            var codeBlockRegex = new Regex(@"```(?:csharp|cs)?\s*([\s\S]*?)\s*```", RegexOptions.IgnoreCase);
+            var match = codeBlockRegex.Match(aiResponse);
+
+            string rawCode = match.Success ? match.Groups[1].Value : aiResponse;
+
+            // 2. Schritt: Finde den echten Start des C#-Codes (entweder 'using ' oder 'namespace ')
+            int startIndex = rawCode.IndexOf("using ");
+            if (startIndex == -1)
+            {
+                startIndex = rawCode.IndexOf("namespace ");
+            }
+
+            if (startIndex == -1)
+                return rawCode.Trim(); // Fallback, falls weder using noch namespace existiert
+
+            // 3. Schritt: Finde das exakte Ende der Klasse über die geschweiften Klammern
+            int firstOpenBrace = rawCode.IndexOf('{', startIndex);
+            if (firstOpenBrace == -1)
+                return rawCode.Substring(startIndex).Trim();
+
+            int braceCount = 1;
+            int endIndex = -1;
+
+            // Wir laufen ab der ersten offenen Klammer durch den Code und zählen mit
+            for (int i = firstOpenBrace + 1; i < rawCode.Length; i++)
+            {
+                if (rawCode[i] == '{') braceCount++;
+                else if (rawCode[i] == '}') braceCount--;
+
+                if (braceCount == 0)
+                {
+                    endIndex = i;
+                    break;
+                }
+            }
+
+            // Wenn wir das korrekte Ende gefunden haben, schneiden wir exakt diesen Teil aus
+            if (endIndex != -1)
+            {
+                return rawCode.Substring(startIndex, endIndex - startIndex + 1).Trim();
+            }
+
+            return rawCode.Substring(startIndex).Trim();
+        }
+
+
+
+    }

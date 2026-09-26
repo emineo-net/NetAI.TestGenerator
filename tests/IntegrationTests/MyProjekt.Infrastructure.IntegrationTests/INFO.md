@@ -1,1 +1,0 @@
-Testet EF Core gegen echte Test-DBs (Docker)

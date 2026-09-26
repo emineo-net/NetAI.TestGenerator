@@ -15,7 +15,7 @@ public partial class MainWindow : Window
     }
 
     private async void TestButton_OnClick(object sender, RoutedEventArgs e)
-    {
+     {
         //  await DownloadViaCloudFlare.DownloadWithCloudFlare();
 
         var builder = new AiPromptBuilder(@"C:\Users\steph\source\repos\WebObserver2\src\UI\WpfExplorer\aisettings.json");

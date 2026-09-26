@@ -1,1 +1,0 @@
-Schnell, isoliert, 100% In-Memory (kein I/O)
