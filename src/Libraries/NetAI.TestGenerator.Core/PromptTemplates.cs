@@ -1,37 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
 
 namespace NetAI.TestGenerator.Core;
 
 public static class PromptTemplates
 {
-    public const string UnitTestGenerator = """
-                                            Du bist ein Experte für Software-Qualität und C# .NET 10 Unit Tests.
-                                            Deine Aufgabe ist es, für eine ganz bestimmte Methode einen professionellen Unit Test zu schreiben.
+    // Wir öffnen mit VIER Anführungszeichen. 
+    // Dadurch darf der Text im Prompt drin drei Anführungszeichen (\"\"\") enthalten, ohne den String zu brechen!
+    public const string UnitTestGenerator = """"
+        Du bist ein Experte für Software-Qualität und C# .NET 10 Unit Tests.
+        Deine Aufgabe ist es, für eine ganz bestimmte Methode einen professionellen, sofort kompilierbaren Unit Test zu schreiben.
 
-                                            [FRAMEWORK VORGABEN]
-                                            - Test-Framework: {{ test_framework }}
-                                            - Mocking-Bibliothek: {{ mocking_library }}
+        [FRAMEWORK VORGABEN]
+        - Test-Framework: {{ test_framework }}
+        - Mocking-Bibliothek: {{ mocking_library }}
+        - Assertions: {{ assertion_library }}
 
-                                            [EXAKTES ZIEL]
-                                            Fokussiere dich ausschließlich auf die folgende Methode. Achte genau auf die Parameter, um Verwechslungen bei Überladungen zu vermeiden:
-                                            - Methoden-Name: {{ ziel_methode_name }}
-                                            - Exakte Signatur: `{{ ziel_methode_signatur }}`
+        [EXAKTES ZIEL]
+        Fokussiere dich ausschließlich auf die folgende Methode. Achte genau auf die Parameter, um Verwechslungen bei Überladungen zu vermeiden:
+        - Methoden-Name: {{ ziel_methode_name }}
+        - Ungefähre Signatur/Suchbegriff: `{{ ziel_methode_signatur }}`
 
-                                            [KONTEXT: DIE GANZE KLASSE]
-                                            Hier ist der Quellcode der vollständigen Klasse. Suche darin nach der oben definierten Signatur:
-                                            ```csharp
-                                            {{ klassen_code }}
-                                            ```
+        [KONTEXT: DIE GANZE KLASSE]
+        Hier ist der Quellcode der vollständigen Klasse. Suche darin nach der oben definierten Methode:
+        ```csharp
+        {{ klassen_code }}
+        ```
 
-                                            [ANWEISUNGEN]
-                                            1. Schreibe sauberen, kompilierbaren C#-Code nach dem AAA-Muster.
-                                            2. Erstelle Tests, die genau zu den Parametern und dem Rückgabetyp der oben genannten Signatur passen.
-                                            3. Gib NUR den reinen C#-Code des Test-Files zurück. Keine Erklärungen außerhalb des Codeblocks.
+        [STRIKTE ARCHITEKTUR- UND CODERELGELN (ANTI-FEHLER-LEITPLANKEN)]
+        1. HTTPCLIENT-MOCKING: Falls die Klasse 'HttpClient' verwendet, erstelle im Test-File einen minimalen 'FakeHttpMessageHandler : HttpMessageHandler' und übergib diesen an den HttpClient-Konstruktor. Mocke 'HttpClient' NIEMALS direkt mit NSubstitute/Moq (da PostAsync/GetAsync nicht virtuell sind und dies zu Kompilierfehlern führt!).
+        2. STRING ESCAPING: Wenn du JSON-Strings oder komplexe Payloads für Mocks erstellst, nutze AUSSCHLIESSLICH C# 11 Raw String Literals mit doppelten Dollarzeichen, um Escaping-Fehler mit Anführungszeichen zu vermeiden. Beispiel: \$\$"""{ "key": "value" }"""
+        3. OPTIONALE PARAMETER: Wenn die Zielmethode optionale Parameter besitzt, nutze beim Aufruf im 'Act'-Schritt zwingend benannte Argumente (e.g., `ct: CancellationToken.None`), um Typkonflikte mit vorherigen optionalen Parametern zu vermeiden.
+        4. VERHALTEN BEI GENERIC / INTERFACES: Nutze die angegebene Mocking-Bibliothek, um alle übergebenen Interfaces oder Repositories sauber zu mocken.
+        5. KEINE LEEREN CATCH-BLÖCKE: Simuliere in den Edge-Case-Tests echte Exceptions, falls die Methode diese wirft.
 
-                                            Deine Test-Methoden:
-                                            """;
+        [AUSGABEFORMAT]
+        Gib NUR den reinen C#-Code des Test-Files zurück. Keine Erklärungen vor oder nach dem Codeblock. Beginne direkt mit den notwendigen Namespaces.
 
+        Deine perfekt strukturierten Test-Methoden nach dem AAA-Muster:
+        """";
 }
 

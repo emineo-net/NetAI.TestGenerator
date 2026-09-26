@@ -1,6 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using DotNet10TestGenerator;
 using NetAI.TestGenerator.Core.Config;
 using NetAI.TestGenerator.Core.Models;
+using System.Text.RegularExpressions;
 
 namespace NetAI.TestGenerator.Core;
 
@@ -42,8 +43,15 @@ public class ResxTranslationOrchestrator
             var result = await localLlmClient.AskAsync(prompt, "");
 
 
+            var solutionDirectory = @"";
+            var sourceFilePath = "";
+            var testClassWithMethods = "";
+            var _manager = new TestProjectManager(solutionDirectory);
+            _manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
 
-          //  var apiResponse = await CallTranslationApi(requestData);
+
+
+            //  var apiResponse = await CallTranslationApi(requestData);
 
 
             return "ok .....";
