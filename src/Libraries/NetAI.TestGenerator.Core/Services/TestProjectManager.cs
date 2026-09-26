@@ -398,18 +398,19 @@ public class TestProjectManager
     }
 
     private static async Task<(int ExitCode, string[] Output, string[] Errors)> RunDotNetCliAsync(
-        IEnumerable<string> arguments,
-        string workingDirectory,
-        CancellationToken cancellationToken,
-        TimeSpan? timeout = null)
+    IEnumerable<string> arguments,
+    string workingDirectory,
+    CancellationToken cancellationToken,
+    TimeSpan? timeout = null)
     {
-        var argumentList = arguments as IList<string> ?? arguments.ToList();
+        var argumentList = arguments.ToList();
 
-        if (argumentList.Contains(""))
+        // Automatisch '--no-restore' hinzufügen, wenn ein 'new' Befehl genutzt wird
+        // und das Flag noch nicht übergeben wurde.
+        if (argumentList.Contains("new") && !argumentList.Contains("--no-restore"))
         {
-
+            argumentList.Add("--no-restore");
         }
-
 
         var startInfo = new ProcessStartInfo
         {
@@ -419,7 +420,10 @@ public class TestProjectManager
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
-            CreateNoWindow = true
+            CreateNoWindow = true,
+            // Behebt die kryptischen Zeichen (Ã„, Ãœ) in der Ausgabe
+            StandardOutputEncoding = System.Text.Encoding.UTF8,
+            StandardErrorEncoding = System.Text.Encoding.UTF8
         };
 
         using var process = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
@@ -457,6 +461,7 @@ public class TestProjectManager
 
         return (process.ExitCode, outputList.ToArray(), errorList.ToArray());
     }
+
 
     private static void TryKill(Process process)
     {

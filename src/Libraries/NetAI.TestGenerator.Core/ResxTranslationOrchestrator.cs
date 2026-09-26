@@ -40,26 +40,51 @@ public class ResxTranslationOrchestrator
 
 
             var localLlmClient = new LocalLlmClient();
-            var newTestClass = await localLlmClient.AskAsync(prompt, "");
 
 
-            var sourceFilePath = @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs";
-            var testClassWithMethods = ExtractTestClass(newTestClass);
+            var testpath = @"C:\temp\__trash\Textdokument.cs";
+
+            if (File.Exists(testpath))
+            {
+//             
+
+
+                var sourceFilePath =
+                    @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs";
+                var testClassWithMethods = File.ReadAllText(testpath);
+
+
+                var manager = new TestProjectManager();
+                var result = await manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
+
+
+                //  var apiResponse = await CallTranslationApi(requestData);
+
+                return "ok .....";
+            }
+            else
+            {
 
 
 
-            testClassWithMethods = testClassWithMethods.Replace("StringContent", "StrxxxingContent");
 
 
-            var manager = new TestProjectManager();
-            var result = await manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
+                var newTestClass = await localLlmClient.AskAsync(prompt, "");
 
 
+                var sourceFilePath =
+                    @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs";
+                var testClassWithMethods = ExtractTestClass(newTestClass);
 
-            //  var apiResponse = await CallTranslationApi(requestData);
+
+                var manager = new TestProjectManager();
+                var result = await manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
 
 
-            return "ok .....";
+                //  var apiResponse = await CallTranslationApi(requestData);
+
+                return "ok .....";
+            }
         }
         catch (Exception ex)
         {
