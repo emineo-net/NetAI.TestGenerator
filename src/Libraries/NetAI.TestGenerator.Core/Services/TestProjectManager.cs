@@ -84,8 +84,8 @@ public class TestProjectManager
             string testClassName = ExtractClassName(testClassCode);
 
             // 3. Determine the path for the test project (test/unittest/).
-            string testProjectDir = Path.Combine(solutionDirectory, "tests", "UnitTests");
             string testProjectName = "UnitTestProject";
+            string testProjectDir = Path.Combine(solutionDirectory, "tests", "UnitTests", testProjectName);
             string testProjectPath = Path.Combine(testProjectDir, $"{testProjectName}.csproj");
 
             // 4. Determine the project that contains the source file so that a
@@ -238,7 +238,13 @@ public class TestProjectManager
         Directory.CreateDirectory(directory);
 
         // Use xUnit as the default test framework for .NET 10.
-        var newResult = await RunDotNetCliAsync(new[] { "new", "xunit", "-n", projectName }, directory, ct);
+        //var newResult = await RunDotNetCliAsync(new[] { "new", "xunit", "-n", projectName }, directory, ct);
+        var newResult = await RunDotNetCliAsync(
+            new[] { "new", "xunit", "-n", projectName, "-o", "." },
+            directory, ct);
+
+
+
         if (newResult.ExitCode != 0)
         {
             return new TestGenerationResult(false, "Failed to create the test project via the .NET CLI.", compilerErrors: newResult.Errors);
@@ -260,6 +266,7 @@ public class TestProjectManager
         if (sourceProjectPath is not null)
         {
             var refResult = await RunDotNetCliAsync(new[] { "add", projectPath, "reference", sourceProjectPath }, directory, ct);
+
             if (refResult.ExitCode != 0)
             {
                 return new TestGenerationResult(

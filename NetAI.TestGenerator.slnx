@@ -19,4 +19,8 @@
   <Folder Name="/src/UI/">
     <Project Path="src/UI/WpftranlationTestApp/WpftranlationTestApp.csproj" Id="75b1d199-bf94-4125-a7c8-3d747b94fa39" />
   </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/UnitTests/">
+    <Project Path="tests/UnitTests/UnitTestProject/UnitTestProject.csproj" />
+  </Folder>
 </Solution>
