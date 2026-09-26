@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -12,7 +13,7 @@ using System.Xml.Linq;
 namespace DotNet10TestGenerator;
 
 /// <summary>
-/// Repräsentiert das Ergebnis der Testgenerierung und -validierung.
+/// Represents the result of test generation and validation.
 /// </summary>
 public sealed class TestGenerationResult
 {
@@ -35,23 +36,23 @@ public sealed class TestGenerationResult
 }
 
 /// <summary>
-/// Erstellt und validiert Unit-Test-Projekte und -Klassen für .NET 10.
-/// Ermittelt das Solution-Verzeichnis automatisch aus dem Pfad der Quelldatei
-/// (nächstgelegene .sln- bzw. .slnx-Datei im Verzeichnisbaum oberhalb der Datei).
-/// Führt bewusst KEINE Tests aus – es wird nur geprüft, ob die generierte
-/// Testklasse kompiliert.
+/// Creates and validates unit test projects and classes for .NET 10.
+/// Determines the solution directory automatically from the source file path
+/// (nearest .sln or .slnx file in the directory tree above the file).
+/// Intentionally does NOT execute tests – it only verifies that the generated
+/// test class compiles.
 /// </summary>
 public class TestProjectManager
 {
     private static readonly TimeSpan DefaultProcessTimeout = TimeSpan.FromMinutes(5);
 
     /// <summary>
-    /// Führt den gesamten Workflow aus: Solution-Verzeichnis ermitteln, Projekt
-    /// prüfen/erstellen (inkl. ProjectReference auf das Quellprojekt), Testklasse
-    /// schreiben und die Kompilierung validieren.
+    /// Runs the full workflow: determine the solution directory, check/create the
+    /// project (including a ProjectReference to the source project), write the test
+    /// class and validate compilation.
     /// </summary>
-    /// <param name="sourceFilePath">Pfad zur originalen C#-Datei.</param>
-    /// <param name="testClassCode">Der vollständige C#-Code der Testklasse.</param>
+    /// <param name="sourceFilePath">Path to the original C# file.</param>
+    /// <param name="testClassCode">The complete C# code of the test class.</param>
     public async Task<TestGenerationResult> SetupAndValidateTestAsync(
         string sourceFilePath,
         string testClassCode,
@@ -59,39 +60,39 @@ public class TestProjectManager
     {
         if (!File.Exists(sourceFilePath))
         {
-            return new TestGenerationResult(false, $"Die Quelldatei wurde nicht gefunden: {sourceFilePath}");
+            return new TestGenerationResult(false, $"The source file was not found: {sourceFilePath}");
         }
 
         if (string.IsNullOrWhiteSpace(testClassCode))
         {
-            return new TestGenerationResult(false, "Der übergebene Testklassen-Code ist leer.");
+            return new TestGenerationResult(false, "The supplied test class code is empty.");
         }
 
         try
         {
-            // 1. Solution-Verzeichnis aus dem Pfad zur Quelldatei ableiten
-            //    (nächstgelegene .sln oder .slnx oberhalb der Datei).
+            // 1. Derive the solution directory from the source file path
+            //    (nearest .sln or .slnx above the file).
             string? solutionDirectory = FindSolutionDirectory(sourceFilePath);
             if (solutionDirectory is null)
             {
                 return new TestGenerationResult(
                     false,
-                    $"Über '{sourceFilePath}' wurde keine .sln- oder .slnx-Datei gefunden.");
+                    $"No .sln or .slnx file was found above '{sourceFilePath}'.");
             }
 
-            // 2. Klassennamen aus dem Code extrahieren für den Dateinamen
+            // 2. Extract the class name from the code for the file name.
             string testClassName = ExtractClassName(testClassCode);
 
-            // 3. Pfad für das Testprojekt bestimmen (test/unittest/)
-            string testProjectDir = Path.Combine(solutionDirectory, "test", "unittest");
+            // 3. Determine the path for the test project (test/unittest/).
+            string testProjectDir = Path.Combine(solutionDirectory, "tests", "UnitTests");
             string testProjectName = "UnitTestProject";
             string testProjectPath = Path.Combine(testProjectDir, $"{testProjectName}.csproj");
 
-            // 4. Projekt ermitteln, das die Quelldatei enthält, um eine ProjectReference
-            //    zu setzen.
+            // 4. Determine the project that contains the source file so that a
+            //    ProjectReference can be added.
             string? sourceProjectPath = FindContainingProject(sourceFilePath, solutionDirectory);
 
-            // 5. Testprojekt erstellen, falls es nicht existiert
+            // 5. Create the test project if it does not exist.
             if (!File.Exists(testProjectPath))
             {
                 var createResult = await CreateTestProjectAsync(
@@ -101,20 +102,20 @@ public class TestProjectManager
             else if (sourceProjectPath is not null &&
                      !await ProjectHasReferenceAsync(testProjectPath, sourceProjectPath, cancellationToken))
             {
-                // Testprojekt existierte schon, aber die Referenz fehlt noch.
+                // The test project already existed, but the reference is still missing.
                 await RunDotNetCliAsync(
                     new[] { "add", testProjectPath, "reference", sourceProjectPath },
                     testProjectDir,
                     cancellationToken);
             }
 
-            // 6. Testklassendatei schreiben (vorherigen Inhalt für eventuellen Rollback merken)
+            // 6. Write the test class file (remember the previous content for a possible rollback).
             string testClassPath = Path.Combine(testProjectDir, $"{SafeFileName(testClassName)}.cs");
             bool isNewFile = !File.Exists(testClassPath);
             string? previousContent = isNewFile ? null : await ReadAllTextAsyncCompat(testClassPath, cancellationToken);
             await WriteAllTextAsyncCompat(testClassPath, testClassCode, Encoding.UTF8, cancellationToken);
 
-            // 7. Prüfen, ob das Testprojekt mit der neuen Klasse kompiliert
+            // 7. Verify that the test project compiles with the new class.
             var buildResult = await ValidateProjectCompilesAsync(testProjectPath, cancellationToken);
             if (!buildResult.IsSuccess)
             {
@@ -122,7 +123,7 @@ public class TestProjectManager
                 return buildResult;
             }
 
-            return new TestGenerationResult(true, $"Testklasse erfolgreich in {testClassPath} erstellt und validiert.");
+            return new TestGenerationResult(true, $"Test class successfully created and validated in {testClassPath}.");
         }
         catch (OperationCanceledException)
         {
@@ -132,15 +133,15 @@ public class TestProjectManager
         {
             return new TestGenerationResult(
                 false,
-                $"Ein unerwarteter Fehler ist aufgetreten: {ex.Message}",
+                $"An unexpected error occurred: {ex.Message}",
                 exceptionDetails: FormatExceptionDetails(ex));
         }
     }
 
     /// <summary>
-    /// Sucht ausgehend vom Verzeichnis der Quelldatei nach oben nach der
-    /// nächstgelegenen .sln- oder .slnx-Datei und liefert deren Verzeichnis
-    /// (= Solution-Verzeichnis) zurück. Null, wenn keine gefunden wurde.
+    /// Walks up from the directory of the source file looking for the nearest
+    /// .sln or .slnx file and returns its directory (= solution directory).
+    /// Null if none was found.
     /// </summary>
     private static string? FindSolutionDirectory(string sourceFilePath)
     {
@@ -161,8 +162,8 @@ public class TestProjectManager
     }
 
     /// <summary>
-    /// Extrahiert den Namen der ersten Klasse aus dem C#-Code mithilfe von Regex.
-    /// Einzeilige Kommentare werden dabei ignoriert.
+    /// Extracts the name of the first class from the C# code using a regex.
+    /// Single-line comments are ignored.
     /// </summary>
     private static string ExtractClassName(string classCode)
     {
@@ -180,7 +181,7 @@ public class TestProjectManager
     }
 
     /// <summary>
-    /// Entfernt ungültige Dateinamenzeichen aus einem Klassennamen.
+    /// Removes invalid file name characters from a class name.
     /// </summary>
     private static string SafeFileName(string name)
     {
@@ -192,8 +193,8 @@ public class TestProjectManager
     }
 
     /// <summary>
-    /// Sucht ausgehend vom Verzeichnis der Quelldatei nach oben (innerhalb der Solution)
-    /// nach der nächstgelegenen .csproj-Datei.
+    /// Walks up from the directory of the source file (within the solution)
+    /// looking for the nearest .csproj file.
     /// </summary>
     private static string? FindContainingProject(string filePath, string solutionDirectory)
     {
@@ -211,7 +212,7 @@ public class TestProjectManager
     }
 
     /// <summary>
-    /// Prüft, ob das Testprojekt bereits eine ProjectReference auf das Quellprojekt enthält.
+    /// Checks whether the test project already contains a ProjectReference to the source project.
     /// </summary>
     private static async Task<bool> ProjectHasReferenceAsync(string testProjectPath, string sourceProjectPath, CancellationToken ct)
     {
@@ -236,16 +237,16 @@ public class TestProjectManager
     {
         Directory.CreateDirectory(directory);
 
-        // Nutzt xUnit als Standard-Testframework für .NET 10
+        // Use xUnit as the default test framework for .NET 10.
         var newResult = await RunDotNetCliAsync(new[] { "new", "xunit", "-n", projectName }, directory, ct);
         if (newResult.ExitCode != 0)
         {
-            return new TestGenerationResult(false, "Fehler beim Erstellen des Testprojekts via .NET CLI.", compilerErrors: newResult.Errors);
+            return new TestGenerationResult(false, "Failed to create the test project via the .NET CLI.", compilerErrors: newResult.Errors);
         }
 
         string projectPath = Path.Combine(directory, $"{projectName}.csproj");
 
-        // Fügt das Projekt zur Solution hinzu, falls eine .sln- oder .slnx-Datei im Hauptverzeichnis existiert
+        // Add the project to the solution if a .sln or .slnx file exists in the root directory.
         var slnFiles = Directory.GetFiles(solutionDirectory, "*.sln")
             .Concat(Directory.GetFiles(solutionDirectory, "*.slnx"))
             .ToArray();
@@ -255,7 +256,7 @@ public class TestProjectManager
             await RunDotNetCliAsync(new[] { "sln", slnFiles[0], "add", projectPath }, solutionDirectory, ct);
         }
 
-        // ProjectReference auf das Quellprojekt setzen
+        // Set a ProjectReference to the source project.
         if (sourceProjectPath is not null)
         {
             var refResult = await RunDotNetCliAsync(new[] { "add", projectPath, "reference", sourceProjectPath }, directory, ct);
@@ -263,40 +264,54 @@ public class TestProjectManager
             {
                 return new TestGenerationResult(
                     false,
-                    "Testprojekt wurde erstellt, aber die Referenz auf das Quellprojekt konnte nicht gesetzt werden.",
+                    "The test project was created, but the reference to the source project could not be set.",
                     compilerErrors: refResult.Errors);
             }
         }
 
-        // Standardmäßig generierte xUnit-Beispiel-Datei löschen, falls vorhanden
+        // Delete the default generated xUnit sample file if present.
         string unittestClassFile = Path.Combine(directory, "UnitTest1.cs");
         if (File.Exists(unittestClassFile)) File.Delete(unittestClassFile);
 
-        return new TestGenerationResult(true, "Testprojekt erfolgreich erstellt.");
+        return new TestGenerationResult(true, "Test project created successfully.");
     }
 
     private static async Task<TestGenerationResult> ValidateProjectCompilesAsync(string projectPath, CancellationToken ct)
     {
+        // Force a full rebuild so that stale artifacts cannot hide compile errors.
+        // "-t:Rebuild" is stronger than "--no-incremental" and guarantees the
+        // compiler actually runs against the current sources.
         var result = await RunDotNetCliAsync(
-            new[] { "build", projectPath, "--no-incremental" },
+            new[] { "build", projectPath, "-t:Rebuild", "-v:minimal", "--nologo" },
             Path.GetDirectoryName(projectPath)!,
             ct);
 
+        var allLines = result.Errors.Concat(result.Output).ToArray();
+
         if (result.ExitCode != 0)
         {
-            var compilerErrors = result.Errors
-                .Concat(result.Output)
-                .Where(line => line.Contains("error CS"))
+            // The .NET CLI is forced to English (DOTNET_CLI_UI_LANGUAGE=en / VSLANG=1033)
+            // inside RunDotNetCliAsync, so "error CSxxxx" is the expected form.
+            // The regex fallback also catches any residual localization.
+            var compilerErrors = allLines
+                .Where(line =>
+                    line.Contains("error CS", StringComparison.OrdinalIgnoreCase) ||
+                    line.Contains("Fehler CS", StringComparison.OrdinalIgnoreCase) ||
+                    Regex.IsMatch(line, @":\s*(error|Fehler)\s+[A-Z]{2}\d+", RegexOptions.IgnoreCase))
                 .ToArray();
 
             return new TestGenerationResult(
                 isSuccess: false,
-                message: "Die Testklasse konnte nicht kompiliert werden (Syntax-, Namespace- oder Referenzfehler).",
-                compilerErrors: compilerErrors.Length > 0 ? compilerErrors : new[] { "Unbekannter Kompilierfehler. Siehe CLI Ausgabe." }
+                message: "The test class could not be compiled (syntax, namespace, or reference error).",
+                compilerErrors: compilerErrors.Length > 0
+                    ? compilerErrors
+                    : allLines.Length > 0
+                        ? allLines
+                        : new[] { "Unknown compile error. See CLI output." }
             );
         }
 
-        return new TestGenerationResult(true, "Kompilierung erfolgreich.");
+        return new TestGenerationResult(true, "Compilation succeeded.");
     }
 
     private static void RestoreOrDeleteTestFile(string path, bool wasNew, string? previousContent)
@@ -314,7 +329,7 @@ public class TestProjectManager
         }
         catch
         {
-            // Best-effort Cleanup
+            // Best-effort cleanup.
         }
     }
 
@@ -398,15 +413,15 @@ public class TestProjectManager
     }
 
     private static async Task<(int ExitCode, string[] Output, string[] Errors)> RunDotNetCliAsync(
-    IEnumerable<string> arguments,
-    string workingDirectory,
-    CancellationToken cancellationToken,
-    TimeSpan? timeout = null)
+        IEnumerable<string> arguments,
+        string workingDirectory,
+        CancellationToken cancellationToken,
+        TimeSpan? timeout = null)
     {
         var argumentList = arguments.ToList();
 
-        // Automatisch '--no-restore' hinzufügen, wenn ein 'new' Befehl genutzt wird
-        // und das Flag noch nicht übergeben wurde.
+        // Automatically add '--no-restore' when a 'new' command is used
+        // and the flag has not been passed yet.
         if (argumentList.Contains("new") && !argumentList.Contains("--no-restore"))
         {
             argumentList.Add("--no-restore");
@@ -421,18 +436,25 @@ public class TestProjectManager
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            // Behebt die kryptischen Zeichen (Ã„, Ãœ) in der Ausgabe
-            StandardOutputEncoding = System.Text.Encoding.UTF8,
-            StandardErrorEncoding = System.Text.Encoding.UTF8
+            // Fixes the cryptic characters (Ã„, Ãœ) in the output.
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8
         };
+
+        // Force the .NET CLI (and the Roslyn diagnostics) to English so that
+        // compiler errors are reliably reported as "error CSxxxx".
+        startInfo.Environment["DOTNET_CLI_UI_LANGUAGE"] = "en";
+        startInfo.Environment["VSLANG"] = "1033";
 
         using var process = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
 
-        var outputList = new List<string>();
-        var errorList = new List<string>();
+        // ConcurrentQueue is thread-safe: the *DataReceived handlers run on
+        // ThreadPool threads and would otherwise race with the reader below.
+        var outputList = new ConcurrentQueue<string>();
+        var errorList = new ConcurrentQueue<string>();
 
-        process.OutputDataReceived += (s, e) => { if (e.Data != null) outputList.Add(e.Data); };
-        process.ErrorDataReceived += (s, e) => { if (e.Data != null) errorList.Add(e.Data); };
+        process.OutputDataReceived += (s, e) => { if (e.Data != null) outputList.Enqueue(e.Data); };
+        process.ErrorDataReceived += (s, e) => { if (e.Data != null) errorList.Enqueue(e.Data); };
 
         process.Start();
         process.BeginOutputReadLine();
@@ -444,13 +466,21 @@ public class TestProjectManager
         try
         {
             await WaitForExitAsyncCompat(process, linkedCts.Token);
+
+            // IMPORTANT: The async "Exited" event can fire before all
+            // OutputDataReceived / ErrorDataReceived callbacks have been
+            // flushed. A synchronous WaitForExit() guarantees that every line
+            // has been captured before we read the queues below. Without this
+            // the final lines (including the compiler errors) are frequently
+            // missing.
+            process.WaitForExit();
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
             TryKill(process);
-            errorList.Add(
-                $"Der Prozess 'dotnet {string.Join(" ", argumentList)}' wurde nach " +
-                $"{(timeout ?? DefaultProcessTimeout).TotalSeconds}s abgebrochen (Timeout).");
+            errorList.Enqueue(
+                $"The process 'dotnet {string.Join(" ", argumentList)}' was aborted after " +
+                $"{(timeout ?? DefaultProcessTimeout).TotalSeconds}s (timeout).");
             return (-1, outputList.ToArray(), errorList.ToArray());
         }
         catch (OperationCanceledException)
@@ -461,7 +491,6 @@ public class TestProjectManager
 
         return (process.ExitCode, outputList.ToArray(), errorList.ToArray());
     }
-
 
     private static void TryKill(Process process)
     {
@@ -474,7 +503,7 @@ public class TestProjectManager
         }
         catch
         {
-            // Best effort
+            // Best effort.
         }
     }
 
@@ -486,7 +515,7 @@ public class TestProjectManager
         int depth = 0;
         while (current is not null)
         {
-            string label = depth == 0 ? "Fehler" : $"Innere Ausnahme (Ebene {depth})";
+            string label = depth == 0 ? "Error" : $"Inner exception (level {depth})";
             lines.Add($"{label}: {current.GetType().FullName}: {current.Message}");
             current = current.InnerException;
             depth++;
@@ -502,7 +531,7 @@ public class TestProjectManager
 
             if (relevantFrames.Length > 0)
             {
-                lines.Add("Stacktrace:");
+                lines.Add("Stack trace:");
                 lines.AddRange(relevantFrames);
             }
         }
