@@ -58,6 +58,8 @@ public class ResxTranslationOrchestrator
                 var result = await manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
 
 
+                var errrsydggdg = string.Join("\n", result.CompilerErrors.ToList());
+
                 //  var apiResponse = await CallTranslationApi(requestData);
 
                 return "ok .....";

@@ -44,7 +44,21 @@ public sealed class TestGenerationResult
 /// </summary>
 public class TestProjectManager
 {
-    private static readonly TimeSpan DefaultProcessTimeout = TimeSpan.FromMinutes(5);
+    /// <summary>
+    /// Default name used for the sample test file that the "dotnet new" test
+    /// templates (xunit/nunit/mstest) generate. It is removed after project
+    /// creation since we write our own generated test class instead.
+    /// </summary>
+    private const string DefaultSampleFileName = "UnitTest1.cs";
+
+    private readonly TimeSpan _defaultProcessTimeout;
+    private readonly string _dotnetExecutable;
+
+    public TestProjectManager(TimeSpan? defaultProcessTimeout = null, string dotnetExecutable = "dotnet")
+    {
+        _defaultProcessTimeout = defaultProcessTimeout ?? TimeSpan.FromMinutes(5);
+        _dotnetExecutable = string.IsNullOrWhiteSpace(dotnetExecutable) ? "dotnet" : dotnetExecutable;
+    }
 
     /// <summary>
     /// Runs the full workflow: determine the solution directory, check/create the
@@ -53,9 +67,22 @@ public class TestProjectManager
     /// </summary>
     /// <param name="sourceFilePath">Path to the original C# file.</param>
     /// <param name="testClassCode">The complete C# code of the test class.</param>
+    /// <param name="testProjectName">Name of the generated/expected test project (and its .csproj).</param>
+    /// <param name="testsRelativeSubPath">
+    /// Path, relative to the solution directory, under which the test project lives
+    /// (e.g. "tests/UnitTests"). Accepts '/' or '\' as separators.
+    /// </param>
+    /// <param name="testTemplate">The "dotnet new" template short name used to scaffold a new test project (e.g. "xunit", "nunit", "mstest").</param>
+    /// <param name="targetFramework">Optional explicit target framework (e.g. "net10.0") passed to "dotnet new" via --framework. Null uses the template default.</param>
+    /// <param name="generatedClassNamePrefix">Prefix used for the fallback file name when no class name could be extracted from <paramref name="testClassCode"/>.</param>
     public async Task<TestGenerationResult> SetupAndValidateTestAsync(
         string sourceFilePath,
         string testClassCode,
+        string testProjectName = "UnitTestProject",
+        string testsRelativeSubPath = "tests/UnitTests",
+        string testTemplate = "xunit",
+        string? targetFramework = null,
+        string generatedClassNamePrefix = "GeneratedTest_",
         CancellationToken cancellationToken = default)
     {
         if (!File.Exists(sourceFilePath))
@@ -66,6 +93,11 @@ public class TestProjectManager
         if (string.IsNullOrWhiteSpace(testClassCode))
         {
             return new TestGenerationResult(false, "The supplied test class code is empty.");
+        }
+
+        if (string.IsNullOrWhiteSpace(testProjectName))
+        {
+            return new TestGenerationResult(false, "The test project name must not be empty.");
         }
 
         try
@@ -81,11 +113,10 @@ public class TestProjectManager
             }
 
             // 2. Extract the class name from the code for the file name.
-            string testClassName = ExtractClassName(testClassCode);
+            string testClassName = ExtractClassName(testClassCode, generatedClassNamePrefix);
 
-            // 3. Determine the path for the test project (test/unittest/).
-            string testProjectName = "UnitTestProject";
-            string testProjectDir = Path.Combine(solutionDirectory, "tests", "UnitTests", testProjectName);
+            // 3. Determine the path for the test project.
+            string testProjectDir = CombineUnderSolution(solutionDirectory, testsRelativeSubPath, testProjectName);
             string testProjectPath = Path.Combine(testProjectDir, $"{testProjectName}.csproj");
 
             // 4. Determine the project that contains the source file so that a
@@ -96,7 +127,8 @@ public class TestProjectManager
             if (!File.Exists(testProjectPath))
             {
                 var createResult = await CreateTestProjectAsync(
-                    solutionDirectory, testProjectDir, testProjectName, sourceProjectPath, cancellationToken);
+                    solutionDirectory, testProjectDir, testProjectName, testTemplate, targetFramework,
+                    sourceProjectPath, cancellationToken);
                 if (!createResult.IsSuccess) return createResult;
             }
             else if (sourceProjectPath is not null &&
@@ -139,6 +171,22 @@ public class TestProjectManager
     }
 
     /// <summary>
+    /// Combines the solution directory with a relative sub-path (accepting both
+    /// '/' and '\' as separators, independent of the host OS) and the project name.
+    /// </summary>
+    private static string CombineUnderSolution(string solutionDirectory, string relativeSubPath, string projectName)
+    {
+        var segments = (relativeSubPath ?? string.Empty)
+            .Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+
+        var allSegments = new List<string> { solutionDirectory };
+        allSegments.AddRange(segments);
+        allSegments.Add(projectName);
+
+        return Path.Combine(allSegments.ToArray());
+    }
+
+    /// <summary>
     /// Walks up from the directory of the source file looking for the nearest
     /// .sln or .slnx file and returns its directory (= solution directory).
     /// Null if none was found.
@@ -165,7 +213,7 @@ public class TestProjectManager
     /// Extracts the name of the first class from the C# code using a regex.
     /// Single-line comments are ignored.
     /// </summary>
-    private static string ExtractClassName(string classCode)
+    private static string ExtractClassName(string classCode, string generatedNamePrefix)
     {
         var codeWithoutLineComments = string.Join(
             "\n",
@@ -177,7 +225,8 @@ public class TestProjectManager
             return match.Groups[1].Value;
         }
 
-        return $"GeneratedTest_{Guid.NewGuid():N}".Substring(0, 24);
+        string fallback = $"{generatedNamePrefix}{Guid.NewGuid():N}";
+        return fallback.Length > 40 ? fallback.Substring(0, 40) : fallback;
     }
 
     /// <summary>
@@ -232,22 +281,32 @@ public class TestProjectManager
         string solutionDirectory,
         string directory,
         string projectName,
+        string testTemplate,
+        string? targetFramework,
         string? sourceProjectPath,
         CancellationToken ct)
     {
         Directory.CreateDirectory(directory);
 
-        // Use xUnit as the default test framework for .NET 10.
-        //var newResult = await RunDotNetCliAsync(new[] { "new", "xunit", "-n", projectName }, directory, ct);
-        var newResult = await RunDotNetCliAsync(
-            new[] { "new", "xunit", "-n", projectName, "-o", "." },
-            directory, ct);
+        var newArgs = new List<string> { "new", testTemplate, "-n", projectName, "-o", "." };
+        if (!string.IsNullOrWhiteSpace(targetFramework))
+        {
+            newArgs.Add("--framework");
+            newArgs.Add(targetFramework!);
+        }
 
-
+        // NOTE: RunDotNetCliAsync automatically performs an explicit "dotnet restore"
+        // right after a successful "dotnet new" call (see there for details), so the
+        // NuGet packages of the freshly created project are guaranteed to be restored
+        // once this call returns.
+        var newResult = await RunDotNetCliAsync(newArgs, directory, ct);
 
         if (newResult.ExitCode != 0)
         {
-            return new TestGenerationResult(false, "Failed to create the test project via the .NET CLI.", compilerErrors: newResult.Errors);
+            return new TestGenerationResult(
+                false,
+                "Failed to create the test project or restore its NuGet packages via the .NET CLI.",
+                compilerErrors: newResult.Errors.Concat(newResult.Output).ToArray());
         }
 
         string projectPath = Path.Combine(directory, $"{projectName}.csproj");
@@ -276,49 +335,91 @@ public class TestProjectManager
             }
         }
 
-        // Delete the default generated xUnit sample file if present.
-        string unittestClassFile = Path.Combine(directory, "UnitTest1.cs");
-        if (File.Exists(unittestClassFile)) File.Delete(unittestClassFile);
+        // Delete the default generated sample test file if present.
+        string sampleTestClassFile = Path.Combine(directory, DefaultSampleFileName);
+        if (File.Exists(sampleTestClassFile)) File.Delete(sampleTestClassFile);
 
         return new TestGenerationResult(true, "Test project created successfully.");
     }
 
-    private static async Task<TestGenerationResult> ValidateProjectCompilesAsync(string projectPath, CancellationToken ct)
+    private async Task<TestGenerationResult> ValidateProjectCompilesAsync(string projectPath, CancellationToken ct)
     {
-        // Force a full rebuild so that stale artifacts cannot hide compile errors.
-        // "-t:Rebuild" is stronger than "--no-incremental" and guarantees the
-        // compiler actually runs against the current sources.
-        var result = await RunDotNetCliAsync(
-            new[] { "build", projectPath, "-t:Rebuild", "-v:minimal", "--nologo" },
-            Path.GetDirectoryName(projectPath)!,
-            ct);
+        string projectDir = Path.GetDirectoryName(projectPath)!;
+        string errorLogPath = Path.Combine(projectDir, $"build_errors_{Guid.NewGuid():N}.log");
 
-        var allLines = result.Errors.Concat(result.Output).ToArray();
-
-        if (result.ExitCode != 0)
+        try
         {
-            // The .NET CLI is forced to English (DOTNET_CLI_UI_LANGUAGE=en / VSLANG=1033)
-            // inside RunDotNetCliAsync, so "error CSxxxx" is the expected form.
-            // The regex fallback also catches any residual localization.
-            var compilerErrors = allLines
-                .Where(line =>
-                    line.Contains("error CS", StringComparison.OrdinalIgnoreCase) ||
-                    line.Contains("Fehler CS", StringComparison.OrdinalIgnoreCase) ||
-                    Regex.IsMatch(line, @":\s*(error|Fehler)\s+[A-Z]{2}\d+", RegexOptions.IgnoreCase))
-                .ToArray();
+            // Force a full rebuild so that stale artifacts cannot hide compile errors.
+            // "-t:Rebuild" is stronger than "--no-incremental" and guarantees the
+            // compiler actually runs against the current sources.
+            //
+            // In addition to the normal console output we ask MSBuild for a
+            // dedicated, errors-only file log ("-flp:errorsonly;..."). Parsing
+            // that file is far more reliable than scraping the console output:
+            // verbosity settings, NuGet's implicit-restore noise, localized
+            // summaries or interleaved stdout/stderr lines can otherwise cause
+            // real "error CSxxxx" lines to be missed.
+            var result = await RunDotNetCliAsync(
+                new[]
+                {
+                    "build", projectPath, "-t:Rebuild", "--nologo", "-v:quiet",
+                    $"-flp:errorsonly;logfile={errorLogPath};verbosity=normal"
+                },
+                projectDir,
+                ct);
 
-            return new TestGenerationResult(
-                isSuccess: false,
-                message: "The test class could not be compiled (syntax, namespace, or reference error).",
-                compilerErrors: compilerErrors.Length > 0
-                    ? compilerErrors
-                    : allLines.Length > 0
-                        ? allLines
-                        : new[] { "Unknown compile error. See CLI output." }
-            );
+            string[] fileLoggerErrors = Array.Empty<string>();
+            if (File.Exists(errorLogPath))
+            {
+                var logContent = await ReadAllTextAsyncCompat(errorLogPath, ct);
+                fileLoggerErrors = logContent
+                    .Split('\n')
+                    .Select(l => l.TrimEnd('\r'))
+                    .Where(l => l.Length > 0)
+                    .ToArray();
+            }
+
+            if (result.ExitCode != 0)
+            {
+                var allLines = result.Errors.Concat(result.Output).ToArray();
+
+                // The .NET CLI is forced to English (DOTNET_CLI_UI_LANGUAGE=en / VSLANG=1033)
+                // inside RunDotNetCliAsync, so "error CSxxxx" is the expected form. The
+                // regex fallback also catches other diagnostic sources (NuGet "NUxxxx",
+                // MSBuild "MSBxxxx", etc.) and any residual localization.
+                var compilerErrors = fileLoggerErrors.Length > 0
+                    ? fileLoggerErrors
+                    : allLines
+                        .Where(line =>
+                            line.Contains("error CS", StringComparison.OrdinalIgnoreCase) ||
+                            line.Contains("Fehler CS", StringComparison.OrdinalIgnoreCase) ||
+                            Regex.IsMatch(line, @"\b(error|Fehler)\s+[A-Za-z]+\d+", RegexOptions.IgnoreCase))
+                        .ToArray();
+
+                return new TestGenerationResult(
+                    isSuccess: false,
+                    message: "The test class could not be compiled (syntax, namespace, or reference error).",
+                    compilerErrors: compilerErrors.Length > 0
+                        ? compilerErrors
+                        : allLines.Length > 0
+                            ? allLines
+                            : new[] { "Unknown compile error. See CLI output." }
+                );
+            }
+
+            return new TestGenerationResult(true, "Compilation succeeded.");
         }
-
-        return new TestGenerationResult(true, "Compilation succeeded.");
+        finally
+        {
+            try
+            {
+                if (File.Exists(errorLogPath)) File.Delete(errorLogPath);
+            }
+            catch
+            {
+                // Best-effort cleanup.
+            }
+        }
     }
 
     private static void RestoreOrDeleteTestFile(string path, bool wasNew, string? previousContent)
@@ -419,24 +520,59 @@ public class TestProjectManager
         return sb.ToString();
     }
 
-    private static async Task<(int ExitCode, string[] Output, string[] Errors)> RunDotNetCliAsync(
-        IEnumerable<string> arguments,
+    private static bool ContainsCommand(IReadOnlyList<string> arguments, string command)
+        => arguments.Any(a => string.Equals(a, command, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// Runs a "dotnet" CLI command and captures its output.
+    /// <para>
+    /// Whenever the given arguments contain a "dotnet new ..." project-creation
+    /// command and it succeeds, this method automatically issues a subsequent,
+    /// explicit "dotnet restore" for the freshly created .csproj. "dotnet new"
+    /// performs an implicit restore itself, but that step can silently fail or be
+    /// skipped (custom templates, offline/authenticated feeds, "--no-restore",
+    /// etc.), which would otherwise surface later as a confusing compile error
+    /// instead of a clear restore error. Callers therefore never need to worry
+    /// about restoring packages for a newly created test project themselves.
+    /// </para>
+    /// </summary>
+    private async Task<(int ExitCode, string[] Output, string[] Errors)> RunDotNetCliAsync(
+        IReadOnlyList<string> arguments,
         string workingDirectory,
         CancellationToken cancellationToken,
         TimeSpan? timeout = null)
     {
-        var argumentsString = BuildArgumentString(arguments.ToList());
+        var primaryResult = await ExecuteDotNetProcessAsync(arguments, workingDirectory, cancellationToken, timeout);
 
-        //// Automatically add '--no-restore' when a 'new' command is used
-        //// and the flag has not been passed yet.
-        //if (argumentList.Contains("new") && !argumentList.Contains("--no-restore"))
-        //{
-        //    argumentList.Add("--no-restore");
-        //}
+        if (primaryResult.ExitCode == 0 && ContainsCommand(arguments, "new"))
+        {
+            string? createdProject = Directory.EnumerateFiles(workingDirectory, "*.csproj").FirstOrDefault();
+            if (createdProject is not null)
+            {
+                var restoreResult = await ExecuteDotNetProcessAsync(
+                    new[] { "restore", createdProject }, workingDirectory, cancellationToken, timeout);
+
+                var combinedOutput = primaryResult.Output.Concat(restoreResult.Output).ToArray();
+                var combinedErrors = primaryResult.Errors.Concat(restoreResult.Errors).ToArray();
+
+                return (restoreResult.ExitCode != 0 ? restoreResult.ExitCode : 0, combinedOutput, combinedErrors);
+            }
+        }
+
+        return primaryResult;
+    }
+
+    private async Task<(int ExitCode, string[] Output, string[] Errors)> ExecuteDotNetProcessAsync(
+        IEnumerable<string> arguments,
+        string workingDirectory,
+        CancellationToken cancellationToken,
+        TimeSpan? timeout)
+    {
+        var argumentsString = BuildArgumentString(arguments.ToList());
 
         var startInfo = new ProcessStartInfo
         {
-            FileName = "dotnet",
+            FileName = _dotnetExecutable,
             Arguments = argumentsString,
             WorkingDirectory = workingDirectory,
             RedirectStandardOutput = true,
@@ -467,7 +603,7 @@ public class TestProjectManager
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 
-        using var timeoutCts = new CancellationTokenSource(timeout ?? DefaultProcessTimeout);
+        using var timeoutCts = new CancellationTokenSource(timeout ?? _defaultProcessTimeout);
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
         try
@@ -486,8 +622,8 @@ public class TestProjectManager
         {
             TryKill(process);
             errorList.Enqueue(
-                $"The process 'dotnet {argumentsString}' was aborted after " +
-                $"{(timeout ?? DefaultProcessTimeout).TotalSeconds}s (timeout).");
+                $"The process '{_dotnetExecutable} {argumentsString}' was aborted after " +
+                $"{(timeout ?? _defaultProcessTimeout).TotalSeconds}s (timeout).");
             return (-1, outputList.ToArray(), errorList.ToArray());
         }
         catch (OperationCanceledException)
