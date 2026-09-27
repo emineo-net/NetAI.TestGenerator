@@ -425,7 +425,7 @@ public class TestProjectManager
         CancellationToken cancellationToken,
         TimeSpan? timeout = null)
     {
-        var argumentList = arguments.ToList();
+        var argumentsString = BuildArgumentString(arguments.ToList());
 
         //// Automatically add '--no-restore' when a 'new' command is used
         //// and the flag has not been passed yet.
@@ -437,7 +437,7 @@ public class TestProjectManager
         var startInfo = new ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = BuildArgumentString(argumentList),
+            Arguments = argumentsString,
             WorkingDirectory = workingDirectory,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -486,7 +486,7 @@ public class TestProjectManager
         {
             TryKill(process);
             errorList.Enqueue(
-                $"The process 'dotnet {string.Join(" ", argumentList)}' was aborted after " +
+                $"The process 'dotnet {argumentsString}' was aborted after " +
                 $"{(timeout ?? DefaultProcessTimeout).TotalSeconds}s (timeout).");
             return (-1, outputList.ToArray(), errorList.ToArray());
         }
