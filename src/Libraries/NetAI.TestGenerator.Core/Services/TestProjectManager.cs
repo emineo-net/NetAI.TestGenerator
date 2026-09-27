@@ -543,7 +543,10 @@ public class TestProjectManager
         {
             if (wasNew)
             {
-                if (File.Exists(path)) File.Delete(path);
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
             }
             else if (previousContent is not null)
             {
