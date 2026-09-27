@@ -51,6 +51,14 @@ public class TestProjectManager
     /// </summary>
     private const string DefaultSampleFileName = "UnitTest1.cs";
 
+    /// <summary>
+    /// Upper bound for how many "detect missing packages -> add -> rebuild"
+    /// rounds <see cref="TryResolveMissingPackagesAndRebuildAsync"/> will run.
+    /// Guards against pathological cases (e.g. a using directive that can
+    /// never be resolved to a real package) looping forever.
+    /// </summary>
+    private const int MaxPackageResolutionIterations = 5;
+
     private readonly TimeSpan _defaultProcessTimeout;
     private readonly string _dotnetExecutable;
 
@@ -61,9 +69,46 @@ public class TestProjectManager
     }
 
     /// <summary>
+    /// Maps a namespace (as it appears in a "using ...;" directive) to the NuGet
+    /// package id that provides it, for cases where the package id does not
+    /// simply equal the namespace (or one of its leading segments). Callers may
+    /// add further entries before invoking <see cref="SetupAndValidateTestAsync"/>.
+    /// Lookup in <see cref="GetPackageCandidates"/> also tries the namespace
+    /// itself (and shortened prefixes of it) as a package id, so this map only
+    /// needs entries where that default guess would be wrong.
+    /// </summary>
+    public IDictionary<string, string> KnownNamespaceToPackageMap { get; } = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["NSubstitute"] = "NSubstitute",
+        ["NSubstitute.ExceptionExtensions"] = "NSubstitute",
+        ["NSubstitute.ReturnsExtensions"] = "NSubstitute",
+        ["Moq"] = "Moq",
+        ["Moq.Protected"] = "Moq",
+        ["FluentAssertions"] = "FluentAssertions",
+        ["AutoFixture"] = "AutoFixture",
+        ["AutoFixture.Xunit2"] = "AutoFixture.Xunit2",
+        ["AutoFixture.AutoNSubstitute"] = "AutoFixture.AutoNSubstitute",
+        ["AutoFixture.AutoMoq"] = "AutoFixture.AutoMoq",
+        ["Bogus"] = "Bogus",
+        ["Shouldly"] = "Shouldly",
+        ["FakeItEasy"] = "FakeItEasy",
+        ["Newtonsoft.Json"] = "Newtonsoft.Json",
+        ["RichardSzalay.MockHttp"] = "RichardSzalay.MockHttp",
+        ["WireMock"] = "WireMock.Net",
+        ["WireMock.RequestBuilders"] = "WireMock.Net",
+        ["WireMock.ResponseBuilders"] = "WireMock.Net",
+        ["Respawn"] = "Respawn",
+        ["DotNet.Testcontainers"] = "Testcontainers",
+    };
+
+    /// <summary>
     /// Runs the full workflow: determine the solution directory, check/create the
     /// project (including a ProjectReference to the source project), write the test
-    /// class and validate compilation.
+    /// class and validate compilation. If compilation fails because a NuGet package
+    /// referenced via a "using ...;" directive in <paramref name="testClassCode"/> is
+    /// missing from the test project - whether that project was just created or
+    /// already existed - the missing package(s) are added automatically and the
+    /// build is retried (see <see cref="TryResolveMissingPackagesAndRebuildAsync"/>).
     /// </summary>
     /// <param name="sourceFilePath">Path to the original C# file.</param>
     /// <param name="testClassCode">The complete C# code of the test class.</param>
@@ -149,13 +194,32 @@ public class TestProjectManager
 
             // 7. Verify that the test project compiles with the new class.
             var buildResult = await ValidateProjectCompilesAsync(testProjectPath, cancellationToken);
+
+            // 7a. If compilation failed, this may simply be because the test class
+            // "using"s a namespace (e.g. NSubstitute, FluentAssertions, ...) whose
+            // NuGet package is not yet referenced by the test project - regardless
+            // of whether that project was just scaffolded above or already existed.
+            // Try to detect and add the missing package(s) and rebuild.
+            if (!buildResult.IsSuccess)
+            {
+                buildResult = await TryResolveMissingPackagesAndRebuildAsync(
+                    testProjectPath, testProjectDir, testClassCode, buildResult, cancellationToken);
+            }
+
             if (!buildResult.IsSuccess)
             {
                 RestoreOrDeleteTestFile(testClassPath, isNewFile, previousContent);
                 return buildResult;
             }
 
-            return new TestGenerationResult(true, $"Test class successfully created and validated in {testClassPath}.");
+            string successMessage = $"Test class successfully created and validated in {testClassPath}.";
+            if (!string.IsNullOrEmpty(buildResult.Message) &&
+                !buildResult.Message.StartsWith("Compilation succeeded", StringComparison.Ordinal))
+            {
+                successMessage += " " + buildResult.Message;
+            }
+
+            return new TestGenerationResult(true, successMessage);
         }
         catch (OperationCanceledException)
         {
@@ -167,6 +231,239 @@ public class TestProjectManager
                 false,
                 $"An unexpected error occurred: {ex.Message}",
                 exceptionDetails: FormatExceptionDetails(ex));
+        }
+    }
+
+    /// <summary>
+    /// Given a build that failed with <paramref name="failedBuildResult"/>, repeatedly:
+    /// (1) extracts the namespaces the test class "using"s, (2) checks the compiler
+    /// errors for CS0246/CS0234 ("type or namespace could not be found") diagnostics
+    /// that reference one of those namespaces, (3) tries to add the corresponding NuGet
+    /// package via "dotnet add package" (which is Central-Package-Management aware on
+    /// modern SDKs, so it works the same whether the project uses CPM or not), and
+    /// (4) rebuilds. Stops once the build succeeds, no further missing namespace can be
+    /// matched to a package, or <see cref="MaxPackageResolutionIterations"/> is reached.
+    /// </summary>
+    private async Task<TestGenerationResult> TryResolveMissingPackagesAndRebuildAsync(
+        string testProjectPath,
+        string testProjectDir,
+        string testClassCode,
+        TestGenerationResult failedBuildResult,
+        CancellationToken ct)
+    {
+        var usingNamespaces = ExtractUsingNamespaces(testClassCode);
+        if (usingNamespaces.Count == 0)
+        {
+            return failedBuildResult;
+        }
+
+        var attemptedPackageIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var unresolvedNamespaces = new List<string>();
+        var addedPackages = new List<string>();
+        var currentResult = failedBuildResult;
+
+        for (int iteration = 0; iteration < MaxPackageResolutionIterations; iteration++)
+        {
+            var candidateNamespaces = ExtractMissingNamespaceCandidates(currentResult.CompilerErrors ?? Array.Empty<string>(), usingNamespaces)
+                .Where(ns => !unresolvedNamespaces.Contains(ns, StringComparer.Ordinal))
+                .ToList();
+
+            if (candidateNamespaces.Count == 0)
+            {
+                break;
+            }
+
+            bool anyPackageAddedThisRound = false;
+
+            foreach (var ns in candidateNamespaces)
+            {
+                string? addedPackageId = await ResolveAndAddPackageAsync(testProjectPath, testProjectDir, ns, attemptedPackageIds, ct);
+                if (addedPackageId is not null)
+                {
+                    addedPackages.Add(addedPackageId);
+                    anyPackageAddedThisRound = true;
+                }
+                else
+                {
+                    unresolvedNamespaces.Add(ns);
+                }
+            }
+
+            if (!anyPackageAddedThisRound)
+            {
+                // Nothing new was added in this round, so re-running the build
+                // would only reproduce the same errors - stop here.
+                break;
+            }
+
+            currentResult = await ValidateProjectCompilesAsync(testProjectPath, ct);
+            if (currentResult.IsSuccess)
+            {
+                break;
+            }
+        }
+
+        var distinctAdded = addedPackages.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        var distinctUnresolved = unresolvedNamespaces.Distinct(StringComparer.Ordinal).ToList();
+
+        if (currentResult.IsSuccess)
+        {
+            string message = distinctAdded.Count > 0
+                ? $"Compilation succeeded after automatically adding the missing NuGet package(s): {string.Join(", ", distinctAdded)}."
+                : currentResult.Message;
+            return new TestGenerationResult(true, message);
+        }
+
+        if (distinctAdded.Count == 0 && distinctUnresolved.Count == 0)
+        {
+            // Nothing package-related was detected; the compile error has another cause.
+            return currentResult;
+        }
+
+        var notes = new List<string>();
+        if (distinctAdded.Count > 0)
+        {
+            notes.Add($"Automatically added NuGet package(s): {string.Join(", ", distinctAdded)}.");
+        }
+        if (distinctUnresolved.Count > 0)
+        {
+            notes.Add($"Could not automatically resolve a NuGet package for the namespace(s): {string.Join(", ", distinctUnresolved)}. Add the required PackageReference manually.");
+        }
+
+        return new TestGenerationResult(
+            isSuccess: false,
+            message: currentResult.Message,
+            compilerErrors: (currentResult.CompilerErrors ?? Array.Empty<string>()).Concat(notes).ToArray(),
+            exceptionDetails: currentResult.ExceptionDetails);
+    }
+
+    /// <summary>
+    /// Extracts the namespaces referenced by ordinary ("using X.Y.Z;") directives in
+    /// <paramref name="code"/>. Alias directives ("using Foo = Bar.Baz;"), "using static ...;"
+    /// and the "System" root namespace itself are deliberately excluded.
+    /// </summary>
+    private static List<string> ExtractUsingNamespaces(string code)
+    {
+        var codeWithoutLineComments = string.Join(
+            "\n",
+            code.Split('\n').Where(l => !l.TrimStart().StartsWith("//")));
+
+        var result = Regex.Matches(
+                codeWithoutLineComments,
+                @"^\s*using\s+(?!static\s)([A-Za-z_][A-Za-z0-9_.]*)\s*;",
+                RegexOptions.Multiline | RegexOptions.Compiled)
+            .Select(m => m.Groups[1].Value)
+            .Where(ns => !string.Equals(ns, "System", StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+
+        return result;
+    }
+
+    /// <summary>
+    /// Cross-references CS0246 / CS0234 ("type or namespace could not be found")
+    /// compiler diagnostics against <paramref name="usingNamespaces"/> and returns
+    /// the subset of those namespaces that the errors point to - either because the
+    /// full namespace or one of its dot-separated segments appears as the quoted
+    /// identifier in an error message.
+    /// </summary>
+    private static List<string> ExtractMissingNamespaceCandidates(IReadOnlyList<string> compilerErrors, IReadOnlyList<string> usingNamespaces)
+    {
+        var missingIdentifiers = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var line in compilerErrors)
+        {
+            if (!(line.Contains("CS0246", StringComparison.OrdinalIgnoreCase) ||
+                  line.Contains("CS0234", StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            foreach (Match m in Regex.Matches(line, "'([^']+)'"))
+            {
+                missingIdentifiers.Add(m.Groups[1].Value);
+            }
+        }
+
+        if (missingIdentifiers.Count == 0)
+        {
+            return new List<string>();
+        }
+
+        return usingNamespaces
+            .Where(ns => missingIdentifiers.Contains(ns) ||
+                         ns.Split('.').Any(segment => missingIdentifiers.Contains(segment)))
+            .ToList();
+    }
+
+    /// <summary>
+    /// Tries each candidate NuGet package id for <paramref name="namespaceName"/> (see
+    /// <see cref="GetPackageCandidates"/>) via "dotnet add package" followed by an explicit
+    /// restore, until one succeeds. Package ids already attempted in this run (successfully
+    /// or not) are tracked in <paramref name="attemptedPackageIds"/> and skipped. Returns the
+    /// package id that was successfully added, or null if none of the candidates worked.
+    /// </summary>
+    private async Task<string?> ResolveAndAddPackageAsync(
+        string testProjectPath,
+        string testProjectDir,
+        string namespaceName,
+        HashSet<string> attemptedPackageIds,
+        CancellationToken ct)
+    {
+        foreach (var candidate in GetPackageCandidates(namespaceName))
+        {
+            if (!attemptedPackageIds.Add(candidate))
+            {
+                continue;
+            }
+
+            var addResult = await RunDotNetCliAsync(
+                new[] { "add", testProjectPath, "package", candidate, "--no-restore" },
+                testProjectDir,
+                ct);
+
+            if (addResult.ExitCode != 0)
+            {
+                continue;
+            }
+
+            var restoreResult = await RunDotNetCliAsync(new[] { "restore", testProjectPath }, testProjectDir, ct);
+            if (restoreResult.ExitCode == 0)
+            {
+                return candidate;
+            }
+
+            // The package id exists but could not actually be restored (e.g. no
+            // version compatible with the target framework) - undo and move on.
+            await RunDotNetCliAsync(new[] { "remove", testProjectPath, "package", candidate }, testProjectDir, ct);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Yields NuGet package id candidates for a namespace, in order of preference:
+    /// first any explicit mapping in <see cref="KnownNamespaceToPackageMap"/> for the full
+    /// namespace, then the namespace itself progressively shortened from the right
+    /// (e.g. "NSubstitute.ExceptionExtensions" -> "NSubstitute.ExceptionExtensions" ->
+    /// "NSubstitute"), consulting the map for each shortened form as well, since most
+    /// package ids equal their root namespace.
+    /// </summary>
+    private IEnumerable<string> GetPackageCandidates(string namespaceName)
+    {
+        if (KnownNamespaceToPackageMap.TryGetValue(namespaceName, out var mapped))
+        {
+            yield return mapped;
+        }
+
+        var segments = namespaceName.Split('.');
+        for (int len = segments.Length; len >= 1; len--)
+        {
+            var candidate = string.Join(".", segments.Take(len));
+            yield return KnownNamespaceToPackageMap.TryGetValue(candidate, out var mappedPrefix)
+                ? mappedPrefix
+                : candidate;
         }
     }
 
@@ -536,6 +833,56 @@ public class TestProjectManager
             }
         }
     }
+
+
+    private async Task<TestGenerationResult> YValidateProjectCompilesAsync(string projectPath, CancellationToken ct)
+    {
+        string projectDir = Path.GetDirectoryName(projectPath)!;
+
+        var result = await RunDotNetCliAsync(
+            new[] { "build", projectPath, "-t:Rebuild", "--nologo", "-v:minimal", "-p:UseSharedCompilation=false" },
+            projectDir,
+            ct);
+
+        var allLines = (result.Errors ?? Array.Empty<string>())
+            .Concat(result.Output ?? Array.Empty<string>())
+            .ToArray();
+
+        var compilerErrors = allLines
+            .Where(line => line.Contains("error CS", StringComparison.OrdinalIgnoreCase) ||
+                           line.Contains("Fehler CS", StringComparison.OrdinalIgnoreCase))
+            .Select(line => line.Trim())
+            .ToArray();
+
+        if (result.ExitCode != 0 || compilerErrors.Length > 0)
+        {
+            // Kombiniert die Compiler-Fehler und alle CLI-Zeilen getrennt durch visuelle Marker
+            var combinedOutput = new List<string>();
+
+            if (compilerErrors.Length > 0)
+            {
+                combinedOutput.Add("=== GEFILTERTE COMPILER FEHLER ===");
+                combinedOutput.AddRange(compilerErrors);
+                combinedOutput.Add(""); // Leerzeile zur Trennung
+            }
+
+            combinedOutput.Add("=== VOLLSTÄNDIGER CLI OUTPUT (ALL LINES) ===");
+            combinedOutput.AddRange(allLines.Length > 0 ? allLines : new[] { "Kein CLI Output vorhanden." });
+
+            return new TestGenerationResult(
+                isSuccess: false,
+                message: "The test class could not be compiled (syntax, namespace, or reference error).",
+                compilerErrors: combinedOutput.ToArray()
+            );
+        }
+
+        return new TestGenerationResult(true, "Compilation succeeded.");
+    }
+
+
+
+
+
 
     private static void RestoreOrDeleteTestFile(string path, bool wasNew, string? previousContent)
     {

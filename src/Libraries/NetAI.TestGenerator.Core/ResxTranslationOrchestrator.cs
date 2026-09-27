@@ -2,6 +2,7 @@
 using NetAI.TestGenerator.Core.Config;
 using NetAI.TestGenerator.Core.Models;
 using System.Text.RegularExpressions;
+using NetAI.TestGenerator.Core.Services;
 
 namespace NetAI.TestGenerator.Core;
 
@@ -44,7 +45,7 @@ public class ResxTranslationOrchestrator
 
             var testpath = @"C:\temp\__trash\Textdokument.cs";
 
-            if (File.Exists(testpath))
+            if (File.Exists(testpath + "xxx"))
             {
 //             
 
@@ -52,13 +53,25 @@ public class ResxTranslationOrchestrator
                 var sourceFilePath =
                     @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs";
                 var testClassWithMethods = File.ReadAllText(testpath);
-                testClassWithMethods = testClassWithMethods.Replace("AskAsync", "AskBsync");
 
                 var manager = new TestProjectManager();
                 var result = await manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
 
 
-                var errrsydggdg = string.Join("\n", result.CompilerErrors.ToList());
+                var erors = string.Join("\n", result.CompilerErrors.ToList());
+
+                if (!string.IsNullOrEmpty(erors))
+                {
+                    var aiPromptBuilderSimple = new AiPromptBuilderSimple();
+
+
+                    var errorPrompt = aiPromptBuilderSimple.FixUnittestPrompt(testClassWithMethods, erors);
+                    var newTestClass = await localLlmClient.AskAsync(errorPrompt, "Du bist ein präziser C#-Compiler-Assistent. Deine einzige Aufgabe ist es, Syntax- und Kompilierfehler in bereitgestelltem C#-Code exakt zu reparieren und lauffähigen Code ohne Text-Erklärungen zurückzugeben.\n");
+                }
+
+                // TODO: replace testclass in prompt an ask ai agein.
+
+               // var newTestClass = await localLlmClient.AskAsync(prompt, "");
 
                 //  var apiResponse = await CallTranslationApi(requestData);
 
@@ -74,13 +87,12 @@ public class ResxTranslationOrchestrator
                 var newTestClass = await localLlmClient.AskAsync(prompt, "");
 
 
-                var sourceFilePath =
-                    @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs";
-                var testClassWithMethods = ExtractTestClass(newTestClass);
+                var sourceFilePath = @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs";
+                //var testClassWithMethods = ExtractTestClass(newTestClass);
 
 
                 var manager = new TestProjectManager();
-                var result = await manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
+                var result = await manager.SetupAndValidateTestAsync(sourceFilePath, newTestClass);
 
 
                 //  var apiResponse = await CallTranslationApi(requestData);

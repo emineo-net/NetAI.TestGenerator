@@ -1,3 +1,16 @@
+
+
+was das package für verdeckte möglichkeiten hat:
+
+versucht auch secundäre abhängigkeiten hinzuzufügen (using NSubstitute; zum beispiel)
+wenn das nicht funktioniert, teile dem user mit das er nugetpackage hinzufügen updaten und kosolidieren sol!! sorry ist halt so.
+
+
+
+
+
+
+
 - google places api integrieren
 
 besser: https://planet.openstreetmap.org/ und lokal verwenden
