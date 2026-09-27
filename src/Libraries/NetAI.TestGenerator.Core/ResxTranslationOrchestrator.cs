@@ -52,7 +52,7 @@ public class ResxTranslationOrchestrator
                 var sourceFilePath =
                     @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs";
                 var testClassWithMethods = File.ReadAllText(testpath);
-
+                testClassWithMethods = testClassWithMethods.Replace("AskAsync", "AskBsync");
 
                 var manager = new TestProjectManager();
                 var result = await manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);

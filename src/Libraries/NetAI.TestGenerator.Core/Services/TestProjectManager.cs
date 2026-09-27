@@ -277,6 +277,121 @@ public class TestProjectManager
         return refs.Any(r => string.Equals(r, Path.GetFullPath(sourceProjectPath), StringComparison.OrdinalIgnoreCase));
     }
 
+    /// <summary>
+    /// Walks up from <paramref name="startDirectory"/> looking for the nearest
+    /// "Directory.Packages.props" file (NuGet Central Package Management).
+    /// </summary>
+    private static string? FindDirectoryPackagesProps(string startDirectory)
+    {
+        var dir = new DirectoryInfo(startDirectory);
+        while (dir is not null)
+        {
+            string candidate = Path.Combine(dir.FullName, "Directory.Packages.props");
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+            dir = dir.Parent;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// "dotnet new" test templates (xunit/nunit/mstest) generate PackageReference
+    /// items with an explicit Version attribute. If the solution uses NuGet
+    /// Central Package Management (a "Directory.Packages.props" with
+    /// ManagePackageVersionsCentrally=true above the project), that explicit
+    /// Version causes a hard restore failure ("NU1008: ... cannot define a value
+    /// for Version ... Projects using Central Package Management must define a
+    /// Version value on a PackageVersion item").
+    /// <para>
+    /// This makes the freshly created project CPM-compliant by stripping the
+    /// Version attribute from its PackageReference items and, for any package
+    /// that has no corresponding entry yet, adding a PackageVersion item to
+    /// Directory.Packages.props (using the version the template originally
+    /// requested). Existing PackageVersion entries (and therefore other
+    /// projects in the solution) are never modified.
+    /// Does nothing if CPM is not in use for this project.
+    /// </para>
+    /// </summary>
+    private static async Task FixCentralPackageManagementCompatibilityAsync(string csprojPath, CancellationToken ct)
+    {
+        string? propsPath = FindDirectoryPackagesProps(Path.GetDirectoryName(csprojPath)!);
+        if (propsPath is null) return;
+
+        var propsDoc = XDocument.Parse(await ReadAllTextAsyncCompat(propsPath, ct));
+        if (propsDoc.Root is null) return;
+
+        bool cpmEnabled = propsDoc.Root
+            .Descendants("ManagePackageVersionsCentrally")
+            .Any(e => string.Equals(e.Value?.Trim(), "true", StringComparison.OrdinalIgnoreCase));
+        if (!cpmEnabled) return;
+
+        var csprojDoc = XDocument.Parse(await ReadAllTextAsyncCompat(csprojPath, ct));
+        if (csprojDoc.Root is null) return;
+
+        var packageRefs = csprojDoc.Root.Descendants("PackageReference").ToList();
+        if (packageRefs.Count == 0) return;
+
+        var existingVersions = new HashSet<string>(
+            propsDoc.Root.Descendants("PackageVersion")
+                .Select(e => (string?)e.Attribute("Include"))
+                .Where(v => !string.IsNullOrEmpty(v))!,
+            StringComparer.OrdinalIgnoreCase);
+
+        bool csprojChanged = false;
+        bool propsChanged = false;
+        XElement? targetItemGroup = null;
+
+        foreach (var packageRef in packageRefs)
+        {
+            string? include = (string?)packageRef.Attribute("Include");
+            var versionAttr = packageRef.Attribute("Version");
+            string? version = versionAttr?.Value;
+
+            if (string.IsNullOrEmpty(include)) continue;
+
+            if (versionAttr is not null)
+            {
+                versionAttr.Remove();
+                csprojChanged = true;
+            }
+
+            if (!string.IsNullOrEmpty(version) && !existingVersions.Contains(include!))
+            {
+                if (targetItemGroup is null)
+                {
+                    targetItemGroup = propsDoc.Root.Elements("ItemGroup")
+                        .FirstOrDefault(g => g.Elements("PackageVersion").Any());
+
+                    if (targetItemGroup is null)
+                    {
+                        targetItemGroup = new XElement("ItemGroup");
+                        propsDoc.Root.Add(targetItemGroup);
+                    }
+                }
+
+                targetItemGroup.Add(new XElement(
+                    "PackageVersion",
+                    new XAttribute("Include", include!),
+                    new XAttribute("Version", version!)));
+
+                existingVersions.Add(include!);
+                propsChanged = true;
+            }
+        }
+
+        if (csprojChanged)
+        {
+            csprojDoc.Save(csprojPath);
+        }
+
+        if (propsChanged)
+        {
+            propsDoc.Save(propsPath);
+        }
+    }
+
     private async Task<TestGenerationResult> CreateTestProjectAsync(
         string solutionDirectory,
         string directory,
@@ -527,13 +642,16 @@ public class TestProjectManager
     /// Runs a "dotnet" CLI command and captures its output.
     /// <para>
     /// Whenever the given arguments contain a "dotnet new ..." project-creation
-    /// command and it succeeds, this method automatically issues a subsequent,
-    /// explicit "dotnet restore" for the freshly created .csproj. "dotnet new"
-    /// performs an implicit restore itself, but that step can silently fail or be
-    /// skipped (custom templates, offline/authenticated feeds, "--no-restore",
-    /// etc.), which would otherwise surface later as a confusing compile error
-    /// instead of a clear restore error. Callers therefore never need to worry
-    /// about restoring packages for a newly created test project themselves.
+    /// command and it succeeds, this method first makes the created project
+    /// compatible with NuGet Central Package Management if the solution uses it
+    /// (see <see cref="FixCentralPackageManagementCompatibilityAsync"/>), and then
+    /// automatically issues a subsequent, explicit "dotnet restore" for the
+    /// freshly created .csproj. "dotnet new" performs an implicit restore itself,
+    /// but that step can silently fail or be skipped (custom templates,
+    /// offline/authenticated feeds, "--no-restore", CPM conflicts, etc.), which
+    /// would otherwise surface later as a confusing compile error instead of a
+    /// clear restore error. Callers therefore never need to worry about restoring
+    /// packages for a newly created test project themselves.
     /// </para>
     /// </summary>
     private async Task<(int ExitCode, string[] Output, string[] Errors)> RunDotNetCliAsync(
@@ -549,6 +667,11 @@ public class TestProjectManager
             string? createdProject = Directory.EnumerateFiles(workingDirectory, "*.csproj").FirstOrDefault();
             if (createdProject is not null)
             {
+                // If the solution uses NuGet Central Package Management, the template's
+                // PackageReference "Version" attributes would otherwise make the restore
+                // below fail with NU1008. Fix that up first.
+                await FixCentralPackageManagementCompatibilityAsync(createdProject, cancellationToken);
+
                 var restoreResult = await ExecuteDotNetProcessAsync(
                     new[] { "restore", createdProject }, workingDirectory, cancellationToken, timeout);
 
