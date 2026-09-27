@@ -18,4 +18,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Libraries\NetAI.TestGenerator.Core\NetAI.TestGenerator.Core.csproj" />
+  </ItemGroup>
+
 </Project>

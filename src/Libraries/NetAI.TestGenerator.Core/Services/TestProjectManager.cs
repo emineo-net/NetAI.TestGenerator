@@ -427,12 +427,12 @@ public class TestProjectManager
     {
         var argumentList = arguments.ToList();
 
-        // Automatically add '--no-restore' when a 'new' command is used
-        // and the flag has not been passed yet.
-        if (argumentList.Contains("new") && !argumentList.Contains("--no-restore"))
-        {
-            argumentList.Add("--no-restore");
-        }
+        //// Automatically add '--no-restore' when a 'new' command is used
+        //// and the flag has not been passed yet.
+        //if (argumentList.Contains("new") && !argumentList.Contains("--no-restore"))
+        //{
+        //    argumentList.Add("--no-restore");
+        //}
 
         var startInfo = new ProcessStartInfo
         {
