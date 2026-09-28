@@ -12,9 +12,6 @@ using System.Xml.Linq;
 
 namespace DotNet10TestGenerator;
 
-/// <summary>
-/// Represents the result of test generation and validation.
-/// </summary>
 public sealed class TestGenerationResult
 {
     public bool IsSuccess { get; }
@@ -35,28 +32,10 @@ public sealed class TestGenerationResult
     }
 }
 
-/// <summary>
-/// Creates and validates unit test projects and classes for .NET 10.
-/// Determines the solution directory automatically from the source file path
-/// (nearest .sln or .slnx file in the directory tree above the file).
-/// Intentionally does NOT execute tests – it only verifies that the generated
-/// test class compiles.
-/// </summary>
 public class TestProjectManager
 {
-    /// <summary>
-    /// Default name used for the sample test file that the "dotnet new" test
-    /// templates (xunit/nunit/mstest) generate. It is removed after project
-    /// creation since we write our own generated test class instead.
-    /// </summary>
     private const string DefaultSampleFileName = "UnitTest1.cs";
-
-    /// <summary>
-    /// Upper bound for how many "detect missing packages -> add -> rebuild"
-    /// rounds <see cref="TryResolveMissingPackagesAndRebuildAsync"/> will run.
-    /// Guards against pathological cases (e.g. a using directive that can
-    /// never be resolved to a real package) looping forever.
-    /// </summary>
+    private const string DefaultWindowsFramework = "net10.0-windows";
     private const int MaxPackageResolutionIterations = 5;
 
     private readonly TimeSpan _defaultProcessTimeout;
@@ -68,15 +47,6 @@ public class TestProjectManager
         _dotnetExecutable = string.IsNullOrWhiteSpace(dotnetExecutable) ? "dotnet" : dotnetExecutable;
     }
 
-    /// <summary>
-    /// Maps a namespace (as it appears in a "using ...;" directive) to the NuGet
-    /// package id that provides it, for cases where the package id does not
-    /// simply equal the namespace (or one of its leading segments). Callers may
-    /// add further entries before invoking <see cref="SetupAndValidateTestAsync"/>.
-    /// Lookup in <see cref="GetPackageCandidates"/> also tries the namespace
-    /// itself (and shortened prefixes of it) as a package id, so this map only
-    /// needs entries where that default guess would be wrong.
-    /// </summary>
     public IDictionary<string, string> KnownNamespaceToPackageMap { get; } = new Dictionary<string, string>(StringComparer.Ordinal)
     {
         ["NSubstitute"] = "NSubstitute",
@@ -101,25 +71,6 @@ public class TestProjectManager
         ["DotNet.Testcontainers"] = "Testcontainers",
     };
 
-    /// <summary>
-    /// Runs the full workflow: determine the solution directory, check/create the
-    /// project (including a ProjectReference to the source project), write the test
-    /// class and validate compilation. If compilation fails because a NuGet package
-    /// referenced via a "using ...;" directive in <paramref name="testClassCode"/> is
-    /// missing from the test project - whether that project was just created or
-    /// already existed - the missing package(s) are added automatically and the
-    /// build is retried (see <see cref="TryResolveMissingPackagesAndRebuildAsync"/>).
-    /// </summary>
-    /// <param name="sourceFilePath">Path to the original C# file.</param>
-    /// <param name="testClassCode">The complete C# code of the test class.</param>
-    /// <param name="testProjectName">Name of the generated/expected test project (and its .csproj).</param>
-    /// <param name="testsRelativeSubPath">
-    /// Path, relative to the solution directory, under which the test project lives
-    /// (e.g. "tests/UnitTests"). Accepts '/' or '\' as separators.
-    /// </param>
-    /// <param name="testTemplate">The "dotnet new" template short name used to scaffold a new test project (e.g. "xunit", "nunit", "mstest").</param>
-    /// <param name="targetFramework">Optional explicit target framework (e.g. "net10.0") passed to "dotnet new" via --framework. Null uses the template default.</param>
-    /// <param name="generatedClassNamePrefix">Prefix used for the fallback file name when no class name could be extracted from <paramref name="testClassCode"/>.</param>
     public async Task<TestGenerationResult> SetupAndValidateTestAsync(
         string sourceFilePath,
         string testClassCode,
@@ -147,8 +98,6 @@ public class TestProjectManager
 
         try
         {
-            // 1. Derive the solution directory from the source file path
-            //    (nearest .sln or .slnx above the file).
             string? solutionDirectory = FindSolutionDirectory(sourceFilePath);
             if (solutionDirectory is null)
             {
@@ -157,18 +106,13 @@ public class TestProjectManager
                     $"No .sln or .slnx file was found above '{sourceFilePath}'.");
             }
 
-            // 2. Extract the class name from the code for the file name.
             string testClassName = ExtractClassName(testClassCode, generatedClassNamePrefix);
 
-            // 3. Determine the path for the test project.
             string testProjectDir = CombineUnderSolution(solutionDirectory, testsRelativeSubPath, testProjectName);
             string testProjectPath = Path.Combine(testProjectDir, $"{testProjectName}.csproj");
 
-            // 4. Determine the project that contains the source file so that a
-            //    ProjectReference can be added.
             string? sourceProjectPath = FindContainingProject(sourceFilePath, solutionDirectory);
 
-            // 5. Create the test project if it does not exist.
             if (!File.Exists(testProjectPath))
             {
                 var createResult = await CreateTestProjectAsync(
@@ -176,30 +120,32 @@ public class TestProjectManager
                     sourceProjectPath, cancellationToken);
                 if (!createResult.IsSuccess) return createResult;
             }
-            else if (sourceProjectPath is not null &&
-                     !await ProjectHasReferenceAsync(testProjectPath, sourceProjectPath, cancellationToken))
+            else if (sourceProjectPath is not null)
             {
-                // The test project already existed, but the reference is still missing.
-                await RunDotNetCliAsync(
-                    new[] { "add", testProjectPath, "reference", sourceProjectPath },
-                    testProjectDir,
-                    cancellationToken);
+                // TFM / UseWPF must match BEFORE the reference is added, otherwise NU1201 occurs.
+                await EnsureWindowsSettingsAsync(testProjectPath, sourceProjectPath, targetFramework, cancellationToken);
+
+                if (!await ProjectHasReferenceAsync(testProjectPath, sourceProjectPath, cancellationToken))
+                {
+                    await RunDotNetCliAsync(
+                        new[] { "add", testProjectPath, "reference", sourceProjectPath },
+                        testProjectDir,
+                        cancellationToken);
+                }
             }
 
-            // 6. Write the test class file (remember the previous content for a possible rollback).
             string testClassPath = Path.Combine(testProjectDir, $"{SafeFileName(testClassName)}.cs");
             bool isNewFile = !File.Exists(testClassPath);
             string? previousContent = isNewFile ? null : await ReadAllTextAsyncCompat(testClassPath, cancellationToken);
             await WriteAllTextAsyncCompat(testClassPath, testClassCode, Encoding.UTF8, cancellationToken);
 
-            // 7. Verify that the test project compiles with the new class.
             var buildResult = await ValidateProjectCompilesAsync(testProjectPath, cancellationToken);
 
-            // 7a. If compilation failed, this may simply be because the test class
-            // "using"s a namespace (e.g. NSubstitute, FluentAssertions, ...) whose
-            // NuGet package is not yet referenced by the test project - regardless
-            // of whether that project was just scaffolded above or already existed.
-            // Try to detect and add the missing package(s) and rebuild.
+            if (buildResult.CompilerErrors.Length > 0)
+            {
+                var errorslll = string.Join("\n", buildResult.CompilerErrors.ToList());
+            }
+
             if (!buildResult.IsSuccess)
             {
                 buildResult = await TryResolveMissingPackagesAndRebuildAsync(
@@ -234,16 +180,6 @@ public class TestProjectManager
         }
     }
 
-    /// <summary>
-    /// Given a build that failed with <paramref name="failedBuildResult"/>, repeatedly:
-    /// (1) extracts the namespaces the test class "using"s, (2) checks the compiler
-    /// errors for CS0246/CS0234 ("type or namespace could not be found") diagnostics
-    /// that reference one of those namespaces, (3) tries to add the corresponding NuGet
-    /// package via "dotnet add package" (which is Central-Package-Management aware on
-    /// modern SDKs, so it works the same whether the project uses CPM or not), and
-    /// (4) rebuilds. Stops once the build succeeds, no further missing namespace can be
-    /// matched to a package, or <see cref="MaxPackageResolutionIterations"/> is reached.
-    /// </summary>
     private async Task<TestGenerationResult> TryResolveMissingPackagesAndRebuildAsync(
         string testProjectPath,
         string testProjectDir,
@@ -291,8 +227,6 @@ public class TestProjectManager
 
             if (!anyPackageAddedThisRound)
             {
-                // Nothing new was added in this round, so re-running the build
-                // would only reproduce the same errors - stop here.
                 break;
             }
 
@@ -316,7 +250,6 @@ public class TestProjectManager
 
         if (distinctAdded.Count == 0 && distinctUnresolved.Count == 0)
         {
-            // Nothing package-related was detected; the compile error has another cause.
             return currentResult;
         }
 
@@ -337,20 +270,12 @@ public class TestProjectManager
             exceptionDetails: currentResult.ExceptionDetails);
     }
 
-    /// <summary>
-    /// Extracts the namespaces referenced by ordinary ("using X.Y.Z;") directives in
-    /// <paramref name="code"/>. Alias directives ("using Foo = Bar.Baz;"), "using static ...;"
-    /// and the "System" root namespace itself are deliberately excluded.
-    /// </summary>
     private static List<string> ExtractUsingNamespaces(string code)
     {
         var codeWithoutLineComments = string.Join(
             "\n",
             code.Split('\n').Where(l => !l.TrimStart().StartsWith("//")));
 
-        // NOTE: deliberately a plain foreach instead of a LINQ ".Select(...)" chain -
-        // MatchCollection's enumerator type can make the compiler unable to infer the
-        // Select<TSource, TResult> type arguments in some target-framework configurations.
         var matches = Regex.Matches(
             codeWithoutLineComments,
             @"^\s*using\s+(?!static\s)([A-Za-z_][A-Za-z0-9_.]*)\s*;",
@@ -370,21 +295,14 @@ public class TestProjectManager
         return namespaces;
     }
 
-    /// <summary>
-    /// Cross-references CS0246 / CS0234 ("type or namespace could not be found")
-    /// compiler diagnostics against <paramref name="usingNamespaces"/> and returns
-    /// the subset of those namespaces that the errors point to - either because the
-    /// full namespace or one of its dot-separated segments appears as the quoted
-    /// identifier in an error message.
-    /// </summary>
     private static List<string> ExtractMissingNamespaceCandidates(IReadOnlyList<string> compilerErrors, IReadOnlyList<string> usingNamespaces)
     {
         var missingIdentifiers = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var line in compilerErrors)
         {
-            if (!(line.Contains("CS0246", StringComparison.OrdinalIgnoreCase) ||
-                  line.Contains("CS0234", StringComparison.OrdinalIgnoreCase)))
+            if (line.IndexOf("CS0246", StringComparison.OrdinalIgnoreCase) < 0 &&
+                line.IndexOf("CS0234", StringComparison.OrdinalIgnoreCase) < 0)
             {
                 continue;
             }
@@ -406,13 +324,6 @@ public class TestProjectManager
             .ToList();
     }
 
-    /// <summary>
-    /// Tries each candidate NuGet package id for <paramref name="namespaceName"/> (see
-    /// <see cref="GetPackageCandidates"/>) via "dotnet add package" followed by an explicit
-    /// restore, until one succeeds. Package ids already attempted in this run (successfully
-    /// or not) are tracked in <paramref name="attemptedPackageIds"/> and skipped. Returns the
-    /// package id that was successfully added, or null if none of the candidates worked.
-    /// </summary>
     private async Task<string?> ResolveAndAddPackageAsync(
         string testProjectPath,
         string testProjectDir,
@@ -443,22 +354,12 @@ public class TestProjectManager
                 return candidate;
             }
 
-            // The package id exists but could not actually be restored (e.g. no
-            // version compatible with the target framework) - undo and move on.
             await RunDotNetCliAsync(new[] { "remove", testProjectPath, "package", candidate }, testProjectDir, ct);
         }
 
         return null;
     }
 
-    /// <summary>
-    /// Yields NuGet package id candidates for a namespace, in order of preference:
-    /// first any explicit mapping in <see cref="KnownNamespaceToPackageMap"/> for the full
-    /// namespace, then the namespace itself progressively shortened from the right
-    /// (e.g. "NSubstitute.ExceptionExtensions" -> "NSubstitute.ExceptionExtensions" ->
-    /// "NSubstitute"), consulting the map for each shortened form as well, since most
-    /// package ids equal their root namespace.
-    /// </summary>
     private IEnumerable<string> GetPackageCandidates(string namespaceName)
     {
         if (KnownNamespaceToPackageMap.TryGetValue(namespaceName, out var mapped))
@@ -476,10 +377,6 @@ public class TestProjectManager
         }
     }
 
-    /// <summary>
-    /// Combines the solution directory with a relative sub-path (accepting both
-    /// '/' and '\' as separators, independent of the host OS) and the project name.
-    /// </summary>
     private static string CombineUnderSolution(string solutionDirectory, string relativeSubPath, string projectName)
     {
         var segments = (relativeSubPath ?? string.Empty)
@@ -492,11 +389,6 @@ public class TestProjectManager
         return Path.Combine(allSegments.ToArray());
     }
 
-    /// <summary>
-    /// Walks up from the directory of the source file looking for the nearest
-    /// .sln or .slnx file and returns its directory (= solution directory).
-    /// Null if none was found.
-    /// </summary>
     private static string? FindSolutionDirectory(string sourceFilePath)
     {
         var dir = new DirectoryInfo(Path.GetDirectoryName(Path.GetFullPath(sourceFilePath))!);
@@ -515,10 +407,6 @@ public class TestProjectManager
         return null;
     }
 
-    /// <summary>
-    /// Extracts the name of the first class from the C# code using a regex.
-    /// Single-line comments are ignored.
-    /// </summary>
     private static string ExtractClassName(string classCode, string generatedNamePrefix)
     {
         var codeWithoutLineComments = string.Join(
@@ -547,10 +435,6 @@ public class TestProjectManager
         return name;
     }
 
-    /// <summary>
-    /// Walks up from the directory of the source file (within the solution)
-    /// looking for the nearest .csproj file.
-    /// </summary>
     private static string? FindContainingProject(string filePath, string solutionDirectory)
     {
         var dir = new DirectoryInfo(Path.GetDirectoryName(Path.GetFullPath(filePath))!);
@@ -566,9 +450,6 @@ public class TestProjectManager
         return null;
     }
 
-    /// <summary>
-    /// Checks whether the test project already contains a ProjectReference to the source project.
-    /// </summary>
     private static async Task<bool> ProjectHasReferenceAsync(string testProjectPath, string sourceProjectPath, CancellationToken ct)
     {
         var xml = await ReadAllTextAsyncCompat(testProjectPath, ct);
@@ -583,10 +464,6 @@ public class TestProjectManager
         return refs.Any(r => string.Equals(r, Path.GetFullPath(sourceProjectPath), StringComparison.OrdinalIgnoreCase));
     }
 
-    /// <summary>
-    /// Walks up from <paramref name="startDirectory"/> looking for the nearest
-    /// "Directory.Packages.props" file (NuGet Central Package Management).
-    /// </summary>
     private static string? FindDirectoryPackagesProps(string startDirectory)
     {
         var dir = new DirectoryInfo(startDirectory);
@@ -602,24 +479,6 @@ public class TestProjectManager
         return null;
     }
 
-    /// <summary>
-    /// "dotnet new" test templates (xunit/nunit/mstest) generate PackageReference
-    /// items with an explicit Version attribute. If the solution uses NuGet
-    /// Central Package Management (a "Directory.Packages.props" with
-    /// ManagePackageVersionsCentrally=true above the project), that explicit
-    /// Version causes a hard restore failure ("NU1008: ... cannot define a value
-    /// for Version ... Projects using Central Package Management must define a
-    /// Version value on a PackageVersion item").
-    /// <para>
-    /// This makes the freshly created project CPM-compliant by stripping the
-    /// Version attribute from its PackageReference items and, for any package
-    /// that has no corresponding entry yet, adding a PackageVersion item to
-    /// Directory.Packages.props (using the version the template originally
-    /// requested). Existing PackageVersion entries (and therefore other
-    /// projects in the solution) are never modified.
-    /// Does nothing if CPM is not in use for this project.
-    /// </para>
-    /// </summary>
     private static async Task FixCentralPackageManagementCompatibilityAsync(string csprojPath, CancellationToken ct)
     {
         string? propsPath = FindDirectoryPackagesProps(Path.GetDirectoryName(csprojPath)!);
@@ -698,6 +557,99 @@ public class TestProjectManager
         }
     }
 
+    /// <summary>
+    /// If the source project is a WPF / WinForms project (e.g. net10.0-windows + UseWPF),
+    /// the test project must use the same Windows target framework and the same UseWPF /
+    /// UseWindowsForms flags. Otherwise referencing the project fails (NU1201) and types like
+    /// MainWindow or RoutedEventArgs are not available.
+    /// </summary>
+    private async Task EnsureWindowsSettingsAsync(
+        string testProjectPath,
+        string? sourceProjectPath,
+        string? preferredFramework,
+        CancellationToken ct)
+    {
+        if (sourceProjectPath is null || !File.Exists(sourceProjectPath)) return;
+
+        var sourceDoc = XDocument.Parse(await ReadAllTextAsyncCompat(sourceProjectPath, ct));
+
+        bool useWpf = HasTrueProperty(sourceDoc, "UseWPF");
+        bool useWinForms = HasTrueProperty(sourceDoc, "UseWindowsForms");
+
+        string? windowsTfm = sourceDoc.Descendants()
+            .Where(e => e.Name.LocalName == "TargetFramework" || e.Name.LocalName == "TargetFrameworks")
+            .SelectMany(e => e.Value.Split(';'))
+            .Select(t => t.Trim())
+            .FirstOrDefault(t => t.IndexOf("-windows", StringComparison.OrdinalIgnoreCase) >= 0);
+
+        if (!useWpf && !useWinForms && windowsTfm is null) return;
+
+        if (windowsTfm is null)
+        {
+            windowsTfm = preferredFramework is not null &&
+                         preferredFramework.IndexOf("-windows", StringComparison.OrdinalIgnoreCase) >= 0
+                ? preferredFramework
+                : DefaultWindowsFramework;
+        }
+
+        var testDoc = XDocument.Parse(await ReadAllTextAsyncCompat(testProjectPath, ct));
+        var root = testDoc.Root;
+        if (root is null) return;
+
+        bool changed = false;
+
+        var propertyGroup = root.Elements("PropertyGroup").FirstOrDefault();
+        if (propertyGroup is null)
+        {
+            propertyGroup = new XElement("PropertyGroup");
+            root.AddFirst(propertyGroup);
+            changed = true;
+        }
+
+        // Multi-targeting would produce duplicate errors; use a single TFM.
+        foreach (var multi in root.Descendants("TargetFrameworks").ToList())
+        {
+            multi.Remove();
+            changed = true;
+        }
+
+        changed |= SetProperty(root, propertyGroup, "TargetFramework", windowsTfm);
+        if (useWpf) changed |= SetProperty(root, propertyGroup, "UseWPF", "true");
+        if (useWinForms) changed |= SetProperty(root, propertyGroup, "UseWindowsForms", "true");
+
+        if (!changed) return;
+
+        testDoc.Save(testProjectPath);
+
+        string dir = Path.GetDirectoryName(testProjectPath)!;
+        await RunDotNetCliAsync(new[] { "restore", testProjectPath }, dir, ct);
+    }
+
+    private static bool HasTrueProperty(XDocument doc, string propertyName)
+    {
+        return doc.Descendants()
+            .Where(e => e.Name.LocalName == propertyName)
+            .Any(e => string.Equals(e.Value.Trim(), "true", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool SetProperty(XElement root, XElement defaultGroup, string name, string value)
+    {
+        var existing = root.Descendants(name).FirstOrDefault();
+        if (existing is null)
+        {
+            defaultGroup.Add(new XElement(name, value));
+            return true;
+        }
+
+        if (string.Equals(existing.Value.Trim(), value, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        existing.Value = value;
+        return true;
+    }
+
     private async Task<TestGenerationResult> CreateTestProjectAsync(
         string solutionDirectory,
         string directory,
@@ -710,16 +662,16 @@ public class TestProjectManager
         Directory.CreateDirectory(directory);
 
         var newArgs = new List<string> { "new", testTemplate, "-n", projectName, "-o", "." };
-        if (!string.IsNullOrWhiteSpace(targetFramework))
+
+        // "-windows" TFMs are not accepted by the template's --framework option;
+        // EnsureWindowsSettingsAsync sets them directly in the csproj afterwards.
+        if (!string.IsNullOrWhiteSpace(targetFramework) &&
+            targetFramework!.IndexOf("-windows", StringComparison.OrdinalIgnoreCase) < 0)
         {
             newArgs.Add("--framework");
-            newArgs.Add(targetFramework!);
+            newArgs.Add(targetFramework);
         }
 
-        // NOTE: RunDotNetCliAsync automatically performs an explicit "dotnet restore"
-        // right after a successful "dotnet new" call (see there for details), so the
-        // NuGet packages of the freshly created project are guaranteed to be restored
-        // once this call returns.
         var newResult = await RunDotNetCliAsync(newArgs, directory, ct);
 
         if (newResult.ExitCode != 0)
@@ -732,7 +684,6 @@ public class TestProjectManager
 
         string projectPath = Path.Combine(directory, $"{projectName}.csproj");
 
-        // Add the project to the solution if a .sln or .slnx file exists in the root directory.
         var slnFiles = Directory.GetFiles(solutionDirectory, "*.sln")
             .Concat(Directory.GetFiles(solutionDirectory, "*.slnx"))
             .ToArray();
@@ -742,9 +693,11 @@ public class TestProjectManager
             await RunDotNetCliAsync(new[] { "sln", slnFiles[0], "add", projectPath }, solutionDirectory, ct);
         }
 
-        // Set a ProjectReference to the source project.
         if (sourceProjectPath is not null)
         {
+            // Must happen before "add reference" (TFM compatibility).
+            await EnsureWindowsSettingsAsync(projectPath, sourceProjectPath, targetFramework, ct);
+
             var refResult = await RunDotNetCliAsync(new[] { "add", projectPath, "reference", sourceProjectPath }, directory, ct);
 
             if (refResult.ExitCode != 0)
@@ -752,146 +705,87 @@ public class TestProjectManager
                 return new TestGenerationResult(
                     false,
                     "The test project was created, but the reference to the source project could not be set.",
-                    compilerErrors: refResult.Errors);
+                    compilerErrors: refResult.Errors.Concat(refResult.Output).ToArray());
             }
         }
 
-        // Delete the default generated sample test file if present.
         string sampleTestClassFile = Path.Combine(directory, DefaultSampleFileName);
         if (File.Exists(sampleTestClassFile)) File.Delete(sampleTestClassFile);
 
         return new TestGenerationResult(true, "Test project created successfully.");
     }
 
-    private async Task<TestGenerationResult> ValidateProjectCompilesAsync(string projectPath, CancellationToken ct)
+    /// <summary>
+    /// Validates the test project by running a real "dotnet build". This guarantees that all
+    /// package, project and WPF references are resolved exactly as they will be at test time.
+    /// </summary>
+    private async Task<TestGenerationResult> ValidateProjectCompilesAsync(
+        string testProjectPath,
+        CancellationToken cancellationToken)
     {
-        string projectDir = Path.GetDirectoryName(projectPath)!;
-        string errorLogPath = Path.Combine(projectDir, $"build_errors_{Guid.NewGuid():N}.log");
-
         try
         {
-            // Force a full rebuild so that stale artifacts cannot hide compile errors.
-            // "-t:Rebuild" is stronger than "--no-incremental" and guarantees the
-            // compiler actually runs against the current sources.
-            //
-            // In addition to the normal console output we ask MSBuild for a
-            // dedicated, errors-only file log ("-flp:errorsonly;..."). Parsing
-            // that file is far more reliable than scraping the console output:
-            // verbosity settings, NuGet's implicit-restore noise, localized
-            // summaries or interleaved stdout/stderr lines can otherwise cause
-            // real "error CSxxxx" lines to be missed.
+            string projectDir = Path.GetDirectoryName(testProjectPath)!;
+
             var result = await RunDotNetCliAsync(
                 new[]
                 {
-                    "build", projectPath, "-t:Rebuild", "--nologo", "-v:quiet",
-                    $"-flp:errorsonly;logfile={errorLogPath};verbosity=normal"
+                    "build", testProjectPath,
+                    "--nologo",
+                    "-v", "q",
+                    "-p:GenerateFullPaths=true"
                 },
                 projectDir,
-                ct);
+                cancellationToken);
 
-            string[] fileLoggerErrors = Array.Empty<string>();
-            if (File.Exists(errorLogPath))
+            if (result.ExitCode == 0)
             {
-                var logContent = await ReadAllTextAsyncCompat(errorLogPath, ct);
-                fileLoggerErrors = logContent
-                    .Split('\n')
-                    .Select(l => l.TrimEnd('\r'))
-                    .Where(l => l.Length > 0)
+                return new TestGenerationResult(true, "Compilation succeeded.");
+            }
+
+            var allLines = result.Output.Concat(result.Errors).ToArray();
+
+            // Format: C:\...\File.cs(6,6): error CS0246: The type or namespace name 'Xunit' ... [proj.csproj]
+            var errorRegex = new Regex(
+                @"^(?<file>.*?)\((?<line>\d+),\d+\):\s*error\s+(?<id>[A-Za-z]+\d+):\s*(?<msg>.*?)(\s+\[[^\]]+\])?\s*$",
+                RegexOptions.Compiled);
+
+            var errors = allLines
+                .Select(l => errorRegex.Match(l))
+                .Where(m => m.Success)
+                .Select(m => $"error {m.Groups["id"].Value}: {m.Groups["msg"].Value} " +
+                             $"({Path.GetFileName(m.Groups["file"].Value)}, line {m.Groups["line"].Value})")
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+
+            if (errors.Length == 0)
+            {
+                // e.g. restore errors (NU1xxx) without file/line information
+                errors = allLines
+                    .Where(l => l.IndexOf(" error ", StringComparison.OrdinalIgnoreCase) >= 0)
+                    .Distinct(StringComparer.Ordinal)
                     .ToArray();
             }
 
-            if (result.ExitCode != 0)
+            if (errors.Length == 0)
             {
-                var allLines = result.Errors.Concat(result.Output).ToArray();
-
-                // The .NET CLI is forced to English (DOTNET_CLI_UI_LANGUAGE=en / VSLANG=1033)
-                // inside RunDotNetCliAsync, so "error CSxxxx" is the expected form. The
-                // regex fallback also catches other diagnostic sources (NuGet "NUxxxx",
-                // MSBuild "MSBxxxx", etc.) and any residual localization.
-                var compilerErrors = fileLoggerErrors.Length > 0
-                    ? fileLoggerErrors
-                    : allLines
-                        .Where(line =>
-                            line.Contains("error CS", StringComparison.OrdinalIgnoreCase) ||
-                            line.Contains("Fehler CS", StringComparison.OrdinalIgnoreCase) ||
-                            Regex.IsMatch(line, @"\b(error|Fehler)\s+[A-Za-z]+\d+", RegexOptions.IgnoreCase))
-                        .ToArray();
-
-                return new TestGenerationResult(
-                    isSuccess: false,
-                    message: "The test class could not be compiled (syntax, namespace, or reference error).",
-                    compilerErrors: compilerErrors.Length > 0
-                        ? compilerErrors
-                        : allLines.Length > 0
-                            ? allLines
-                            : new[] { "Unknown compile error. See CLI output." }
-                );
+                errors = allLines.Where(l => !string.IsNullOrWhiteSpace(l)).Take(30).ToArray();
             }
 
-            return new TestGenerationResult(true, "Compilation succeeded.");
+            return new TestGenerationResult(false, "Compilation failed.", compilerErrors: errors);
         }
-        finally
+        catch (OperationCanceledException)
         {
-            try
-            {
-                if (File.Exists(errorLogPath)) File.Delete(errorLogPath);
-            }
-            catch
-            {
-                // Best-effort cleanup.
-            }
+            throw;
         }
-    }
-
-
-    private async Task<TestGenerationResult> YValidateProjectCompilesAsync(string projectPath, CancellationToken ct)
-    {
-        string projectDir = Path.GetDirectoryName(projectPath)!;
-
-        var result = await RunDotNetCliAsync(
-            new[] { "build", projectPath, "-t:Rebuild", "--nologo", "-v:minimal", "-p:UseSharedCompilation=false" },
-            projectDir,
-            ct);
-
-        var allLines = (result.Errors ?? Array.Empty<string>())
-            .Concat(result.Output ?? Array.Empty<string>())
-            .ToArray();
-
-        var compilerErrors = allLines
-            .Where(line => line.Contains("error CS", StringComparison.OrdinalIgnoreCase) ||
-                           line.Contains("Fehler CS", StringComparison.OrdinalIgnoreCase))
-            .Select(line => line.Trim())
-            .ToArray();
-
-        if (result.ExitCode != 0 || compilerErrors.Length > 0)
+        catch (Exception ex)
         {
-            // Kombiniert die Compiler-Fehler und alle CLI-Zeilen getrennt durch visuelle Marker
-            var combinedOutput = new List<string>();
-
-            if (compilerErrors.Length > 0)
-            {
-                combinedOutput.Add("=== GEFILTERTE COMPILER FEHLER ===");
-                combinedOutput.AddRange(compilerErrors);
-                combinedOutput.Add(""); // Leerzeile zur Trennung
-            }
-
-            combinedOutput.Add("=== VOLLSTÄNDIGER CLI OUTPUT (ALL LINES) ===");
-            combinedOutput.AddRange(allLines.Length > 0 ? allLines : new[] { "Kein CLI Output vorhanden." });
-
             return new TestGenerationResult(
-                isSuccess: false,
-                message: "The test class could not be compiled (syntax, namespace, or reference error).",
-                compilerErrors: combinedOutput.ToArray()
-            );
+                false,
+                $"Build validation failed: {ex.Message}",
+                exceptionDetails: FormatExceptionDetails(ex));
         }
-
-        return new TestGenerationResult(true, "Compilation succeeded.");
     }
-
-
-
-
-
 
     private static void RestoreOrDeleteTestFile(string path, bool wasNew, string? previousContent)
     {
@@ -944,6 +838,7 @@ public class TestProjectManager
         {
             if (process.HasExited)
             {
+                process.Exited -= OnExited;
                 return Task.CompletedTask;
             }
 
@@ -997,22 +892,6 @@ public class TestProjectManager
     private static bool ContainsCommand(IReadOnlyList<string> arguments, string command)
         => arguments.Any(a => string.Equals(a, command, StringComparison.OrdinalIgnoreCase));
 
-    /// <summary>
-    /// Runs a "dotnet" CLI command and captures its output.
-    /// <para>
-    /// Whenever the given arguments contain a "dotnet new ..." project-creation
-    /// command and it succeeds, this method first makes the created project
-    /// compatible with NuGet Central Package Management if the solution uses it
-    /// (see <see cref="FixCentralPackageManagementCompatibilityAsync"/>), and then
-    /// automatically issues a subsequent, explicit "dotnet restore" for the
-    /// freshly created .csproj. "dotnet new" performs an implicit restore itself,
-    /// but that step can silently fail or be skipped (custom templates,
-    /// offline/authenticated feeds, "--no-restore", CPM conflicts, etc.), which
-    /// would otherwise surface later as a confusing compile error instead of a
-    /// clear restore error. Callers therefore never need to worry about restoring
-    /// packages for a newly created test project themselves.
-    /// </para>
-    /// </summary>
     private async Task<(int ExitCode, string[] Output, string[] Errors)> RunDotNetCliAsync(
         IReadOnlyList<string> arguments,
         string workingDirectory,
@@ -1061,20 +940,18 @@ public class TestProjectManager
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            // Fixes the cryptic characters (Ã„, Ãœ) in the output.
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8
         };
 
-        // Force the .NET CLI (and the Roslyn diagnostics) to English so that
-        // compiler errors are reliably reported as "error CSxxxx".
+        // English output so the error parsing (regex, 'Namespace' detection) works reliably.
         startInfo.Environment["DOTNET_CLI_UI_LANGUAGE"] = "en";
         startInfo.Environment["VSLANG"] = "1033";
+        startInfo.Environment["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1";
+        startInfo.Environment["DOTNET_NOLOGO"] = "1";
 
         using var process = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
 
-        // ConcurrentQueue is thread-safe: the *DataReceived handlers run on
-        // ThreadPool threads and would otherwise race with the reader below.
         var outputList = new ConcurrentQueue<string>();
         var errorList = new ConcurrentQueue<string>();
 
@@ -1092,12 +969,6 @@ public class TestProjectManager
         {
             await WaitForExitAsyncCompat(process, linkedCts.Token);
 
-            // IMPORTANT: The async "Exited" event can fire before all
-            // OutputDataReceived / ErrorDataReceived callbacks have been
-            // flushed. A synchronous WaitForExit() guarantees that every line
-            // has been captured before we read the queues below. Without this
-            // the final lines (including the compiler errors) are frequently
-            // missing.
             process.WaitForExit();
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)

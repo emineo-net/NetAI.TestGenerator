@@ -43,7 +43,7 @@ public class AiTranslatorRunner
             return false;
         }
 
-        var result = await orchestrator.ProcessProject(ProjectDir, prompt); //, translator); //, logInfo, supportedLanguagesOverride);
+        var result = await orchestrator.ProcessProjectAsync(ProjectDir, prompt); //, translator); //, logInfo, supportedLanguagesOverride);
 
         if (result.Contains("error"))
         {
