@@ -141,9 +141,25 @@ public class TestProjectManager
 
             var buildResult = await ValidateProjectCompilesAsync(testProjectPath, cancellationToken);
 
+
             if (buildResult.CompilerErrors.Length > 0)
             {
                 var errorslll = string.Join("\n", buildResult.CompilerErrors.ToList());
+            }
+
+            // AI-generated code often forgets 'using' directives (app namespace, System.Windows.Controls, Moq ...).
+            // Add the ones we can resolve unambiguously and rebuild. This also lets the NuGet
+            // resolver below see e.g. 'using Moq;'.
+            if (!buildResult.IsSuccess)
+            {
+                string? fixedCode = await TryAddMissingUsingsAsync(
+                    testClassPath, sourceProjectPath, buildResult.CompilerErrors ?? Array.Empty<string>(), cancellationToken);
+
+                if (fixedCode is not null)
+                {
+                    testClassCode = fixedCode;
+                    buildResult = await ValidateProjectCompilesAsync(testProjectPath, cancellationToken);
+                }
             }
 
             if (!buildResult.IsSuccess)
@@ -178,6 +194,174 @@ public class TestProjectManager
                 $"An unexpected error occurred: {ex.Message}",
                 exceptionDetails: FormatExceptionDetails(ex));
         }
+    }
+
+    private static readonly IReadOnlyDictionary<string, string> WellKnownTypeToNamespace =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            // xUnit
+            ["Assert"] = "Xunit",
+            ["Fact"] = "Xunit",
+            ["Theory"] = "Xunit",
+            ["InlineData"] = "Xunit",
+            // Moq
+            ["Mock"] = "Moq",
+            ["It"] = "Moq",
+            ["Times"] = "Moq",
+            ["MockBehavior"] = "Moq",
+            // BCL
+            ["IServiceProvider"] = "System",
+            ["Task"] = "System.Threading.Tasks",
+            // WPF
+            ["Application"] = "System.Windows",
+            ["Window"] = "System.Windows",
+            ["RoutedEventArgs"] = "System.Windows",
+            ["Visibility"] = "System.Windows",
+            ["Thickness"] = "System.Windows",
+            ["FrameworkElement"] = "System.Windows",
+            ["DependencyObject"] = "System.Windows",
+            ["Control"] = "System.Windows.Controls",
+            ["ContentControl"] = "System.Windows.Controls",
+            ["UserControl"] = "System.Windows.Controls",
+            ["Button"] = "System.Windows.Controls",
+            ["TextBox"] = "System.Windows.Controls",
+            ["TextBlock"] = "System.Windows.Controls",
+            ["Label"] = "System.Windows.Controls",
+            ["CheckBox"] = "System.Windows.Controls",
+            ["ComboBox"] = "System.Windows.Controls",
+            ["ListBox"] = "System.Windows.Controls",
+            ["Grid"] = "System.Windows.Controls",
+            ["StackPanel"] = "System.Windows.Controls",
+            ["Panel"] = "System.Windows.Controls",
+            ["Dispatcher"] = "System.Windows.Threading",
+        };
+
+    /// <summary>
+    /// Resolves CS0246 / CS0103 errors caused by missing 'using' directives: types declared in the
+    /// source project are mapped via their namespace, common framework types via a static table.
+    /// Only unambiguous matches are added. Returns the new file content, or null if nothing changed.
+    /// </summary>
+    private async Task<string?> TryAddMissingUsingsAsync(
+        string testClassPath,
+        string? sourceProjectPath,
+        IReadOnlyList<string> compilerErrors,
+        CancellationToken ct)
+    {
+        var missing = ExtractMissingIdentifiers(compilerErrors);
+        if (missing.Count == 0) return null;
+
+        var sourceTypes = sourceProjectPath is null
+            ? new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
+            : await Task.Run(() => ScanTypeNamespaces(sourceProjectPath), ct);
+
+        string code = await ReadAllTextAsyncCompat(testClassPath, ct);
+        var toAdd = new List<string>();
+
+        foreach (var identifier in missing)
+        {
+            string? ns = null;
+
+            if (sourceTypes.TryGetValue(identifier, out var namespaces))
+            {
+                if (namespaces.Count == 1) ns = namespaces.First();
+            }
+            else if (WellKnownTypeToNamespace.TryGetValue(identifier, out var wellKnown))
+            {
+                ns = wellKnown;
+            }
+
+            if (ns is not null &&
+                !toAdd.Contains(ns, StringComparer.Ordinal) &&
+                !Regex.IsMatch(code, @"^\s*using\s+" + Regex.Escape(ns) + @"\s*;", RegexOptions.Multiline))
+            {
+                toAdd.Add(ns);
+            }
+        }
+
+        if (toAdd.Count == 0) return null;
+
+        string header = string.Concat(toAdd.Select(n => $"using {n};{Environment.NewLine}"));
+        string newCode = header + code;
+
+        await WriteAllTextAsyncCompat(testClassPath, newCode, Encoding.UTF8, ct);
+        return newCode;
+    }
+
+    private static List<string> ExtractMissingIdentifiers(IReadOnlyList<string> compilerErrors)
+    {
+        var result = new List<string>();
+
+        foreach (var line in compilerErrors)
+        {
+            if (line.IndexOf("CS0246", StringComparison.OrdinalIgnoreCase) < 0 &&
+                line.IndexOf("CS0103", StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                continue;
+            }
+
+            foreach (Match m in Regex.Matches(line, "'([^']+)'"))
+            {
+                // 'Mock<>' -> 'Mock'
+                string name = Regex.Replace(m.Groups[1].Value, "<.*>$", string.Empty);
+                if (name.Length > 0 &&
+                    name.IndexOf('.') < 0 &&
+                    !result.Contains(name, StringComparer.Ordinal))
+                {
+                    result.Add(name);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static Dictionary<string, HashSet<string>> ScanTypeNamespaces(string sourceProjectPath)
+    {
+        var map = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        string projectDir = Path.GetDirectoryName(sourceProjectPath)!;
+        string sep = Path.DirectorySeparatorChar.ToString();
+
+        var namespaceRegex = new Regex(@"^\s*namespace\s+([A-Za-z_][A-Za-z0-9_.]*)", RegexOptions.Multiline);
+        var typeRegex = new Regex(
+            @"^\s*(?:(?:public|internal|sealed|static|abstract|partial|readonly|unsafe)\s+)*" +
+            @"(?:record\s+(?:class|struct)|class|struct|interface|enum|record)\s+([A-Za-z_][A-Za-z0-9_]*)",
+            RegexOptions.Multiline);
+
+        foreach (var file in Directory.EnumerateFiles(projectDir, "*.cs", SearchOption.AllDirectories))
+        {
+            string relative = file.Substring(projectDir.Length);
+            if (relative.Contains(sep + "obj" + sep) || relative.Contains(sep + "bin" + sep))
+            {
+                continue;
+            }
+
+            string text;
+            try
+            {
+                text = File.ReadAllText(file);
+            }
+            catch
+            {
+                continue;
+            }
+
+            var nsMatch = namespaceRegex.Match(text);
+            if (!nsMatch.Success) continue;
+
+            string ns = nsMatch.Groups[1].Value;
+            foreach (Match typeMatch in typeRegex.Matches(text))
+            {
+                string typeName = typeMatch.Groups[1].Value;
+                if (!map.TryGetValue(typeName, out var set))
+                {
+                    set = new HashSet<string>(StringComparer.Ordinal);
+                    map[typeName] = set;
+                }
+                set.Add(ns);
+            }
+        }
+
+        return map;
     }
 
     private async Task<TestGenerationResult> TryResolveMissingPackagesAndRebuildAsync(
