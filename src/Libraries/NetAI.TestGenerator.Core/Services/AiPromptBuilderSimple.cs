@@ -17,6 +17,19 @@ public class AiPromptBuilderSimple
 
         return template.Render(kontext);
     }
-    
+
+    public string FixUnittestPromptSimple(string compiler_fehler, string aktuellerCode)
+    {
+        var template = Template.Parse(PromptTemplates.UnitTestFixerSimple);
+
+        var kontext = new Dictionary<string, object>
+        {
+            { "compiler_fehler", compiler_fehler },
+            { "aktuellerCode", aktuellerCode },
+        };
+
+        return template.Render(kontext);
+    }
+
 }
 

@@ -348,17 +348,26 @@ public class TestProjectManager
             "\n",
             code.Split('\n').Where(l => !l.TrimStart().StartsWith("//")));
 
-        var result = Regex.Matches(
-                codeWithoutLineComments,
-                @"^\s*using\s+(?!static\s)([A-Za-z_][A-Za-z0-9_.]*)\s*;",
-                RegexOptions.Multiline | RegexOptions.Compiled)
-            .Select(m => m.Groups[1].Value)
-            .Where(ns => !string.Equals(ns, "System", StringComparison.Ordinal))
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
+        // NOTE: deliberately a plain foreach instead of a LINQ ".Select(...)" chain -
+        // MatchCollection's enumerator type can make the compiler unable to infer the
+        // Select<TSource, TResult> type arguments in some target-framework configurations.
+        var matches = Regex.Matches(
+            codeWithoutLineComments,
+            @"^\s*using\s+(?!static\s)([A-Za-z_][A-Za-z0-9_.]*)\s*;",
+            RegexOptions.Multiline | RegexOptions.Compiled);
 
+        var namespaces = new List<string>();
+        foreach (Match match in matches)
+        {
+            string ns = match.Groups[1].Value;
+            if (!string.Equals(ns, "System", StringComparison.Ordinal) &&
+                !namespaces.Contains(ns, StringComparer.Ordinal))
+            {
+                namespaces.Add(ns);
+            }
+        }
 
-        return result;
+        return namespaces;
     }
 
     /// <summary>
