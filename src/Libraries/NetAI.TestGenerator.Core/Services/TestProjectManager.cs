@@ -37,6 +37,7 @@ public class TestProjectManager
     private const string DefaultSampleFileName = "UnitTest1.cs";
     private const string DefaultWindowsFramework = "net10.0-windows";
     private const int MaxPackageResolutionIterations = 5;
+    private const string StaFactPackageId = "Xunit.StaFact";
 
     private readonly TimeSpan _defaultProcessTimeout;
     private readonly string _dotnetExecutable;
@@ -69,6 +70,13 @@ public class TestProjectManager
         ["WireMock.ResponseBuilders"] = "WireMock.Net",
         ["Respawn"] = "Respawn",
         ["DotNet.Testcontainers"] = "Testcontainers",
+
+        // Dependency Injection (GetRequiredService<T>() ist eine Extension-Methode)
+        ["Microsoft.Extensions.DependencyInjection"] = "Microsoft.Extensions.DependencyInjection",
+        ["Microsoft.Extensions.DependencyInjection.Abstractions"] = "Microsoft.Extensions.DependencyInjection.Abstractions",
+
+        // WPF-Unit-Tests benötigen STA-Threads
+        ["Xunit.StaFact"] = "Xunit.StaFact",
     };
 
     public async Task<TestGenerationResult> SetupAndValidateTestAsync(
@@ -122,7 +130,7 @@ public class TestProjectManager
             }
             else if (sourceProjectPath is not null)
             {
-                // TFM / UseWPF must match BEFORE the reference is added, otherwise NU1201 occurs.
+                // TFM / UseWPF müssen stimmen, BEVOR die Referenz hinzugefügt wird (NU1201).
                 await EnsureWindowsSettingsAsync(testProjectPath, sourceProjectPath, targetFramework, cancellationToken);
 
                 if (!await ProjectHasReferenceAsync(testProjectPath, sourceProjectPath, cancellationToken))
@@ -141,19 +149,23 @@ public class TestProjectManager
 
             var buildResult = await ValidateProjectCompilesAsync(testProjectPath, cancellationToken);
 
-
             if (buildResult.CompilerErrors.Length > 0)
             {
                 var errorslll = string.Join("\n", buildResult.CompilerErrors.ToList());
             }
 
-            // AI-generated code often forgets 'using' directives (app namespace, System.Windows.Controls, Moq ...).
-            // Add the ones we can resolve unambiguously and rebuild. This also lets the NuGet
-            // resolver below see e.g. 'using Moq;'.
+            // KI-generierter Code vergisst oft 'using'-Direktiven und Projekt-Referenzen.
+            // Erst eindeutig auflösbare using's ergänzen und neu bauen.
+
             if (!buildResult.IsSuccess)
             {
                 string? fixedCode = await TryAddMissingUsingsAsync(
-                    testClassPath, sourceProjectPath, buildResult.CompilerErrors ?? Array.Empty<string>(), cancellationToken);
+                    testClassPath,
+                    testProjectPath,
+                    sourceProjectPath,
+                    solutionDirectory,
+                    buildResult.CompilerErrors ?? Array.Empty<string>(),
+                    cancellationToken);
 
                 if (fixedCode is not null)
                 {
@@ -204,18 +216,33 @@ public class TestProjectManager
             ["Fact"] = "Xunit",
             ["Theory"] = "Xunit",
             ["InlineData"] = "Xunit",
+            // xUnit + STA (WPF)
+            ["WpfFact"] = "Xunit",
+            ["StaFact"] = "Xunit",
+            ["UIFact"] = "Xunit",
             // Moq
             ["Mock"] = "Moq",
             ["It"] = "Moq",
             ["Times"] = "Moq",
             ["MockBehavior"] = "Moq",
+            ["MockException"] = "Moq",
             // BCL
             ["IServiceProvider"] = "System",
             ["Task"] = "System.Threading.Tasks",
+            // Dependency Injection
+            ["ServiceProvider"] = "Microsoft.Extensions.DependencyInjection",
+            ["ServiceCollection"] = "Microsoft.Extensions.DependencyInjection",
+            ["IServiceCollection"] = "Microsoft.Extensions.DependencyInjection",
+            ["GetRequiredService"] = "Microsoft.Extensions.DependencyInjection",
+            ["GetService"] = "Microsoft.Extensions.DependencyInjection",
+            ["AddSingleton"] = "Microsoft.Extensions.DependencyInjection",
+            ["AddScoped"] = "Microsoft.Extensions.DependencyInjection",
+            ["AddTransient"] = "Microsoft.Extensions.DependencyInjection",
             // WPF
             ["Application"] = "System.Windows",
             ["Window"] = "System.Windows",
             ["RoutedEventArgs"] = "System.Windows",
+            ["RoutedEvent"] = "System.Windows",
             ["Visibility"] = "System.Windows",
             ["Thickness"] = "System.Windows",
             ["FrameworkElement"] = "System.Windows",
@@ -237,33 +264,278 @@ public class TestProjectManager
         };
 
     /// <summary>
-    /// Resolves CS0246 / CS0103 errors caused by missing 'using' directives: types declared in the
-    /// source project are mapped via their namespace, common framework types via a static table.
-    /// Only unambiguous matches are added. Returns the new file content, or null if nothing changed.
+    ///     Fundort eines Typs: Namensraum + enthaltendes Projekt. Wird für die
+    ///     automatische Projekt-Referenz-Auflösung verwendet.
+    /// </summary>
+    private sealed record TypeLocation(string Namespace, string ProjectPath);
+
+    /// <summary>
+    ///     Erkannte xUnit-Hauptversion eines Testprojekts.
+    /// </summary>
+    private enum XUnitFlavor
+    {
+        Unknown,
+        V2,
+        V3,
+    }
+
+    /// <summary>
+    ///     Prüft, ob im Testprojekt bereits eine PackageReference mit gegebener ID existiert.
+    /// </summary>
+    private static async Task<bool> ProjectHasPackageReferenceAsync(
+        string projectPath, string packageId, CancellationToken ct)
+    {
+        var xml = await ReadAllTextAsyncCompat(projectPath, ct);
+        var doc = XDocument.Parse(xml);
+        return doc.Descendants("PackageReference")
+            .Any(e => string.Equals(
+                (string?)e.Attribute("Include"),
+                packageId,
+                StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    ///     Liest alle referenzierten Paket-IDs aus dem Testprojekt UND aus
+    ///     Directory.Packages.props (Central Package Management) und leitet daraus
+    ///     die xUnit-Hauptversion ab.
+    /// </summary>
+    private static async Task<XUnitFlavor> DetectXUnitFlavorAsync(
+        string testProjectPath, CancellationToken ct)
+    {
+        var packageIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        try
+        {
+            var csprojDoc = XDocument.Parse(await ReadAllTextAsyncCompat(testProjectPath, ct));
+            foreach (var pr in csprojDoc.Descendants("PackageReference"))
+            {
+                var id = (string?)pr.Attribute("Include");
+                if (!string.IsNullOrWhiteSpace(id)) packageIds.Add(id!);
+            }
+
+            string? propsPath = FindDirectoryPackagesProps(Path.GetDirectoryName(testProjectPath)!);
+            if (propsPath is not null)
+            {
+                var propsDoc = XDocument.Parse(await ReadAllTextAsyncCompat(propsPath, ct));
+                foreach (var pv in propsDoc.Descendants("PackageVersion"))
+                {
+                    var id = (string?)pv.Attribute("Include");
+                    if (!string.IsNullOrWhiteSpace(id)) packageIds.Add(id!);
+                }
+            }
+        }
+        catch
+        {
+            // Defensiv: bei unerwarteten XML-Problemen lieber nichts annehmen
+            // als eine Ausnahme bis in den Aufrufer durchzureichen.
+            return XUnitFlavor.Unknown;
+        }
+
+        // xUnit v3 erkennt man an "xunit.v3" bzw. "xunit.v3.*"
+        if (packageIds.Any(id => id.Equals("xunit.v3", StringComparison.OrdinalIgnoreCase) ||
+                                  id.StartsWith("xunit.v3.", StringComparison.OrdinalIgnoreCase)))
+        {
+            return XUnitFlavor.V3;
+        }
+
+        // xUnit v2 erkennt man an "xunit" oder "xunit.*" (außer den v3-Varianten)
+        if (packageIds.Any(id => id.Equals("xunit", StringComparison.OrdinalIgnoreCase) ||
+                                  (id.StartsWith("xunit.", StringComparison.OrdinalIgnoreCase) &&
+                                   !id.StartsWith("xunit.v3", StringComparison.OrdinalIgnoreCase))))
+        {
+            return XUnitFlavor.V2;
+        }
+
+        return XUnitFlavor.Unknown;
+    }
+
+    /// <summary>
+    ///     Liefert die zur erkannten xUnit-Hauptversion passende Xunit.StaFact-Version.
+    ///     Verhindert CS0433 ("type exists in both xunit.core and xunit.v3.core").
+    /// </summary>
+    private static string GetCompatibleStaFactVersion(XUnitFlavor flavor) => flavor switch
+    {
+        XUnitFlavor.V2 => "1.1.11",
+        XUnitFlavor.V3 => "3.0.0",
+        _ => "1.1.11",
+    };
+
+    /// <summary>
+    ///     Stellt sicher, dass das Testprojekt eine PackageReference mit gegebener ID und
+    ///     Version hat. Berücksichtigt Central Package Management: die Version wird in
+    ///     Directory.Packages.props gepflegt, die Referenz im .csproj. Eine bereits
+    ///     vorhandene, aber falsche Version wird korrigiert.
+    /// </summary>
+    private async Task<bool> EnsurePackageReferenceWithVersionAsync(
+        string testProjectPath,
+        string packageId,
+        string version,
+        CancellationToken ct)
+    {
+        string testProjectDir = Path.GetDirectoryName(testProjectPath)!;
+        string? propsPath = FindDirectoryPackagesProps(testProjectDir);
+
+        bool cpmEnabled = false;
+        if (propsPath is not null)
+        {
+            try
+            {
+                var propsDocCheck = XDocument.Parse(await ReadAllTextAsyncCompat(propsPath, ct));
+                cpmEnabled = propsDocCheck.Root?
+                    .Descendants("ManagePackageVersionsCentrally")
+                    .Any(e => string.Equals(e.Value?.Trim(), "true", StringComparison.OrdinalIgnoreCase)) == true;
+            }
+            catch
+            {
+                cpmEnabled = false;
+            }
+        }
+
+        // ---------- Ohne CPM: direkte Version in der PackageReference ----------
+        if (!cpmEnabled)
+        {
+            var csprojDoc = XDocument.Parse(await ReadAllTextAsyncCompat(testProjectPath, ct));
+            var existing = csprojDoc.Descendants("PackageReference")
+                .FirstOrDefault(e => string.Equals(
+                    (string?)e.Attribute("Include"), packageId, StringComparison.OrdinalIgnoreCase));
+
+            if (existing is not null)
+            {
+                string? currentVersion = (string?)existing.Attribute("Version");
+                if (string.Equals(currentVersion, version, StringComparison.OrdinalIgnoreCase))
+                    return false;
+
+                existing.SetAttributeValue("Version", version);
+                csprojDoc.Save(testProjectPath);
+                return true;
+            }
+
+            var addResult = await RunDotNetCliAsync(
+                new[] { "add", testProjectPath, "package", packageId, "--version", version },
+                testProjectDir, ct);
+            return addResult.ExitCode == 0;
+        }
+
+        // ---------- Mit CPM: Version in props, Referenz in csproj ----------
+        bool changed = false;
+
+        var propsDoc = XDocument.Parse(await ReadAllTextAsyncCompat(propsPath!, ct));
+        var versionElement = propsDoc.Descendants("PackageVersion")
+            .FirstOrDefault(e => string.Equals(
+                (string?)e.Attribute("Include"), packageId, StringComparison.OrdinalIgnoreCase));
+
+        if (versionElement is null)
+        {
+            var itemGroup = propsDoc.Root!.Elements("ItemGroup")
+                .FirstOrDefault(g => g.Elements("PackageVersion").Any());
+
+            if (itemGroup is null)
+            {
+                itemGroup = new XElement("ItemGroup");
+                propsDoc.Root.Add(itemGroup);
+            }
+
+            itemGroup.Add(new XElement("PackageVersion",
+                new XAttribute("Include", packageId),
+                new XAttribute("Version", version)));
+            changed = true;
+        }
+        else
+        {
+            string? currentVersion = (string?)versionElement.Attribute("Version");
+            if (!string.Equals(currentVersion, version, StringComparison.OrdinalIgnoreCase))
+            {
+                versionElement.SetAttributeValue("Version", version);
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            propsDoc.Save(propsPath!);
+        }
+
+        var csprojDocCpm = XDocument.Parse(await ReadAllTextAsyncCompat(testProjectPath, ct));
+        var existingRef = csprojDocCpm.Descendants("PackageReference")
+            .FirstOrDefault(e => string.Equals(
+                (string?)e.Attribute("Include"), packageId, StringComparison.OrdinalIgnoreCase));
+
+        if (existingRef is null)
+        {
+            var itemGroup = csprojDocCpm.Root!.Elements("ItemGroup")
+                .FirstOrDefault(g => g.Elements("PackageReference").Any());
+
+            if (itemGroup is null)
+            {
+                itemGroup = new XElement("ItemGroup");
+                csprojDocCpm.Root.Add(itemGroup);
+            }
+
+            itemGroup.Add(new XElement("PackageReference",
+                new XAttribute("Include", packageId)));
+            changed = true;
+
+            csprojDocCpm.Save(testProjectPath);
+        }
+
+        return changed;
+    }
+
+    /// <summary>
+    ///     Löst CS0246 / CS0103 / CS1061 / CS1929-Fehler auf, die durch fehlende 'using'-Direktiven
+    ///     und/oder fehlende Projekt-Referenzen entstehen. Typen werden solution-weit gesucht;
+    ///     Framework-Typen kommen aus der statischen <see cref="WellKnownTypeToNamespace"/>-Tabelle.
+    ///     Fehlt eine Projekt-Referenz auf das Projekt, in dem der Typ deklariert ist, wird sie
+    ///     automatisch hinzugefügt.
+    ///     Liefert den neuen Dateiinhalt, den unveränderten Inhalt (falls nur Projekt-Referenzen
+    ///     ergänzt wurden) oder null (falls nichts geändert wurde).
     /// </summary>
     private async Task<string?> TryAddMissingUsingsAsync(
         string testClassPath,
+        string testProjectPath,
         string? sourceProjectPath,
+        string solutionDirectory,
         IReadOnlyList<string> compilerErrors,
         CancellationToken ct)
     {
         var missing = ExtractMissingIdentifiers(compilerErrors);
         if (missing.Count == 0) return null;
 
-        var sourceTypes = sourceProjectPath is null
-            ? new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
-            : await Task.Run(() => ScanTypeNamespaces(sourceProjectPath), ct);
+        var sourceTypes = await Task.Run(() => ScanTypeNamespaces(solutionDirectory), ct);
 
         string code = await ReadAllTextAsyncCompat(testClassPath, ct);
         var toAdd = new List<string>();
+        var projectsToReference = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        string testProjectFullPath = Path.GetFullPath(testProjectPath);
 
         foreach (var identifier in missing)
         {
             string? ns = null;
+            string? owningProject = null;
 
-            if (sourceTypes.TryGetValue(identifier, out var namespaces))
+            if (sourceTypes.TryGetValue(identifier, out var locations) && locations.Count > 0)
             {
-                if (namespaces.Count == 1) ns = namespaces.First();
+                // Mehrere Namespaces → mehrdeutig → lieber nichts tun
+                var distinctNamespaces = locations
+                    .Select(l => l.Namespace)
+                    .Distinct(StringComparer.Ordinal)
+                    .ToList();
+
+                if (distinctNamespaces.Count == 1)
+                {
+                    ns = distinctNamespaces[0];
+
+                    // Nur referenzieren, wenn genau ein Projekt den Typ deklariert.
+                    var distinctProjects = locations
+                        .Select(l => l.ProjectPath)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
+                    if (distinctProjects.Count == 1)
+                    {
+                        owningProject = distinctProjects[0];
+                    }
+                }
             }
             else if (WellKnownTypeToNamespace.TryGetValue(identifier, out var wellKnown))
             {
@@ -276,9 +548,33 @@ public class TestProjectManager
             {
                 toAdd.Add(ns);
             }
+
+            if (owningProject is not null &&
+                !string.Equals(Path.GetFullPath(owningProject), testProjectFullPath, StringComparison.OrdinalIgnoreCase))
+            {
+                projectsToReference.Add(owningProject);
+            }
         }
 
-        if (toAdd.Count == 0) return null;
+        // Fehlende Projekt-Referenzen nachziehen (z. B. WPF-App mit MainWindow).
+        string testProjectDir = Path.GetDirectoryName(testProjectPath)!;
+        foreach (var refProject in projectsToReference)
+        {
+            if (!File.Exists(refProject)) continue;
+            if (await ProjectHasReferenceAsync(testProjectPath, refProject, ct)) continue;
+
+            await RunDotNetCliAsync(
+                new[] { "add", testProjectPath, "reference", refProject },
+                testProjectDir,
+                ct);
+        }
+
+        // Wenn keine usings ergänzt wurden, aber Projekt-Referenzen geändert wurden,
+        // den unveränderten Code zurückgeben, damit der Aufrufer neu baut.
+        if (toAdd.Count == 0)
+        {
+            return projectsToReference.Count > 0 ? code : null;
+        }
 
         string header = string.Concat(toAdd.Select(n => $"using {n};{Environment.NewLine}"));
         string newCode = header + code;
@@ -293,15 +589,21 @@ public class TestProjectManager
 
         foreach (var line in compilerErrors)
         {
+            // CS0246 = Typ/Namensraum nicht gefunden
+            // CS0103 = Name existiert nicht im aktuellen Kontext
+            // CS1061 = Typ hat kein Member 'X' (typisch für fehlende Extension-Methoden)
+            // CS1929 = Extension-Methode 'X' kann nicht angewendet werden
             if (line.IndexOf("CS0246", StringComparison.OrdinalIgnoreCase) < 0 &&
-                line.IndexOf("CS0103", StringComparison.OrdinalIgnoreCase) < 0)
+                line.IndexOf("CS0103", StringComparison.OrdinalIgnoreCase) < 0 &&
+                line.IndexOf("CS1061", StringComparison.OrdinalIgnoreCase) < 0 &&
+                line.IndexOf("CS1929", StringComparison.OrdinalIgnoreCase) < 0)
             {
                 continue;
             }
 
             foreach (Match m in Regex.Matches(line, "'([^']+)'"))
             {
-                // 'Mock<>' -> 'Mock'
+                // 'Mock<T>' oder 'Mock<>' → 'Mock'
                 string name = Regex.Replace(m.Groups[1].Value, "<.*>$", string.Empty);
                 if (name.Length > 0 &&
                     name.IndexOf('.') < 0 &&
@@ -315,22 +617,29 @@ public class TestProjectManager
         return result;
     }
 
-    private static Dictionary<string, HashSet<string>> ScanTypeNamespaces(string sourceProjectPath)
+    /// <summary>
+    ///     Scannt alle .cs-Dateien der Solution (ohne bin/obj) und liefert für jeden Typnamen
+    ///     die Liste der (Namespace, enthaltendes Projekt)-Paare.
+    /// </summary>
+    private static Dictionary<string, List<TypeLocation>> ScanTypeNamespaces(string solutionDirectory)
     {
-        var map = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-        string projectDir = Path.GetDirectoryName(sourceProjectPath)!;
+        var map = new Dictionary<string, List<TypeLocation>>(StringComparer.Ordinal);
         string sep = Path.DirectorySeparatorChar.ToString();
 
-        var namespaceRegex = new Regex(@"^\s*namespace\s+([A-Za-z_][A-Za-z0-9_.]*)", RegexOptions.Multiline);
+        var namespaceRegex = new Regex(
+            @"^\s*namespace\s+([A-Za-z_][A-Za-z0-9_.]*)",
+            RegexOptions.Multiline);
+
         var typeRegex = new Regex(
             @"^\s*(?:(?:public|internal|sealed|static|abstract|partial|readonly|unsafe)\s+)*" +
             @"(?:record\s+(?:class|struct)|class|struct|interface|enum|record)\s+([A-Za-z_][A-Za-z0-9_]*)",
             RegexOptions.Multiline);
 
-        foreach (var file in Directory.EnumerateFiles(projectDir, "*.cs", SearchOption.AllDirectories))
+        foreach (var file in Directory.EnumerateFiles(solutionDirectory, "*.cs", SearchOption.AllDirectories))
         {
-            string relative = file.Substring(projectDir.Length);
-            if (relative.Contains(sep + "obj" + sep) || relative.Contains(sep + "bin" + sep))
+            string relative = file.Substring(solutionDirectory.Length);
+            if (relative.Contains(sep + "obj" + sep) ||
+                relative.Contains(sep + "bin" + sep))
             {
                 continue;
             }
@@ -349,15 +658,26 @@ public class TestProjectManager
             if (!nsMatch.Success) continue;
 
             string ns = nsMatch.Groups[1].Value;
+
+            string? owningProject = FindContainingProject(file, solutionDirectory);
+            if (owningProject is null) continue;
+
             foreach (Match typeMatch in typeRegex.Matches(text))
             {
                 string typeName = typeMatch.Groups[1].Value;
-                if (!map.TryGetValue(typeName, out var set))
+
+                if (!map.TryGetValue(typeName, out var list))
                 {
-                    set = new HashSet<string>(StringComparer.Ordinal);
-                    map[typeName] = set;
+                    list = new List<TypeLocation>();
+                    map[typeName] = list;
                 }
-                set.Add(ns);
+
+                if (!list.Any(l =>
+                        string.Equals(l.Namespace, ns, StringComparison.Ordinal) &&
+                        string.Equals(l.ProjectPath, owningProject, StringComparison.OrdinalIgnoreCase)))
+                {
+                    list.Add(new TypeLocation(ns, owningProject));
+                }
             }
         }
 
@@ -479,21 +799,25 @@ public class TestProjectManager
         return namespaces;
     }
 
-    private static List<string> ExtractMissingNamespaceCandidates(IReadOnlyList<string> compilerErrors, IReadOnlyList<string> usingNamespaces)
+    private static List<string> ExtractMissingNamespaceCandidates(
+        IReadOnlyList<string> compilerErrors,
+        IReadOnlyList<string> usingNamespaces)
     {
         var missingIdentifiers = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var line in compilerErrors)
         {
             if (line.IndexOf("CS0246", StringComparison.OrdinalIgnoreCase) < 0 &&
-                line.IndexOf("CS0234", StringComparison.OrdinalIgnoreCase) < 0)
+                line.IndexOf("CS0234", StringComparison.OrdinalIgnoreCase) < 0 &&
+                line.IndexOf("CS1061", StringComparison.OrdinalIgnoreCase) < 0 &&
+                line.IndexOf("CS1929", StringComparison.OrdinalIgnoreCase) < 0)
             {
                 continue;
             }
 
             foreach (Match m in Regex.Matches(line, "'([^']+)'"))
             {
-                missingIdentifiers.Add(m.Groups[1].Value);
+                missingIdentifiers.Add(Regex.Replace(m.Groups[1].Value, "<.*>$", string.Empty));
             }
         }
 
@@ -502,10 +826,22 @@ public class TestProjectManager
             return new List<string>();
         }
 
-        return usingNamespaces
+        var candidates = usingNamespaces
             .Where(ns => missingIdentifiers.Contains(ns) ||
                          ns.Split('.').Any(segment => missingIdentifiers.Contains(segment)))
             .ToList();
+
+        foreach (var id in missingIdentifiers)
+        {
+            if (WellKnownTypeToNamespace.TryGetValue(id, out var ns) &&
+                !string.Equals(ns, "System", StringComparison.Ordinal) &&
+                !candidates.Contains(ns, StringComparer.Ordinal))
+            {
+                candidates.Add(ns);
+            }
+        }
+
+        return candidates;
     }
 
     private async Task<string?> ResolveAndAddPackageAsync(
@@ -607,9 +943,6 @@ public class TestProjectManager
         return fallback.Length > 40 ? fallback.Substring(0, 40) : fallback;
     }
 
-    /// <summary>
-    /// Removes invalid file name characters from a class name.
-    /// </summary>
     private static string SafeFileName(string name)
     {
         foreach (char c in Path.GetInvalidFileNameChars())
@@ -742,10 +1075,12 @@ public class TestProjectManager
     }
 
     /// <summary>
-    /// If the source project is a WPF / WinForms project (e.g. net10.0-windows + UseWPF),
-    /// the test project must use the same Windows target framework and the same UseWPF /
-    /// UseWindowsForms flags. Otherwise referencing the project fails (NU1201) and types like
-    /// MainWindow or RoutedEventArgs are not available.
+    ///     Wenn das Quellprojekt WPF / WinForms verwendet (net10.0-windows + UseWPF), muss das
+    ///     Testprojekt dieselbe Windows-TFM und dieselben UseWPF/UseWindowsForms-Flags setzen.
+    ///     Zusätzlich wird für WPF-Tests das Paket 'Xunit.StaFact' in der zur xUnit-Hauptversion
+    ///     passenden Version referenziert (verhindert CS0433). Bei xUnit v3 wird OutputType=Exe
+    ///     erzwungen. Diese Methode darf NIE eine Ausnahme werfen, damit der Auto-Fix-Flow
+    ///     (TryAddMissingUsingsAsync) auf jeden Fall noch laufen kann.
     /// </summary>
     private async Task EnsureWindowsSettingsAsync(
         string testProjectPath,
@@ -753,60 +1088,103 @@ public class TestProjectManager
         string? preferredFramework,
         CancellationToken ct)
     {
-        if (sourceProjectPath is null || !File.Exists(sourceProjectPath)) return;
-
-        var sourceDoc = XDocument.Parse(await ReadAllTextAsyncCompat(sourceProjectPath, ct));
-
-        bool useWpf = HasTrueProperty(sourceDoc, "UseWPF");
-        bool useWinForms = HasTrueProperty(sourceDoc, "UseWindowsForms");
-
-        string? windowsTfm = sourceDoc.Descendants()
-            .Where(e => e.Name.LocalName == "TargetFramework" || e.Name.LocalName == "TargetFrameworks")
-            .SelectMany(e => e.Value.Split(';'))
-            .Select(t => t.Trim())
-            .FirstOrDefault(t => t.IndexOf("-windows", StringComparison.OrdinalIgnoreCase) >= 0);
-
-        if (!useWpf && !useWinForms && windowsTfm is null) return;
-
-        if (windowsTfm is null)
+        try
         {
-            windowsTfm = preferredFramework is not null &&
-                         preferredFramework.IndexOf("-windows", StringComparison.OrdinalIgnoreCase) >= 0
-                ? preferredFramework
-                : DefaultWindowsFramework;
+            if (sourceProjectPath is null || !File.Exists(sourceProjectPath)) return;
+
+            var sourceDoc = XDocument.Parse(await ReadAllTextAsyncCompat(sourceProjectPath, ct));
+
+            bool useWpf = HasTrueProperty(sourceDoc, "UseWPF");
+            bool useWinForms = HasTrueProperty(sourceDoc, "UseWindowsForms");
+
+            string? windowsTfm = sourceDoc.Descendants()
+                .Where(e => e.Name.LocalName == "TargetFramework" || e.Name.LocalName == "TargetFrameworks")
+                .SelectMany(e => e.Value.Split(';'))
+                .Select(t => t.Trim())
+                .FirstOrDefault(t => t.IndexOf("-windows", StringComparison.OrdinalIgnoreCase) >= 0);
+
+            if (!useWpf && !useWinForms && windowsTfm is null) return;
+
+            if (windowsTfm is null)
+            {
+                windowsTfm = preferredFramework is not null &&
+                             preferredFramework.IndexOf("-windows", StringComparison.OrdinalIgnoreCase) >= 0
+                    ? preferredFramework
+                    : DefaultWindowsFramework;
+            }
+
+            var testDoc = XDocument.Parse(await ReadAllTextAsyncCompat(testProjectPath, ct));
+            var root = testDoc.Root;
+            if (root is null) return;
+
+            bool changed = false;
+
+            var propertyGroup = root.Elements("PropertyGroup").FirstOrDefault();
+            if (propertyGroup is null)
+            {
+                propertyGroup = new XElement("PropertyGroup");
+                root.AddFirst(propertyGroup);
+                changed = true;
+            }
+
+            // Multi-targeting würde doppelte Fehler produzieren; eine einzelne TFM verwenden.
+            foreach (var multi in root.Descendants("TargetFrameworks").ToList())
+            {
+                multi.Remove();
+                changed = true;
+            }
+
+            changed |= SetProperty(root, propertyGroup, "TargetFramework", windowsTfm);
+            if (useWpf) changed |= SetProperty(root, propertyGroup, "UseWPF", "true");
+            if (useWinForms) changed |= SetProperty(root, propertyGroup, "UseWindowsForms", "true");
+
+            if (changed)
+            {
+                testDoc.Save(testProjectPath);
+            }
+
+            // xUnit-Hauptversion ermitteln (aus csproj + Directory.Packages.props).
+            var flavor = await DetectXUnitFlavorAsync(testProjectPath, ct);
+
+            bool packageChanged = false;
+
+            // WPF-Tests brauchen STA-Threads → [WpfFact]/[UIFact].
+            // Xunit.StaFact muss versionsgekoppelt zur xUnit-Hauptversion sein,
+            // sonst entsteht CS0433 (FactAttribute in xunit.core UND xunit.v3.core).
+            if (useWpf && flavor != XUnitFlavor.Unknown)
+            {
+                string staFactVersion = GetCompatibleStaFactVersion(flavor);
+                packageChanged = await EnsurePackageReferenceWithVersionAsync(
+                    testProjectPath, StaFactPackageId, staFactVersion, ct);
+            }
+
+            // xUnit v3 erfordert OutputType=Exe.
+            if (flavor == XUnitFlavor.V3)
+            {
+                var outputDoc = XDocument.Parse(await ReadAllTextAsyncCompat(testProjectPath, ct));
+                var outputRoot = outputDoc.Root;
+                if (outputRoot is not null)
+                {
+                    var outputPg = outputRoot.Elements("PropertyGroup").FirstOrDefault();
+                    if (outputPg is not null && SetProperty(outputRoot, outputPg, "OutputType", "Exe"))
+                    {
+                        outputDoc.Save(testProjectPath);
+                        changed = true;
+                    }
+                }
+            }
+
+            if (changed || packageChanged)
+            {
+                string dir = Path.GetDirectoryName(testProjectPath)!;
+                await RunDotNetCliAsync(new[] { "restore", testProjectPath }, dir, ct);
+            }
         }
-
-        var testDoc = XDocument.Parse(await ReadAllTextAsyncCompat(testProjectPath, ct));
-        var root = testDoc.Root;
-        if (root is null) return;
-
-        bool changed = false;
-
-        var propertyGroup = root.Elements("PropertyGroup").FirstOrDefault();
-        if (propertyGroup is null)
+        catch
         {
-            propertyGroup = new XElement("PropertyGroup");
-            root.AddFirst(propertyGroup);
-            changed = true;
+            // Absichtlich geschluckt: Setup-Probleme hier dürfen den Auto-Fix-Flow
+            // (TryAddMissingUsingsAsync) nicht verhindern.
         }
-
-        // Multi-targeting would produce duplicate errors; use a single TFM.
-        foreach (var multi in root.Descendants("TargetFrameworks").ToList())
-        {
-            multi.Remove();
-            changed = true;
-        }
-
-        changed |= SetProperty(root, propertyGroup, "TargetFramework", windowsTfm);
-        if (useWpf) changed |= SetProperty(root, propertyGroup, "UseWPF", "true");
-        if (useWinForms) changed |= SetProperty(root, propertyGroup, "UseWindowsForms", "true");
-
-        if (!changed) return;
-
-        testDoc.Save(testProjectPath);
-
-        string dir = Path.GetDirectoryName(testProjectPath)!;
-        await RunDotNetCliAsync(new[] { "restore", testProjectPath }, dir, ct);
     }
 
     private static bool HasTrueProperty(XDocument doc, string propertyName)
@@ -847,8 +1225,8 @@ public class TestProjectManager
 
         var newArgs = new List<string> { "new", testTemplate, "-n", projectName, "-o", "." };
 
-        // "-windows" TFMs are not accepted by the template's --framework option;
-        // EnsureWindowsSettingsAsync sets them directly in the csproj afterwards.
+        // "-windows" TFMs sind für die --framework-Option des Templates nicht zulässig;
+        // EnsureWindowsSettingsAsync setzt sie danach direkt in der csproj.
         if (!string.IsNullOrWhiteSpace(targetFramework) &&
             targetFramework!.IndexOf("-windows", StringComparison.OrdinalIgnoreCase) < 0)
         {
@@ -879,7 +1257,7 @@ public class TestProjectManager
 
         if (sourceProjectPath is not null)
         {
-            // Must happen before "add reference" (TFM compatibility).
+            // Muss vor "add reference" passieren (TFM-Kompatibilität).
             await EnsureWindowsSettingsAsync(projectPath, sourceProjectPath, targetFramework, ct);
 
             var refResult = await RunDotNetCliAsync(new[] { "add", projectPath, "reference", sourceProjectPath }, directory, ct);
@@ -900,8 +1278,7 @@ public class TestProjectManager
     }
 
     /// <summary>
-    /// Validates the test project by running a real "dotnet build". This guarantees that all
-    /// package, project and WPF references are resolved exactly as they will be at test time.
+    ///     Validiert das Testprojekt durch einen echten "dotnet build".
     /// </summary>
     private async Task<TestGenerationResult> ValidateProjectCompilesAsync(
         string testProjectPath,
@@ -929,7 +1306,6 @@ public class TestProjectManager
 
             var allLines = result.Output.Concat(result.Errors).ToArray();
 
-            // Format: C:\...\File.cs(6,6): error CS0246: The type or namespace name 'Xunit' ... [proj.csproj]
             var errorRegex = new Regex(
                 @"^(?<file>.*?)\((?<line>\d+),\d+\):\s*error\s+(?<id>[A-Za-z]+\d+):\s*(?<msg>.*?)(\s+\[[^\]]+\])?\s*$",
                 RegexOptions.Compiled);
@@ -944,7 +1320,6 @@ public class TestProjectManager
 
             if (errors.Length == 0)
             {
-                // e.g. restore errors (NU1xxx) without file/line information
                 errors = allLines
                     .Where(l => l.IndexOf(" error ", StringComparison.OrdinalIgnoreCase) >= 0)
                     .Distinct(StringComparer.Ordinal)
@@ -1089,9 +1464,6 @@ public class TestProjectManager
             string? createdProject = Directory.EnumerateFiles(workingDirectory, "*.csproj").FirstOrDefault();
             if (createdProject is not null)
             {
-                // If the solution uses NuGet Central Package Management, the template's
-                // PackageReference "Version" attributes would otherwise make the restore
-                // below fail with NU1008. Fix that up first.
                 await FixCentralPackageManagementCompatibilityAsync(createdProject, cancellationToken);
 
                 var restoreResult = await ExecuteDotNetProcessAsync(
@@ -1128,7 +1500,6 @@ public class TestProjectManager
             StandardErrorEncoding = Encoding.UTF8
         };
 
-        // English output so the error parsing (regex, 'Namespace' detection) works reliably.
         startInfo.Environment["DOTNET_CLI_UI_LANGUAGE"] = "en";
         startInfo.Environment["VSLANG"] = "1033";
         startInfo.Environment["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1";
