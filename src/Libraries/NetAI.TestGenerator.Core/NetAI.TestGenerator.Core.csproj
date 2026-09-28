@@ -10,6 +10,8 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.Bcl.Memory" />
+	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
 	  <PackageReference Include="Newtonsoft.Json" />
 	  <PackageReference Include="Scriban" />
 	</ItemGroup>
