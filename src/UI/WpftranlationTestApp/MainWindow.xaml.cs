@@ -18,7 +18,7 @@ public partial class MainWindow : Window
      {
         //  await DownloadViaCloudFlare.DownloadWithCloudFlare();
 
-        var builder = new AiPromptBuilder(@"C:\Users\steph\source\repos\WebObserver2\src\UI\WpfExplorer\aisettings.json");
+        var builder = new AiPromptBuilder(@"C:\Users\steph\source\repos\NetAI.TestGenerator\src\UI\WpftranlationTestApp\aisettings.json");
 
         // Angenommen, du analysierst gerade einen "OrderController"
         var finalPrompt = await builder.BuildSystemPromptAsync();
@@ -33,11 +33,10 @@ public partial class MainWindow : Window
 
         Console.WriteLine(finalPrompt);
 
-        //bool ok = AiTranslatorRunner.Run(@"C:\Users\steph\source\repos\WebObserver2\WpfExplorer");
 
         var runner = new AiTranslatorRunner
         {
-            ProjectDir = @"C:\Users\steph\source\repos\WebObserver2\src\UI\WpfExplorer",
+            ProjectDir = @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\UI\WpftranlationTestApp",
             ApiKey = "sk-...",
             AppContext = "Rechnungs-Verwaltung für KMUs",
             SupportedLanguages = "en, de, it" // optional: überschreibt <SupportedLanguage> aus der .csproj

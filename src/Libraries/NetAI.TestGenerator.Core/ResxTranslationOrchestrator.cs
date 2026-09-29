@@ -1,19 +1,23 @@
 ﻿using DotNet10TestGenerator;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using NetAI.TestGenerator.Core.Config;
-using NetAI.TestGenerator.Core.Models;
 using NetAI.TestGenerator.Core.Services;
 using System.Text;
 using System.Text.RegularExpressions;
+using NetAI.TestGenerator.Core.Models.Enums;
 
 namespace NetAI.TestGenerator.Core;
+
+
+// !!!! Wenn du sicher weißt, dass ein bestimmtes Mock-Framework verwendet wird, übergib es explizit (z. B. MockFramework.NSubstitute) – das ist zuverlässiger als die Muster-Erkennung.
+
 
 public class ResxTranslationOrchestrator
 {
     private readonly HttpClient _httpClient;
 
     private readonly TestGeneratorService _testGeneratorService;
+    private readonly TestCodeBeautifier _testCodeBeautifier = new();
 
     public ResxTranslationOrchestrator(HttpClient? httpClient = null)
     {
@@ -22,181 +26,11 @@ public class ResxTranslationOrchestrator
     }
 
 
-    //public async Task<string> ProcessProject(string projectDir, string prompt, Action<string>? logInfo = null)
-    //{
-    //    try
-    //    {
-    //        if (string.IsNullOrWhiteSpace(projectDir) || !Directory.Exists(projectDir))
-    //        {
-    //            return "empty";
-    //        }
-
-    //        logInfo?.Invoke($"[AI-Translator] Starting analysis in directory: {projectDir}");
-
-
-
-
-    //        var requestData = new ApiTranslationRequest
-    //        {
-    //            TargetLanguage = "it",
-    //            //Items = missingTranslations.Select(entry => new ApiTranslationItem
-    //            //{
-    //            //    Key = entry.Key,
-    //            //    SourceText = FindSourceTextForKey(entry.Key, currentFile, parsedResources)
-    //            //}).ToList()
-    //        };
-
-
-    //        var localLlmClient = new LocalLlmClient();
-
-
-    //        var testpath = @"C:\temp\__trash\Textdokument.cs";
-
-    //        if (File.Exists(testpath + "xxx"))
-    //        {
-    //            //             
-
-
-    //            var sourceFilePath =
-    //                @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs";
-    //            var testClassWithMethods = File.ReadAllText(testpath);
-
-    //            var manager = new TestProjectManager();
-    //            var result = await manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
-
-
-    //            var erors = string.Join("\n", result.CompilerErrors.ToList());
-
-    //            if (!string.IsNullOrEmpty(erors))
-    //            {
-    //                var aiPromptBuilderSimple = new AiPromptBuilderSimple();
-
-
-    //                var errorPrompt = aiPromptBuilderSimple.FixUnittestPrompt(testClassWithMethods, erors);
-    //                var newTestClass = await localLlmClient.AskAsync(errorPrompt, "Du bist ein präziser C#-Compiler-Assistent. Deine einzige Aufgabe ist es, Syntax- und Kompilierfehler in bereitgestelltem C#-Code exakt zu reparieren und lauffähigen Code ohne Text-Erklärungen zurückzugeben.\n");
-    //            }
-
-    //            // TODO: replace testclass in prompt an ask ai agein.
-
-    //            // var newTestClass = await localLlmClient.AskAsync(prompt, "");
-
-    //            //  var apiResponse = await CallTranslationApi(requestData);
-
-    //            return "ok .....";
-    //        }
-    //        else
-    //        {
-
-
-
-
-
-    //            //var newTestClass = await localLlmClient.AskAsync(prompt, "");
-
-    //            //newTestClass = newTestClass.Replace("using NSubstitute;", "");
-
-    //            //var sourceFilePath = @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs";
-    //            //var testClassWithMethods = ExtractTestClass(newTestClass);
-
-
-    //            //var manager = new TestProjectManager();
-    //            //var result = await manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
-
-    //            //if (result.CompilerErrors.Any(i => i.Contains("Could not automatically resolve a NuGet package for the namespace(s)")))
-    //            //{
-
-    //            //}
-    //            //var aiPromptBuilderSimple = new AiPromptBuilderSimple();
-
-    //            //var erors = string.Join("\n", result.CompilerErrors.ToList());
-
-    //            //var errorPrompt = aiPromptBuilderSimple.FixUnittestPromptSimple(erors);
-    //            //var newTestClass2 = await localLlmClient.AskAsync(errorPrompt, "Du bist ein präziser C#-Compiler-Assistent. Deine einzige Aufgabe ist es, Syntax- und Kompilierfehler in bereitgestelltem C#-Code exakt zu reparieren und lauffähigen Code ohne Text-Erklärungen zurückzugeben.\n");
-
-
-    //            //*********
-
-    //            var sourceFilePath = @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs";
-    //            var aiPromptBuilderSimple = new AiPromptBuilderSimple();
-    //            var manager = new TestProjectManager();
-
-    //            // 1. Ersten Testentwurf generieren
-    //            var newTestClass = await localLlmClient.AskAsync(prompt, "");
-    //            newTestClass = newTestClass.Replace("using NSubstitute;", "");
-    //            var testClassWithMethods = ExtractTestClass(newTestClass);
-
-    //            // 2. Validierungsschleife (Maximal 3 Reparaturversuche)
-    //            const int MaxRetries = 3;
-    //            TestGenerationResult result = null;
-
-    //            for (int attempt = 1; attempt <= MaxRetries; attempt++)
-    //            {
-    //                // Testcode in das Testprojekt schreiben und kompilieren
-    //                result = await manager.SetupAndValidateTestAsync(sourceFilePath, testClassWithMethods);
-
-    //                // Wenn keine Compiler-Fehler mehr existieren, ist das Ziel erreicht
-    //                if (result.CompilerErrors == null || !result.CompilerErrors.Any())
-    //                {
-    //                    break;
-    //                }
-
-    //                // Sonderfall abfangen (falls gewünscht)
-    //                if (result.CompilerErrors.Any(i => i.Contains("Could not automatically resolve a NuGet package for the namespace(s)")))
-    //                {
-    //                    // Hier ggf. Logik einbauen oder mitsenden
-    //                }
-
-    //                // Fehler für das LLM aufbereiten
-    //                var errorsText = string.Join("\n", result.CompilerErrors);
-    //                var errorPrompt = aiPromptBuilderSimple.FixUnittestPromptSimple(errorsText, testClassWithMethods);
-
-    //                var systemPrompt = "Du bist ein präziser C#-Compiler-Assistent. Deine einzige Aufgabe ist es, " +
-    //                                   "Syntax- und Kompilierfehler in bereitgestelltem C#-Code exakt zu reparieren " +
-    //                                   "und lauffähigen Code ohne Text-Erklärungen zurückzugeben.\n";
-
-    //                // LLM um Korrektur bitten (nutzt den optimierten Prompt ohne Erklärungen)
-    //                var correctedOutput = await localLlmClient.AskAsync(errorPrompt, systemPrompt);
-
-    //                // Code wieder extrahieren für den nächsten Schleifendurchlauf
-    //                testClassWithMethods = ExtractTestClass(correctedOutput);
-    //            }
-
-    //            // 3. Nach der Schleife prüfen, ob es am Ende geklappt hat
-    //            if (result != null && result.CompilerErrors?.Any() == true)
-    //            {
-    //                // Hier Logik einfügen, falls der Code auch nach 3 Versuchen noch Fehler hat
-    //                Console.WriteLine($"Kompilierung fehlgeschlagen nach {MaxRetries} Versuchen.");
-    //            }
-    //            else
-    //            {
-    //                Console.WriteLine("Unit Test erfolgreich repariert und kompiliert!");
-    //            }
-
-
-
-
-
-
-    //            return "ok .....";
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        return ex.Message;
-    //    }
-    //}
-
-
-   // public async Task<string> ProcessProject(string projectDir, string prompt, Action<string>? logInfo = null)
     public async Task<string> ProcessProjectAsync(string sourceFilePath, string testProjectDirectory, Action<string>? logInfo = null)
     {
         try
         {
-
             sourceFilePath = Path.Combine(sourceFilePath, "MainWindow.xaml.cs");
-
-
-
 
 
             // Sicherheitsprüfung: Existiert die Quellcodedatei überhaupt?
@@ -261,31 +95,126 @@ public class ResxTranslationOrchestrator
                 TestGenerationResult? result = null;
                 bool isCompiledSuccessfully = false;
 
-                for (int attempt = 1; attempt <= MaxRetries; attempt++)
+                int aiAttempts = 0;
+                int envAttempts = 0;
+
+                const int MaxAiRetries = 3;   // wie bisher: AI-Reparaturversuche
+                const int MaxEnvRetries = 3;  // zusätzlich: Umgebungs-Retries (ohne AI)
+
+                while (true)
                 {
-                    // Für die Compiler-Validierung stecken wir den puren Testmethoden-Code in ein temporäres Klassengerüst
-                    string validationClassStructure = PrepareValidationStructure(testClassName, targetClass.Parent as NamespaceDeclarationSyntax, testMethodCode);
+                    if (aiAttempts >= MaxAiRetries)
+                    {
+                        logInfo?.Invoke($"[NetAI] Reached {MaxAiRetries} AI repair attempts for '{methodName}'. Giving up.");
+                        break;
+                    }
+
+                    if (envAttempts >= MaxEnvRetries)
+                    {
+                        logInfo?.Invoke($"[NetAI] Reached {MaxEnvRetries} environment retries for '{methodName}'. " +
+                                        $"Close Visual Studio / the running app and try again. " +
+                                        $"Last known test class: {result?.TestClassPath}");
+                        break;
+                    }
+
+                    string validationClassStructure = PrepareValidationStructure(
+                        testClassName,
+                        targetClass.Parent as NamespaceDeclarationSyntax,
+                        testMethodCode);
+
+                    // -----------------------------------------------------------------
+                    // NEU: Roslyn-basiertes Beautify + automatische using-Ergänzung
+                    //     (Test-Framework: xUnit, Mock-Framework wird aus dem Code erkannt)
+                    // -----------------------------------------------------------------
+                    validationClassStructure = await _testCodeBeautifier.BeautifyAndAddUsingsAsync(
+                        validationClassStructure,
+                        testFramework: TestFramework.xUnit,
+                        mockFramework: MockFramework.Unknown); // Unknown ⇒ reine Muster-Erkennung
 
                     // Code gegen den echten C#-Compiler prüfen
                     result = await manager.SetupAndValidateTestAsync(sourceFilePath, validationClassStructure);
 
-                    // Wenn keine Fehler zurückgegeben wurden, ist die Methode valide!
-                    if (result.CompilerErrors == null || !result.CompilerErrors.Any())
+                    // -----------------------------------------------------------------
+                    // 1) Erfolg
+                    // -----------------------------------------------------------------
+                    if (result.IsSuccess)
                     {
                         isCompiledSuccessfully = true;
+
+                        // Wichtig: der Manager kann Usings ergänzt oder andere kleine Fixes
+                        // gemacht haben. Wenn ja, ist result.TestClassCode der tatsächlich
+                        // geschriebene Code – den übernehmen wir als neuen Stand.
+                        if (!string.IsNullOrEmpty(result.TestClassCode))
+                        {
+                            testMethodCode = ExtractTestClass(result.TestClassCode!);
+                        }
                         break;
                     }
 
-                    logInfo?.Invoke($"[NetAI] Test for '{methodName}' failed compilation (Attempt {attempt}/{MaxRetries}). Running AI repair loop...");
+                    // -----------------------------------------------------------------
+                    // 2) Umgebungsproblem (z. B. gesperrte DLL durch VS oder laufende App)
+                    //    → KEIN AI-Repair. Der generierte Code ist in Ordnung.
+                    // -----------------------------------------------------------------
+                    if (result.IsEnvironmentIssue)
+                    {
+                        envAttempts++;
+                        logInfo?.Invoke($"[NetAI] Environment issue while validating '{methodName}' " +
+                                        $"(env retry {envAttempts}/{MaxEnvRetries}). " +
+                                        $"Not asking the AI to repair – the test code itself is fine. " +
+                                        $"Cause: a referenced assembly is locked by another process.");
 
-                    if (result.CompilerErrors.Any(i => i.Contains("Could not automatically resolve a NuGet package for the namespace(s)")))
+                        // Kurz warten und denselben Code nochmal durchlaufen lassen.
+                        await Task.Delay(TimeSpan.FromSeconds(5));
+                        continue;
+                    }
+
+                    // -----------------------------------------------------------------
+                    // 3) Echter Compilerfehler → AI-Reparatur
+                    // -----------------------------------------------------------------
+                    aiAttempts++;
+                    logInfo?.Invoke($"[NetAI] Test for '{methodName}' failed compilation " +
+                                    $"(AI attempt {aiAttempts}/{MaxAiRetries}). Running AI repair loop...");
+
+                    if (result.CompilerErrors?.Any(i =>
+                            i.Contains("Could not automatically resolve a NuGet package for the namespace(s)")) == true)
                     {
                         logInfo?.Invoke("[NetAI] Warning: Missing NuGet dependencies detected in generated test.");
                     }
 
-                    // Fehlertexte sammeln und Reparatur-Prompt an die KI senden
-                    var errorsText = string.Join("\n", result.CompilerErrors);
-                    var errorPrompt = aiPromptBuilderSimple.FixUnittestPromptSimple(errorsText, validationClassStructure);
+                    if (result.RequiresRegeneration)
+                    {
+                        logInfo?.Invoke("[NetAI] The manager flagged the test code for regeneration " +
+                                        "(likely hallucinated types or invented members). " +
+                                        "The repair prompt will include concrete hints.");
+                    }
+
+                    var errorsText = string.Join("\n", result.CompilerErrors ?? Array.Empty<string>());
+
+                    // Der Manager kann den Code verändert haben (z. B. Usings ergänzt).
+                    // Wenn ja, diesen Stand als Basis nehmen – sonst das ursprüngliche Gerüst.
+                    var codeForRepair = result.TestClassCode ?? validationClassStructure;
+
+                    // Erst Roslyn versuchen zu lassen, triviale Fehler (fehlende usings) zu fixen,
+                    // damit die AI sich auf echte inhaltliche Fehler konzentrieren kann.
+                    if (result.CompilerErrors?.Any() == true)
+                    {
+                        var roslynFixed = await _testCodeBeautifier.TryFixCompilerErrorsAsync(
+                            codeForRepair,
+                            result.CompilerErrors);
+
+                        if (!string.Equals(roslynFixed, codeForRepair, StringComparison.Ordinal))
+                        {
+                            logInfo?.Invoke("[NetAI] Roslyn hat fehlende usings automatisch ergänzt – " +
+                                            "erneuter Compile-Versuch ohne AI.");
+
+                            testMethodCode = ExtractTestClass(roslynFixed);
+                            continue; // zurück in die while-Schleife → erneute Validierung
+                        }
+                    }
+
+
+
+                    var errorPrompt = aiPromptBuilderSimple.FixUnittestPromptSimple(errorsText, codeForRepair);
 
                     var systemPrompt = "Du bist ein präziser C#-Compiler-Assistent. Deine einzige Aufgabe ist es, " +
                                        "Syntax- und Kompilierfehler in bereitgestelltem C#-Code exakt zu reparieren " +
