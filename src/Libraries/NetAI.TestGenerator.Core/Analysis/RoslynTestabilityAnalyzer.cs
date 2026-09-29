@@ -1,8 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.MSBuild;
-using System.Text;
+using Microsoft.CodeAnalysis.MSBuild;   // <- MSBuildWorkspace
+using Microsoft.Build.Locator;          // <- MSBuildLocator
+
+
 
 namespace NetAI.TestGenerator.Core.Analysis;
 
@@ -81,8 +83,8 @@ public sealed class RoslynTestabilityAnalyzer
             ?? throw new InvalidOperationException(
                 $"Methode '{methodName}' wurde im Dokument nicht gefunden.");
 
-        var methodSymbol = model.GetDeclaredSymbol(methodDecl, ct)
-            ?? throw new InvalidOperationException("Kein Symbol für die Methode gefunden.");
+        var methodSymbol = model.GetDeclaredSymbol(methodDecl, ct) as IMethodSymbol
+                           ?? throw new InvalidOperationException("Kein Methodensymbol gefunden.");
 
         return BuildReport(document, methodSymbol, methodDecl, model, compilation);
     }
