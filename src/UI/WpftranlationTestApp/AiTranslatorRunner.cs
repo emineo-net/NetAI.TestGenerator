@@ -43,7 +43,22 @@ public class AiTranslatorRunner
             return false;
         }
 
-        var result = await orchestrator.ProcessProjectAsync(ProjectDir, prompt); //, translator); //, logInfo, supportedLanguagesOverride);
+        string projectDir = ProjectDir.TrimEnd(Path.DirectorySeparatorChar);
+
+        // 2. Den reinen Projektnamen extrahieren (z. B. "WpftranlationTestApp")
+        string projectName = Path.GetFileName(projectDir);
+
+        // 3. Generisch das Solution-Root-Verzeichnis finden
+        string solutionDir = FindSolutionRoot(projectDir);
+
+        if (solutionDir != null)
+        {
+            // 4. Den Zielpfad immer fix unter "tests\UnitTests\" zusammenbauen
+            string testProjectDirectory = Path.Combine(solutionDir, "tests", "UnitTests", $"{projectName}.Tests");
+
+            // Ergebnis: C:\Users\steph\source\repos\NetAI.TestGenerator\tests\UnitTests\WpftranlationTestApp.Tests
+      
+        var result = await orchestrator.ProcessProjectAsync(@"C:\Users\steph\source\repos\NetAI.TestGenerator\src\UI\WpftranlationTestApp\MainWindow.xaml.cs", testProjectDirectory); //, translator); //, logInfo, supportedLanguagesOverride);
 
         if (result.Contains("error"))
         {
@@ -53,6 +68,39 @@ public class AiTranslatorRunner
 
         logInfo("✅ KI-Resx-Translator: Analyse abgeschlossen.");
         return true;
+        }
+        else
+        {
+            // Fallback, falls keine .sln-Datei gefunden wurde
+            throw new DirectoryNotFoundException("Solution-Verzeichnis konnte nicht ermittelt werden.");
+        }
+
     }
+
+    static string FindSolutionRoot(string currentDir)
+    {
+        DirectoryInfo directory = new DirectoryInfo(currentDir);
+
+        while (directory != null)
+        {
+            // Holt alle Dateien und prüft, ob eine davon auf .sln oder .slnx endet
+            bool hasSolutionFile = directory.GetFiles()
+                .Any(f => f.Extension.Equals(".sln", StringComparison.OrdinalIgnoreCase) ||
+                          f.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase));
+
+            if (hasSolutionFile)
+            {
+                return directory.FullName;
+            }
+
+            // Eine Ebene nach oben gehen
+            directory = directory.Parent;
+        }
+
+        return null;
+    }
+
+
+
 
 }

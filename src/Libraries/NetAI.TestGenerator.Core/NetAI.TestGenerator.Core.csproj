@@ -1,28 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
-
+		<TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<!-- Globale Abhängigkeiten für alle Zielframeworks -->
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.Bcl.Memory" />
-	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
-	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
-	  <PackageReference Include="Newtonsoft.Json" />
-	  <PackageReference Include="Scriban" />
+		<PackageReference Include="Microsoft.Bcl.Memory"  />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+		<PackageReference Include="Newtonsoft.Json"  />
+		<PackageReference Include="Scriban"/>
 	</ItemGroup>
 
+	<!-- Nur für moderne Runtimes (net8.0, net9.0, net10.0) -->
 	<ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
-		<PackageReference Include="Microsoft.Build.Locator"  ExcludeAssets="runtime" PrivateAssets="all"/>
-		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild"  ExcludeAssets="runtime" PrivateAssets="all"/>
+		<PackageReference Include="Microsoft.Build.Locator"/>
+
+		<!-- Ändern Sie dies exakt so: compile und build werden erlaubt, runtime wird isoliert -->
+		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild">
+			<IncludeAssets>compile;build;transitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
 	</ItemGroup>
 
-	<PropertyGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
-		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+	<!-- Erzwingt die Konstante NETSTANDARD2_0, falls das Target netstandard2.0 ist -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<DefineConstants>$(DefineConstants);NETSTANDARD2_0</DefineConstants>
 	</PropertyGroup>
 
 </Project>

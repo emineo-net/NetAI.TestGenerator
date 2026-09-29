@@ -23,7 +23,7 @@ public partial class MainWindow : Window
         // Angenommen, du analysierst gerade einen "OrderController"
         var finalPrompt = await builder.BuildSystemPromptAsync();
 
-        var classCode = File.ReadAllText(@"C:\Users\steph\source\repos\NetAI.TestGenerator\src\Libraries\NetAI.TestGenerator.Core\LocalLlmClient.cs");
+        var classCode = File.ReadAllText(@"C:\Users\steph\source\repos\NetAI.TestGenerator\src\UI\WpftranlationTestApp\MainWindow.xaml.cs");
 
         var fertigerPrompt = builder.GeneratePrompt(
             klassenCode: classCode,

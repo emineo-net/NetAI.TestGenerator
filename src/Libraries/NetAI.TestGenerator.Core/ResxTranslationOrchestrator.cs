@@ -1,10 +1,11 @@
 ﻿using DotNet10TestGenerator;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NetAI.TestGenerator.Core.Analysis;
+using NetAI.TestGenerator.Core.Models.Enums;
 using NetAI.TestGenerator.Core.Services;
 using System.Text;
 using System.Text.RegularExpressions;
-using NetAI.TestGenerator.Core.Models.Enums;
 
 namespace NetAI.TestGenerator.Core;
 
@@ -30,9 +31,6 @@ public class ResxTranslationOrchestrator
     {
         try
         {
-            sourceFilePath = Path.Combine(sourceFilePath, "MainWindow.xaml.cs");
-
-
             // Sicherheitsprüfung: Existiert die Quellcodedatei überhaupt?
             if (string.IsNullOrWhiteSpace(sourceFilePath) || !File.Exists(sourceFilePath))
             {
@@ -63,9 +61,24 @@ public class ResxTranslationOrchestrator
             var aiPromptBuilderSimple = new AiPromptBuilderSimple();
             var manager = new TestProjectManager();
 
+            // -----------------------------------------------------------------
+            // NEU: Compiler-Service-Adapter + TestCodeProcessor
+            //     Der Adapter mappt ICompilerService auf den vorhandenen Manager,
+            //     damit der Prozessor dieselbe Compile-Strategie nutzt wie der
+            //     restliche Orchestrator.
+            // -----------------------------------------------------------------
+            var compilerService = new TestProjectManagerCompilerService(
+                code => manager.SetupAndValidateTestAsync(sourceFilePath, code));
+
+            var testCodeProcessor = new TestCodeProcessor(compilerService);
+            // -----------------------------------------------------------------
+
             // 3. Jede Methode der Quellklasse einzeln prüfen
             foreach (var method in sourceMethods)
             {
+                var methodString = method.ToString();
+
+
                 string methodName = method.Identifier.Text;
 
                 // Prüfen, ob der Methodenname bereits in einer der existierenden Testmethoden vorkommt
@@ -79,13 +92,23 @@ public class ResxTranslationOrchestrator
 
                 logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
 
-                // 4. Prompt dynamisch für diese spezifische Methode aufbauen
-                // Hier übergeben wir den exakten Code der ungetesteten Methode an die KI
-                string basePrompt = $"Erstelle eine präzise, lauffähige xUnit Unit-Test-Methode (mit [Fact]) für die Methode '{methodName}' aus der Klasse '{className}'. Hier ist der Quellcode der Methode:\n\n{method.ToString()}";
+
+                logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
+
+                // 4. Klassen-Skelett (Felder + Methode + genutzte Hilfsmethoden) als Kontext
+                string classSkeleton = BuildClassSkeleton(targetClass, method);
+
+                string basePrompt =
+                    $"Erstelle eine präzise, lauffähige xUnit Unit-Test-Methode (mit [Fact]) für die Methode '{methodName}' " +
+                    $"aus der Klasse '{className}'.\n\n" +
+                    $"Relevanter Kontext (Usings, Felder, zu testende Methode, aufgerufene Hilfsmethoden):\n\n" +
+                    $"{classSkeleton}";
 
                 // Ersten Testentwurf von der KI anfordern
-                var newTestClassResponse = await localLlmClient.AskAsync(basePrompt, "Du bist ein C#-Test-Experte. Antworte ausschließlich mit lauffähigem C#-Code ohne Erklärungen.");
-                newTestClassResponse = newTestClassResponse.Replace("using NSubstitute;", "");
+                var newTestClassResponse = await localLlmClient.AskAsync(
+                    basePrompt,
+                    "Du bist ein C#-Test-Experte. Antworte ausschließlich mit lauffähigem C#-Code ohne Erklärungen.");
+
 
                 // Reinen Methoden-Code (oder falls die KI fälschlicherweise eine Klasse generiert hat) isolieren
                 string testMethodCode = ExtractTestClass(newTestClassResponse);
@@ -98,8 +121,8 @@ public class ResxTranslationOrchestrator
                 int aiAttempts = 0;
                 int envAttempts = 0;
 
-                const int MaxAiRetries = 3;   // wie bisher: AI-Reparaturversuche
-                const int MaxEnvRetries = 3;  // zusätzlich: Umgebungs-Retries (ohne AI)
+                const int MaxAiRetries = 2;   // wie bisher: AI-Reparaturversuche
+                const int MaxEnvRetries = 2;  // zusätzlich: Umgebungs-Retries (ohne AI)
 
                 while (true)
                 {
@@ -123,10 +146,13 @@ public class ResxTranslationOrchestrator
                         testMethodCode);
 
                     // -----------------------------------------------------------------
-                    // NEU: Roslyn-basiertes Beautify + automatische using-Ergänzung
-                    //     (Test-Framework: xUnit, Mock-Framework wird aus dem Code erkannt)
+                    // NEU: TestCodeProcessor übernimmt
+                    //   - Usings ergänzen (Muster-Erkennung + Framework)
+                    //   - Usings sortieren
+                    //   - Formatieren
+                    //   - Compile + automatisches Fixen fehlender usings (TryFixMissingUsing)
                     // -----------------------------------------------------------------
-                    validationClassStructure = await _testCodeBeautifier.BeautifyAndAddUsingsAsync(
+                    validationClassStructure = await testCodeProcessor.ProcessTestClassAsync(
                         validationClassStructure,
                         testFramework: TestFramework.xUnit,
                         mockFramework: MockFramework.Unknown); // Unknown ⇒ reine Muster-Erkennung
@@ -196,6 +222,8 @@ public class ResxTranslationOrchestrator
 
                     // Erst Roslyn versuchen zu lassen, triviale Fehler (fehlende usings) zu fixen,
                     // damit die AI sich auf echte inhaltliche Fehler konzentrieren kann.
+                    // Hinweis: der TestCodeProcessor hat bereits versucht, usings zu fixen –
+                    // hier werden zusätzlich die vom Manager gemeldeten Fehler adressiert.
                     if (result.CompilerErrors?.Any() == true)
                     {
                         var roslynFixed = await _testCodeBeautifier.TryFixCompilerErrorsAsync(
@@ -279,6 +307,107 @@ namespace {namespaceName}
 }}";
     }
 
+
+    private static string BuildClassSkeleton(
+    ClassDeclarationSyntax targetClass,
+    MethodDeclarationSyntax targetMethod,
+    bool includeProperties = true,
+    bool includeConstructors = true,
+    bool includeRecursiveHelpers = true)
+    {
+        var sb = new StringBuilder();
+
+        // --- 0) Usings der Quelldatei (sehr wertvoll für die KI) ---
+        var usings = targetClass.SyntaxTree
+            .GetCompilationUnitRoot()
+            .Usings;
+
+        if (usings.Any())
+        {
+            foreach (var u in usings)
+                sb.AppendLine(u.ToFullString().TrimEnd());
+            sb.AppendLine();
+        }
+
+        // --- 1) Felder ---
+        foreach (var field in targetClass.Members.OfType<FieldDeclarationSyntax>())
+            sb.AppendLine(field.ToFullString().TrimEnd());
+
+        // --- 2) Properties (optional) ---
+        if (includeProperties)
+            foreach (var prop in targetClass.Members.OfType<PropertyDeclarationSyntax>())
+                sb.AppendLine(prop.ToFullString().TrimEnd());
+
+        // --- 3) Konstruktoren (optional, oft wichtig für Setup) ---
+        if (includeConstructors)
+            foreach (var ctor in targetClass.Members.OfType<ConstructorDeclarationSyntax>())
+                sb.AppendLine(ctor.ToFullString().TrimEnd());
+
+        // --- 4) Zu testende Methode ---
+        sb.AppendLine();
+        sb.AppendLine(targetMethod.ToFullString().TrimEnd());
+
+        // --- 5) Rekursiv aufgerufene Hilfsmethoden ---
+        var collectedHelpers = new HashSet<string>(StringComparer.Ordinal);
+        var helperSb = new StringBuilder();
+
+        void CollectHelpers(MethodDeclarationSyntax method)
+        {
+            foreach (var calledName in GetCalledMethodNames(method))
+            {
+                if (!collectedHelpers.Add(calledName)) continue;
+
+                var helper = targetClass.Members
+                    .OfType<MethodDeclarationSyntax>()
+                    .FirstOrDefault(m => m.Identifier.Text == calledName);
+
+                if (helper is null) continue;
+
+                helperSb.AppendLine(helper.ToFullString().TrimEnd());
+
+                if (includeRecursiveHelpers)
+                    CollectHelpers(helper);
+            }
+        }
+
+        CollectHelpers(targetMethod);
+
+        if (helperSb.Length > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("// --- Helper methods called by the method above ---");
+            sb.Append(helperSb);
+        }
+
+        return sb.ToString().Trim();
+    }
+
+
+
+    /// <summary>
+    /// Liefert die Namen aller Methoden, die innerhalb von <paramref name="method"/> aufgerufen werden.
+    /// Erkennt sowohl <c>Foo()</c> als auch <c>this.Foo()</c> / <c>obj.Foo()</c>.
+    /// </summary>
+    private static IEnumerable<string> GetCalledMethodNames(MethodDeclarationSyntax method)
+    {
+        foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        {
+            switch (invocation.Expression)
+            {
+                case IdentifierNameSyntax id:
+                    yield return id.Identifier.Text;
+                    break;
+
+                case MemberAccessExpressionSyntax ma:
+                    yield return ma.Name.Identifier.Text;
+                    break;
+
+                case GenericNameSyntax gen:
+                    yield return gen.Identifier.Text;
+                    break;
+            }
+        }
+    }
 
     public static string ExtractTestClass(string aiResponse)
     {

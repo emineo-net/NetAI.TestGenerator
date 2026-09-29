@@ -2,44 +2,34 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Text;
 using NetAI.TestGenerator.Core.Models.Enums;
-using NetAI.TestGenerator.Core.Services;
-using System.Collections.Immutable;
-using System.Text;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace NetAI.TestGenerator.Core.Services;
 
 public class TestCodeProcessor
 {
+    private const int MaxFixIterations = 5;
+
     private readonly ICompilerService _compilerService;
     private readonly AdhocWorkspace _workspace;
+    private readonly TestCodeBeautifier _beautifier;
 
     public TestCodeProcessor(ICompilerService compilerService)
     {
-        _compilerService = compilerService ?? throw new ArgumentNullException(nameof(compilerService));
+        _compilerService = compilerService
+            ?? throw new ArgumentNullException(nameof(compilerService));
 
-        // Ein AdhocWorkspace ist notwendig, damit Roslyn Formatierungs- und
-        // Workspace-Operationen (z. B. Formatter.FormatAsync) ausführen kann.
         _workspace = new AdhocWorkspace();
+        _beautifier = new TestCodeBeautifier();
     }
 
     // -----------------------------------------------------------------
-    //  Öffentliche Einstiegspunkt‑Methode
+    //  Öffentlicher Einstiegspunkt
     // -----------------------------------------------------------------
 
-    /// <summary>
-    /// Verarbeitet den übergebenen Testklassen-Code vollständig:
-    /// 1. Fehlende Usings hinzufügen (abhängig von Test-/Mock-Framework)
-    /// 2. Code mit Roslyn formatieren
-    /// 3. Compiler aufrufen und Diagnosen abrufen
-    /// 4. Compiler-Fehler so weit wie möglich automatisch beheben
-    /// </summary>
-    /// <param name="sourceCode">Der ursprüngliche C#-Code der Testklasse.</param>
-    /// <param name="testFramework">Das verwendete Test-Framework.</param>
-    /// <param name="mockFramework">Das verwendete Mock-Framework.</param>
-    /// <param name="cancellationToken">Abbruch-Token.</param>
-    /// <returns>Der optimierte Quellcode.</returns>
     public async Task<string> ProcessTestClassAsync(
         string sourceCode,
         TestFramework testFramework,
@@ -49,144 +39,325 @@ public class TestCodeProcessor
         if (string.IsNullOrWhiteSpace(sourceCode))
             throw new ArgumentException("Der Quellcode darf nicht leer sein.", nameof(sourceCode));
 
-        // 1. Syntaxbaum aus dem übergebenen Code erzeugen
-        SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(
-            sourceCode,
-            new CSharpParseOptions(LanguageVersion.Latest),
-            cancellationToken: cancellationToken);
+        // 1. Usings ergänzen, Muster erkennen, sortieren, formatieren
+        string currentCode = await _beautifier.BeautifyAndAddUsingsAsync(
+            sourceCode, testFramework, mockFramework, cancellationToken);
 
-        CompilationUnitSyntax root = (CompilationUnitSyntax)await syntaxTree.GetRootAsync(cancellationToken);
-
-        // 2. Fehlende Usings hinzufügen
-        root = AddRequiredUsings(root, testFramework, mockFramework);
-
-        // 3. Code formatieren (Beautify)
-        Document document = CreateDocumentFromRoot(root, cancellationToken);
-        document = await Formatter.FormatAsync(document, cancellationToken: cancellationToken);
-        root = (CompilationUnitSyntax)await document.GetSyntaxRootAsync(cancellationToken);
-
-        // 4. Compiler aufrufen und Diagnosen abrufen
-        string currentCode = root.ToFullString();
+        // 2. Erste Kompilierung
         IReadOnlyList<Diagnostic> diagnostics = await _compilerService
             .CompileAndGetDiagnosticsAsync(currentCode, cancellationToken);
 
-        // 5. Compiler-Fehler so weit wie möglich beheben
-        int maxFixIterations = 5; // Sicherheitsgrenze, um Endlosschleifen zu vermeiden
+        // 3. Iterative Reparatur-Schleife
         int iteration = 0;
-
-        while (diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error) &&
-               iteration < maxFixIterations)
+        while (iteration < MaxFixIterations &&
+               diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error))
         {
             iteration++;
 
-            var errors = diagnostics
-                .Where(d => d.Severity == DiagnosticSeverity.Error)
-                .ToList();
+            var tree = CSharpSyntaxTree.ParseText(
+                currentCode, cancellationToken: cancellationToken);
+            var root = (CompilationUnitSyntax)await tree.GetRootAsync(cancellationToken);
 
             bool anyFixed = false;
 
-            foreach (var error in errors)
+            foreach (var error in diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error))
             {
-                // Fehlende Usings, die der Compiler meldet, können oft automatisch ergänzt werden
-                if (error.Id == "CS0246" || error.Id == "CS0234" || error.Id == "CS0103")
+                if (TryFixMissingUsing(root, error, testFramework, mockFramework, out var newRoot))
                 {
-                    // Der Compiler hat uns bereits die nötigen Informationen geliefert.
-                    // In diesem Beispiel versuchen wir, den fehlenden Typ über den Namen zu finden.
-                    // In einem echten Szenario würden wir hier die Semantik nutzen.
-                    anyFixed |= TryFixMissingUsing(root, error, ref root);
+                    root = newRoot;
+                    anyFixed = true;
                 }
             }
 
-            // Wenn wir nichts geändert haben, können wir die Schleife abbrechen.
             if (!anyFixed)
                 break;
 
-            // Nach der Änderung erneut formatieren und kompilieren
-            document = CreateDocumentFromRoot(root, cancellationToken);
-            document = await Formatter.FormatAsync(document, cancellationToken: cancellationToken);
-            root = (CompilationUnitSyntax)await document.GetSyntaxRootAsync(cancellationToken);
+            // Usings sortieren und Code neu formatieren
+            root = SortUsings(root);
+            var doc = CreateDocumentFromRoot(root, cancellationToken);
+            doc = await Formatter.FormatAsync(doc, cancellationToken: cancellationToken);
+            root = (CompilationUnitSyntax)await doc.GetSyntaxRootAsync(cancellationToken);
 
             currentCode = root.ToFullString();
+
+            // Erneut kompilieren, um zu prüfen, ob es noch Fehler gibt
             diagnostics = await _compilerService
                 .CompileAndGetDiagnosticsAsync(currentCode, cancellationToken);
         }
 
-        // 6. Endergebnis zurückgeben
-        return root.ToFullString();
+        return currentCode;
     }
 
     // -----------------------------------------------------------------
-    //  Hilfsmethoden
+    //  Kernstück: fehlendes using anhand eines Diagnostics beheben
     // -----------------------------------------------------------------
 
-    /// <summary>
-    /// Fügt die für das angegebene Test- und Mock-Framework notwendigen
-    /// using-Direktiven hinzu, falls sie noch nicht vorhanden sind.
-    /// </summary>
-    private static CompilationUnitSyntax AddRequiredUsings(
+    private static bool TryFixMissingUsing(
         CompilationUnitSyntax root,
+        Diagnostic error,
+        TestFramework testFramework,
+        MockFramework mockFramework,
+        out CompilationUnitSyntax updatedRoot)
+    {
+        updatedRoot = root;
+
+        if (error.Severity != DiagnosticSeverity.Error)
+            return false;
+
+        // Nur die relevanten Compiler-Fehler behandeln:
+        //   CS0246 - Typ oder Namespace nicht gefunden
+        //   CS0234 - Typ/Namespace existiert nicht im angegebenen Namespace
+        //   CS0103 - Name existiert nicht im aktuellen Kontext
+        if (error.Id != "CS0246" && error.Id != "CS0234" && error.Id != "CS0103")
+            return false;
+
+        string message = error.GetMessage();
+        if (!TryExtractMissingName(error.Id, message, out string missingName))
+            return false;
+
+        // Generische Arity entfernen: "ILogger<>" -> "ILogger"
+        missingName = NormalizeGenericName(missingName);
+
+        string? ns = MapTypeToNamespace(
+            missingName, error.Id, testFramework, mockFramework);
+
+        if (string.IsNullOrEmpty(ns))
+            return false;
+
+        if (HasUsing(root, ns))
+            return false;
+
+        var usingDirective = SyntaxFactory
+            .UsingDirective(SyntaxFactory.ParseName(ns))
+            .NormalizeWhitespace();
+
+        updatedRoot = root.AddUsings(usingDirective);
+        return true;
+    }
+
+    // -----------------------------------------------------------------
+    //  Fehlernamen aus der Diagnose-Message extrahieren
+    // -----------------------------------------------------------------
+
+    private static bool TryExtractMissingName(
+        string errorId,
+        string message,
+        out string missingName)
+    {
+        missingName = string.Empty;
+        if (string.IsNullOrWhiteSpace(message))
+            return false;
+
+        switch (errorId)
+        {
+            case "CS0246":
+                {
+                    // "The type or namespace name 'X' could not be found (are you ...)"
+                    var m = Regex.Match(
+                        message,
+                        @"type or namespace name '([^']+)' could not be found",
+                        RegexOptions.IgnoreCase);
+                    if (m.Success)
+                    {
+                        missingName = m.Groups[1].Value;
+                        return true;
+                    }
+                    break;
+                }
+
+            case "CS0234":
+                {
+                    // "The type or namespace name 'X' does not exist in the namespace 'Y' ..."
+                    var m = Regex.Match(
+                        message,
+                        @"type or namespace name '([^']+)' does not exist in the namespace '([^']+)'",
+                        RegexOptions.IgnoreCase);
+                    if (m.Success)
+                    {
+                        // Vollqualifizierter Name: Y.X
+                        missingName = m.Groups[2].Value + "." + m.Groups[1].Value;
+                        return true;
+                    }
+                    break;
+                }
+
+            case "CS0103":
+                {
+                    // "The name 'X' does not exist in the current context"
+                    var m = Regex.Match(
+                        message,
+                        @"The name '([^']+)' does not exist in the current context",
+                        RegexOptions.IgnoreCase);
+                    if (m.Success)
+                    {
+                        missingName = m.Groups[1].Value;
+                        return true;
+                    }
+                    break;
+                }
+        }
+
+        return false;
+    }
+
+    // -----------------------------------------------------------------
+    //  Namensauflösung: Typ -> using-Namespace
+    // -----------------------------------------------------------------
+
+    private static string? MapTypeToNamespace(
+        string missingName,
+        string errorId,
         TestFramework testFramework,
         MockFramework mockFramework)
     {
-        var requiredUsings = new HashSet<string>(StringComparer.Ordinal);
+        // CS0234 liefert bereits einen vollqualifizierten Namen
+        if (errorId == "CS0234" && missingName.Contains('.'))
+            return missingName;
 
-        // --- Test-Framework-spezifische Usings ---
-        switch (testFramework)
+        // --- Test-Framework-abhängige Auflösung ---
+        switch (missingName)
         {
-            case TestFramework.NUnit:
-                requiredUsings.Add("NUnit.Framework");
-                break;
-            case TestFramework.xUnit:
-                requiredUsings.Add("Xunit");
-                break;
-            case TestFramework.MSTest:
-                requiredUsings.Add("Microsoft.VisualStudio.TestTools.UnitTesting");
-                break;
+            case "Assert":
+                return testFramework switch
+                {
+                    TestFramework.NUnit => "NUnit.Framework",
+                    TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting",
+                    _ => "Xunit",
+                };
+
+            case "Test":
+                return testFramework switch
+                {
+                    TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting",
+                    _ => "NUnit.Framework",
+                };
+
+            case "Fact":
+            case "Theory":
+            case "InlineData":
+            case "MemberData":
+            case "ClassData":
+            case "IClassFixture":
+            case "ICollectionFixture":
+                return "Xunit";
+
+            case "ITestOutputHelper":
+                return "Xunit.Abstractions";
+
+            case "TestFixture":
+            case "SetUp":
+            case "TearDown":
+            case "OneTimeSetUp":
+            case "OneTimeTearDown":
+            case "TestCase":
+            case "TestCaseSource":
+            case "TestFixtureSetUp":
+            case "TestFixtureTearDown":
+                return "NUnit.Framework";
+
+            case "TestClass":
+            case "TestMethod":
+            case "TestInitialize":
+            case "TestCleanup":
+            case "ClassInitialize":
+            case "ClassCleanup":
+            case "AssemblyInitialize":
+            case "AssemblyCleanup":
+            case "ExpectedException":
+                return "Microsoft.VisualStudio.TestTools.UnitTesting";
         }
 
-        // --- Mock-Framework-spezifische Usings ---
-        switch (mockFramework)
+        // --- Mock-Framework-abhängige Auflösung ---
+        switch (missingName)
         {
-            case MockFramework.Moq:
-                requiredUsings.Add("Moq");
-                break;
-            case MockFramework.NSubstitute:
-                requiredUsings.Add("NSubstitute");
-                break;
-            case MockFramework.FakeItEasy:
-                requiredUsings.Add("FakeItEasy");
-                break;
+            case "Mock":
+            case "It":
+            case "Times":
+            case "MockBehavior":
+            case "MockRepository":
+            case "MockSequence":
+                return "Moq";
+
+            case "Substitute":
+            case "Arg":
+            case "Received":
+            case "Returns":
+            case "CallInfo":
+                return "NSubstitute";
+
+            case "A":
+            case "Fake":
+            case "FakeOptions":
+                return "FakeItEasy";
         }
 
-        // Vorhandene Usings sammeln, um Duplikate zu vermeiden
-        var existingNames = new HashSet<string>(
-            root.Usings
-                .Select(u => u.Name?.ToString())
-                .Where(n => n != null)!,
-            StringComparer.Ordinal);
-
-        var usingsToAdd = requiredUsings
-            .Where(ns => !existingNames.Contains(ns))
-            .Select(ns => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns))
-                                            .NormalizeWhitespace())
-            .ToArray();
-
-        if (usingsToAdd.Length > 0)
+        // --- BCL und gängige Erweiterungen ---
+        return missingName switch
         {
-            // AddUsings hängt die neuen using-Direktiven an die Liste der
-            // bereits vorhandenen an. Die Methode ist Teil von
-            // CompilationUnitSyntax und arbeitet mit unveränderlichen Knoten.
-            root = root.AddUsings(usingsToAdd);
-        }
-
-        return root;
+            "Task" or "ValueTask" or "TaskCompletionSource" => "System.Threading.Tasks",
+            "CancellationToken" or "CancellationTokenSource" => "System.Threading",
+            "List" or "Dictionary" or "IEnumerable" or "IReadOnlyList"
+                or "IReadOnlyDictionary" or "IDictionary" or "IList"
+                or "HashSet" or "ISet" or "ICollection" or "IReadOnlyCollection"
+                or "KeyValuePair" or "Queue" or "Stack" or "LinkedList"
+                => "System.Collections.Generic",
+            "ImmutableArray" or "ImmutableList" or "ImmutableDictionary"
+                or "ImmutableHashSet" => "System.Collections.Immutable",
+            "Regex" or "Match" or "MatchCollection" => "System.Text.RegularExpressions",
+            "StringBuilder" or "Encoding" => "System.Text",
+            "JsonSerializer" or "JsonDocument" or "JsonElement"
+                or "JsonSerializerOptions" or "JsonNamingPolicy" => "System.Text.Json",
+            "JObject" or "JToken" or "JArray" or "JValue" => "Newtonsoft.Json.Linq",
+            "JsonConvert" => "Newtonsoft.Json",
+            "Debug" or "Trace" or "Stopwatch" or "Activity" => "System.Diagnostics",
+            "ILogger" or "ILoggerFactory" or "LogLevel" => "Microsoft.Extensions.Logging",
+            "NullLogger" => "Microsoft.Extensions.Logging.Abstractions",
+            "IOptions" or "IOptionsSnapshot" or "IOptionsMonitor" => "Microsoft.Extensions.Options",
+            "IConfiguration" or "IConfigurationBuilder" => "Microsoft.Extensions.Configuration",
+            "IServiceCollection" or "ServiceCollection" => "Microsoft.Extensions.DependencyInjection",
+            "IServiceProvider" or "Guid" or "DateTime" or "DateTimeOffset"
+                or "TimeSpan" or "Math" or "Console" or "Environment" or "Lazy"
+                or "Func" or "Action" or "Predicate" or "ArgumentException"
+                or "ArgumentNullException" or "InvalidOperationException"
+                or "NotImplementedException" or "NotSupportedException"
+                or "IDisposable" or "Nullable" or "Tuple" or "Uri" or "Random"
+                or "Convert" or "StringComparison" or "Exception" or "Object"
+                or "Type" or "Array" or "Comparer" or "EqualityComparer"
+                => "System",
+            _ => null,
+        };
     }
 
     /// <summary>
-    /// Erstellt ein Roslyn-Dokument aus einem CompilationUnitSyntax-Knoten.
-    /// Dies ist notwendig, weil einige APIs (z. B. Formatter.FormatAsync)
-    /// ein Document erwarten.
+    /// Entfernt generische Arity-Marker aus dem Typnamen.
+    /// "ILogger&lt;&gt;" -> "ILogger", "Dictionary&lt;,&gt;" -> "Dictionary"
     /// </summary>
+    private static string NormalizeGenericName(string name)
+    {
+        int idx = name.IndexOf('<');
+        return idx >= 0 ? name.Substring(0, idx) : name;
+    }
+
+    // -----------------------------------------------------------------
+    //  Kleine Helfer
+    // -----------------------------------------------------------------
+
+    private static bool HasUsing(CompilationUnitSyntax root, string namespaceName)
+    {
+        return root.Usings.Any(u =>
+            string.Equals(u.Name?.ToString(), namespaceName, StringComparison.Ordinal));
+    }
+
+    private static CompilationUnitSyntax SortUsings(CompilationUnitSyntax root)
+    {
+        var sorted = root.Usings
+            .OrderBy(u => u.Name?.ToString(), StringComparer.Ordinal)
+            .Select(u => u.NormalizeWhitespace())
+            .ToArray();
+
+        return root.WithUsings(SyntaxFactory.List(sorted));
+    }
+
     private Document CreateDocumentFromRoot(
         CompilationUnitSyntax root,
         CancellationToken cancellationToken)
@@ -199,29 +370,5 @@ public class TestCodeProcessor
             .AddDocument(documentId, "TestClass.cs", root.ToFullString());
 
         return solution.GetDocument(documentId)!;
-    }
-
-    /// <summary>
-    /// Versucht, einen vom Compiler gemeldeten Fehler zu beheben.
-    /// In diesem Beispiel wird nur der Fall "fehlendes using" behandelt.
-    /// </summary>
-    private static bool TryFixMissingUsing(
-        CompilationUnitSyntax root,
-        Diagnostic error,
-        ref CompilationUnitSyntax updatedRoot)
-    {
-        // Der Diagnostic liefert uns den Namen des Typs, der nicht gefunden wurde.
-        // In der Praxis würden wir hier die SemanticModel des Compilations nutzen,
-        // um den vollständigen Namespace zu ermitteln. Aus Platzgründen wird hier
-        // nur ein einfaches Beispiel gezeigt.
-
-        // Beispiel: Wenn der Fehler "CS0246: The type or namespace name 'X' could not be found"
-        // lautet, könnten wir versuchen, 'X' als using hinzuzufügen.
-        // Dies ist stark vereinfacht und dient nur der Demonstration.
-
-        // In einem echten Szenario würden wir die Message des Diagnostics parsen
-        // und den fehlenden Typ ermitteln.
-        // Für dieses Beispiel geben wir einfach false zurück, wenn wir nicht sicher sind.
-        return false;
     }
 }
