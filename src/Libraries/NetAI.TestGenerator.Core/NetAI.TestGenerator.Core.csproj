@@ -1,11 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
-		<!--<TargetFrameworks>net10.0</TargetFrameworks>-->
-		<!--Für das Projekt "..\NetAI.TestGenerator.Core\NetAI.TestGenerator.Core.csproj" ist die Zielversion net10.0 festgelegt. Eine Referenzierung durch ein Projekt mit der Zielversion .NETStandard,Version=v2.0 ist nicht möglich.-->
 
-		<!-- Schaltet die moderne C#-Sprachversion auch für ältere Runtimes wie netstandard2.0 frei -->
 		<LangVersion>latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
@@ -13,12 +10,19 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.Bcl.Memory" />
-	  <PackageReference Include="Microsoft.Build.Locator"  ExcludeAssets="runtime" PrivateAssets="all"/>
 	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
-	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  ExcludeAssets="runtime" PrivateAssets="all" />
-	  <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild"  ExcludeAssets="runtime" PrivateAssets="all" />
+	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
 	  <PackageReference Include="Newtonsoft.Json" />
 	  <PackageReference Include="Scriban" />
 	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+		<PackageReference Include="Microsoft.Build.Locator"  ExcludeAssets="runtime" PrivateAssets="all"/>
+		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild"  ExcludeAssets="runtime" PrivateAssets="all"/>
+	</ItemGroup>
+
+	<PropertyGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+	</PropertyGroup>
 
 </Project>
