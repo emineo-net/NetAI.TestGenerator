@@ -1,4 +1,5 @@
 ﻿using DotNet10TestGenerator;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NetAI.TestGenerator.Core.Analysis;
@@ -27,10 +28,37 @@ public class ResxTranslationOrchestrator
     }
 
 
-    public async Task<string> ProcessProjectAsync(string sourceFilePath, string testProjectDirectory, Action<string>? logInfo = null)
+    /// <summary>
+    /// Verarbeitet eine Quelldatei: prüft für jede Methode, ob bereits ein Test existiert,
+    /// und generiert bei Bedarf per KI einen neuen Test.
+    ///
+    /// Wenn eine <paramref name="compilation"/> übergeben wird, wird zusätzlich der
+    /// semantische Testbarkeits-Analyzer genutzt, um den KI-Prompt anzureichern
+    /// (Mockability, statische Abhängigkeiten, Konstruktoren, Empfehlungen).
+    /// Ohne Compilation bleibt das Verhalten rein syntaktisch.
+    /// </summary>
+    public async Task<string> ProcessProjectAsync(
+        string sourceFilePath,
+        string testProjectDirectory,
+        Action<string>? logInfo = null,
+        Compilation? compilation = null)
     {
         try
         {
+            bool tääästDebugger = true;
+
+#if DEBUG
+            if (tääästDebugger)
+            {
+                System.Diagnostics.Debugger.Launch();
+
+            }
+#endif
+
+
+
+
+
             // Sicherheitsprüfung: Existiert die Quellcodedatei überhaupt?
             if (string.IsNullOrWhiteSpace(sourceFilePath) || !File.Exists(sourceFilePath))
             {
@@ -73,6 +101,23 @@ public class ResxTranslationOrchestrator
             var testCodeProcessor = new TestCodeProcessor(compilerService);
             // -----------------------------------------------------------------
 
+            // -----------------------------------------------------------------
+            // NEU: Semantische Analyse vorbereiten.
+            //     Wird nur aktiv, wenn der Aufrufer eine Compilation übergeben hat
+            //     (z. B. aus dem Build-Task, der @(Compile) + @(ReferencePath) hat).
+            // -----------------------------------------------------------------
+            RoslynDllTestabilityAnalyzer? semanticAnalyzer = null;
+            if (compilation != null)
+            {
+                semanticAnalyzer = new RoslynDllTestabilityAnalyzer();
+                logInfo?.Invoke("[NetAI] Semantische Analyse verfügbar – KI-Prompts werden angereichert.");
+            }
+            else
+            {
+                logInfo?.Invoke("[NetAI] Keine Compilation übergeben – arbeite rein syntaktisch.");
+            }
+            // -----------------------------------------------------------------
+
             // 3. Jede Methode der Quellklasse einzeln prüfen
             foreach (var method in sourceMethods)
             {
@@ -98,11 +143,23 @@ public class ResxTranslationOrchestrator
                 // 4. Klassen-Skelett (Felder + Methode + genutzte Hilfsmethoden) als Kontext
                 string classSkeleton = BuildClassSkeleton(targetClass, method);
 
+                // -----------------------------------------------------------------
+                // NEU: Semantischen Kontext zur Methode holen (falls verfügbar).
+                //     Das Ergebnis ist ein Kommentar-Block, der dem Prompt vorangestellt
+                //     wird und der KI konkrete Hinweise zur Testbarkeit gibt.
+                // -----------------------------------------------------------------
+                string semanticHint = await BuildSemanticHintAsync(
+                    semanticAnalyzer, compilation, sourceFilePath, methodName, logInfo);
+                // -----------------------------------------------------------------
+
                 string basePrompt =
                     $"Erstelle eine präzise, lauffähige xUnit Unit-Test-Methode (mit [Fact]) für die Methode '{methodName}' " +
                     $"aus der Klasse '{className}'.\n\n" +
+                    $"{semanticHint}\n" +
                     $"Relevanter Kontext (Usings, Felder, zu testende Methode, aufgerufene Hilfsmethoden):\n\n" +
                     $"{classSkeleton}";
+
+                File.WriteAllText(@"C:\temp\tempxyz.txt", "semanticHint: " + semanticHint);
 
                 // Ersten Testentwurf von der KI anfordern
                 var newTestClassResponse = await localLlmClient.AskAsync(
@@ -290,6 +347,103 @@ public class ResxTranslationOrchestrator
             return ex.Message;
         }
     }
+
+    // =====================================================================
+    //  Semantischer Kontext für den KI-Prompt
+    // =====================================================================
+
+    /// <summary>
+    /// Liefert einen Kommentar-Block mit semantischen Informationen zur Methode,
+    /// der dem KI-Prompt vorangestellt wird. Wenn kein Analyzer / keine Compilation
+    /// vorhanden ist, wird ein leerer String zurückgegeben.
+    /// </summary>
+    private static async Task<string> BuildSemanticHintAsync(
+        RoslynDllTestabilityAnalyzer? analyzer,
+        Compilation? compilation,
+        string sourceFilePath,
+        string methodName,
+        Action<string>? logInfo)
+    {
+        if (analyzer == null || compilation == null)
+            return string.Empty;
+
+        try
+        {
+            var report = await analyzer.AnalyzeFromCompilationAsync(
+                compilation,
+                methodName,
+                documentName: Path.GetFileName(sourceFilePath));
+
+            var sb = new StringBuilder();
+            sb.AppendLine("// --- Semantische Analyse ---");
+            sb.AppendLine($"// Verdict: {report.Verdict}");
+
+            if (report.Method?.ContainingType != null)
+            {
+                var ct = report.Method.ContainingType;
+                sb.AppendLine($"// ContainingType: {ct.FullName}");
+                sb.AppendLine($"// Mockable: {ct.Mockable}");
+                sb.AppendLine($"// Interfaces: {string.Join(", ", ct.Interfaces)}");
+                sb.AppendLine($"// Public Ctors: {string.Join(" | ", ct.Constructors)}");
+            }
+
+            var staticDeps = report.ReferencedTypes?
+                .Where(t => t.UsedStatically)
+                .Select(t => t.FullName)
+                .ToList() ?? new List<string>();
+
+            if (staticDeps.Count > 0)
+            {
+                sb.AppendLine($"// Statische Abhängigkeiten: {string.Join(", ", staticDeps)}");
+                sb.AppendLine("// Hinweis: Diese sind nicht mockbar – im Test ggf. via " +
+                              "System.IO.Abstractions oder Wrapper umgehen.");
+            }
+
+            var injectable = report.ReferencedTypes?
+                .Where(t => !t.IsInterface && !t.IsAbstract && !t.IsStatic && !t.IsSealed
+                            && !t.Namespace.StartsWith("System", StringComparison.Ordinal))
+                .Select(t => t.FullName)
+                .ToList() ?? new List<string>();
+
+            if (injectable.Count > 0)
+            {
+                sb.AppendLine($"// Konkrete Typen (besser per Konstruktor injizieren): " +
+                              $"{string.Join(", ", injectable)}");
+            }
+
+            if (report.Recommendations?.Count > 0)
+            {
+                sb.AppendLine("// Empfehlungen:");
+                foreach (var rec in report.Recommendations)
+                    sb.AppendLine($"//   - {rec}");
+            }
+
+            if (report.CompilationErrors?.Count > 0)
+            {
+                sb.AppendLine($"// Compiler-Fehler in der Compilation: {report.CompilationErrors.Count}");
+                foreach (var err in report.CompilationErrors.Take(3))
+                    sb.AppendLine($"//   {err}");
+            }
+
+            logInfo?.Invoke($"[NetAI] Semantik für '{methodName}': {report.Verdict}");
+            return sb.ToString();
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Methode evtl. nicht im SyntaxTree gefunden – kein Beinbruch.
+            logInfo?.Invoke($"[NetAI] Semantik für '{methodName}' übersprungen: {ex.Message}");
+            return string.Empty;
+        }
+        catch (Exception ex)
+        {
+            logInfo?.Invoke($"[NetAI] Semantik für '{methodName}' fehlgeschlagen: {ex.Message}");
+            return string.Empty;
+        }
+    }
+
+    // =====================================================================
+    //  Bestehende Hilfsmethoden (unverändert)
+    // =====================================================================
 
     // Kleine Hilfsmethode, um den Code für die temporäre Compiler-Prüfung zu wrappen
     private string PrepareValidationStructure(string testClassName, NamespaceDeclarationSyntax? originalNamespace, string methodCode)

@@ -85,10 +85,6 @@ namespace NetAI.TestGenerator.Core.Analysis
                 files, referenceDllPaths, methodName, documentName, ct);
         }
 
-        /// <summary>
-        /// Analyse auf einer bereits gebauten <see cref="Compilation"/>.
-        /// Der SyntaxTree, der die Methode enthält, wird automatisch gefunden.
-        /// </summary>
         public Task<TestabilityReport> AnalyzeFromCompilationAsync(
             Compilation compilation,
             string methodName,
@@ -98,23 +94,32 @@ namespace NetAI.TestGenerator.Core.Analysis
             if (compilation is null) throw new ArgumentNullException(nameof(compilation));
 
             var (tree, methodDecl) = FindMethodAcrossTrees(compilation, methodName, documentName, ct)
-                ?? throw new InvalidOperationException(
-                    $"Methode '{methodName}' wurde in keiner Quelldatei gefunden.");
+                                     ?? throw new InvalidOperationException(
+                                         $"Methode '{methodName}' wurde in keiner Quelldatei gefunden.");
 
             var model = compilation.GetSemanticModel(tree);
 
             var methodSymbol = model.GetDeclaredSymbol(methodDecl, ct) as IMethodSymbol
-                ?? throw new InvalidOperationException("Kein Methodensymbol gefunden.");
+                               ?? throw new InvalidOperationException("Kein Methodensymbol gefunden.");
 
-            var resolvedDocumentName = documentName
-                ?? Path.GetFileName(tree.FilePath) is { Length: > 0 } name && !string.IsNullOrEmpty(name)
-                    ? name
-                    : "(unbenannt)";
+            var resolvedDocumentName = ResolveDocumentName(documentName, tree);
 
             var report = BuildReport(
                 resolvedDocumentName, methodSymbol, methodDecl, model, compilation);
 
             return Task.FromResult(report);
+        }
+
+        private static string ResolveDocumentName(string? requestedName, SyntaxTree tree)
+        {
+            if (!string.IsNullOrWhiteSpace(requestedName))
+                return requestedName!;
+
+            var fromPath = Path.GetFileName(tree.FilePath);
+            if (!string.IsNullOrEmpty(fromPath))
+                return fromPath;
+
+            return "(unbenannt)";
         }
 
         // ==================================================================

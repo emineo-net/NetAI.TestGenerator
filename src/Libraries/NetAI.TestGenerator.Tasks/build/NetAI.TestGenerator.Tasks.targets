@@ -20,6 +20,13 @@
 		<_TestGeneratorIsPublishing Condition="'$(_IsPublishing)' == 'true'">true</_TestGeneratorIsPublishing>
 
 		<_TestGeneratorProjectDir>$(MSBuildProjectDirectory)/</_TestGeneratorProjectDir>
+
+		<!-- NEU: Semantische Analyse ist per Default an, kann aber abgeschaltet werden.
+		     Abschalten mit: dotnet build -p:TestGeneratorSemanticAnalysisEnabled=false -->
+		<TestGeneratorSemanticAnalysisEnabled Condition="'$(TestGeneratorSemanticAnalysisEnabled)' == ''">true</TestGeneratorSemanticAnalysisEnabled>
+
+		<!-- NEU: Zwischenverzeichnis für den Analyse-Report. -->
+		<_TestGeneratorAnalysisDir>$(IntermediateOutputPath)netai\</_TestGeneratorAnalysisDir>
 	</PropertyGroup>
 
 	<!-- TRICK: TaskHostFactory zwingt MSBuild, den Task in einem separaten Prozess zu starten. -->
@@ -57,6 +64,10 @@
 	</Target>
 
 	<!-- Führt die Übersetzung aus (nur erstes TFM). -->
+	<!-- WICHTIG: Läuft FRÜH (vor PrepareForBuild), damit generierte .resx-Dateien noch -->
+	<!-- im selben Build als EmbeddedResource eingebunden werden können. -->
+	<!-- In dieser Phase ist @(ReferencePath) noch NICHT verfügbar – deshalb wird hier -->
+	<!-- KEINE semantische Analyse angefordert (SourceFiles/ReferencePaths werden weggelassen). -->
 	<Target Name="RunResxTranslation"
 	        DependsOnTargets="SetupTestGeneratorSettings"
 	        Condition="'$(TestGeneratorActive)' == 'true' And '$(_TestGeneratorIsFirstTfm)' == 'true'">
@@ -88,6 +99,39 @@
 		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
 		                    CurrentConfiguration="$(Configuration)"
 		                    IsPublishing="true" />
+	</Target>
+
+	<!-- ===================================================================================== -->
+	<!-- NEU: Semantische Testbarkeits-Analyse                                                -->
+	<!--                                                                                       -->
+	<!-- Läuft NACH ResolveReferences (dort ist @(ReferencePath) vollständig aufgelöst) und    -->
+	<!-- VOR CoreCompile (damit die Analyse noch vor dem eigentlichen Kompilieren passiert).   -->
+	<!--                                                                                       -->
+	<!-- Anders als RunResxTranslation kann dieser Target die volle semantische Analyse        -->
+	<!-- nutzen, weil ihm MSBuild alle Kompilier- und Referenz-Informationen liefert:           -->
+	<!--   - @(Compile)         → Quelldateien                                                 -->
+	<!--   - @(ReferencePath)   → aufgelöste Referenzen (BCL + NuGet + ProjectRefs)            -->
+	<!--                                                                                       -->
+	<!-- Der Task erhält diese Items als Properties. Er kann daraus eine CSharpCompilation     -->
+	<!-- bauen und mit RoslynDllTestabilityAnalyzer echte Symbolauflösung betreiben.           -->
+	<!--                                                                                       -->
+	<!-- Abschalten mit: dotnet build -p:TestGeneratorSemanticAnalysisEnabled=false            -->
+	<!-- ===================================================================================== -->
+	<Target Name="RunSemanticTestAnalysis"
+	        AfterTargets="ResolveReferences"
+	        BeforeTargets="CoreCompile"
+	        DependsOnTargets="SetupTestGeneratorSettings"
+	        Condition="'$(TestGeneratorActive)' == 'true' And '$(_TestGeneratorIsFirstTfm)' == 'true' And '$(TestGeneratorSemanticAnalysisEnabled)' == 'true'">
+
+		<MakeDir Directories="$(_TestGeneratorAnalysisDir)"
+		         Condition="!Exists('$(_TestGeneratorAnalysisDir)')" />
+
+		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
+		                    CurrentConfiguration="$(Configuration)"
+		                    IsPublishing="$(_TestGeneratorIsPublishing)"
+		                    SourceFiles="@(Compile)"
+		                    ReferencePaths="@(ReferencePath)"
+		                    AnalysisOutputDirectory="$(_TestGeneratorAnalysisDir)" />
 	</Target>
 
 </Project>

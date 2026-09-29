@@ -1,0 +1,68 @@
+NetAI Testability Report
+========================
+Erstellt: 2026-09-29 22:32:54
+Anzahl Methoden: 3
+
+# AiTranslatorRunner.cs
+
+  string AiTranslatorRunner.FindSolutionRoot(string currentDir)
+    Accessibility : Private
+    Static        : True
+    Async         : False
+    AsyncVoid     : False
+    Verdict       : NICHT direkt testbar: Methode ist 'Private' und kann nicht direkt aufgerufen werden. | Methode ist 'static' und schlecht isolierbar. | Statische Abhängigkeit auf 'System.StringComparison' – nicht mockbar.
+    Empfehlungen:
+      - Sichtbarkeit auf 'internal' setzen + InternalsVisibleTo, oder Logik in eine separate Klasse verschieben.
+      - Statische Abhängigkeiten hinter Interfaces legen (System.StringComparison) – z. B. via System.IO.Abstractions für File/Directory.
+    Referenzierte Typen:
+      - System.IO.DirectoryInfo (Kind: Class, Mockable: Nein (sealed), Static: False)
+      - System.IO.FileSystemInfo (Kind: Class, Mockable: Ja (abstract), Static: False)
+      - System.Linq.Enumerable (Kind: Class, Mockable: Nein (static), Static: False)
+      - System.StringComparison (Kind: Enum, Mockable: Nein (sealed), Static: True)
+
+  Task<bool> AiTranslatorRunner.Run(string prompt, Action<string>? logInfo = null, Action<string>? logError = null)
+    Accessibility : Public
+    Static        : False
+    Async         : True
+    AsyncVoid     : False
+    Verdict       : NICHT direkt testbar: Statische Abhängigkeit auf 'NetAI.TestGenerator.Core.Config.AiSettingsLoader' – nicht mockbar. | Statische Abhängigkeit auf 'NetAI.TestGenerator.Core.Config.AiTestingConfig' – nicht mockbar. | Statische Abhängigkeit auf 'WpftranlationTestApp.AiTranslatorRunner' – nicht mockbar. | Statische Abhängigkeit auf 'System.Console' – nicht mockbar. | Statische Abhängigkeit auf 'System.IO.Directory' – nicht mockbar. | Statische Abhängigkeit auf 'System.IO.Path' – nicht mockbar. | Statische Abhängigkeit auf 'System.StringComparer' – nicht mockbar.
+    Empfehlungen:
+      - Statische Abhängigkeiten hinter Interfaces legen (NetAI.TestGenerator.Core.Config.AiSettingsLoader, NetAI.TestGenerator.Core.Config.AiTestingConfig, WpftranlationTestApp.AiTranslatorRunner, System.Console, System.IO.Directory, System.IO.Path, System.StringComparer) – z. B. via System.IO.Abstractions für File/Directory.
+      - Konkrete Typen werden intern erzeugt – besser per Konstruktor injizieren: NetAI.TestGenerator.Core.Config.AiTestingConfig, NetAI.TestGenerator.Core.ResxTranslationOrchestrator, WpftranlationTestApp.AiTranslatorRunner
+    Referenzierte Typen:
+      - NetAI.TestGenerator.Core.Config.AiSettingsLoader (Kind: Class, Mockable: Nein (static), Static: True)
+      - NetAI.TestGenerator.Core.Config.AiTestingConfig (Kind: Class, Mockable: Eingeschränkt (virtuelle Member vorhanden), Static: True)
+      - NetAI.TestGenerator.Core.ResxTranslationOrchestrator (Kind: Class, Mockable: Nein (keine virtuellen Member), Static: False)
+      - WpftranlationTestApp.AiTranslatorRunner (Kind: Class, Mockable: Nein (keine virtuellen Member), Static: True)
+      - System.Action<T> (Kind: Delegate, Mockable: Nein (sealed), Static: False)
+      - System.Collections.Generic.IEnumerable<T> (Kind: Interface, Mockable: Ja (Interface), Static: False)
+      - System.Collections.Generic.List<T> (Kind: Class, Mockable: Nein (keine virtuellen Member), Static: False)
+      - System.Console (Kind: Class, Mockable: Nein (static), Static: True)
+      - System.IO.Directory (Kind: Class, Mockable: Nein (static), Static: True)
+      - System.IO.DirectoryNotFoundException (Kind: Class, Mockable: Nein (keine virtuellen Member), Static: False)
+      - System.IO.Path (Kind: Class, Mockable: Nein (static), Static: True)
+      - System.IO.TextWriter (Kind: Class, Mockable: Ja (abstract), Static: False)
+      - System.Linq.Enumerable (Kind: Class, Mockable: Nein (static), Static: False)
+      - System.StringComparer (Kind: Class, Mockable: Ja (abstract), Static: True)
+      - System.Threading.Tasks.Task<TResult> (Kind: Class, Mockable: Nein (keine virtuellen Member), Static: False)
+
+# MainWindow.xaml.cs
+
+  void MainWindow.TestButton_OnClick(object sender, RoutedEventArgs e)
+    Accessibility : Private
+    Static        : False
+    Async         : True
+    AsyncVoid     : True
+    Verdict       : NICHT direkt testbar: Methode ist 'Private' und kann nicht direkt aufgerufen werden. | Methode ist 'async void' und kann nicht awaited werden. | Statische Abhängigkeit auf 'System.Console' – nicht mockbar. | Statische Abhängigkeit auf 'System.IO.File' – nicht mockbar.
+    Empfehlungen:
+      - Sichtbarkeit auf 'internal' setzen + InternalsVisibleTo, oder Logik in eine separate Klasse verschieben.
+      - Event-Handler auf 'async Task' umstellen; XAML-Handler wird dünner Wrapper.
+      - Statische Abhängigkeiten hinter Interfaces legen (System.Console, System.IO.File) – z. B. via System.IO.Abstractions für File/Directory.
+      - Konkrete Typen werden intern erzeugt – besser per Konstruktor injizieren: NetAI.TestGenerator.Core.Services.AiPromptBuilder, WpftranlationTestApp.AiTranslatorRunner
+    Referenzierte Typen:
+      - NetAI.TestGenerator.Core.Services.AiPromptBuilder (Kind: Class, Mockable: Nein (keine virtuellen Member), Static: False)
+      - WpftranlationTestApp.AiTranslatorRunner (Kind: Class, Mockable: Nein (keine virtuellen Member), Static: False)
+      - System.Console (Kind: Class, Mockable: Nein (static), Static: True)
+      - System.IO.File (Kind: Class, Mockable: Nein (static), Static: True)
+      - System.Threading.Tasks.Task<TResult> (Kind: Class, Mockable: Nein (keine virtuellen Member), Static: False)
+
