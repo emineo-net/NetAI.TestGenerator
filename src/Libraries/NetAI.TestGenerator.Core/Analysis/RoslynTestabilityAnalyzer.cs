@@ -18,15 +18,10 @@ public sealed class RoslynTestabilityAnalyzer
 
     public RoslynTestabilityAnalyzer(AnalyzerOptions? options = null) => _options = options ?? new AnalyzerOptions();
 
-    // ------------------------------------------------------------------
-    // Public API
-    // ------------------------------------------------------------------
-
 #if !NETSTANDARD2_0
     public async Task<TestabilityReport> AnalyzeFromSolutionAsync(
         string solutionPath, string documentName, string methodName, CancellationToken ct = default)
     {
-        // Wichtig: MSBuildLocator muss vor der ersten Nutzung von MSBuildWorkspace registriert werden!
         if (!MSBuildLocator.IsRegistered)
         {
             MSBuildLocator.RegisterDefaults();
@@ -80,10 +75,6 @@ public sealed class RoslynTestabilityAnalyzer
 
         return BuildReport(document, methodSymbol, methodDecl, model, compilation);
     }
-
-    // ------------------------------------------------------------------
-    //  Report-Aufbau
-    // ------------------------------------------------------------------
 
     private TestabilityReport BuildReport(
         Document document,
@@ -168,7 +159,7 @@ public sealed class RoslynTestabilityAnalyzer
         {
             if (symbol is null) return;
             if (symbol is ITypeParameterSymbol) return;
-            if (symbol.SpecialType != SpecialType.None) return; // int, string, ...
+            if (symbol.SpecialType != SpecialType.None) return;
 
             if (symbol is not INamedTypeSymbol named) return;
 
@@ -234,7 +225,6 @@ public sealed class RoslynTestabilityAnalyzer
                     break;
 
                 case MemberAccessExpressionSyntax ma:
-                    // z. B. File.ReadAllText -> File als statische Abhängigkeit
                     if (model.GetSymbolInfo(ma).Symbol is IMethodSymbol m)
                         Add(m.ContainingType, m.IsStatic);
                     else if (model.GetSymbolInfo(ma).Symbol is IPropertySymbol p)
@@ -255,10 +245,6 @@ public sealed class RoslynTestabilityAnalyzer
             .ThenBy(t => t.FullName, StringComparer.Ordinal)
             .ToList();
     }
-
-    // ------------------------------------------------------------------
-    //  Bewertung
-    // ------------------------------------------------------------------
 
     private static string EvaluateTestability(MethodFact method, List<TypeFact> types)
     {
@@ -307,10 +293,6 @@ public sealed class RoslynTestabilityAnalyzer
 
         return recs;
     }
-
-    // ------------------------------------------------------------------
-    //  Hilfsfunktionen
-    // ------------------------------------------------------------------
 
     private static string KindOf(INamedTypeSymbol type) => type.TypeKind switch
     {

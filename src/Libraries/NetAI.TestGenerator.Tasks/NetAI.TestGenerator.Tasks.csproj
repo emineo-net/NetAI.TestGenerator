@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!-- Nur netstandard2.0: das ist die einzige TFM, die gepackt/kopiert wird.
-         TaskHostFactory sorgt dafür, dass MSBuild den Task trotzdem in jedem Zielprojekt laden kann. -->
 		<TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -13,9 +11,6 @@
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackCustomTasksAndDependencies</TargetsForTfmSpecificContentInPackage>
 
-		<!-- WICHTIG: Zwingt NuGet, auch die NuGet-Abhängigkeiten von NetAI.TestGenerator.Core
-         (nicht nur die ProjectReference selbst) physisch nach bin\ zu kopieren.
-         Ohne das fehlen z. B. HTTP-/JSON-Bibliotheken, die der Core intern nutzt, im fertigen Paket. -->
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
 
@@ -24,8 +19,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<!-- Liegen im Paket-Root, damit "..\aisettings.json" relativ zu build\ in der .targets stimmt.
-         Condition schützt davor, dass "dotnet pack" fehlschlägt, falls die Dateien mal fehlen sollten. -->
 		<None Include="aisettings.json" Pack="true" PackagePath="" Condition="Exists('aisettings.json')" />
 		<None Include="aisettings-schema.json" Pack="true" PackagePath="" Condition="Exists('aisettings-schema.json')" />
 	</ItemGroup>
@@ -34,7 +27,6 @@
 		<ProjectReference Include="..\NetAI.TestGenerator.Core\NetAI.TestGenerator.Core.csproj" PrivateAssets="all" />
 	</ItemGroup>
 
-	<!-- Räumt alte Fremd-DLLs aus dem lokalen build/-Ordner auf, bevor neu kopiert wird -->
 	<Target Name="CleanLocalBuildFolder" BeforeTargets="CopyTaskAndDependenciesToLocalBuildFolder">
 		<ItemGroup>
 			<_OldBuildFiles Include="$(MSBuildProjectDirectory)\build\*.dll" />
@@ -43,8 +35,6 @@
 		<Delete Files="@(_OldBuildFiles)" />
 	</Target>
 
-	<!-- FÜR LOKALE ENTWICKLUNG: Kopiert Task-DLL + ALLE Abhängigkeiten (Core + dessen eigene NuGet-Pakete)
-       in den lokalen build/-Ordner. Dank CopyLocalLockFileAssemblies liegt das jetzt vollständig in bin\. -->
 	<Target Name="CopyTaskAndDependenciesToLocalBuildFolder" AfterTargets="Build">
 		<ItemGroup>
 			<LocalTaskFiles Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.dll" />
@@ -53,7 +43,6 @@
 		<Copy SourceFiles="@(LocalTaskFiles)" DestinationFolder="$(MSBuildProjectDirectory)\build\" SkipUnchangedFiles="true" Condition="'@(LocalTaskFiles)' != ''" />
 	</Target>
 
-	<!-- FÜR DAS NUGET-PAKET: Packt Task-DLL + Core-DLL + Cores eigene NuGet-Abhängigkeiten in tasks\netstandard2.0\ -->
 	<Target Name="PackCustomTasksAndDependencies">
 		<ItemGroup>
 			<_TasksOutputDependencies Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.dll" Exclude="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.dll" />
