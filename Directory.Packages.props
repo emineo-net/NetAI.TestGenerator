@@ -160,5 +160,6 @@
     <PackageVersion Include="System.Linq" Version="4.3.0" />
     <PackageVersion Include="System.Reflection" Version="4.3.0" />
     <PackageVersion Include="System.Runtime" Version="4.3.1" />
+    <PackageVersion Include="Moq" Version="4.21.0" />
   </ItemGroup>
 </Project>
