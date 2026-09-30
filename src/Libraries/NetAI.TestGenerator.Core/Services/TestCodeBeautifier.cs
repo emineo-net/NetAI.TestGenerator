@@ -199,6 +199,10 @@ public class TestCodeBeautifier
             "Test" or "TestClass" or "TestMethod" => "NUnit.Framework",
             "Task" => "System.Threading.Tasks",
             "List" or "Dictionary" or "IEnumerable" or "IReadOnlyList" => "System.Collections.Generic",
+            "BindingFlags" or "MemberInfo" or "MethodBase" or "MethodInfo"
+                or "ConstructorInfo" or "PropertyInfo" or "FieldInfo" or "EventInfo"
+                or "ParameterInfo" or "Assembly" or "Module" or "TargetException"
+                or "TargetInvocationException" => "System.Reflection",
             "Regex" => "System.Text.RegularExpressions",
             _ => null
         };

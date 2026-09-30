@@ -276,6 +276,10 @@ public class TestCodeProcessor
             "JObject" or "JToken" or "JArray" or "JValue" => "Newtonsoft.Json.Linq",
             "JsonConvert" => "Newtonsoft.Json",
             "Debug" or "Trace" or "Stopwatch" or "Activity" => "System.Diagnostics",
+            "BindingFlags" or "MemberInfo" or "MethodBase" or "MethodInfo"
+                or "ConstructorInfo" or "PropertyInfo" or "FieldInfo" or "EventInfo"
+                or "ParameterInfo" or "Assembly" or "Module" or "TargetException"
+                or "TargetInvocationException" => "System.Reflection",
             "ILogger" or "ILoggerFactory" or "LogLevel" => "Microsoft.Extensions.Logging",
             "NullLogger" => "Microsoft.Extensions.Logging.Abstractions",
             "IOptions" or "IOptionsSnapshot" or "IOptionsMonitor" => "Microsoft.Extensions.Options",
