@@ -5,15 +5,22 @@ namespace NetAI.Generated.Tests
 {
     public class MainWindowTests
     {
-        [Fact(Skip = "Methode ist 'private' und kann nicht direkt aufgerufen werden.")]
-        public async Task TestButton_OnClick_ShouldExecuteAsExpected()
+        [Fact(Skip = "Method is private and cannot be directly called.")]
+        public void TestButton_OnClick_ShouldExecuteCorrectly()
         {
             // Arrange
             var mainWindow = new MainWindow();
-            var sender = new object();
-            var e = new RoutedEventArgs();
+            var eventArgs = new RoutedEventArgs();
 
-            // Act & Assert (not possible due to private method and async void)
+            // Act
+            MethodInfo methodInfo = typeof(MainWindow).GetMethod("TestButton_OnClick", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (methodInfo != null)
+            {
+                methodInfo.Invoke(mainWindow, new object[] { eventArgs });
+            }
+
+            // Assert
+            // Add assertions here based on expected behavior
         }
     }
 }
