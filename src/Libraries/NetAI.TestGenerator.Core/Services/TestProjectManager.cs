@@ -54,6 +54,25 @@ public class TestProjectManager
     private const int MaxPackageResolutionIterations = 5;
     private const string StaFactPackageId = "Xunit.StaFact";
 
+    private static readonly Regex InternalsVisibleToMemberRegex = new(
+        @"'(?<type>[A-Za-z_][A-Za-z0-9_]*)'\s+does not contain a definition for\s+'(?<member>[A-Za-z_][A-Za-z0-9_]*)'",
+        RegexOptions.Compiled);
+    private static readonly Regex SemanticCs1503Regex = new(
+        @"CS1503.*?Argument\s+(?<n>\d+).*?cannot convert from\s+'(?<from>[^']+)'\s+to\s+'(?<to>[^']+)'",
+        RegexOptions.Compiled);
+    private static readonly Regex SemanticCs1061Regex = new(
+        @"'(?<type>[A-Za-z_][A-Za-z0-9_]*)'\s+does not contain a definition for\s+'(?<member>[A-Za-z_][A-Za-z0-9_]*)'",
+        RegexOptions.Compiled);
+    private static readonly Regex SemanticCs1501Regex = new(
+        @"CS1501.*?no overload for method\s+'(?<m>[^']+)'\s+takes\s+'(?<n>\d+)'\s+arguments",
+        RegexOptions.Compiled);
+    private static readonly Regex SemanticCs1729Regex = new(
+        @"CS1729.*?'(?<t>[^']+)'\s+does not contain a constructor that takes\s+'(?<n>\d+)'",
+        RegexOptions.Compiled);
+    private static readonly Regex BuildDiagnosticRegex = new(
+        @"^(?<file>.*?)\((?<line>\d+),\d+\):\s*error\s+(?<id>[A-Za-z]+\d+):\s*(?<msg>.*?)(\s+\[[^\]]+\])?\s*$",
+        RegexOptions.Compiled);
+
     private static readonly HttpClient NuGetHttp = new()
     {
         BaseAddress = new Uri("https://api.nuget.org/v3-flatcontainer/"),
@@ -405,15 +424,11 @@ public class TestProjectManager
     {
         if (sourceProjectPath is null || !File.Exists(sourceProjectPath)) return false;
 
-        var regex = new Regex(
-            @"'(?<type>[A-Za-z_][A-Za-z0-9_]*)'\s+does not contain a definition for\s+'(?<member>[A-Za-z_][A-Za-z0-9_]*)'",
-            RegexOptions.Compiled);
-
         var candidates = new List<(string Type, string Member)>();
         foreach (var line in compilerErrors)
         {
             if (line.IndexOf("CS1061", StringComparison.OrdinalIgnoreCase) < 0) continue;
-            var m = regex.Match(line);
+            var m = InternalsVisibleToMemberRegex.Match(line);
             if (m.Success) candidates.Add((m.Groups["type"].Value, m.Groups["member"].Value));
         }
         if (candidates.Count == 0) return false;
@@ -422,12 +437,15 @@ public class TestProjectManager
         bool anyInternalFound = false;
         foreach (var (_, member) in candidates)
         {
+            var memberRegex = new Regex(
+                @"\binternal\b[^\r\n;={]*\b" + Regex.Escape(member) + @"\b",
+                RegexOptions.Compiled);
             foreach (var file in Directory.EnumerateFiles(sourceProjectDir, "*.cs", SearchOption.AllDirectories))
             {
                 if (IsInBuildOutput(file)) continue;
                 string text;
                 try { text = await ReadAllTextAsyncCompat(file, ct); } catch { continue; }
-                if (Regex.IsMatch(text, @"\binternal\b[^\r\n;={]*\b" + Regex.Escape(member) + @"\b"))
+                if (memberRegex.IsMatch(text))
                 {
                     anyInternalFound = true;
                     break;
@@ -500,41 +518,28 @@ public class TestProjectManager
     private static List<string> ExtractSemanticErrorSummary(IReadOnlyList<string> compilerErrors)
     {
         var notes = new List<string>();
-        var cs1503 = new Regex(
-            @"CS1503.*?Argument\s+(?<n>\d+).*?cannot convert from\s+'(?<from>[^']+)'\s+to\s+'(?<to>[^']+)'",
-            RegexOptions.Compiled);
-        var cs1061 = new Regex(
-            @"'(?<type>[A-Za-z_][A-Za-z0-9_]*)'\s+does not contain a definition for\s+'(?<member>[A-Za-z_][A-Za-z0-9_]*)'",
-            RegexOptions.Compiled);
-        var cs1501 = new Regex(
-            @"CS1501.*?no overload for method\s+'(?<m>[^']+)'\s+takes\s+'(?<n>\d+)'\s+arguments",
-            RegexOptions.Compiled);
-        var cs1729 = new Regex(
-            @"CS1729.*?'(?<t>[^']+)'\s+does not contain a constructor that takes\s+'(?<n>\d+)'",
-            RegexOptions.Compiled);
-
         foreach (var line in compilerErrors)
         {
-            var m = cs1503.Match(line);
+            var m = SemanticCs1503Regex.Match(line);
             if (m.Success)
             {
                 notes.Add($"• Argument #{m.Groups["n"].Value} has wrong type: expected " +
                           $"'{m.Groups["to"].Value}', got '{m.Groups["from"].Value}'.");
                 continue;
             }
-            m = cs1061.Match(line);
+            m = SemanticCs1061Regex.Match(line);
             if (m.Success)
             {
                 notes.Add($"• '{m.Groups["type"].Value}' has no member '{m.Groups["member"].Value}'.");
                 continue;
             }
-            m = cs1501.Match(line);
+            m = SemanticCs1501Regex.Match(line);
             if (m.Success)
             {
                 notes.Add($"• Method '{m.Groups["m"].Value}' does not accept {m.Groups["n"].Value} arguments.");
                 continue;
             }
-            m = cs1729.Match(line);
+            m = SemanticCs1729Regex.Match(line);
             if (m.Success)
             {
                 notes.Add($"• Type '{m.Groups["t"].Value}' has no constructor with {m.Groups["n"].Value} parameters.");
@@ -1503,6 +1508,24 @@ public class TestProjectManager
 
             var result = await RunDotNetCliAsync(buildArgs, projectDir, cancellationToken);
 
+            if (result.ExitCode != 0 &&
+                result.Output.Concat(result.Errors).Any(line =>
+                    line.IndexOf("CS0006", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                int referencesPropertyIndex = buildArgs.IndexOf("-p:BuildProjectReferences=false");
+                if (referencesPropertyIndex >= 0)
+                {
+                    buildArgs[referencesPropertyIndex] = "-p:BuildProjectReferences=true";
+                    buildArgs.Remove("-t:Compile");
+                    buildArgs.Add("-p:TestGeneratorEnabled=false");
+                    var referenceBuildResult = await RunDotNetCliAsync(buildArgs, projectDir, cancellationToken);
+                    result = (
+                        referenceBuildResult.ExitCode,
+                        result.Output.Concat(referenceBuildResult.Output).ToArray(),
+                        result.Errors.Concat(referenceBuildResult.Errors).ToArray());
+                }
+            }
+
             if (result.ExitCode == 0)
             {
                 return new TestGenerationResult(true, "Compilation succeeded.");
@@ -1511,11 +1534,7 @@ public class TestProjectManager
             var allLines = result.Output.Concat(result.Errors).ToArray();
             bool isEnvironmentIssue = IsEnvironmentErrorRaw(allLines);
 
-            var errorRegex = new Regex(
-                @"^(?<file>.*?)\((?<line>\d+),\d+\):\s*error\s+(?<id>[A-Za-z]+\d+):\s*(?<msg>.*?)(\s+\[[^\]]+\])?\s*$",
-                RegexOptions.Compiled);
-
-            var errors = allLines.Select(l => errorRegex.Match(l))
+            var errors = allLines.Select(l => BuildDiagnosticRegex.Match(l))
                 .Where(m => m.Success)
                 .Select(m => $"error {m.Groups["id"].Value}: {m.Groups["msg"].Value} " +
                              $"({Path.GetFileName(m.Groups["file"].Value)}, line {m.Groups["line"].Value})")

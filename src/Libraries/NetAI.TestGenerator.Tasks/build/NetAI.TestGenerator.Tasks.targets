@@ -24,6 +24,8 @@
 		<!-- NEU: Semantische Analyse ist per Default an, kann aber abgeschaltet werden.
 		     Abschalten mit: dotnet build -p:TestGeneratorSemanticAnalysisEnabled=false -->
 		<TestGeneratorSemanticAnalysisEnabled Condition="'$(TestGeneratorSemanticAnalysisEnabled)' == ''">true</TestGeneratorSemanticAnalysisEnabled>
+		<!-- Standard: Prompt/Testentwurf ohne Compiler-Validierung; für Validierung false setzen. -->
+		<TestGeneratorPromptOnly Condition="'$(TestGeneratorPromptOnly)' == ''">true</TestGeneratorPromptOnly>
 
 		<!-- NEU: Zwischenverzeichnis für den Analyse-Report. -->
 		<_TestGeneratorAnalysisDir>$(IntermediateOutputPath)netai\</_TestGeneratorAnalysisDir>
@@ -76,6 +78,7 @@
 		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
 		                    CurrentConfiguration="$(Configuration)"
 						IsPublishing="$(_TestGeneratorIsPublishing)"
+						PromptOnly="$(TestGeneratorPromptOnly)"
 		                    SourceFiles="@(Compile)" />
 	</Target>
 
@@ -100,7 +103,8 @@
 
 		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
 		                    CurrentConfiguration="$(Configuration)"
-		                    IsPublishing="true" />
+		                    IsPublishing="true"
+		                    PromptOnly="$(TestGeneratorPromptOnly)" />
 	</Target>
 
 	<!-- ===================================================================================== -->

@@ -11,52 +11,43 @@ namespace NetAI.TestGenerator.Core
 {
     public class LocalLlmClient
     {
-        private readonly HttpClient _http;
-
-        public LocalLlmClient()
+        private static readonly HttpClient SharedHttp = new()
         {
-            _http = new HttpClient();
-            _http.BaseAddress = new Uri("http://localhost:8080/");
-            _http.Timeout = TimeSpan.FromMinutes(5);
-        }
+            BaseAddress = new Uri("http://localhost:8080/"),
+            Timeout = TimeSpan.FromMinutes(5)
+        };
+
+        public LocalLlmClient() { }
 
         public async Task<string> AskAsync(string userMessage, string? systemMessage = null, CancellationToken ct = default)
         {
-            try
+            var messages = new List<object>();
+            if (systemMessage is not null)
             {
-                var messages = new List<object>();
-                if (systemMessage is not null)
-                {
-                    messages.Add(new { role = "system", content = systemMessage });
-                }
-                messages.Add(new { role = "user", content = userMessage });
+                messages.Add(new { role = "system", content = systemMessage });
+            }
+            messages.Add(new { role = "user", content = userMessage });
 
-                // 1. Request-Body mit Newtonsoft serialisieren
-                var jsonPayload = JsonConvert.SerializeObject(new { messages, stream = false });
-                var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+            // 1. Request-Body mit Newtonsoft serialisieren
+            var jsonPayload = JsonConvert.SerializeObject(new { messages, stream = false });
+            using var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-                // 2. POST-Request senden
-                var response = await _http.PostAsync("v1/chat/completions", content, ct);
-                response.EnsureSuccessStatusCode();
+            // 2. POST-Request senden
+            using var response = await SharedHttp.PostAsync("v1/chat/completions", content, ct);
+            response.EnsureSuccessStatusCode();
 
-                // 3. Response-Body als String lesen
+            // 3. Response-Body als String lesen
 #if NET6_0_OR_GREATER
             var responseString = await response.Content.ReadAsStringAsync(ct);
 #else
-                var responseString = await response.Content.ReadAsStringAsync();
+            var responseString = await response.Content.ReadAsStringAsync();
 #endif
 
-                // 4. Mit JObject (entspricht JsonElement) parsen und auslesen
-                var json = JObject.Parse(responseString);
+            // 4. Mit JObject (entspricht JsonElement) parsen und auslesen
+            var json = JObject.Parse(responseString);
 
-                var result = json["choices"]?[0]?["message"]?["content"]?.ToString() ?? "";
-                return result;
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            var result = json["choices"]?[0]?["message"]?["content"]?.ToString() ?? "";
+            return result;
         }
     }
 }

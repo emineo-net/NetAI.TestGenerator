@@ -16,6 +16,9 @@ namespace NetAI.TestGenerator.Core;
 
 public class ResxTranslationOrchestrator
 {
+    private static readonly Regex TestCodeBlockRegex = new(
+        @"```(?:csharp|cs)?\s*([\s\S]*?)\s*```", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
     private readonly TestGeneratorService _testGeneratorService;
     private readonly TestCodeBeautifier _testCodeBeautifier = new();
 
@@ -38,7 +41,8 @@ public class ResxTranslationOrchestrator
     string sourceFilePath,
     string testProjectDirectory,
     Action<string>? logInfo = null,
-    Compilation? compilation = null)
+    Compilation? compilation = null,
+    bool promptOnly = false)
     {
         try
         {
@@ -75,39 +79,7 @@ public class ResxTranslationOrchestrator
             }
 
             string className = targetClass.Identifier.Text;
-
-            //**************************
-            string targetDllName = $"{Path.GetFileNameWithoutExtension(sourceFilePath)}.dll";
-            var hostProjectDir = FindProjectDirectory(sourceFilePath);
-            string? newestDllPath = null;
-
-            if (hostProjectDir != null)
-            {
-                var csprojFile = Directory.GetFiles(hostProjectDir, "*.csproj").FirstOrDefault();
-                if (csprojFile != null)
-                {
-                    targetDllName = $"{Path.GetFileNameWithoutExtension(csprojFile)}.dll";
-                }
-
-                try
-                {
-                    var foundDlls = Directory.GetFiles(hostProjectDir, targetDllName, SearchOption.AllDirectories)
-                        .Select(f => new FileInfo(f))
-                        .Where(fi => !fi.FullName.Contains($"{Path.DirectorySeparatorChar}ref{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
-                        .OrderByDescending(fi => fi.LastWriteTimeUtc) // Die neueste DLL steht auf Index 0
-                        .ToList();
-
-                    if (foundDlls.Count > 0)
-                    {
-                        // HIER: Wir nehmen den exakten Dateipfad der neuesten Datei!
-                        newestDllPath = foundDlls.First().FullName;
-                    }
-                }
-                catch { /* Fehler übergehen */ }
-            }
-
-            //*************************
-
+            string? hostProjectDir = promptOnly ? FindProjectDirectory(sourceFilePath) : null;
 
             string testClassName = $"{className}Tests";
             string testFilePath = Path.Combine(testProjectDirectory, $"{testClassName}.cs");
@@ -178,8 +150,14 @@ public class ResxTranslationOrchestrator
                     $"Relevanter Kontext (Usings, Felder, zu testende Methode, aufgerufene Hilfsmethoden):\n\n" +
                     $"<Quellcode>\n{classSkeleton}\n</Quellcode>";
 
-                // Datei-Schreiben kann synchron bleiben (oder auf File.WriteAllTextAsync umgebaut werden)
-                File.WriteAllText(@"C:\temp\tempxyz.txt", "semanticHint: " + semanticHint);
+                if (promptOnly)
+                {
+                    string promptDirectory = Path.Combine(hostProjectDir ?? Path.GetDirectoryName(sourceFilePath)!, "obj", "netai", "prompts");
+                    Directory.CreateDirectory(promptDirectory);
+                    string promptPath = Path.Combine(promptDirectory, $"{className}.{methodName}.prompt.md");
+                    File.WriteAllText(promptPath, basePrompt, Encoding.UTF8);
+                    logInfo?.Invoke($"[NetAI] Prompt mit semantischem Kontext gespeichert: {promptPath}");
+                }
 
                 // Richtig platziertes ConfigureAwait!
                 var newTestClassResponse = await localLlmClient.AskAsync(
@@ -188,6 +166,25 @@ public class ResxTranslationOrchestrator
 
                 // Reinen Methoden-Code isolieren
                 string testMethodCode = ExtractTestClass(newTestClassResponse);
+
+                if (promptOnly)
+                {
+                    if (!File.Exists(testFilePath))
+                    {
+                        _testGeneratorService.CreateNewTestClassFile(
+                            testFilePath, testClassName,
+                            targetClass.Parent as NamespaceDeclarationSyntax,
+                            testMethodCode);
+                    }
+                    else
+                    {
+                        _testGeneratorService.AppendMethodToExistingClassFile(testFilePath, testMethodCode);
+                    }
+
+                    existingTestMethods.Add(methodName);
+                    logInfo?.Invoke($"[NetAI] Testentwurf für '{methodName}' gespeichert; Compile-Validierung übersprungen.");
+                    continue;
+                }
 
              
 
@@ -589,8 +586,7 @@ namespace {namespaceName}
             return string.Empty;
 
         // 1. Markdown-Code-Blöcke (```csharp ... ```) entfernen, falls vorhanden
-        var codeBlockRegex = new Regex(@"```(?:csharp|cs)?\s*([\s\S]*?)\s*```", RegexOptions.IgnoreCase);
-        var match = codeBlockRegex.Match(aiResponse);
+        var match = TestCodeBlockRegex.Match(aiResponse);
         string rawCode = match.Success ? match.Groups[1].Value : aiResponse;
 
         // 2. Die Antwort mit Roslyn als Syntaxbaum parsen
@@ -626,7 +622,7 @@ namespace {namespaceName}
             while (currentDir != null)
             {
                 // Suchen nach einer beliebigen .csproj im aktuellen Ordner
-                if (Directory.GetFiles(currentDir, "*.csproj").Length > 0)
+                if (Directory.EnumerateFiles(currentDir, "*.csproj").Any())
                 {
                     return currentDir;
                 }

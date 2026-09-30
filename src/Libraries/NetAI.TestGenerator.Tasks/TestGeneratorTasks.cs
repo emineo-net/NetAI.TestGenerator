@@ -19,6 +19,7 @@ public class TestGeneratorTask : Task
     public string? CurrentConfiguration { get; set; }
 
     public bool IsPublishing { get; set; }
+    public bool PromptOnly { get; set; }
 
     // ---------------------------------------------------------------------
     //  Werden nur vom RunSemanticTestAnalysis-Target übergeben.
@@ -346,7 +347,7 @@ public class TestGeneratorTask : Task
                         {
                             Log.LogMessage(MessageImportance.High, message);
                         }
-                    }, compilation)   // <- Compilation an den Orchestrator durchreichen
+                    }, compilation, promptOnly: PromptOnly)   // <- Compilation an den Orchestrator durchreichen
                 ).GetAwaiter().GetResult();
 
                 Log.LogMessage(MessageImportance.High, "🤖 [NetAI]orchestrator.ProcessProjectAsyn end...");

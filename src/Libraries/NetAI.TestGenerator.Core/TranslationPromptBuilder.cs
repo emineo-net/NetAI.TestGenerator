@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Text.RegularExpressions;
 using NetAI.TestGenerator.Core.Models;
 
 namespace NetAI.TestGenerator.Core;
@@ -47,31 +46,20 @@ public class TranslationPromptBuilder
         // Verarbeitung in Batches
         for (var i = 0; i < request.Items.Count; i += BatchSize)
         {
-            var batch = request.Items.Skip(i).Take(BatchSize).ToList();
+            var batchEnd = Math.Min(i + BatchSize, request.Items.Count);
 
             // 1. Strukturierten Input (User Message) generieren
             var sbPrompt = new StringBuilder();
-            foreach (var item in batch)
+            for (var itemIndex = i; itemIndex < batchEnd; itemIndex++)
             {
+                var item = request.Items[itemIndex];
                 sbPrompt.AppendLine($"[KEY:{item.Key}] ||| {item.SourceText}");
             }
 
             var structuredInput = sbPrompt.ToString();
+            var isKeySentenceStyle = HasSentenceStyleKey(structuredInput);
 
-            // 2. Entscheidung über Prompt-Variante (Regex-Logik)
-            var isKeySentenceStyle = false;
-            var keyMatches = Regex.Matches(structuredInput, @"^\[KEY:(?<key>.*?)\]", RegexOptions.Multiline);
-            foreach (Match match in keyMatches)
-            {
-                var currentKey = match.Groups["key"].Value;
-                if (currentKey.Contains(" "))
-                {
-                    isKeySentenceStyle = true;
-                    break;
-                }
-            }
-
-            // 3. Prompt-Templates befüllen
+            // 2. Prompt-Templates befüllen
             var systemPromptStandard = $$"""
                                          You are a professional translation assistant specializing in software localization (.resx files).
                                          Your sole task is to translate the provided text into the target language: "{{request.TargetLanguage}}".
@@ -134,5 +122,30 @@ public class TranslationPromptBuilder
         }
 
         return results;
+    }
+
+    private static bool HasSentenceStyleKey(string structuredInput)
+    {
+        int lineStart = 0;
+        while (lineStart < structuredInput.Length)
+        {
+            int lineEnd = structuredInput.IndexOf('\n', lineStart);
+            if (lineEnd < 0) lineEnd = structuredInput.Length;
+
+            if (lineEnd - lineStart >= 5 &&
+                string.CompareOrdinal(structuredInput, lineStart, "[KEY:", 0, 5) == 0)
+            {
+                int keyStart = lineStart + 5;
+                int closingBracket = structuredInput.IndexOf(']', keyStart);
+                if (closingBracket > keyStart && closingBracket < lineEnd &&
+                    structuredInput.IndexOf(' ', keyStart, closingBracket - keyStart) >= 0)
+                    return true;
+            }
+
+            if (lineEnd == structuredInput.Length) break;
+            lineStart = lineEnd + 1;
+        }
+
+        return false;
     }
 }
