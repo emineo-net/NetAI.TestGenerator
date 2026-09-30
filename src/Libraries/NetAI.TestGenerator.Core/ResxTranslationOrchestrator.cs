@@ -48,12 +48,12 @@ public class ResxTranslationOrchestrator
         {
             bool tääästDebugger = true;
 
-#if DEBUG
-            if (tääästDebugger)
-            {
-                System.Diagnostics.Debugger.Launch();
-            }
-#endif
+//#if DEBUG
+//            if (tääästDebugger)
+//            {
+//                System.Diagnostics.Debugger.Launch();
+//            }
+//#endif
 
             // Sicherheitsprüfung: Existiert die Quellcodedatei überhaupt?
             if (string.IsNullOrWhiteSpace(sourceFilePath) || !File.Exists(sourceFilePath))

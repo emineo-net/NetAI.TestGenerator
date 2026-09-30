@@ -34,13 +34,13 @@ public class TestGeneratorTask : Task
     {
 
 
-#if DEBUG
-        if (testDebugger)
-        {
-            System.Diagnostics.Debugger.Launch();
+//#if DEBUG
+//        if (testDebugger)
+//        {
+//            System.Diagnostics.Debugger.Launch();
 
-        }
-#endif
+//        }
+//#endif
 
         var folderName = Path.GetFileName(ProjectDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
 
