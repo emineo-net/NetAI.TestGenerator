@@ -1503,6 +1503,22 @@ public class TestProjectManager
 
             var result = await RunDotNetCliAsync(buildArgs, projectDir, cancellationToken);
 
+            if (result.ExitCode != 0 &&
+                result.Output.Concat(result.Errors).Any(line =>
+                    line.IndexOf("CS0006", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                int referencesPropertyIndex = buildArgs.IndexOf("-p:BuildProjectReferences=false");
+                if (referencesPropertyIndex >= 0)
+                {
+                    buildArgs[referencesPropertyIndex] = "-p:BuildProjectReferences=true";
+                    var referenceBuildResult = await RunDotNetCliAsync(buildArgs, projectDir, cancellationToken);
+                    result = (
+                        referenceBuildResult.ExitCode,
+                        result.Output.Concat(referenceBuildResult.Output).ToArray(),
+                        result.Errors.Concat(referenceBuildResult.Errors).ToArray());
+                }
+            }
+
             if (result.ExitCode == 0)
             {
                 return new TestGenerationResult(true, "Compilation succeeded.");
@@ -1689,6 +1705,8 @@ public class TestProjectManager
             return (-1, outputList.ToArray(), errorList.ToArray());
         }
         catch (OperationCanceledException) { TryKill(process); throw; }
+
+        var allOutput = string.Join("\n", outputList.ToArray());
 
         return (process.ExitCode, outputList.ToArray(), errorList.ToArray());
     }
