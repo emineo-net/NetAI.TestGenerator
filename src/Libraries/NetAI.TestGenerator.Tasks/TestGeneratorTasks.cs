@@ -119,12 +119,14 @@ public class TestGeneratorTask : Task
                 {
                     try
                     {
-                        var report = analyzer.AnalyzeFromCompilationAsync(
+                        // Ausführung auf den ThreadPool verlagern, um MSBuild-Thread-Deadlocks zu verhindern
+                        var report = System.Threading.Tasks.Task.Run(async () =>
+                            await analyzer.AnalyzeFromCompilationAsync(
                                 compilation,
                                 method.Identifier.Text,
                                 documentName: Path.GetFileName(tree.FilePath),
-                                ct: CancellationToken.None)
-                            .GetAwaiter().GetResult();
+                                ct: CancellationToken.None).ConfigureAwait(false)
+                        ).GetAwaiter().GetResult();
 
                         reports.Add(report);
                     }
@@ -133,6 +135,7 @@ public class TestGeneratorTask : Task
                         // Methode nicht gefunden / kein Methodensymbol – überspringen.
                     }
                 }
+
             }
 
             // --- Report schreiben ---
