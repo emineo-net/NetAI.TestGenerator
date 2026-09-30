@@ -126,13 +126,18 @@ public class TestProjectManager
         string testTemplate = "xunit",
         string? targetFramework = null,
         string generatedClassNamePrefix = "GeneratedTest_",
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string? testProjectDirectoryOverride = null)
     {
         if (!File.Exists(sourceFilePath))
             return new TestGenerationResult(false, $"The source file was not found: {sourceFilePath}");
         if (string.IsNullOrWhiteSpace(testClassCode))
             return new TestGenerationResult(false, "The supplied test class code is empty.");
-        if (string.IsNullOrWhiteSpace(testProjectName))
+        string resolvedTestProjectName = string.IsNullOrWhiteSpace(testProjectDirectoryOverride)
+            ? testProjectName
+            : Path.GetFileName(testProjectDirectoryOverride!.TrimEnd(
+                Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        if (string.IsNullOrWhiteSpace(resolvedTestProjectName))
             return new TestGenerationResult(false, "The test project name must not be empty.");
 
         try
@@ -143,15 +148,17 @@ public class TestProjectManager
                     $"No .sln or .slnx file was found above '{sourceFilePath}'.");
 
             string testClassName = ExtractClassName(testClassCode, generatedClassNamePrefix);
-            string testProjectDir = CombineUnderSolution(solutionDirectory, testsRelativeSubPath, testProjectName);
-            string testProjectPath = Path.Combine(testProjectDir, $"{testProjectName}.csproj");
+            string testProjectDir = string.IsNullOrWhiteSpace(testProjectDirectoryOverride)
+                ? CombineUnderSolution(solutionDirectory, testsRelativeSubPath, resolvedTestProjectName)
+                : Path.GetFullPath(testProjectDirectoryOverride);
+            string testProjectPath = Path.Combine(testProjectDir, $"{resolvedTestProjectName}.csproj");
 
             string? sourceProjectPath = FindContainingProject(sourceFilePath, solutionDirectory);
 
             if (!File.Exists(testProjectPath))
             {
                 var createResult = await CreateTestProjectAsync(
-                    solutionDirectory, testProjectDir, testProjectName, testTemplate, targetFramework,
+                    solutionDirectory, testProjectDir, resolvedTestProjectName, testTemplate, targetFramework,
                     sourceProjectPath, cancellationToken);
                 if (!createResult.IsSuccess) return createResult;
             }

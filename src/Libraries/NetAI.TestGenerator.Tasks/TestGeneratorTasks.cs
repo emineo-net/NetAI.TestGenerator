@@ -215,7 +215,15 @@ public class TestGeneratorTask : Task
         Log.LogMessage(MessageImportance.High,
             "🤖 [NetAI] Modus-Bedingung erfüllt. Starte Test-Analyse...");
 
-        string testProjectDirectory = $"{ProjectDir.TrimEnd(Path.DirectorySeparatorChar)}.Tests";
+        string? solutionDirectory = FindSolutionDirectory(ProjectDir);
+        if (solutionDirectory is null)
+        {
+            Log.LogError($"[NetAI] Keine .sln- oder .slnx-Datei über '{ProjectDir}' gefunden.");
+            return false;
+        }
+
+        string projectName = Path.GetFileName(ProjectDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        string testProjectDirectory = Path.Combine(solutionDirectory, "tests", "UnitTests", $"{projectName}.Tests");
 
         var collectedIssues = new List<string>();
         var orchestrator = new ResxTranslationOrchestrator();
@@ -414,5 +422,22 @@ public class TestGeneratorTask : Task
 
     private void TryOpenSummaryLog(List<string> issues)
     {
+    }
+
+    private static string? FindSolutionDirectory(string startDirectory)
+    {
+        var currentDirectory = new DirectoryInfo(startDirectory);
+        while (currentDirectory is not null)
+        {
+            if (currentDirectory.EnumerateFiles("*.sln").Any() ||
+                currentDirectory.EnumerateFiles("*.slnx").Any())
+            {
+                return currentDirectory.FullName;
+            }
+
+            currentDirectory = currentDirectory.Parent;
+        }
+
+        return null;
     }
 }
