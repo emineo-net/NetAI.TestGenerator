@@ -4,15 +4,22 @@ using Scriban;
 
 namespace NetAI.TestGenerator.Core.Services;
 
+/// <summary>Builds test-generation prompts from project settings and source code.</summary>
 public class AiPromptBuilder
 {
     private readonly string _configFilePath;
 
+    /// <summary>Creates a prompt builder using the specified settings file.</summary>
+    /// <param name="configFilePath">Path to <c>aisettings.json</c>; defaults to the current directory.</param>
     public AiPromptBuilder(string configFilePath = "aisettings.json")
     {
         _configFilePath = configFilePath;
     }
 
+    /// <summary>Builds system instructions from the configured framework, style, and generation strategy.</summary>
+    /// <returns>A task whose result is the generated system prompt.</returns>
+    /// <exception cref="FileNotFoundException">The settings file does not exist.</exception>
+    /// <exception cref="InvalidOperationException">The settings file cannot be parsed.</exception>
     public Task<string> BuildSystemPromptAsync()
     {
         var config = AiSettingsLoader.Load(Path.GetDirectoryName(Path.GetFullPath(_configFilePath))!);
@@ -93,6 +100,11 @@ public class AiPromptBuilder
     }
 
 
+    /// <summary>Creates a unit-test prompt for a specific method and its containing class.</summary>
+    /// <param name="klassenCode">Source code for the class that contains the method.</param>
+    /// <param name="methodenName">Name of the method to test.</param>
+    /// <param name="methodenSignatur">Signature or search term that identifies the method.</param>
+    /// <returns>A rendered prompt containing the class context and test-generation rules.</returns>
     public string GeneratePrompt(string klassenCode, string methodenName, string methodenSignatur)
     {
         var template = Template.Parse(PromptTemplates.UnitTestGenerator);

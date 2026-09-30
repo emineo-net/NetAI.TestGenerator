@@ -9,6 +9,7 @@ using Microsoft.Build.Locator;
 
 namespace NetAI.TestGenerator.Core.Analysis;
 
+/// <summary>Analyzes testability using Roslyn workspaces loaded from a solution, project, or document.</summary>
 public sealed class RoslynTestabilityAnalyzer
 {
     private static readonly SymbolDisplayFormat FqFormat = SymbolDisplayFormat.FullyQualifiedFormat
@@ -16,9 +17,17 @@ public sealed class RoslynTestabilityAnalyzer
 
     private readonly AnalyzerOptions _options;
 
+    /// <summary>Creates an analyzer with optional report and framework-type settings.</summary>
+    /// <param name="options">Analysis options, or <see langword="null"/> to use defaults.</param>
     public RoslynTestabilityAnalyzer(AnalyzerOptions? options = null) => _options = options ?? new AnalyzerOptions();
 
 #if !NETSTANDARD2_0
+    /// <summary>Loads a solution and analyzes a named method in the requested document.</summary>
+    /// <param name="solutionPath">Path to the solution file.</param>
+    /// <param name="documentName">Document name or path fragment to locate.</param>
+    /// <param name="methodName">Name of the method to analyze.</param>
+    /// <param name="ct">Token used to cancel workspace loading or analysis.</param>
+    /// <returns>A report describing the method and its testability.</returns>
     public async Task<TestabilityReport> AnalyzeFromSolutionAsync(
         string solutionPath, string documentName, string methodName, CancellationToken ct = default)
     {
@@ -35,6 +44,12 @@ public sealed class RoslynTestabilityAnalyzer
         return await AnalyzeDocumentAsync(document, methodName, ct);
     }
 
+    /// <summary>Loads a project and analyzes a named method in the requested document.</summary>
+    /// <param name="projectPath">Path to the project file.</param>
+    /// <param name="documentName">Document name or path fragment to locate.</param>
+    /// <param name="methodName">Name of the method to analyze.</param>
+    /// <param name="ct">Token used to cancel workspace loading or analysis.</param>
+    /// <returns>A report describing the method and its testability.</returns>
     public async Task<TestabilityReport> AnalyzeFromProjectAsync(
         string projectPath, string documentName, string methodName, CancellationToken ct = default)
     {
@@ -52,6 +67,11 @@ public sealed class RoslynTestabilityAnalyzer
     }
 #endif
 
+    /// <summary>Analyzes a method in an already loaded Roslyn document.</summary>
+    /// <param name="document">Document containing the method to analyze.</param>
+    /// <param name="methodName">Name of the method to analyze.</param>
+    /// <param name="ct">Token used to cancel the analysis.</param>
+    /// <returns>A report describing the method and its testability.</returns>
     public async Task<TestabilityReport> AnalyzeDocumentAsync(
         Document document,
         string methodName,

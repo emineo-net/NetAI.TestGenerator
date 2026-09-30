@@ -3,10 +3,14 @@ using NetAI.TestGenerator.Core.Models;
 
 namespace NetAI.TestGenerator.Core;
 
+/// <summary>Builds domain-analysis and structured batch prompts for resource-file localization.</summary>
 public class TranslationPromptBuilder
 {
     private const int BatchSize = 20;
 
+    /// <summary>Creates a prompt that asks the model to identify the domain of a translation request.</summary>
+    /// <param name="request">Request containing the source strings to analyze.</param>
+    /// <returns>The analyzer's system prompt and a sample of source strings as input.</returns>
     public (string SystemPrompt, string AnalysisInput) BuildDomainAnalysisPrompt(ApiTranslationRequest request)
     {
         var sampleTexts = request.Items.Take(15).Select(i => i.SourceText);
@@ -20,6 +24,10 @@ public class TranslationPromptBuilder
         return (analysisSystemPrompt, analysisInput);
     }
 
+    /// <summary>Builds structured translation prompts in batches of up to 20 resource strings.</summary>
+    /// <param name="request">Target language and keyed source strings to translate.</param>
+    /// <param name="detectedDomain">Domain context used to select appropriate terminology.</param>
+    /// <returns>Prompts whose input and output preserve each resource key.</returns>
     public List<TranslationBatchPromptResult> BuildBatchPrompts(ApiTranslationRequest request, string detectedDomain)
     {
         var results = new List<TranslationBatchPromptResult>();

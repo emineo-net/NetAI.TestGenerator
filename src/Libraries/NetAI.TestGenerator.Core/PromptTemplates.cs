@@ -2,8 +2,10 @@
 
 namespace NetAI.TestGenerator.Core;
 
+/// <summary>Provides the shared prompt templates used for test generation and compiler-error repair.</summary>
 public static class PromptTemplates
 {
+   /// <summary>Template for generating a unit test from a method and its containing class.</summary>
     public const string UnitTestGenerator = """"
       You are an expert in software quality and C# .NET 10 unit testing.
       Write a unit test for a method that compiles immediately.
@@ -60,6 +62,7 @@ public static class PromptTemplates
 
 
 
+   /// <summary>Template for repairing a generated test while retaining the original generation rules.</summary>
     public const string UnitTestFixer = """"
                                         The C# unit test you generated produced an error during compilation (dotnet build).
 
@@ -83,6 +86,7 @@ public static class PromptTemplates
                                         Then return ONLY the raw, corrected C# code. Do not include any other explanations before or after the code block. Start directly with the namespaces.
                                         """";
 
+   /// <summary>Compact repair template that requests only the complete corrected code block.</summary>
     public const string UnitTestFixerSimple = """"
                                               The C# unit test you generated produced an error during compilation (dotnet build).
 

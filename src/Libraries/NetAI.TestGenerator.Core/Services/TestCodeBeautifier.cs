@@ -7,10 +7,17 @@ using NetAI.TestGenerator.Core.Models.Enums;
 
 namespace NetAI.TestGenerator.Core.Services;
 
+/// <summary>Formats generated C# test code and adds framework-specific using directives.</summary>
 public class TestCodeBeautifier
 {
     private readonly AdhocWorkspace _workspace = new();
 
+    /// <summary>Adds required test and mocking namespaces, sorts usings, and formats valid source code.</summary>
+    /// <param name="sourceCode">Generated C# source code.</param>
+    /// <param name="testFramework">Test framework referenced by the generated code.</param>
+    /// <param name="mockFramework">Mocking framework referenced by the generated code.</param>
+    /// <param name="cancellationToken">Token used to cancel formatting.</param>
+    /// <returns>Formatted source code, or the original input when it is empty or syntactically invalid.</returns>
     public async Task<string> BeautifyAndAddUsingsAsync(
         string sourceCode,
         TestFramework testFramework = TestFramework.xUnit,
@@ -42,6 +49,11 @@ public class TestCodeBeautifier
         return root.ToFullString();
     }
 
+    /// <summary>Applies safe automatic fixes for compiler errors that can be resolved by adding a using directive.</summary>
+    /// <param name="sourceCode">Source code to inspect and potentially update.</param>
+    /// <param name="compilerErrors">Compiler error messages to analyze.</param>
+    /// <param name="cancellationToken">Token used to cancel formatting.</param>
+    /// <returns>Updated source code when a fix was applied; otherwise the original source.</returns>
     public async Task<string> TryFixCompilerErrorsAsync(
         string sourceCode,
         IEnumerable<string> compilerErrors,

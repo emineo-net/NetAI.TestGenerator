@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace NetAI.TestGenerator.Core;
 
+/// <summary>Coordinates source analysis, AI-generated unit tests, and optional compile validation.</summary>
 public class ResxTranslationOrchestrator
 {
     private static readonly Regex TestCodeBlockRegex = new(
@@ -18,12 +19,21 @@ public class ResxTranslationOrchestrator
     private readonly TestGeneratorService _testGeneratorService;
     private readonly TestCodeBeautifier _testCodeBeautifier = new();
 
+    /// <summary>Creates an orchestrator for generating tests from source files.</summary>
+    /// <param name="httpClient">Reserved for custom transport support; the current implementation uses <see cref="LocalLlmClient"/>.</param>
     public ResxTranslationOrchestrator(HttpClient? httpClient = null)
     {
         _testGeneratorService = new TestGeneratorService();
     }
 
 
+    /// <summary>Generates tests for uncovered methods in the first class found in a source file.</summary>
+    /// <param name="sourceFilePath">Path to the source file to analyze.</param>
+    /// <param name="testProjectDirectory">Directory where generated test files and the test project are stored.</param>
+    /// <param name="logInfo">Optional callback for progress and diagnostic messages.</param>
+    /// <param name="compilation">Optional Roslyn compilation used to enrich prompts with semantic facts.</param>
+    /// <param name="promptOnly">When <see langword="true"/>, skips compile validation after saving each generated test.</param>
+    /// <returns><c>"ok"</c> when processing completes, or an error message if processing fails.</returns>
     public async Task<string> ProcessProjectAsync(
     string sourceFilePath,
     string testProjectDirectory,
@@ -497,6 +507,9 @@ namespace {namespaceName}
         }
     }
 
+    /// <summary>Extracts method declarations from an AI response, including responses wrapped in a code fence.</summary>
+    /// <param name="aiResponse">Raw response returned by the model.</param>
+    /// <returns>Extracted method declarations, or the trimmed response when no methods are found.</returns>
     public static string ExtractTestClass(string aiResponse)
     {
         if (string.IsNullOrWhiteSpace(aiResponse))

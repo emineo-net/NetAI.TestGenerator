@@ -9,22 +9,36 @@ using Task = Microsoft.Build.Utilities.Task;
 
 namespace NetAI.TestGenerator.Tasks;
 
+/// <summary>Runs testability analysis and AI-assisted test generation as part of an MSBuild build.</summary>
 public class TestGeneratorTask : Task
 {
     bool testXamlCs = true;
     bool testDebugger = false;
+
+    /// <summary>Gets or sets the project directory supplied by MSBuild.</summary>
     [Required]
     public string ProjectDir { get; set; } = string.Empty;
 
+    /// <summary>Gets or sets the active MSBuild configuration, such as <c>Debug</c> or <c>Release</c>.</summary>
     public string? CurrentConfiguration { get; set; }
 
+    /// <summary>Gets or sets whether the current build is publishing the project.</summary>
     public bool IsPublishing { get; set; }
+
+    /// <summary>Gets or sets whether to save generated drafts without compiling the test project.</summary>
     public bool PromptOnly { get; set; }
 
+    /// <summary>Gets or sets source files provided by the MSBuild <c>Compile</c> item group.</summary>
     public ITaskItem[] SourceFiles { get; set; } = Array.Empty<ITaskItem>();
+
+    /// <summary>Gets or sets resolved assembly references used to build semantic analysis compilations.</summary>
     public ITaskItem[] ReferencePaths { get; set; } = Array.Empty<ITaskItem>();
+
+    /// <summary>Gets or sets the directory where semantic analysis reports are written.</summary>
     public string? AnalysisOutputDirectory { get; set; }
 
+    /// <summary>Runs semantic analysis or test generation, depending on the inputs supplied by MSBuild.</summary>
+    /// <returns><see langword="true"/> when the task succeeds; otherwise, <see langword="false"/>.</returns>
     public override bool Execute()
     {
 

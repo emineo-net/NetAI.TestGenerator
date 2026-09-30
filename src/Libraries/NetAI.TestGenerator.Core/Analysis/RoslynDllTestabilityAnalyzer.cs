@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NetAI.TestGenerator.Core.Analysis
 {
+    /// <summary>Analyzes testability using Roslyn compilations assembled from source files and metadata references.</summary>
     public sealed class RoslynDllTestabilityAnalyzer
     {
         private static readonly SymbolDisplayFormat FqFormat =
@@ -18,9 +19,18 @@ namespace NetAI.TestGenerator.Core.Analysis
 
         private readonly AnalyzerOptions _options;
 
+        /// <summary>Creates an analyzer with optional report and framework-type settings.</summary>
+        /// <param name="options">Analysis options, or <see langword="null"/> to use defaults.</param>
         public RoslynDllTestabilityAnalyzer(AnalyzerOptions? options = null)
             => _options = options ?? new AnalyzerOptions();
 
+        /// <summary>Builds a compilation from source files and references, then analyzes a named method.</summary>
+        /// <param name="sourceFilePaths">Source files included in the compilation.</param>
+        /// <param name="referenceDllPaths">Assembly files available as compilation references.</param>
+        /// <param name="methodName">Name of the method to analyze.</param>
+        /// <param name="documentName">Optional document name used to narrow the search.</param>
+        /// <param name="ct">Token used to cancel the analysis.</param>
+        /// <returns>A report describing the method and its testability.</returns>
         public Task<TestabilityReport> AnalyzeFromSourceFilesAsync(
             IEnumerable<string> sourceFilePaths,
             IEnumerable<string> referenceDllPaths,
@@ -34,6 +44,17 @@ namespace NetAI.TestGenerator.Core.Analysis
                 compilation, methodName, documentName, ct);
         }
 
+        /// <summary>Finds source files in a directory, builds a compilation, and analyzes a named method.</summary>
+        /// <param name="directory">Root directory to search.</param>
+        /// <param name="referenceDllPaths">Assembly files available as compilation references.</param>
+        /// <param name="methodName">Name of the method to analyze.</param>
+        /// <param name="documentName">Optional document name used to narrow the search.</param>
+        /// <param name="searchPattern">File pattern used to find source files.</param>
+        /// <param name="recursive">Whether to search subdirectories.</param>
+        /// <param name="ct">Token used to cancel the analysis.</param>
+        /// <returns>A report describing the method and its testability.</returns>
+        /// <exception cref="ArgumentException">The directory path is empty.</exception>
+        /// <exception cref="DirectoryNotFoundException">The directory does not exist.</exception>
         public Task<TestabilityReport> AnalyzeFromDirectoryAsync(
             string directory,
             IEnumerable<string> referenceDllPaths,
@@ -58,6 +79,12 @@ namespace NetAI.TestGenerator.Core.Analysis
                 files, referenceDllPaths, methodName, documentName, ct);
         }
 
+        /// <summary>Analyzes a named method in an existing Roslyn compilation.</summary>
+        /// <param name="compilation">Compilation containing the method's syntax tree and semantic model.</param>
+        /// <param name="methodName">Name of the method to analyze.</param>
+        /// <param name="documentName">Optional document name used to narrow the search.</param>
+        /// <param name="ct">Token used to cancel the analysis.</param>
+        /// <returns>A report describing the method and its testability.</returns>
         public Task<TestabilityReport> AnalyzeFromCompilationAsync(
             Compilation compilation,
             string methodName,
@@ -95,6 +122,11 @@ namespace NetAI.TestGenerator.Core.Analysis
             return "(unnamed)";
         }
 
+        /// <summary>Creates a Roslyn compilation from existing source files and metadata references.</summary>
+        /// <param name="sourceFilePaths">Source files to parse into syntax trees.</param>
+        /// <param name="referenceDllPaths">Assembly files to use as metadata references.</param>
+        /// <param name="assemblyName">Name assigned to the resulting compilation.</param>
+        /// <returns>A dynamically linked library compilation.</returns>
         public static CSharpCompilation BuildCompilation(
             IEnumerable<string> sourceFilePaths,
             IEnumerable<string> referenceDllPaths,

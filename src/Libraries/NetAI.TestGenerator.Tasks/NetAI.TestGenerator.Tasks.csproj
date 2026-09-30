@@ -5,6 +5,7 @@
 		<LangVersion>latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 
 		<DevelopmentDependency>true</DevelopmentDependency>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -46,8 +47,12 @@
 	<Target Name="PackCustomTasksAndDependencies">
 		<ItemGroup>
 			<_TasksOutputDependencies Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.dll" Exclude="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.dll" />
+			<_TasksOutputDependencies Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.xml" />
 
 			<TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.dll">
+				<PackagePath>tasks\netstandard2.0\</PackagePath>
+			</TfmSpecificPackageFile>
+			<TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.xml" Condition="Exists('$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.xml')">
 				<PackagePath>tasks\netstandard2.0\</PackagePath>
 			</TfmSpecificPackageFile>
 			<TfmSpecificPackageFile Include="@(_TasksOutputDependencies)">
