@@ -1,0 +1,13 @@
+{
+  "name": "C# Development",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.csharp",
+        "ms-vscode.azure-account",
+        "github.copilot"
+      ]
+    }
+  }
+}

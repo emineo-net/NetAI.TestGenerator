@@ -27,6 +27,7 @@
 
 		<!-- NEU: Zwischenverzeichnis für den Analyse-Report. -->
 		<_TestGeneratorAnalysisDir>$(IntermediateOutputPath)netai\</_TestGeneratorAnalysisDir>
+
 	</PropertyGroup>
 
 	<!-- TRICK: TaskHostFactory zwingt MSBuild, den Task in einem separaten Prozess zu starten. -->

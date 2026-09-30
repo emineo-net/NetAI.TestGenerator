@@ -16,14 +16,11 @@ namespace NetAI.TestGenerator.Core;
 
 public class ResxTranslationOrchestrator
 {
-    private readonly HttpClient _httpClient;
-
     private readonly TestGeneratorService _testGeneratorService;
     private readonly TestCodeBeautifier _testCodeBeautifier = new();
 
     public ResxTranslationOrchestrator(HttpClient? httpClient = null)
     {
-        _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(6000) };
         _testGeneratorService = new TestGeneratorService(); // Instanziierung
     }
 
@@ -38,26 +35,21 @@ public class ResxTranslationOrchestrator
     /// Ohne Compilation bleibt das Verhalten rein syntaktisch.
     /// </summary>
     public async Task<string> ProcessProjectAsync(
-        string sourceFilePath,
-        string testProjectDirectory,
-        Action<string>? logInfo = null,
-        Compilation? compilation = null)
+    string sourceFilePath,
+    string testProjectDirectory,
+    Action<string>? logInfo = null,
+    Compilation? compilation = null)
     {
         try
         {
-            bool tääästDebugger = false;
+            bool tääästDebugger = true;
 
 #if DEBUG
             if (tääästDebugger)
             {
                 System.Diagnostics.Debugger.Launch();
-
             }
 #endif
-
-
-
-
 
             // Sicherheitsprüfung: Existiert die Quellcodedatei überhaupt?
             if (string.IsNullOrWhiteSpace(sourceFilePath) || !File.Exists(sourceFilePath))
@@ -65,8 +57,15 @@ public class ResxTranslationOrchestrator
                 return "Source file empty or missing.";
             }
 
+            // NEU & STABIL: Datei asynchron und mit FileShare lesen (behebt WPF/MSBuild-Sperren)
+            string sourceCode;
+            using (var stream = new FileStream(sourceFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            {
+                sourceCode = await reader.ReadToEndAsync().ConfigureAwait(false);
+            }
+
             // 1. Quellklasse mit Roslyn parsen, um Namen und Methoden zu extrahieren
-            string sourceCode = File.ReadAllText(sourceFilePath);
             var sourceRoot = CSharpSyntaxTree.ParseText(sourceCode).GetCompilationUnitRoot();
             var targetClass = sourceRoot.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
 
@@ -76,6 +75,40 @@ public class ResxTranslationOrchestrator
             }
 
             string className = targetClass.Identifier.Text;
+
+            //**************************
+            string targetDllName = $"{Path.GetFileNameWithoutExtension(sourceFilePath)}.dll";
+            var hostProjectDir = FindProjectDirectory(sourceFilePath);
+            string? newestDllPath = null;
+
+            if (hostProjectDir != null)
+            {
+                var csprojFile = Directory.GetFiles(hostProjectDir, "*.csproj").FirstOrDefault();
+                if (csprojFile != null)
+                {
+                    targetDllName = $"{Path.GetFileNameWithoutExtension(csprojFile)}.dll";
+                }
+
+                try
+                {
+                    var foundDlls = Directory.GetFiles(hostProjectDir, targetDllName, SearchOption.AllDirectories)
+                        .Select(f => new FileInfo(f))
+                        .Where(fi => !fi.FullName.Contains($"{Path.DirectorySeparatorChar}ref{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                        .OrderByDescending(fi => fi.LastWriteTimeUtc) // Die neueste DLL steht auf Index 0
+                        .ToList();
+
+                    if (foundDlls.Count > 0)
+                    {
+                        // HIER: Wir nehmen den exakten Dateipfad der neuesten Datei!
+                        newestDllPath = foundDlls.First().FullName;
+                    }
+                }
+                catch { /* Fehler übergehen */ }
+            }
+
+            //*************************
+
+
             string testClassName = $"{className}Tests";
             string testFilePath = Path.Combine(testProjectDirectory, $"{testClassName}.cs");
 
@@ -87,24 +120,18 @@ public class ResxTranslationOrchestrator
 
             var localLlmClient = new LocalLlmClient();
             var aiPromptBuilderSimple = new AiPromptBuilderSimple();
-            var manager = new TestProjectManager();
+            var testProjectManager = new TestProjectManager();
 
             // -----------------------------------------------------------------
             // NEU: Compiler-Service-Adapter + TestCodeProcessor
-            //     Der Adapter mappt ICompilerService auf den vorhandenen Manager,
-            //     damit der Prozessor dieselbe Compile-Strategie nutzt wie der
-            //     restliche Orchestrator.
             // -----------------------------------------------------------------
             var compilerService = new TestProjectManagerCompilerService(
-                code => manager.SetupAndValidateTestAsync(sourceFilePath, code));
+                code => testProjectManager.SetupAndValidateTestAsync(sourceFilePath, code));
 
             var testCodeProcessor = new TestCodeProcessor(compilerService);
-            // -----------------------------------------------------------------
 
             // -----------------------------------------------------------------
             // NEU: Semantische Analyse vorbereiten.
-            //     Wird nur aktiv, wenn der Aufrufer eine Compilation übergeben hat
-            //     (z. B. aus dem Build-Task, der @(Compile) + @(ReferencePath) hat).
             // -----------------------------------------------------------------
             RoslynDllTestabilityAnalyzer? semanticAnalyzer = null;
             if (compilation != null)
@@ -116,14 +143,11 @@ public class ResxTranslationOrchestrator
             {
                 logInfo?.Invoke("[NetAI] Keine Compilation übergeben – arbeite rein syntaktisch.");
             }
-            // -----------------------------------------------------------------
 
             // 3. Jede Methode der Quellklasse einzeln prüfen
             foreach (var method in sourceMethods)
             {
                 var methodString = method.ToString();
-
-
                 string methodName = method.Identifier.Text;
 
                 // Prüfen, ob der Methodenname bereits in einer der existierenden Testmethoden vorkommt
@@ -137,58 +161,36 @@ public class ResxTranslationOrchestrator
 
                 logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
 
-
-                logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
-
                 // 4. Klassen-Skelett (Felder + Methode + genutzte Hilfsmethoden) als Kontext
                 string classSkeleton = BuildClassSkeleton(targetClass, method);
 
-                // -----------------------------------------------------------------
-                // NEU: Semantischen Kontext zur Methode holen (falls verfügbar).
-                //     Das Ergebnis ist ein Kommentar-Block, der dem Prompt vorangestellt
-                //     wird und der KI konkrete Hinweise zur Testbarkeit gibt.
-                // -----------------------------------------------------------------
+                // Richtig platziertes ConfigureAwait!
                 string semanticHint = await BuildSemanticHintAsync(
-                    semanticAnalyzer, compilation, sourceFilePath, methodName, logInfo);
-                // -----------------------------------------------------------------
-
-                //string basePrompt =
-                //    $"Erstelle eine präzise, lauffähige xUnit Unit-Test-Methode (mit [Fact]) für die Methode '{methodName}' " +
-                //    $"aus der Klasse '{className}'.\n\n" +
-                //    $"{semanticHint}\n" +
-                //    $"Relevanter Kontext (Usings, Felder, zu testende Methode, aufgerufene Hilfsmethoden):\n\n" +
-                //    $"{classSkeleton}";
+                    semanticAnalyzer, compilation, sourceFilePath, methodName, logInfo).ConfigureAwait(false);
 
                 string basePrompt =
                     $"Du bist ein .NET-Test-Experte. Erstelle eine präzise xUnit-Testmethode (mit [Fact]) für die Methode '{methodName}' aus der Klasse '{className}'.\n\n" +
                     "Lies dazu die <Analyse>, automatisch generierte semantische Analyse genau aus. " +
                     "Falls das 'Verdict' Einschränkungen (wie 'private' oder statische Abhängigkeiten) aufzeigt, versuche diese im Test pragmatisch zu umgehen " +
                     "(z. B. via Reflection für private Member oder durch Nutzung von Bibliotheken wie 'System.IO.Abstractions', falls in den Hinweisen erwähnt). " +
-
-                     "Gib IMMER eine xUnit-Testmethode zurück. Falls ein lauffähiger Test technisch unmöglich ist (z. B. bei 'async void' oder nicht testbarem Code), erstelle trotzdem eine Testmethode mit [Fact(Skip = \"<kurze Begründung, z. B. Kompilierfehler während der KI-Generierung: Methode 'X' ist privat oder nicht testbar.>\")] und füge den problematischen Code nur als Kommentar oder Block-Kommentar im Body ein.\n\n" +
-
+                     "Gib IMMER eine xUnit-Testmethode zurück. Falls ein lauffähiger Test technisch unmöglich ist (z. B. bei 'async void' oder nicht testbarem Code), erstelle trotzdem eine Testmethode mit [Fact(Skip = \"<kurze Begründung>\")] und füge den problematischen Code nur als Kommentar oder Block-Kommentar im Body ein.\n\n" +
                     $"<Analyse>\n{semanticHint}\n</Analyse>\n\n" +
                     $"Relevanter Kontext (Usings, Felder, zu testende Methode, aufgerufene Hilfsmethoden):\n\n" +
                     $"<Quellcode>\n{classSkeleton}\n</Quellcode>";
 
-
-              
-
-
-
+                // Datei-Schreiben kann synchron bleiben (oder auf File.WriteAllTextAsync umgebaut werden)
                 File.WriteAllText(@"C:\temp\tempxyz.txt", "semanticHint: " + semanticHint);
 
-                // Ersten Testentwurf von der KI anfordern
+                // Richtig platziertes ConfigureAwait!
                 var newTestClassResponse = await localLlmClient.AskAsync(
                     basePrompt,
-                    "Du bist ein C#-Test-Experte. Antworte ausschließlich mit lauffähigem C#-Code ohne Erklärungen.");
+                    "Du bist ein C#-Test-Experte. Antworte ausschließlich mit lauffähigem C#-Code ohne Erklärungen.").ConfigureAwait(false);
 
-
-                // Reinen Methoden-Code (oder falls die KI fälschlicherweise eine Klasse generiert hat) isolieren
+                // Reinen Methoden-Code isolieren
                 string testMethodCode = ExtractTestClass(newTestClassResponse);
 
-                // 5. Validierungs- und Selbstreparaturschleife (Maximal 3 Versuche)
-                const int MaxRetries = 3;
+             
+
                 TestGenerationResult? result = null;
                 bool isCompiledSuccessfully = false;
 
@@ -229,10 +231,10 @@ public class ResxTranslationOrchestrator
                     validationClassStructure = await testCodeProcessor.ProcessTestClassAsync(
                         validationClassStructure,
                         testFramework: TestFramework.xUnit,
-                        mockFramework: MockFramework.Unknown); // Unknown ⇒ reine Muster-Erkennung
+                        mockFramework: MockFramework.Unknown).ConfigureAwait(false); // Unknown ⇒ reine Muster-Erkennung
 
                     // Code gegen den echten C#-Compiler prüfen
-                    result = await manager.SetupAndValidateTestAsync(sourceFilePath, validationClassStructure);
+                    result = await testProjectManager.SetupAndValidateTestAsync(sourceFilePath, validationClassStructure).ConfigureAwait(false);
 
                     // -----------------------------------------------------------------
                     // 1) Erfolg
@@ -264,7 +266,7 @@ public class ResxTranslationOrchestrator
                                         $"Cause: a referenced assembly is locked by another process.");
 
                         // Kurz warten und denselben Code nochmal durchlaufen lassen.
-                        await Task.Delay(TimeSpan.FromSeconds(5));
+                        await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
                         continue;
                     }
 
@@ -302,7 +304,7 @@ public class ResxTranslationOrchestrator
                     {
                         var roslynFixed = await _testCodeBeautifier.TryFixCompilerErrorsAsync(
                             codeForRepair,
-                            result.CompilerErrors);
+                            result.CompilerErrors).ConfigureAwait(false);
 
                         if (!string.Equals(roslynFixed, codeForRepair, StringComparison.Ordinal))
                         {
@@ -322,7 +324,7 @@ public class ResxTranslationOrchestrator
                                        "Syntax- und Kompilierfehler in bereitgestelltem C#-Code exakt zu reparieren " +
                                        "und lauffähigen Code ohne Text-Erklärungen zurückzugeben.\n";
 
-                    var correctedOutput = await localLlmClient.AskAsync(errorPrompt, systemPrompt);
+                    var correctedOutput = await localLlmClient.AskAsync(errorPrompt, systemPrompt).ConfigureAwait(false);
 
                     // Korrigierten Code wieder extrahieren
                     testMethodCode = ExtractTestClass(correctedOutput);
@@ -349,7 +351,7 @@ public class ResxTranslationOrchestrator
                 }
                 else
                 {
-                    logInfo?.Invoke($"[NetAI] Error: Could not generate a compilable test for '{methodName}' after {MaxRetries} retries.");
+                    logInfo?.Invoke($"[NetAI] Error: Could not generate a compilable test for '{methodName}' after {MaxAiRetries} retries.");
                     if (result?.CompilerErrors != null)
                     {
                         logInfo?.Invoke($"[NetAI] Final Compiler Errors:\n{string.Join("\n", result.CompilerErrors)}");
@@ -615,4 +617,27 @@ namespace {namespaceName}
 
         return sb.ToString().Trim();
     }
+
+    private static string? FindProjectDirectory(string filePath)
+    {
+        try
+        {
+            var currentDir = Path.GetDirectoryName(filePath);
+            while (currentDir != null)
+            {
+                // Suchen nach einer beliebigen .csproj im aktuellen Ordner
+                if (Directory.GetFiles(currentDir, "*.csproj").Length > 0)
+                {
+                    return currentDir;
+                }
+                currentDir = Directory.GetParent(currentDir)?.FullName;
+            }
+        }
+        catch
+        {
+            // Falls Zugriffsfehler auftreten
+        }
+        return null;
+    }
+
 }

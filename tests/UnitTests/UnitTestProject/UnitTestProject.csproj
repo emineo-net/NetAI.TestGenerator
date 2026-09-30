@@ -19,7 +19,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Xunit.StaFact" />
-
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="System.Threading.Tasks" />
+    <PackageReference Include="System.Threading" />
+    <PackageReference Include="System" />
+    <PackageReference Include="System.Collections" />
+    <PackageReference Include="System.Linq" />
+    <PackageReference Include="System.Reflection" />
+    <PackageReference Include="System.Runtime" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
