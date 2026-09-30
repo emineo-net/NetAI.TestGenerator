@@ -21,11 +21,6 @@ public class TestGeneratorTask : Task
     public bool IsPublishing { get; set; }
     public bool PromptOnly { get; set; }
 
-    // ---------------------------------------------------------------------
-    //  Werden nur vom RunSemanticTestAnalysis-Target übergeben.
-    //  Im RunResxTranslation-Target werden SourceFiles übergeben,
-    //  ReferencePaths bleibt dort leer (noch nicht aufgelöst).
-    // ---------------------------------------------------------------------
     public ITaskItem[] SourceFiles { get; set; } = Array.Empty<ITaskItem>();
     public ITaskItem[] ReferencePaths { get; set; } = Array.Empty<ITaskItem>();
     public string? AnalysisOutputDirectory { get; set; }
@@ -50,11 +45,6 @@ public class TestGeneratorTask : Task
         }
 
 
-        // 2. Modus-Erkennung:
-        //    Wenn MSBuild uns Compile- UND Reference-Items UND ein Ausgabeverzeichnis
-        //    geliefert hat, sind wir im semantischen Analyse-Modus.
-        //    Sonst: Resx-/Test-Generierung (dort wird die Compilation aus SourceFiles
-        //    gebaut, mit Fallback auf geladene Assemblies als Referenzen).
         var hasSemanticInputs =
             SourceFiles.Length > 0 &&
             ReferencePaths.Length > 0 &&
@@ -65,10 +55,6 @@ public class TestGeneratorTask : Task
             : ExecuteResxGeneration();
     }
 
-    // =====================================================================
-    //  Modus A: Semantische Analyse
-    //  (aufgerufen aus RunSemanticTestAnalysis, NACH ResolveReferences)
-    // =====================================================================
     private bool ExecuteSemanticAnalysis()
     {
         try
@@ -87,7 +73,6 @@ public class TestGeneratorTask : Task
                 $"[NetAI] Semantische Analyse gestartet: " +
                 $"{sourcePaths.Count} Quelldateien, {referencePaths.Count} Referenzen.");
 
-            // --- Compilation aus Quelldateien + DLL-Pfaden bauen ---
             var assemblyName = Path.GetFileName(ProjectDir.TrimEnd('/', '\\'));
             var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(
                 sourcePaths,
@@ -105,7 +90,6 @@ public class TestGeneratorTask : Task
                     "die Analyse arbeitet mit dem, was auflösbar ist.");
             }
 
-            // --- Analyse durchführen ---
             var analyzer = new RoslynDllTestabilityAnalyzer();
             var reports = new List<TestabilityReport>();
 
@@ -120,7 +104,6 @@ public class TestGeneratorTask : Task
                 {
                     try
                     {
-                        // Ausführung auf den ThreadPool verlagern, um MSBuild-Thread-Deadlocks zu verhindern
                         var report = System.Threading.Tasks.Task.Run(async () =>
                             await analyzer.AnalyzeFromCompilationAsync(
                                 compilation,
@@ -133,13 +116,11 @@ public class TestGeneratorTask : Task
                     }
                     catch (InvalidOperationException)
                     {
-                        // Methode nicht gefunden / kein Methodensymbol – überspringen.
                     }
                 }
 
             }
 
-            // --- Report schreiben ---
             Directory.CreateDirectory(AnalysisOutputDirectory!);
             var reportPath = Path.Combine(AnalysisOutputDirectory!, "testability-report.txt");
             WriteAnalysisReport(reports, reportPath);
@@ -215,14 +196,9 @@ public class TestGeneratorTask : Task
         File.WriteAllText(path, sb.ToString());
     }
 
-    // =====================================================================
-    //  Modus B: Resx-/Test-Generierung
-    //  (aufgerufen aus RunResxTranslation, VOR PrepareForBuild)
-    // =====================================================================
     private bool ExecuteResxGeneration()
     {
 
-        // Konfiguration aus aisettings.json laden
         AiTestingConfig config;
         try
         {
@@ -234,27 +210,17 @@ public class TestGeneratorTask : Task
             return false;
         }
 
-        // Sichere Modus-Prüfung (siehe ursprünglicher Kommentar)
         var config_ = (CurrentConfiguration ?? "Debug").ToLowerInvariant();
 
         Log.LogMessage(MessageImportance.High,
             "🤖 [NetAI] Modus-Bedingung erfüllt. Starte Test-Analyse...");
 
-        // Test-Projekt-Verzeichnis ermitteln
         string testProjectDirectory = $"{ProjectDir.TrimEnd(Path.DirectorySeparatorChar)}.Tests";
 
         var collectedIssues = new List<string>();
         var orchestrator = new ResxTranslationOrchestrator();
 
-        // -----------------------------------------------------------------
-        // NEU: Compilation für den Orchestrator bauen.
-        //     In der Resx-Phase ist @(ReferencePath) noch nicht aufgelöst,
-        //     deshalb wird auf die aktuell geladenen Assemblies zurückgegriffen.
-        //     Damit kann der Orchestrator semantische Hinweise in den KI-Prompt
-        //     einbauen (Verdict, statische Abhängigkeiten, Mockability, Ctors).
-        // -----------------------------------------------------------------
         Compilation? compilation = BuildCompilationForOrchestrator();
-        // -----------------------------------------------------------------
 
         var csharpFiles = new List<string>();
 
@@ -347,7 +313,7 @@ public class TestGeneratorTask : Task
                         {
                             Log.LogMessage(MessageImportance.High, message);
                         }
-                    }, compilation, promptOnly: PromptOnly)   // <- Compilation an den Orchestrator durchreichen
+                    }, compilation, promptOnly: PromptOnly)
                 ).GetAwaiter().GetResult();
 
                 Log.LogMessage(MessageImportance.High, "🤖 [NetAI]orchestrator.ProcessProjectAsyn end...");
@@ -380,22 +346,6 @@ public class TestGeneratorTask : Task
         return overallSuccess;
     }
 
-    // =====================================================================
-    //  Compilation-Aufbau für den Orchestrator
-    // =====================================================================
-
-    /// <summary>
-    /// Baut eine <see cref="Compilation"/> für den Orchestrator.
-    ///
-    /// Quelldateien kommen aus <see cref="SourceFiles"/> (MSBuild @(Compile)).
-    /// Referenzen kommen aus <see cref="ReferencePaths"/> (MSBuild @(ReferencePath)).
-    /// Wenn <see cref="ReferencePaths"/> leer ist – was in der frühen Resx-Phase
-    /// der Fall ist, weil @(ReferencePath) erst nach ResolveReferences aufgelöst
-    /// wird – greift ein Fallback auf die aktuell geladenen Assemblies.
-    ///
-    /// Gibt <c>null</c> zurück, wenn keine Quelldateien vorliegen oder der Aufbau
-    /// fehlschlägt. Der Orchestrator arbeitet dann rein syntaktisch weiter.
-    /// </summary>
     private Compilation? BuildCompilationForOrchestrator()
     {
         var sourcePaths = SourceFiles
@@ -413,7 +363,6 @@ public class TestGeneratorTask : Task
             return null;
         }
 
-        // Referenzen: erst aus @(ReferencePath), sonst Fallback auf geladene Assemblies.
         var referencePaths = ReferencePaths
             .Select(i => i.ItemSpec)
             .Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
@@ -465,6 +414,5 @@ public class TestGeneratorTask : Task
 
     private void TryOpenSummaryLog(List<string> issues)
     {
-        /* Ihre unveränderte Logik zum Öffnen des Protokolls */
     }
 }

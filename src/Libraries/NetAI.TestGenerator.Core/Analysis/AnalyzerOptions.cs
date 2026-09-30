@@ -4,7 +4,6 @@ namespace NetAI.TestGenerator.Core.Analysis;
 
 public sealed class AnalyzerOptions
 {
-    /// <summary>System.*-Typen mit aufnehmen (Task, CancellationToken, ...).</summary>
     public bool IncludeFrameworkTypes { get; init; } = true;
 
     public int MaxDiagnostics { get; init; } = 20;
@@ -20,10 +19,6 @@ public sealed class TestabilityReport
     public List<string> Recommendations { get; init; } = new();
     public List<string> CompilationErrors { get; init; } = new();
 
-    /// <summary>
-    /// Kompakte, prompt-taugliche Textdarstellung. Das ist der Teil,
-    /// der an das LLM als zusätzlicher Kontext geschickt wird.
-    /// </summary>
     public string ToPromptText()
     {
         var sb = new StringBuilder();

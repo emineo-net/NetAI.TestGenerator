@@ -6,7 +6,6 @@ namespace NetAI.TestGenerator.Core.Services;
 
 public class TestGeneratorService
 {
-    // Scant eine bestehende Testdatei und liefert alle Testmethoden-Namen
     public List<string> GetExistingTestMethods(string testFilePath)
     {
         var methodNames = new List<string>();
@@ -23,7 +22,6 @@ public class TestGeneratorService
         return methodNames;
     }
 
-    // Erstellt eine komplett neue Testdatei mit dem Grundgerüst (Variante 2)
     public void CreateNewTestClassFile(string filePath, string testClassName, NamespaceDeclarationSyntax? originalNamespace, string methodCode)
     {
         string namespaceName = originalNamespace?.Name.ToString() ?? "NetAI.Generated.Tests";
@@ -44,7 +42,6 @@ namespace {namespaceName}
         File.WriteAllText(filePath, formattedRoot.ToFullString());
     }
 
-    // Hängt eine neue KI-Methode an eine bestehende Testklasse an (Variante 2)
     public void AppendMethodToExistingClassFile(string filePath, string methodCode)
     {
         string existingCode = File.ReadAllText(filePath);

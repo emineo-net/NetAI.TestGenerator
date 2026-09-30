@@ -17,25 +17,23 @@ public class AiPromptBuilder
     {
         var config = AiSettingsLoader.Load(Path.GetDirectoryName(Path.GetFullPath(_configFilePath))!);
 
-        // Fehlerresistente Auswertung der Strings
         var framework = config.Frameworks.TestFramework.ToLowerInvariant() switch
         {
             "nunit" => "NUnit",
             "mstest" => "MSTest",
-            _ => "xUnit" // Sicherer Fallback, falls jemand Tippfehler macht
+            _ => "xUnit"
         };
 
         var mocker = config.Frameworks.MockingFramework.ToLowerInvariant() switch
         {
             "nsubstitute" or "nsub" => "NSubstitute",
-            _ => "Moq" // Sicherer Fallback
+            _ => "Moq"
         };
 
         var promptBuilder = new StringBuilder();
         promptBuilder.AppendLine(config.AiConfiguration.SystemPrompt);
         promptBuilder.AppendLine();
 
-        // Technische Basisdaten
         promptBuilder.AppendLine($"""
                                   ### TECHNICAL SPECIFICATIONS:
                                   - .NET Target Version: {config.Environment.TargetDotNetVersion}
@@ -44,7 +42,6 @@ public class AiPromptBuilder
                                   - Maximum Line Length: {config.CodeStyle.MaxLineLength} characters
                                   """);
 
-        // Definitionen der Regelblöcke als wiederverwendbare Strings
         var unitTestRules = $"""
                              ### UNIT TESTING RULES:
                              - Focus: Test the class in complete isolation.
@@ -60,7 +57,6 @@ public class AiPromptBuilder
                                    - Database: Use real test providers or in-memory databases. Do not mock data repositories.
                                    """;
 
-        // DIE DREIFACH-WEICHE
         switch (config.GenerationBehavior.TestStrategy.ToLowerInvariant())
         {
             case "integration":
@@ -80,13 +76,12 @@ public class AiPromptBuilder
                 promptBuilder.AppendLine(integrationTestRules);
                 break;
 
-            default: // "unit" oder falls sich jemand vertippt hat
+            default:
                 promptBuilder.AppendLine("\n### SCOPE: GENERATE UNIT TESTS ONLY");
                 promptBuilder.AppendLine(unitTestRules);
                 break;
         }
 
-        // Struktur-Regeln anhängen
         promptBuilder.AppendLine($"""
 
                                   ### STRUCTURE & SCOPE:
@@ -107,7 +102,7 @@ public class AiPromptBuilder
             { "test_framework", "xUnit" },
             { "mocking_library", "NSubstitute" },
             { "ziel_methode_name", methodenName },
-            { "ziel_methode_signatur", methodenSignatur }, // Neu dabei für Eindeutigkeit
+            { "ziel_methode_signatur", methodenSignatur },
             { "klassen_code", klassenCode }
         };
 

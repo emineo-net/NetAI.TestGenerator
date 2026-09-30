@@ -26,10 +26,6 @@ public class TestCodeProcessor
         _beautifier = new TestCodeBeautifier();
     }
 
-    // -----------------------------------------------------------------
-    //  Öffentlicher Einstiegspunkt
-    // -----------------------------------------------------------------
-
     public async Task<string> ProcessTestClassAsync(
         string sourceCode,
         TestFramework testFramework,
@@ -39,15 +35,12 @@ public class TestCodeProcessor
         if (string.IsNullOrWhiteSpace(sourceCode))
             throw new ArgumentException("Der Quellcode darf nicht leer sein.", nameof(sourceCode));
 
-        // 1. Usings ergänzen, Muster erkennen, sortieren, formatieren
         string currentCode = await _beautifier.BeautifyAndAddUsingsAsync(
             sourceCode, testFramework, mockFramework, cancellationToken);
 
-        // 2. Erste Kompilierung
         IReadOnlyList<Diagnostic> diagnostics = await _compilerService
             .CompileAndGetDiagnosticsAsync(currentCode, cancellationToken);
 
-        // 3. Iterative Reparatur-Schleife
         int iteration = 0;
         while (iteration < MaxFixIterations &&
                diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error))
@@ -72,7 +65,6 @@ public class TestCodeProcessor
             if (!anyFixed)
                 break;
 
-            // Usings sortieren und Code neu formatieren
             root = SortUsings(root);
             var doc = CreateDocumentFromRoot(root, cancellationToken);
             doc = await Formatter.FormatAsync(doc, cancellationToken: cancellationToken);
@@ -80,17 +72,12 @@ public class TestCodeProcessor
 
             currentCode = root.ToFullString();
 
-            // Erneut kompilieren, um zu prüfen, ob es noch Fehler gibt
             diagnostics = await _compilerService
                 .CompileAndGetDiagnosticsAsync(currentCode, cancellationToken);
         }
 
         return currentCode;
     }
-
-    // -----------------------------------------------------------------
-    //  Kernstück: fehlendes using anhand eines Diagnostics beheben
-    // -----------------------------------------------------------------
 
     private static bool TryFixMissingUsing(
         CompilationUnitSyntax root,
@@ -104,10 +91,6 @@ public class TestCodeProcessor
         if (error.Severity != DiagnosticSeverity.Error)
             return false;
 
-        // Nur die relevanten Compiler-Fehler behandeln:
-        //   CS0246 - Typ oder Namespace nicht gefunden
-        //   CS0234 - Typ/Namespace existiert nicht im angegebenen Namespace
-        //   CS0103 - Name existiert nicht im aktuellen Kontext
         if (error.Id != "CS0246" && error.Id != "CS0234" && error.Id != "CS0103")
             return false;
 
@@ -115,7 +98,6 @@ public class TestCodeProcessor
         if (!TryExtractMissingName(error.Id, message, out string missingName))
             return false;
 
-        // Generische Arity entfernen: "ILogger<>" -> "ILogger"
         missingName = NormalizeGenericName(missingName);
 
         string? ns = MapTypeToNamespace(
@@ -135,10 +117,6 @@ public class TestCodeProcessor
         return true;
     }
 
-    // -----------------------------------------------------------------
-    //  Fehlernamen aus der Diagnose-Message extrahieren
-    // -----------------------------------------------------------------
-
     private static bool TryExtractMissingName(
         string errorId,
         string message,
@@ -152,7 +130,6 @@ public class TestCodeProcessor
         {
             case "CS0246":
                 {
-                    // "The type or namespace name 'X' could not be found (are you ...)"
                     var m = Regex.Match(
                         message,
                         @"type or namespace name '([^']+)' could not be found",
@@ -167,14 +144,12 @@ public class TestCodeProcessor
 
             case "CS0234":
                 {
-                    // "The type or namespace name 'X' does not exist in the namespace 'Y' ..."
                     var m = Regex.Match(
                         message,
                         @"type or namespace name '([^']+)' does not exist in the namespace '([^']+)'",
                         RegexOptions.IgnoreCase);
                     if (m.Success)
                     {
-                        // Vollqualifizierter Name: Y.X
                         missingName = m.Groups[2].Value + "." + m.Groups[1].Value;
                         return true;
                     }
@@ -183,7 +158,6 @@ public class TestCodeProcessor
 
             case "CS0103":
                 {
-                    // "The name 'X' does not exist in the current context"
                     var m = Regex.Match(
                         message,
                         @"The name '([^']+)' does not exist in the current context",
@@ -200,21 +174,15 @@ public class TestCodeProcessor
         return false;
     }
 
-    // -----------------------------------------------------------------
-    //  Namensauflösung: Typ -> using-Namespace
-    // -----------------------------------------------------------------
-
     private static string? MapTypeToNamespace(
         string missingName,
         string errorId,
         TestFramework testFramework,
         MockFramework mockFramework)
     {
-        // CS0234 liefert bereits einen vollqualifizierten Namen
         if (errorId == "CS0234" && missingName.Contains('.'))
             return missingName;
 
-        // --- Test-Framework-abhängige Auflösung ---
         switch (missingName)
         {
             case "Assert":
@@ -267,7 +235,6 @@ public class TestCodeProcessor
                 return "Microsoft.VisualStudio.TestTools.UnitTesting";
         }
 
-        // --- Mock-Framework-abhängige Auflösung ---
         switch (missingName)
         {
             case "Mock":
@@ -291,7 +258,6 @@ public class TestCodeProcessor
                 return "FakeItEasy";
         }
 
-        // --- BCL und gängige Erweiterungen ---
         return missingName switch
         {
             "Task" or "ValueTask" or "TaskCompletionSource" => "System.Threading.Tasks",
@@ -328,19 +294,11 @@ public class TestCodeProcessor
         };
     }
 
-    /// <summary>
-    /// Entfernt generische Arity-Marker aus dem Typnamen.
-    /// "ILogger&lt;&gt;" -> "ILogger", "Dictionary&lt;,&gt;" -> "Dictionary"
-    /// </summary>
     private static string NormalizeGenericName(string name)
     {
         int idx = name.IndexOf('<');
         return idx >= 0 ? name.Substring(0, idx) : name;
     }
-
-    // -----------------------------------------------------------------
-    //  Kleine Helfer
-    // -----------------------------------------------------------------
 
     private static bool HasUsing(CompilationUnitSyntax root, string namespaceName)
     {

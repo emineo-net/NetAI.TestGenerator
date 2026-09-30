@@ -5,11 +5,6 @@ using System.Text.RegularExpressions;
 
 namespace NetAI.TestGenerator.Core.Services;
 
-/// <summary>
-/// Adaptiert den vorhandenen TestProjectManager als ICompilerService,
-/// damit der TestCodeProcessor die gleiche Kompilierungs-Strategie nutzt
-/// wie der restliche Orchestrator.
-/// </summary>
 internal sealed class TestProjectManagerCompilerService : ICompilerService
 {
     private readonly Func<string, Task<TestGenerationResult>> _compile;
@@ -38,7 +33,6 @@ internal sealed class TestProjectManagerCompilerService : ICompilerService
         return list;
     }
 
-    // Akzeptiert sowohl "CS0246: ..." als auch "error CS0246: ...".
     private static readonly Regex ErrorLineRegex = new(
         @"(?<id>CS\d{4})\s*:\s*(?<msg>.+)$",
         RegexOptions.Compiled);

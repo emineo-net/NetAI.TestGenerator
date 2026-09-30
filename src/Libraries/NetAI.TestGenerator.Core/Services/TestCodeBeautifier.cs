@@ -7,25 +7,10 @@ using NetAI.TestGenerator.Core.Models.Enums;
 
 namespace NetAI.TestGenerator.Core.Services;
 
-
-/// <summary>
-/// Fügt fehlende using-Direktiven hinzu (abhängig von Test-/Mock-Framework
-/// und anhand von Code-Mustern) und formatiert den C#-Code mit Roslyn.
-/// Optional können auch Compiler-Fehler (fehlende Typen) automatisch gefixt werden.
-/// </summary>
 public class TestCodeBeautifier
 {
-    // Ein Workspace pro Instanz reicht. AdhocWorkspace ist nicht threadsafe,
-    // die Verwendung hier ist aber single-threaded (innerhalb der Schleife).
     private readonly AdhocWorkspace _workspace = new();
 
-    // -----------------------------------------------------------------
-    //  Öffentliche API
-    // -----------------------------------------------------------------
-
-    /// <summary>
-    /// Fügt die notwendigen usings hinzu und formatiert den Code.
-    /// </summary>
     public async Task<string> BeautifyAndAddUsingsAsync(
         string sourceCode,
         TestFramework testFramework = TestFramework.xUnit,
@@ -40,8 +25,6 @@ public class TestCodeBeautifier
             new CSharpParseOptions(LanguageVersion.Latest),
             cancellationToken: cancellationToken);
 
-        // Wenn der Code nicht einmal parsebar ist, unverändert zurückgeben –
-        // dann soll der Compiler-Check bzw. die AI-Reparatur übernehmen.
         if (tree.GetDiagnostics(cancellationToken)
                 .Any(d => d.Severity == DiagnosticSeverity.Error))
         {
@@ -50,22 +33,15 @@ public class TestCodeBeautifier
 
         var root = tree.GetCompilationUnitRoot(cancellationToken);
 
-        // 1. Usings ergänzen (Framework + Muster-Erkennung)
         root = AddRequiredUsings(root, testFramework, mockFramework);
 
-        // 2. Usings sortieren
         root = SortUsings(root);
 
-        // 3. Code formatieren
         root = await FormatRootAsync(root, cancellationToken);
 
         return root.ToFullString();
     }
 
-    /// <summary>
-    /// Versucht, typische Compiler-Fehler (hauptsächlich fehlende usings)
-    /// anhand der Fehlertexte automatisch zu beheben.
-    /// </summary>
     public async Task<string> TryFixCompilerErrorsAsync(
         string sourceCode,
         IEnumerable<string> compilerErrors,
@@ -102,10 +78,6 @@ public class TestCodeBeautifier
         return root.ToFullString();
     }
 
-    // -----------------------------------------------------------------
-    //  Interne Helfer
-    // -----------------------------------------------------------------
-
     private static CompilationUnitSyntax AddRequiredUsings(
         CompilationUnitSyntax root,
         TestFramework testFramework,
@@ -113,7 +85,6 @@ public class TestCodeBeautifier
     {
         var required = new HashSet<string>(StringComparer.Ordinal);
 
-        // Test-Framework
         switch (testFramework)
         {
             case TestFramework.NUnit: required.Add("NUnit.Framework"); break;
@@ -121,7 +92,6 @@ public class TestCodeBeautifier
             case TestFramework.MSTest: required.Add("Microsoft.VisualStudio.TestTools.UnitTesting"); break;
         }
 
-        // Explizit angegebenes Mock-Framework
         switch (mockFramework)
         {
             case MockFramework.Moq: required.Add("Moq"); break;
@@ -129,7 +99,6 @@ public class TestCodeBeautifier
             case MockFramework.FakeItEasy: required.Add("FakeItEasy"); break;
         }
 
-        // --- Muster-Erkennung im Code ---
         var code = root.ToFullString();
 
         if (Regex.IsMatch(code, @"\bMock\s*<") ||
@@ -142,11 +111,9 @@ public class TestCodeBeautifier
         if (Regex.IsMatch(code, @"\bA\s*\.\s*Fake\s*<"))
             required.Add("FakeItEasy");
 
-        // Standard-Usings, die in fast jedem Test gebraucht werden
         required.Add("System");
         required.Add("System.Threading.Tasks");
 
-        // Nur die Usings hinzufügen, die noch fehlen
         var missing = required.Where(ns => !HasUsing(root, ns)).ToList();
         if (missing.Count == 0)
             return root;
@@ -198,7 +165,6 @@ public class TestCodeBeautifier
         typeName = string.Empty;
         if (string.IsNullOrWhiteSpace(errorMessage)) return false;
 
-        // "The type or namespace name 'X' could not be found ..."
         var m1 = Regex.Match(
             errorMessage,
             @"type or namespace name '([^']+)' could not be found",
@@ -209,7 +175,6 @@ public class TestCodeBeautifier
             return true;
         }
 
-        // "The name 'X' does not exist in the current context"
         var m2 = Regex.Match(
             errorMessage,
             @"The name '([^']+)' does not exist in the current context",

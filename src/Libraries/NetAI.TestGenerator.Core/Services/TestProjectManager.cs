@@ -187,20 +187,14 @@ public class TestProjectManager
 
             string currentTestClassCode = testClassCode;
 
-            // Der Compile-Aufruf erfolgt gegen -t:Compile -p:BuildProjectReferences=false.
-            // Damit werden weder bin-Ordner beschrieben noch referenzierte Projekte neu
-            // gebaut – eine laufende WPF-App oder Visual Studio blockieren nichts mehr.
             var buildResult = await ValidateProjectCompilesAsync(testProjectPath, cancellationToken);
 
-            // Wenn hier trotzdem mal ein Lock auftaucht (z.B. obj/ selbst gesperrt):
-            // nicht in die AI-Reparatur fallen.
             if (!buildResult.IsSuccess && buildResult.IsEnvironmentIssue)
             {
                 return CreateEnvironmentFailureResult(
                     buildResult, testClassPath, currentTestClassCode);
             }
 
-            // ---- Fix 1: NU1011 (Floating-Version in CPM) ----
             if (!buildResult.IsSuccess)
             {
                 bool cpmFixed = await TryFixFloatingVersionsAsync(
@@ -209,7 +203,6 @@ public class TestProjectManager
                     buildResult = await ValidateProjectCompilesAsync(testProjectPath, cancellationToken);
             }
 
-            // ---- Fix 2: Fehlende usings ----
             if (!buildResult.IsSuccess)
             {
                 string? fixedCode = await TryAddMissingUsingsAsync(
@@ -223,14 +216,12 @@ public class TestProjectManager
                 }
             }
 
-            // ---- Fix 3: Fehlende NuGet-Pakete ----
             if (!buildResult.IsSuccess)
             {
                 buildResult = await TryResolveMissingPackagesAndRebuildAsync(
                     testProjectPath, testProjectDir, currentTestClassCode, buildResult, cancellationToken);
             }
 
-            // ---- Fix 4: CS1061 → InternalsVisibleTo ----
             if (!buildResult.IsSuccess)
             {
                 bool ivtAdded = await TryEnableInternalsVisibleToAsync(
@@ -256,9 +247,6 @@ public class TestProjectManager
                     testClassCode: currentTestClassCode);
             }
 
-            // ============================================================
-            // FEHLSCHLAG – Testklasse bleibt auf der Platte.
-            // ============================================================
             var finalErrors = buildResult.CompilerErrors ?? Array.Empty<string>();
 
             bool requiresRegeneration = HasSemanticErrors(finalErrors);
@@ -353,10 +341,6 @@ public class TestProjectManager
             testClassCode: currentTestClassCode);
     }
 
-    // =====================================================================
-    // Findet Typnamen, die nirgends in der Solution existieren
-    // =====================================================================
-
     private async Task<List<string>> FindUnresolvableTypeNamesAsync(
         string solutionDirectory,
         IReadOnlyList<string> compilerErrors,
@@ -389,10 +373,6 @@ public class TestProjectManager
         return unresolvable.Distinct(StringComparer.Ordinal).ToList();
     }
 
-    // =====================================================================
-    // Umgebungsfehler-Erkennung (nur Error-Level)
-    // =====================================================================
-
     private static bool IsEnvironmentErrorRaw(IReadOnlyList<string> allLines)
     {
         foreach (var line in allLines)
@@ -413,10 +393,6 @@ public class TestProjectManager
         }
         return false;
     }
-
-    // =====================================================================
-    // CS1061 "does not contain a definition" → InternalsVisibleTo
-    // =====================================================================
 
     private async Task<bool> TryEnableInternalsVisibleToAsync(
         string testProjectPath, string? sourceProjectPath,
@@ -495,10 +471,6 @@ public class TestProjectManager
             || path.Contains(alt + "obj" + alt) || path.Contains(alt + "bin" + alt);
     }
 
-    // =====================================================================
-    // Semantische Fehler
-    // =====================================================================
-
     private static bool HasSemanticErrors(IReadOnlyList<string> compilerErrors)
     {
         foreach (var line in compilerErrors)
@@ -547,10 +519,6 @@ public class TestProjectManager
         }
         return notes;
     }
-
-    // =====================================================================
-    // NU1011 / CPM / NuGet
-    // =====================================================================
 
     private async Task<bool> TryFixFloatingVersionsAsync(
         string testProjectPath, IReadOnlyList<string> compilerErrors, CancellationToken ct)
@@ -1476,10 +1444,6 @@ public class TestProjectManager
         if (propsChanged) propsDoc.Save(propsPath);
     }
 
-    // =====================================================================
-    // Build-Validierung: Compile-only, ohne ProjectReference-Rebuild
-    // =====================================================================
-
     private async Task<TestGenerationResult> ValidateProjectCompilesAsync(
         string testProjectPath,
         CancellationToken cancellationToken)
@@ -1488,14 +1452,6 @@ public class TestProjectManager
         {
             string projectDir = Path.GetDirectoryName(testProjectPath)!;
 
-            // -t:Compile          → nur ResolveReferences + CoreCompile (Roslyn).
-            //                       Keine Copy-Targets → kein Schreiben nach bin.
-            // -p:BuildProjectReferences=false
-            //                     → referenzierte Projekte (z.B. WPF-App) werden
-            //                       NICHT neu gebaut; MSBuild nimmt deren bereits
-            //                       gebaute DLLs aus dem bin-Ordner.
-            // Damit läuft die Compiler-Validierung komplett ohne Lock-Konflikt
-            // mit Visual Studio oder einer laufenden Instanz der getesteten App.
             var buildArgs = new List<string>
             {
                 "build", testProjectPath,

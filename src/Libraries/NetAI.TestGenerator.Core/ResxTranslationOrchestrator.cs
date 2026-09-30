@@ -10,10 +10,6 @@ using System.Text.RegularExpressions;
 
 namespace NetAI.TestGenerator.Core;
 
-
-// !!!! Wenn du sicher weißt, dass ein bestimmtes Mock-Framework verwendet wird, übergib es explizit (z. B. MockFramework.NSubstitute) – das ist zuverlässiger als die Muster-Erkennung.
-
-
 public class ResxTranslationOrchestrator
 {
     private static readonly Regex TestCodeBlockRegex = new(
@@ -24,19 +20,10 @@ public class ResxTranslationOrchestrator
 
     public ResxTranslationOrchestrator(HttpClient? httpClient = null)
     {
-        _testGeneratorService = new TestGeneratorService(); // Instanziierung
+        _testGeneratorService = new TestGeneratorService();
     }
 
 
-    /// <summary>
-    /// Verarbeitet eine Quelldatei: prüft für jede Methode, ob bereits ein Test existiert,
-    /// und generiert bei Bedarf per KI einen neuen Test.
-    ///
-    /// Wenn eine <paramref name="compilation"/> übergeben wird, wird zusätzlich der
-    /// semantische Testbarkeits-Analyzer genutzt, um den KI-Prompt anzureichern
-    /// (Mockability, statische Abhängigkeiten, Konstruktoren, Empfehlungen).
-    /// Ohne Compilation bleibt das Verhalten rein syntaktisch.
-    /// </summary>
     public async Task<string> ProcessProjectAsync(
     string sourceFilePath,
     string testProjectDirectory,
@@ -55,13 +42,11 @@ public class ResxTranslationOrchestrator
             }
 #endif
 
-            // Sicherheitsprüfung: Existiert die Quellcodedatei überhaupt?
             if (string.IsNullOrWhiteSpace(sourceFilePath) || !File.Exists(sourceFilePath))
             {
                 return "Source file empty or missing.";
             }
 
-            // NEU & STABIL: Datei asynchron und mit FileShare lesen (behebt WPF/MSBuild-Sperren)
             string sourceCode;
             using (var stream = new FileStream(sourceFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var reader = new StreamReader(stream, Encoding.UTF8))
@@ -69,7 +54,6 @@ public class ResxTranslationOrchestrator
                 sourceCode = await reader.ReadToEndAsync().ConfigureAwait(false);
             }
 
-            // 1. Quellklasse mit Roslyn parsen, um Namen und Methoden zu extrahieren
             var sourceRoot = CSharpSyntaxTree.ParseText(sourceCode).GetCompilationUnitRoot();
             var targetClass = sourceRoot.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
 
@@ -86,7 +70,6 @@ public class ResxTranslationOrchestrator
 
             logInfo?.Invoke($"[NetAI] Starting analysis for class: {className}");
 
-            // 2. LIVE-SCAN über den Service: Welche Tests existieren bereits auf der Festplatte?
             var existingTestMethods = _testGeneratorService.GetExistingTestMethods(testFilePath);
             var sourceMethods = targetClass.DescendantNodes().OfType<MethodDeclarationSyntax>();
 
@@ -94,17 +77,11 @@ public class ResxTranslationOrchestrator
             var aiPromptBuilderSimple = new AiPromptBuilderSimple();
             var testProjectManager = new TestProjectManager();
 
-            // -----------------------------------------------------------------
-            // NEU: Compiler-Service-Adapter + TestCodeProcessor
-            // -----------------------------------------------------------------
             var compilerService = new TestProjectManagerCompilerService(
                 code => testProjectManager.SetupAndValidateTestAsync(sourceFilePath, code));
 
             var testCodeProcessor = new TestCodeProcessor(compilerService);
 
-            // -----------------------------------------------------------------
-            // NEU: Semantische Analyse vorbereiten.
-            // -----------------------------------------------------------------
             RoslynDllTestabilityAnalyzer? semanticAnalyzer = null;
             if (compilation != null)
             {
@@ -116,13 +93,11 @@ public class ResxTranslationOrchestrator
                 logInfo?.Invoke("[NetAI] Keine Compilation übergeben – arbeite rein syntaktisch.");
             }
 
-            // 3. Jede Methode der Quellklasse einzeln prüfen
             foreach (var method in sourceMethods)
             {
                 var methodString = method.ToString();
                 string methodName = method.Identifier.Text;
 
-                // Prüfen, ob der Methodenname bereits in einer der existierenden Testmethoden vorkommt
                 bool testExists = existingTestMethods.Any(t => t.Contains(methodName, StringComparison.OrdinalIgnoreCase));
 
                 if (testExists)
@@ -133,10 +108,8 @@ public class ResxTranslationOrchestrator
 
                 logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
 
-                // 4. Klassen-Skelett (Felder + Methode + genutzte Hilfsmethoden) als Kontext
                 string classSkeleton = BuildClassSkeleton(targetClass, method);
 
-                // Richtig platziertes ConfigureAwait!
                 string semanticHint = await BuildSemanticHintAsync(
                     semanticAnalyzer, compilation, sourceFilePath, methodName, logInfo).ConfigureAwait(false);
 
@@ -159,12 +132,10 @@ public class ResxTranslationOrchestrator
                     logInfo?.Invoke($"[NetAI] Prompt mit semantischem Kontext gespeichert: {promptPath}");
                 }
 
-                // Richtig platziertes ConfigureAwait!
                 var newTestClassResponse = await localLlmClient.AskAsync(
                     basePrompt,
                     "Du bist ein C#-Test-Experte. Antworte ausschließlich mit lauffähigem C#-Code ohne Erklärungen.").ConfigureAwait(false);
 
-                // Reinen Methoden-Code isolieren
                 string testMethodCode = ExtractTestClass(newTestClassResponse);
 
                 if (promptOnly)
@@ -194,8 +165,8 @@ public class ResxTranslationOrchestrator
                 int aiAttempts = 0;
                 int envAttempts = 0;
 
-                const int MaxAiRetries = 2;   // wie bisher: AI-Reparaturversuche
-                const int MaxEnvRetries = 2;  // zusätzlich: Umgebungs-Retries (ohne AI)
+                const int MaxAiRetries = 2;
+                const int MaxEnvRetries = 2;
 
                 while (true)
                 {
@@ -218,31 +189,17 @@ public class ResxTranslationOrchestrator
                         targetClass.Parent as NamespaceDeclarationSyntax,
                         testMethodCode);
 
-                    // -----------------------------------------------------------------
-                    // NEU: TestCodeProcessor übernimmt
-                    //   - Usings ergänzen (Muster-Erkennung + Framework)
-                    //   - Usings sortieren
-                    //   - Formatieren
-                    //   - Compile + automatisches Fixen fehlender usings (TryFixMissingUsing)
-                    // -----------------------------------------------------------------
                     validationClassStructure = await testCodeProcessor.ProcessTestClassAsync(
                         validationClassStructure,
                         testFramework: TestFramework.xUnit,
-                        mockFramework: MockFramework.Unknown).ConfigureAwait(false); // Unknown ⇒ reine Muster-Erkennung
+                        mockFramework: MockFramework.Unknown).ConfigureAwait(false);
 
-                    // Code gegen den echten C#-Compiler prüfen
                     result = await testProjectManager.SetupAndValidateTestAsync(sourceFilePath, validationClassStructure).ConfigureAwait(false);
 
-                    // -----------------------------------------------------------------
-                    // 1) Erfolg
-                    // -----------------------------------------------------------------
                     if (result.IsSuccess)
                     {
                         isCompiledSuccessfully = true;
 
-                        // Wichtig: der Manager kann Usings ergänzt oder andere kleine Fixes
-                        // gemacht haben. Wenn ja, ist result.TestClassCode der tatsächlich
-                        // geschriebene Code – den übernehmen wir als neuen Stand.
                         if (!string.IsNullOrEmpty(result.TestClassCode))
                         {
                             testMethodCode = ExtractTestClass(result.TestClassCode!);
@@ -250,10 +207,6 @@ public class ResxTranslationOrchestrator
                         break;
                     }
 
-                    // -----------------------------------------------------------------
-                    // 2) Umgebungsproblem (z. B. gesperrte DLL durch VS oder laufende App)
-                    //    → KEIN AI-Repair. Der generierte Code ist in Ordnung.
-                    // -----------------------------------------------------------------
                     if (result.IsEnvironmentIssue)
                     {
                         envAttempts++;
@@ -262,14 +215,10 @@ public class ResxTranslationOrchestrator
                                         $"Not asking the AI to repair – the test code itself is fine. " +
                                         $"Cause: a referenced assembly is locked by another process.");
 
-                        // Kurz warten und denselben Code nochmal durchlaufen lassen.
                         await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
                         continue;
                     }
 
-                    // -----------------------------------------------------------------
-                    // 3) Echter Compilerfehler → AI-Reparatur
-                    // -----------------------------------------------------------------
                     aiAttempts++;
                     logInfo?.Invoke($"[NetAI] Test for '{methodName}' failed compilation " +
                                     $"(AI attempt {aiAttempts}/{MaxAiRetries}). Running AI repair loop...");
@@ -289,14 +238,8 @@ public class ResxTranslationOrchestrator
 
                     var errorsText = string.Join("\n", result.CompilerErrors ?? Array.Empty<string>());
 
-                    // Der Manager kann den Code verändert haben (z. B. Usings ergänzt).
-                    // Wenn ja, diesen Stand als Basis nehmen – sonst das ursprüngliche Gerüst.
                     var codeForRepair = result.TestClassCode ?? validationClassStructure;
 
-                    // Erst Roslyn versuchen zu lassen, triviale Fehler (fehlende usings) zu fixen,
-                    // damit die AI sich auf echte inhaltliche Fehler konzentrieren kann.
-                    // Hinweis: der TestCodeProcessor hat bereits versucht, usings zu fixen –
-                    // hier werden zusätzlich die vom Manager gemeldeten Fehler adressiert.
                     if (result.CompilerErrors?.Any() == true)
                     {
                         var roslynFixed = await _testCodeBeautifier.TryFixCompilerErrorsAsync(
@@ -309,7 +252,7 @@ public class ResxTranslationOrchestrator
                                             "erneuter Compile-Versuch ohne AI.");
 
                             testMethodCode = ExtractTestClass(roslynFixed);
-                            continue; // zurück in die while-Schleife → erneute Validierung
+                            continue;
                         }
                     }
 
@@ -323,27 +266,22 @@ public class ResxTranslationOrchestrator
 
                     var correctedOutput = await localLlmClient.AskAsync(errorPrompt, systemPrompt).ConfigureAwait(false);
 
-                    // Korrigierten Code wieder extrahieren
                     testMethodCode = ExtractTestClass(correctedOutput);
                 }
 
-                // 6. Ergebnis verarbeiten: Bei Erfolg wegschreiben (Variante 2)
                 if (isCompiledSuccessfully)
                 {
                     if (!File.Exists(testFilePath))
                     {
-                        // Fall A: Testdatei existiert noch gar nicht -> Neu anlegen mit Grundgerüst
                         _testGeneratorService.CreateNewTestClassFile(testFilePath, testClassName, targetClass.Parent as NamespaceDeclarationSyntax, testMethodCode);
                         logInfo?.Invoke($"[NetAI] Successfully created new test file and added '{methodName}_GeneratedTest'.");
                     }
                     else
                     {
-                        // Fall B: Testdatei existiert bereits -> Die neue Methode sauber per Roslyn unten anhängen
                         _testGeneratorService.AppendMethodToExistingClassFile(testFilePath, testMethodCode);
                         logInfo?.Invoke($"[NetAI] Successfully appended test for '{methodName}' to existing test file.");
                     }
 
-                    // Lokalen Cache aktualisieren, damit Folgemethoden in derselben Schleife Bescheid wissen
                     existingTestMethods.Add(methodName);
                 }
                 else
@@ -364,15 +302,6 @@ public class ResxTranslationOrchestrator
         }
     }
 
-    // =====================================================================
-    //  Semantischer Kontext für den KI-Prompt
-    // =====================================================================
-
-    /// <summary>
-    /// Liefert einen Kommentar-Block mit semantischen Informationen zur Methode,
-    /// der dem KI-Prompt vorangestellt wird. Wenn kein Analyzer / keine Compilation
-    /// vorhanden ist, wird ein leerer String zurückgegeben.
-    /// </summary>
     private static async Task<string> BuildSemanticHintAsync(
         RoslynDllTestabilityAnalyzer? analyzer,
         Compilation? compilation,
@@ -447,7 +376,6 @@ public class ResxTranslationOrchestrator
         }
         catch (InvalidOperationException ex)
         {
-            // Methode evtl. nicht im SyntaxTree gefunden – kein Beinbruch.
             logInfo?.Invoke($"[NetAI] Semantik für '{methodName}' übersprungen: {ex.Message}");
             return string.Empty;
         }
@@ -458,11 +386,6 @@ public class ResxTranslationOrchestrator
         }
     }
 
-    // =====================================================================
-    //  Bestehende Hilfsmethoden (unverändert)
-    // =====================================================================
-
-    // Kleine Hilfsmethode, um den Code für die temporäre Compiler-Prüfung zu wrappen
     private string PrepareValidationStructure(string testClassName, NamespaceDeclarationSyntax? originalNamespace, string methodCode)
     {
         string namespaceName = originalNamespace?.Name.ToString() ?? "NetAI.Generated.Tests";
@@ -488,7 +411,6 @@ namespace {namespaceName}
     {
         var sb = new StringBuilder();
 
-        // --- 0) Usings der Quelldatei (sehr wertvoll für die KI) ---
         var usings = targetClass.SyntaxTree
             .GetCompilationUnitRoot()
             .Usings;
@@ -500,25 +422,20 @@ namespace {namespaceName}
             sb.AppendLine();
         }
 
-        // --- 1) Felder ---
         foreach (var field in targetClass.Members.OfType<FieldDeclarationSyntax>())
             sb.AppendLine(field.ToFullString().TrimEnd());
 
-        // --- 2) Properties (optional) ---
         if (includeProperties)
             foreach (var prop in targetClass.Members.OfType<PropertyDeclarationSyntax>())
                 sb.AppendLine(prop.ToFullString().TrimEnd());
 
-        // --- 3) Konstruktoren (optional, oft wichtig für Setup) ---
         if (includeConstructors)
             foreach (var ctor in targetClass.Members.OfType<ConstructorDeclarationSyntax>())
                 sb.AppendLine(ctor.ToFullString().TrimEnd());
 
-        // --- 4) Zu testende Methode ---
         sb.AppendLine();
         sb.AppendLine(targetMethod.ToFullString().TrimEnd());
 
-        // --- 5) Rekursiv aufgerufene Hilfsmethoden ---
         var collectedHelpers = new HashSet<string>(StringComparer.Ordinal);
         var helperSb = new StringBuilder();
 
@@ -555,10 +472,6 @@ namespace {namespaceName}
 
 
 
-    /// <summary>
-    /// Liefert die Namen aller Methoden, die innerhalb von <paramref name="method"/> aufgerufen werden.
-    /// Erkennt sowohl <c>Foo()</c> als auch <c>this.Foo()</c> / <c>obj.Foo()</c>.
-    /// </summary>
     private static IEnumerable<string> GetCalledMethodNames(MethodDeclarationSyntax method)
     {
         foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
@@ -585,29 +498,22 @@ namespace {namespaceName}
         if (string.IsNullOrWhiteSpace(aiResponse))
             return string.Empty;
 
-        // 1. Markdown-Code-Blöcke (```csharp ... ```) entfernen, falls vorhanden
         var match = TestCodeBlockRegex.Match(aiResponse);
         string rawCode = match.Success ? match.Groups[1].Value : aiResponse;
 
-        // 2. Die Antwort mit Roslyn als Syntaxbaum parsen
         var tree = CSharpSyntaxTree.ParseText(rawCode);
         var root = tree.GetCompilationUnitRoot();
 
-        // 3. Alle Methoden-Deklarationen (z.B. [Fact] public void...) im Baum finden
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
 
         if (!methods.Any())
         {
-            // Fallback: Falls die KI absolut keine valide C#-Methode geliefert hat,
-            // geben wir den getrimmten Rohtext zurück, damit der Compiler-Check anschlagen kann.
             return rawCode.Trim();
         }
 
-        // 4. Alle gefundenen Testmethoden sauber aneinanderreihen
         var sb = new StringBuilder();
         foreach (var method in methods)
         {
-            // .ToFullString() behält die Attribute (wie [Fact]) und XML-Kommentare bei
             sb.AppendLine(method.ToFullString());
         }
 
@@ -621,7 +527,6 @@ namespace {namespaceName}
             var currentDir = Path.GetDirectoryName(filePath);
             while (currentDir != null)
             {
-                // Suchen nach einer beliebigen .csproj im aktuellen Ordner
                 if (Directory.EnumerateFiles(currentDir, "*.csproj").Any())
                 {
                     return currentDir;
@@ -631,7 +536,6 @@ namespace {namespaceName}
         }
         catch
         {
-            // Falls Zugriffsfehler auftreten
         }
         return null;
     }

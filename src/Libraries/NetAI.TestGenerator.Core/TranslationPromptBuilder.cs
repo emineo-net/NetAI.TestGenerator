@@ -7,9 +7,6 @@ public class TranslationPromptBuilder
 {
     private const int BatchSize = 20;
 
-    /// <summary>
-    ///     Generiert den Input und den System-Prompt für die einmalige Domänen-Analyse.
-    /// </summary>
     public (string SystemPrompt, string AnalysisInput) BuildDomainAnalysisPrompt(ApiTranslationRequest request)
     {
         var sampleTexts = request.Items.Take(15).Select(i => i.SourceText);
@@ -23,14 +20,10 @@ public class TranslationPromptBuilder
         return (analysisSystemPrompt, analysisInput);
     }
 
-    /// <summary>
-    ///     Teilt die Items in Batches auf und generiert für jeden Batch den System-Prompt und den strukturierten User-Input.
-    /// </summary>
     public List<TranslationBatchPromptResult> BuildBatchPrompts(ApiTranslationRequest request, string detectedDomain)
     {
         var results = new List<TranslationBatchPromptResult>();
 
-        // Domänen-Kontext bereinigen und vorbereiten
         detectedDomain = detectedDomain?.Trim('\r', '\n', ' ', '"', '.') ?? "";
         if (string.IsNullOrWhiteSpace(detectedDomain) || detectedDomain.Length > 50)
         {
@@ -43,12 +36,10 @@ public class TranslationPromptBuilder
                                     - Use terminology, vocabulary, and jargon appropriate for this specific field.
                                     """;
 
-        // Verarbeitung in Batches
         for (var i = 0; i < request.Items.Count; i += BatchSize)
         {
             var batchEnd = Math.Min(i + BatchSize, request.Items.Count);
 
-            // 1. Strukturierten Input (User Message) generieren
             var sbPrompt = new StringBuilder();
             for (var itemIndex = i; itemIndex < batchEnd; itemIndex++)
             {
@@ -59,7 +50,6 @@ public class TranslationPromptBuilder
             var structuredInput = sbPrompt.ToString();
             var isKeySentenceStyle = HasSentenceStyleKey(structuredInput);
 
-            // 2. Prompt-Templates befüllen
             var systemPromptStandard = $$"""
                                          You are a professional translation assistant specializing in software localization (.resx files).
                                          Your sole task is to translate the provided text into the target language: "{{request.TargetLanguage}}".

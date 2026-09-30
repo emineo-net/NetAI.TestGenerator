@@ -1,45 +1,34 @@
 <Project>
 
 	<PropertyGroup>
-		<!-- DLL-Suche: 1. NuGet-Paket (build\ liegt neben tasks\), 2. lokale Entwicklung (DLL direkt in build\) -->
 		<TestGeneratorTaskAssembly Condition="Exists('$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\NetAI.TestGenerator.Tasks.dll')">$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\NetAI.TestGenerator.Tasks.dll</TestGeneratorTaskAssembly>
 		<TestGeneratorTaskAssembly Condition="'$(TestGeneratorTaskAssembly)' == ''">$(MSBuildThisFileDirectory)NetAI.TestGenerator.Tasks.dll</TestGeneratorTaskAssembly>
 		<TestGeneratorTaskExists Condition="Exists('$(TestGeneratorTaskAssembly)')">true</TestGeneratorTaskExists>
 
-		<!-- Abschalten mit: dotnet build -p:TestGeneratorEnabled=false -->
 		<TestGeneratorActive>false</TestGeneratorActive>
 		<TestGeneratorActive Condition="'$(TestGeneratorEnabled)' != 'false' And '$(DesignTimeBuild)' != 'true' And '$(TestGeneratorTaskExists)' == 'true' And !$(MSBuildProjectName.EndsWith('_wpftmp'))">true</TestGeneratorActive>
 
-		<!-- Bei Multi-Targeting soll die Übersetzung nur im ersten Target Framework laufen -->
 		<_TestGeneratorFirstTfm Condition="'$(TargetFrameworks)' != ''">$(TargetFrameworks.Split(';')[0])</_TestGeneratorFirstTfm>
 		<_TestGeneratorIsFirstTfm>false</_TestGeneratorIsFirstTfm>
 		<_TestGeneratorIsFirstTfm Condition="'$(TargetFrameworks)' == '' Or '$(TargetFramework)' == '$(_TestGeneratorFirstTfm)'">true</_TestGeneratorIsFirstTfm>
 
-		<!-- 'dotnet publish' setzt _IsPublishing schon VOR dem Kompilieren -->
 		<_TestGeneratorIsPublishing>false</_TestGeneratorIsPublishing>
 		<_TestGeneratorIsPublishing Condition="'$(_IsPublishing)' == 'true'">true</_TestGeneratorIsPublishing>
 
 		<_TestGeneratorProjectDir>$(MSBuildProjectDirectory)/</_TestGeneratorProjectDir>
 
-		<!-- NEU: Semantische Analyse ist per Default an, kann aber abgeschaltet werden.
-		     Abschalten mit: dotnet build -p:TestGeneratorSemanticAnalysisEnabled=false -->
 		<TestGeneratorSemanticAnalysisEnabled Condition="'$(TestGeneratorSemanticAnalysisEnabled)' == ''">true</TestGeneratorSemanticAnalysisEnabled>
-		<!-- Standard: Prompt/Testentwurf ohne Compiler-Validierung; für Validierung false setzen. -->
 		<TestGeneratorPromptOnly Condition="'$(TestGeneratorPromptOnly)' == ''">true</TestGeneratorPromptOnly>
 
-		<!-- NEU: Zwischenverzeichnis für den Analyse-Report. -->
 		<_TestGeneratorAnalysisDir>$(IntermediateOutputPath)netai\</_TestGeneratorAnalysisDir>
 
 	</PropertyGroup>
 
-	<!-- TRICK: TaskHostFactory zwingt MSBuild, den Task in einem separaten Prozess zu starten. -->
-	<!-- Dadurch wird die DLL NIEMALS von Visual Studio selbst gesperrt! -->
 	<UsingTask Condition="'$(TestGeneratorTaskExists)' == 'true'"
 	           TaskName="NetAI.TestGenerator.Tasks.TestGeneratorTask"
 	           AssemblyFile="$(TestGeneratorTaskAssembly)"
 	           TaskFactory="TaskHostFactory" />
 
-	<!-- Warnung statt stillem Nichtstun, wenn die Task-DLL nicht gefunden wurde -->
 	<Target Name="TestGeneratorAssemblyMissing"
 	        BeforeTargets="PrepareForBuild"
 	        Condition="'$(TestGeneratorEnabled)' != 'false' And '$(DesignTimeBuild)' != 'true' And '$(TestGeneratorTaskExists)' != 'true'">
@@ -47,7 +36,6 @@
 		         Text="NetAI.TestGenerator: Task-Assembly nicht gefunden ($(TestGeneratorTaskAssembly)). Es wird nichts übersetzt." />
 	</Target>
 
-	<!-- Schema und Einstellungen bereitstellen -->
 	<Target Name="SetupTestGeneratorSettings" Condition="'$(TestGeneratorActive)' == 'true'">
 		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\aisettings-schema.json"
 		      DestinationFiles="$(MSBuildProjectDirectory)\aisettings-schema.json"
@@ -57,7 +45,6 @@
 		      DestinationFiles="$(MSBuildProjectDirectory)\aisettings.json"
 		      Condition="!Exists('$(MSBuildProjectDirectory)\aisettings.json')" />
 
-		<!-- Remove + Include statt Update: funktioniert auch, wenn die Dateien erst jetzt erzeugt wurden -->
 		<ItemGroup>
 			<None Remove="aisettings-schema.json" />
 			<None Remove="aisettings.json" />
@@ -66,11 +53,6 @@
 		</ItemGroup>
 	</Target>
 
-	<!-- Führt die Übersetzung aus (nur erstes TFM). -->
-	<!-- WICHTIG: Läuft FRÜH (vor PrepareForBuild), damit generierte .resx-Dateien noch -->
-	<!-- im selben Build als EmbeddedResource eingebunden werden können. -->
-	<!-- In dieser Phase ist @(ReferencePath) noch NICHT verfügbar – deshalb wird hier -->
-	<!-- KEINE semantische Analyse angefordert (SourceFiles/ReferencePaths werden weggelassen). -->
 	<Target Name="RunResxTranslation"
 	        DependsOnTargets="SetupTestGeneratorSettings"
 	        Condition="'$(TestGeneratorActive)' == 'true' And '$(_TestGeneratorIsFirstTfm)' == 'true'">
@@ -82,7 +64,6 @@
 		                    SourceFiles="@(Compile)" />
 	</Target>
 
-	<!-- Läuft vor dem eigentlichen Build: Übersetzen und neu erzeugte .resx-Dateien noch in diesem Build einbinden -->
 	<Target Name="IncludeGeneratedResx"
 	        BeforeTargets="PrepareForBuild"
 	        DependsOnTargets="RunResxTranslation"
@@ -95,7 +76,6 @@
 		</ItemGroup>
 	</Target>
 
-	<!-- Fallback für Publish-Wege ohne _IsPublishing (z. B. Visual Studio "Publish"-Button): läuft NACH dem Build -->
 	<Target Name="RunResxTranslationOnPublish"
 	        BeforeTargets="PrepareForPublish"
 	        DependsOnTargets="SetupTestGeneratorSettings"
@@ -107,22 +87,6 @@
 		                    PromptOnly="$(TestGeneratorPromptOnly)" />
 	</Target>
 
-	<!-- ===================================================================================== -->
-	<!-- NEU: Semantische Testbarkeits-Analyse                                                -->
-	<!--                                                                                       -->
-	<!-- Läuft NACH ResolveReferences (dort ist @(ReferencePath) vollständig aufgelöst) und    -->
-	<!-- VOR CoreCompile (damit die Analyse noch vor dem eigentlichen Kompilieren passiert).   -->
-	<!--                                                                                       -->
-	<!-- Anders als RunResxTranslation kann dieser Target die volle semantische Analyse        -->
-	<!-- nutzen, weil ihm MSBuild alle Kompilier- und Referenz-Informationen liefert:           -->
-	<!--   - @(Compile)         → Quelldateien                                                 -->
-	<!--   - @(ReferencePath)   → aufgelöste Referenzen (BCL + NuGet + ProjectRefs)            -->
-	<!--                                                                                       -->
-	<!-- Der Task erhält diese Items als Properties. Er kann daraus eine CSharpCompilation     -->
-	<!-- bauen und mit RoslynDllTestabilityAnalyzer echte Symbolauflösung betreiben.           -->
-	<!--                                                                                       -->
-	<!-- Abschalten mit: dotnet build -p:TestGeneratorSemanticAnalysisEnabled=false            -->
-	<!-- ===================================================================================== -->
 	<Target Name="RunSemanticTestAnalysis"
 	        AfterTargets="ResolveReferences"
 	        BeforeTargets="CoreCompile"

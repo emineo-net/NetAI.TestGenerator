@@ -4,8 +4,6 @@ namespace NetAI.TestGenerator.Core;
 
 public static class PromptTemplates
 {
-    // Wir öffnen mit VIER Anführungszeichen. 
-    // Dadurch darf der Text im Prompt drin drei Anführungszeichen (\"\"\") enthalten, ohne den String zu brechen!
     public const string UnitTestGenerator = """"
     Du bist ein Experte für Software-Qualität und C# .NET 10 Unit Tests.
     Schreibe für eine Methode einen sofort kompilierbaren Unit Test.
@@ -84,27 +82,6 @@ public static class PromptTemplates
                                         Schreibe zuerst eine einzige, kurze Zeile mit der Ursache (z. B. "// Fix: Fehler CSXXXX in Zeile XX behoben").
                                         Gib danach NUR den reinen, korrigierten C#-Code zurück. Keine weiteren Erklärungen vor oder nach dem Codeblock. Beginne direkt mit den Namespaces.
                                         """";
-
-    //public const string UnitTestFixerSimple = """"
-    //                                    Der von dir generierte C#-Unit-Test hat beim Kompilieren (dotnet build) einen Fehler erzeugt.
-
-    //                                    Analysiere die Fehlermeldung und den Code Schritt für Schritt, um den Fehler zu beheben.
-
-    //                                    [COMPILER FEHLERMELDUNGEN]
-    //                                    {{ compiler_fehler }}
-
-    //                                    [ANWEISUNG ZUR FEHLERBEHEBUNG]
-    //                                    1. Identifiziere die Zeile und die Ursache des Compiler-Fehlers anhand der obigen Meldung.
-    //                                    2. Korrigiere den Code unter strikter Einhaltung der ursprünglichen Regeln (HttpClient-Mocking via FakeHttpMessageHandler, korrektes C# String-Escaping).
-    //                                    3. Stelle sicher, dass keine neuen Syntax- oder Typkonflikte entstehen.
-
-    //                                    [AUSGABEFORMAT]
-    //                                    Gib den reinen korrigierten C#-Code zurück. 
-    //                                    Eine kurze Erklärung deiner Änderungen
-    //                                    """";
-
-
-
 
     public const string UnitTestFixerSimple = """"
                                               Der von dir generierte C#-Unit-Test hat beim Kompilieren (dotnet build) einen Fehler erzeugt.

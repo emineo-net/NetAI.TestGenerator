@@ -10,21 +10,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NetAI.TestGenerator.Core.Analysis
 {
-    /// <summary>
-    /// Semantischer Testbarkeits-Analysator – netstandard2.0-kompatibel.
-    ///
-    /// Baut aus Quelldateien + DLL-Pfaden direkt eine <see cref="CSharpCompilation"/>
-    /// und nutzt <see cref="SemanticModel"/> für echte Symbolauflösung.
-    ///
-    /// Verzichtet bewusst auf:
-    ///   - MSBuildWorkspace / MSBuildLocator (nicht netstandard2.0-fähig)
-    ///   - AdhocWorkspace / Document / Project / Solution (unnötig, wenn
-    ///     der Aufrufer Quelldateien und DLL-Pfade kennt – z. B. ein Build-Task
-    ///     mit @(Compile) und @(ReferencePath))
-    ///
-    /// Ergebnis: identische Analyse-Qualität wie der ursprüngliche
-    /// <c>RoslynTestabilityAnalyzer</c>, aber ohne MSBuild-Abhängigkeit.
-    /// </summary>
     public sealed class RoslynDllTestabilityAnalyzer
     {
         private static readonly SymbolDisplayFormat FqFormat =
@@ -36,14 +21,6 @@ namespace NetAI.TestGenerator.Core.Analysis
         public RoslynDllTestabilityAnalyzer(AnalyzerOptions? options = null)
             => _options = options ?? new AnalyzerOptions();
 
-        // ==================================================================
-        //  Public API – Analyse aus Quelldateien + DLL-Pfaden
-        // ==================================================================
-
-        /// <summary>
-        /// Analysiert eine Methode aus den angegebenen Quelldateien.
-        /// DLL-Pfade werden als Metadaten-Referenzen geladen.
-        /// </summary>
         public Task<TestabilityReport> AnalyzeFromSourceFilesAsync(
             IEnumerable<string> sourceFilePaths,
             IEnumerable<string> referenceDllPaths,
@@ -57,10 +34,6 @@ namespace NetAI.TestGenerator.Core.Analysis
                 compilation, methodName, documentName, ct);
         }
 
-        /// <summary>
-        /// Durchsucht ein Verzeichnis nach .cs-Dateien und analysiert eine
-        /// Methode. DLL-Pfade werden als Metadaten-Referenzen geladen.
-        /// </summary>
         public Task<TestabilityReport> AnalyzeFromDirectoryAsync(
             string directory,
             IEnumerable<string> referenceDllPaths,
@@ -122,15 +95,6 @@ namespace NetAI.TestGenerator.Core.Analysis
             return "(unbenannt)";
         }
 
-        // ==================================================================
-        //  Compilation-Aufbau
-        // ==================================================================
-
-        /// <summary>
-        /// Baut eine <see cref="CSharpCompilation"/> aus Quelldateien und
-        /// DLL-Pfaden. Öffentlich, damit Aufrufer die Compilation
-        /// wiederverwenden können.
-        /// </summary>
         public static CSharpCompilation BuildCompilation(
             IEnumerable<string> sourceFilePaths,
             IEnumerable<string> referenceDllPaths,
@@ -152,7 +116,6 @@ namespace NetAI.TestGenerator.Core.Analysis
                 }
                 catch
                 {
-                    // Datei überspringen – z. B. Encoding-Probleme
                 }
             }
 
@@ -169,7 +132,6 @@ namespace NetAI.TestGenerator.Core.Analysis
                     }
                     catch
                     {
-                        // Native DLL, defekte Datei, o. ä. – überspringen
                     }
                 }
             }
@@ -182,10 +144,6 @@ namespace NetAI.TestGenerator.Core.Analysis
                     OutputKind.DynamicallyLinkedLibrary,
                     optimizationLevel: OptimizationLevel.Debug));
         }
-
-        // ==================================================================
-        //  Report-Aufbau (identisch zur semantischen Variante)
-        // ==================================================================
 
         private TestabilityReport BuildReport(
             string documentName,
@@ -361,10 +319,6 @@ namespace NetAI.TestGenerator.Core.Analysis
                 .ToList();
         }
 
-        // ==================================================================
-        //  Bewertung
-        // ==================================================================
-
         private static string EvaluateTestability(MethodFact method, List<TypeFact> types)
         {
             var blockers = new List<string>();
@@ -419,10 +373,6 @@ namespace NetAI.TestGenerator.Core.Analysis
 
             return recs;
         }
-
-        // ==================================================================
-        //  Hilfsfunktionen
-        // ==================================================================
 
         private static string KindOf(INamedTypeSymbol type) => type.TypeKind switch
         {
