@@ -5,102 +5,102 @@ namespace NetAI.TestGenerator.Core;
 public static class PromptTemplates
 {
     public const string UnitTestGenerator = """"
-    Du bist ein Experte für Software-Qualität und C# .NET 10 Unit Tests.
-    Schreibe für eine Methode einen sofort kompilierbaren Unit Test.
+      You are an expert in software quality and C# .NET 10 unit testing.
+      Write a unit test for a method that compiles immediately.
 
-    [FRAMEWORK VORGABEN]
-    - Test-Framework: {{ test_framework }}
-    - Mocking-Bibliothek: {{ mocking_library }}
+      [FRAMEWORK REQUIREMENTS]
+      - Test framework: {{ test_framework }}
+      - Mocking library: {{ mocking_library }}
     - Assertions: {{ assertion_library }}
 
-    [EXAKTES ZIEL]
-    Fokussiere dich ausschließlich auf die folgende Methode:
-    - Methoden-Name: {{ ziel_methode_name }}
-    - Signatur/Suchbegriff: `{{ ziel_methode_signatur }}`
+      [EXACT TARGET]
+      Focus exclusively on the following method:
+      - Method name: {{ ziel_methode_name }}
+      - Signature/search term: `{{ ziel_methode_signatur }}`
 
-    [KONTEXT: DIE GANZE KLASSE]
-    Suche in dieser Klasse nach der oben definierten Methode:
+      [CONTEXT: THE ENTIRE CLASS]
+      Find the method defined above in this class:
     ```csharp
     {{ klassen_code }}
     ```
 
-    [STRIKTE ARCHITEKTUR- UND CODERELGELN (ANTI-FEHLER-LEITPLANKEN)]
-    1. HTTPCLIENT-MOCKING: Falls die Klasse 'HttpClient' verwendet,
-       erstelle einen minimalen 'FakeHttpMessageHandler : HttpMessageHandler'.
-       Übergib diesen an den HttpClient-Konstruktor.
-       Mocke 'HttpClient' NIEMALS direkt mit NSubstitute/Moq.
-       PostAsync/GetAsync sind nicht virtuell (führt zu Fehlern!).
+    [STRICT ARCHITECTURE AND CODING RULES (ERROR-PREVENTION GUARDRAILS)]
+    1. HTTPCLIENT MOCKING: If the class uses 'HttpClient',
+       create a minimal 'FakeHttpMessageHandler : HttpMessageHandler'.
+       Pass it to the HttpClient constructor.
+       NEVER mock 'HttpClient' directly with NSubstitute/Moq.
+       PostAsync/GetAsync are not virtual (this causes errors!).
 
-    2. MOCK DATA & JSON: Schreibe JSON-Strings niemals als rohen Text.
-       Erstelle stattdessen immer anonyme C#-Objekte.
-       Serialisiere sie zur Laufzeit mit Newtonsoft.Json in einen String.
-       Beispiel:
+    2. MOCK DATA & JSON: Never write JSON strings as raw text.
+       Always create anonymous C# objects instead.
+       Serialize them to a string at runtime with Newtonsoft.Json.
+       Example:
        var data = new { choices = new[] { new { message = new { content = "xyz" } } } };
        string json = Newtonsoft.Json.JsonConvert.SerializeObject(data);
 
-    3. OPTIONALE PARAMETER: Besitzt die Zielmethode optionale Parameter?
-       Nutze beim Aufruf im 'Act'-Schritt zwingend benannte Argumente.
-       Beispiel: `ct: CancellationToken.None`.
-       Das verhindert Typkonflikte mit vorherigen optionalen Parametern.
+    3. OPTIONAL PARAMETERS: Does the target method have optional parameters?
+       Always use named arguments when calling it in the 'Act' step.
+       Example: `ct: CancellationToken.None`.
+       This prevents type conflicts with preceding optional parameters.
 
-    4. VERHALTEN BEI GENERIC / INTERFACES: Nutze die Mocking-Bibliothek,
-       um alle übergebenen Interfaces oder Repositories sauber zu mocken.
+    4. GENERICS / INTERFACES: Use the mocking library to properly mock
+       all injected interfaces or repositories.
 
-    5. KEINE LEEREN CATCH-BLÖCKE: Simuliere in den Edge-Case-Tests
-       echte Exceptions, falls die Methode diese wirft oder fängt.
+    5. NO EMPTY CATCH BLOCKS: In edge-case tests, simulate real exceptions
+       if the method throws or catches them.
 
-    [AUSGABEFORMAT]
-    Gib NUR den reinen C#-Code des Test-Files zurück.
-    Keine Erklärungen vor oder nach dem Codeblock.
-    Beginne direkt mit den notwendigen Namespaces.
+    [OUTPUT FORMAT]
+    Return ONLY the raw C# code for the test file.
+    Do not include explanations before or after the code block.
+    Start directly with the required namespaces.
 
-    Deine perfekt strukturierten Test-Methoden nach dem AAA-Muster:
+    Structure your test methods perfectly using the AAA pattern:
     """";
 
 
 
 
     public const string UnitTestFixer = """"
-                                        Der von dir generierte C#-Unit-Test hat beim Kompilieren (dotnet build) einen Fehler erzeugt.
+                                        The C# unit test you generated produced an error during compilation (dotnet build).
 
-                                        Analysiere die Fehlermeldung und den Code Schritt für Schritt, um den Fehler zu beheben.
+                                        Analyze the error message and the code step by step to fix the error.
 
-                                        [COMPILER FEHLERMELDUNGEN]
+                                        [COMPILER ERROR MESSAGES]
                                         {{ compiler_fehler }}
 
-                                        [GENERIERTER CODE MIT FEHLERN]
+                                        [GENERATED CODE WITH ERRORS]
                                         ```csharp
                                         {{ generierter_code }}
                                         ```
 
-                                        [ANWEISUNG ZUR FEHLERBEHEBUNG]
-                                        1. Identifiziere die Zeile und die Ursache des Compiler-Fehlers anhand der obigen Meldung.
-                                        2. Korrigiere den Code unter strikter Einhaltung der ursprünglichen Regeln (HttpClient-Mocking via FakeHttpMessageHandler, korrektes C# String-Escaping).
-                                        3. Stelle sicher, dass keine neuen Syntax- oder Typkonflikte entstehen.
+                                        [REPAIR INSTRUCTIONS]
+                                        1. Identify the line and cause of the compiler error using the message above.
+                                        2. Fix the code while strictly following the original rules (HttpClient mocking via FakeHttpMessageHandler, correct C# string escaping).
+                                        3. Ensure that no new syntax or type conflicts are introduced.
 
-                                        [AUSGABEFORMAT]
-                                        Schreibe zuerst eine einzige, kurze Zeile mit der Ursache (z. B. "// Fix: Fehler CSXXXX in Zeile XX behoben").
-                                        Gib danach NUR den reinen, korrigierten C#-Code zurück. Keine weiteren Erklärungen vor oder nach dem Codeblock. Beginne direkt mit den Namespaces.
+                                        [OUTPUT FORMAT]
+                                        First write a single, short line stating the cause (e.g. "// Fix: resolved error CSXXXX on line XX").
+                                        Then return ONLY the raw, corrected C# code. Do not include any other explanations before or after the code block. Start directly with the namespaces.
                                         """";
 
     public const string UnitTestFixerSimple = """"
-                                              Der von dir generierte C#-Unit-Test hat beim Kompilieren (dotnet build) einen Fehler erzeugt.
+                                              The C# unit test you generated produced an error during compilation (dotnet build).
 
-                                              [AKTUELLER FEHLERHAFTER CODE]
+                                              [CURRENT CODE WITH ERRORS]
                                               {{ aktuellerCode }}
 
-                                              [COMPILER FEHLERMELDUNGEN]
+                                              [COMPILER ERROR MESSAGES]
                                               {{ compiler_fehler }}
 
-                                              [ANWEISUNG ZUR FEHLERBEHEBUNG]
-                                              1. Analysiere den bereitgestellten Code und die Fehlermeldungen intern Schritt für Schritt, um die Ursachen zu verstehen.
-                                              2. Korrigiere den Code im Geiste unter strikter Einhaltung der Regeln (HttpClient-Mocking via FakeHttpMessageHandler, korrektes C# String-Escaping).
-                                              3. Füge alle notwendigen using-Direktiven (z.B. System.Text, Newtonsoft.Json) direkt in den Code ein.
-                                              4. Stelle sicher, dass keine neuen Syntax- oder Typkonflikte entstehen.
+                                              [REPAIR INSTRUCTIONS]
+                                              1. Analyze the provided code and error messages step by step internally to understand the causes.
+                                              2. Mentally fix the code while strictly following the rules (HttpClient mocking via FakeHttpMessageHandler, correct C# string escaping).
+                                              3. Add all required using directives (e.g. System.Text, Newtonsoft.Json) directly to the code.
+                                              4. Ensure that no new syntax or type conflicts are introduced.
 
-                                              [STRIKTES AUSGABEFORMAT]
-                                              Gib ausschließlich den VOLLSTÄNDIGEN, korrigierten C#-Codeblock zurück.
-                                              Verzichte komplett auf Einleitungen, Erklärungen, Grüße oder Text nach dem Code. Deine Antwort darf nur mit ```csharp beginnen und mit ``` enden.
+                                              [STRICT OUTPUT FORMAT]
+                                              Return only the COMPLETE, corrected C# code block.
+                                              Do not include introductions, explanations, greetings, or text after the code. Your response must start with ```csharp and end with ```.
                                               """";
 
 

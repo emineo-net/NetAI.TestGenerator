@@ -33,7 +33,7 @@ public class TestCodeProcessor
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(sourceCode))
-            throw new ArgumentException("Der Quellcode darf nicht leer sein.", nameof(sourceCode));
+            throw new ArgumentException("Source code must not be empty.", nameof(sourceCode));
 
         string currentCode = await _beautifier.BeautifyAndAddUsingsAsync(
             sourceCode, testFramework, mockFramework, cancellationToken);

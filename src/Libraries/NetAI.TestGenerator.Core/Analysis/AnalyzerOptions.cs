@@ -22,19 +22,19 @@ public sealed class TestabilityReport
     public string ToPromptText()
     {
         var sb = new StringBuilder();
-        sb.AppendLine("# Roslyn-Faktenbericht (verbindlich – NICHT erfinden!)");
+        sb.AppendLine("# Roslyn Facts Report (authoritative - DO NOT invent!)");
         sb.AppendLine();
-        sb.AppendLine("Regeln:");
-        sb.AppendLine("- Verwende ausschließlich die hier aufgeführten Typen.");
-        sb.AppendLine("- Erfinde keine Interfaces, Properties oder usings.");
-        sb.AppendLine("- Wenn die Testbarkeit eingeschränkt ist, gib eine Analyse statt Testcode aus.");
+        sb.AppendLine("Rules:");
+        sb.AppendLine("- Use only the types listed here.");
+        sb.AppendLine("- Do not invent interfaces, properties, or using directives.");
+        sb.AppendLine("- If testability is limited, provide an analysis instead of test code.");
         sb.AppendLine();
 
-        sb.AppendLine("## Methode");
+        sb.AppendLine("## Method");
         sb.AppendLine($"- Name:        {Method.Name}");
-        sb.AppendLine($"- Signatur:    {Method.Signature}");
-        sb.AppendLine($"- Rückgabe:    {Method.ReturnType}");
-        sb.AppendLine($"- Zugriff:     {Method.Accessibility}");
+        sb.AppendLine($"- Signature:   {Method.Signature}");
+        sb.AppendLine($"- Return type: {Method.ReturnType}");
+        sb.AppendLine($"- Accessibility: {Method.Accessibility}");
         sb.AppendLine($"- static:      {Method.IsStatic}");
         sb.AppendLine($"- async:       {Method.IsAsync}");
         sb.AppendLine($"- async void:  {Method.IsAsyncVoid}");
@@ -54,16 +54,16 @@ public sealed class TestabilityReport
         var ct = Method.ContainingType;
         sb.AppendLine($"Containing Type: {ct.FullName}");
         sb.AppendLine($"  - Kind:      {ct.Kind}");
-        sb.AppendLine($"  - Zugriff:   {ct.Accessibility}");
+        sb.AppendLine($"  - Accessibility: {ct.Accessibility}");
         sb.AppendLine($"  - Mockable:  {ct.Mockable}");
         if (ct.Interfaces.Count > 0)
             sb.AppendLine($"  - Interfaces: {string.Join(", ", ct.Interfaces)}");
         sb.AppendLine();
 
-        sb.AppendLine("## Referenzierte Typen");
+        sb.AppendLine("## Referenced types");
         if (ReferencedTypes.Count == 0)
         {
-            sb.AppendLine("(keine)");
+            sb.AppendLine("(none)");
         }
         else
         {
@@ -71,7 +71,7 @@ public sealed class TestabilityReport
             {
                 sb.AppendLine($"- {t.FullName}");
                 sb.AppendLine($"    Kind={t.Kind}  Mockable={t.Mockable}  static={t.IsStatic}  " +
-                              $"sealed={t.IsSealed}  statisch verwendet={t.UsedStatically}");
+                              $"sealed={t.IsSealed}  used statically={t.UsedStatically}");
                 if (t.Interfaces.Count > 0)
                     sb.AppendLine($"    Interfaces: {string.Join(", ", t.Interfaces)}");
                 if (t.Constructors.Count > 0)
@@ -80,13 +80,13 @@ public sealed class TestabilityReport
         }
         sb.AppendLine();
 
-        sb.AppendLine("## Testbarkeit");
+        sb.AppendLine("## Testability");
         sb.AppendLine(Verdict);
         sb.AppendLine();
 
         if (Recommendations.Count > 0)
         {
-            sb.AppendLine("## Empfehlungen");
+            sb.AppendLine("## Recommendations");
             foreach (var r in Recommendations)
                 sb.AppendLine($"- {r}");
             sb.AppendLine();
@@ -94,7 +94,7 @@ public sealed class TestabilityReport
 
         if (CompilationErrors.Count > 0)
         {
-            sb.AppendLine("## Compilerfehler im Projekt (Kontext)");
+            sb.AppendLine("## Project compiler errors (context)");
             foreach (var e in CompilationErrors)
                 sb.AppendLine($"- {e}");
         }

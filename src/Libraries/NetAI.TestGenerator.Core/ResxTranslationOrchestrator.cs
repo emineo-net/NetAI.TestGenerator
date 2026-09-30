@@ -87,11 +87,11 @@ public class ResxTranslationOrchestrator
             if (compilation != null)
             {
                 semanticAnalyzer = new RoslynDllTestabilityAnalyzer();
-                logInfo?.Invoke("[NetAI] Semantische Analyse verfügbar – KI-Prompts werden angereichert.");
+                logInfo?.Invoke("[NetAI] Semantic analysis is available; AI prompts will include semantic context.");
             }
             else
             {
-                logInfo?.Invoke("[NetAI] Keine Compilation übergeben – arbeite rein syntaktisch.");
+                logInfo?.Invoke("[NetAI] No compilation was provided; using syntax-only analysis.");
             }
 
             foreach (var method in sourceMethods)
@@ -115,14 +115,14 @@ public class ResxTranslationOrchestrator
                     semanticAnalyzer, compilation, sourceFilePath, methodName, logInfo).ConfigureAwait(false);
 
                 string basePrompt =
-                    $"Du bist ein .NET-Test-Experte. Erstelle eine präzise xUnit-Testmethode (mit [Fact]) für die Methode '{methodName}' aus der Klasse '{className}'.\n\n" +
-                    "Lies dazu die <Analyse>, automatisch generierte semantische Analyse genau aus. " +
-                    "Falls das 'Verdict' Einschränkungen (wie 'private' oder statische Abhängigkeiten) aufzeigt, versuche diese im Test pragmatisch zu umgehen " +
-                    "(z. B. via Reflection für private Member oder durch Nutzung von Bibliotheken wie 'System.IO.Abstractions', falls in den Hinweisen erwähnt). " +
-                     "Gib IMMER eine xUnit-Testmethode zurück. Falls ein lauffähiger Test technisch unmöglich ist (z. B. bei 'async void' oder nicht testbarem Code), erstelle trotzdem eine Testmethode mit [Fact(Skip = \"<kurze Begründung>\")] und füge den problematischen Code nur als Kommentar oder Block-Kommentar im Body ein.\n\n" +
-                    $"<Analyse>\n{semanticHint}\n</Analyse>\n\n" +
-                    $"Relevanter Kontext (Usings, Felder, zu testende Methode, aufgerufene Hilfsmethoden):\n\n" +
-                    $"<Quellcode>\n{classSkeleton}\n</Quellcode>";
+                    $"You are a .NET testing expert. Create a precise xUnit test method (with [Fact]) for method '{methodName}' in class '{className}'.\n\n" +
+                    "Carefully read the automatically generated semantic analysis in <Analysis>. " +
+                    "If the 'Verdict' identifies constraints (such as 'private' or static dependencies), try to work around them pragmatically in the test " +
+                    "(e.g. use reflection for private members or libraries such as 'System.IO.Abstractions' if mentioned in the recommendations). " +
+                    "ALWAYS return an xUnit test method. If a runnable test is technically impossible (e.g. for 'async void' or untestable code), still create a test method with [Fact(Skip = \"<brief reason>\")] and include the problematic code only as a comment or block comment in the body.\n\n" +
+                    $"<Analysis>\n{semanticHint}\n</Analysis>\n\n" +
+                    $"Relevant context (usings, fields, method under test, and called helper methods):\n\n" +
+                    $"<SourceCode>\n{classSkeleton}\n</SourceCode>";
 
                 if (promptOnly)
                 {
@@ -130,12 +130,12 @@ public class ResxTranslationOrchestrator
                     Directory.CreateDirectory(promptDirectory);
                     string promptPath = Path.Combine(promptDirectory, $"{className}.{methodName}.prompt.md");
                     File.WriteAllText(promptPath, basePrompt, Encoding.UTF8);
-                    logInfo?.Invoke($"[NetAI] Prompt mit semantischem Kontext gespeichert: {promptPath}");
+                    logInfo?.Invoke($"[NetAI] Prompt with semantic context saved: {promptPath}");
                 }
 
                 var newTestClassResponse = await localLlmClient.AskAsync(
                     basePrompt,
-                    "Du bist ein C#-Test-Experte. Antworte ausschließlich mit lauffähigem C#-Code ohne Erklärungen.").ConfigureAwait(false);
+                    "You are a C# testing expert. Respond only with runnable C# code and no explanations.").ConfigureAwait(false);
 
                 string testMethodCode = ExtractTestClass(newTestClassResponse);
 
@@ -154,7 +154,7 @@ public class ResxTranslationOrchestrator
                     }
 
                     existingTestMethods.Add(methodName);
-                    logInfo?.Invoke($"[NetAI] Testentwurf für '{methodName}' gespeichert; Compile-Validierung übersprungen.");
+                    logInfo?.Invoke($"[NetAI] Test draft for '{methodName}' saved; compile validation skipped.");
                     continue;
                 }
 
@@ -252,8 +252,8 @@ public class ResxTranslationOrchestrator
 
                         if (!string.Equals(roslynFixed, codeForRepair, StringComparison.Ordinal))
                         {
-                            logInfo?.Invoke("[NetAI] Roslyn hat fehlende usings automatisch ergänzt – " +
-                                            "erneuter Compile-Versuch ohne AI.");
+                            logInfo?.Invoke("[NetAI] Roslyn automatically added missing using directives; " +
+                                            "retrying compilation without AI.");
 
                             testMethodCode = ExtractTestClass(roslynFixed);
                             continue;
@@ -264,9 +264,9 @@ public class ResxTranslationOrchestrator
 
                     var errorPrompt = aiPromptBuilderSimple.FixUnittestPromptSimple(errorsText, codeForRepair);
 
-                    var systemPrompt = "Du bist ein präziser C#-Compiler-Assistent. Deine einzige Aufgabe ist es, " +
-                                       "Syntax- und Kompilierfehler in bereitgestelltem C#-Code exakt zu reparieren " +
-                                       "und lauffähigen Code ohne Text-Erklärungen zurückzugeben.\n";
+                    var systemPrompt = "You are a precise C# compiler assistant. Your only task is to accurately fix " +
+                                       "syntax and compilation errors in the provided C# code " +
+                                       "and return runnable code without textual explanations.\n";
 
                     var correctedOutput = await localLlmClient.AskAsync(errorPrompt, systemPrompt).ConfigureAwait(false);
 
@@ -324,7 +324,7 @@ public class ResxTranslationOrchestrator
                 documentName: Path.GetFileName(sourceFilePath));
 
             var sb = new StringBuilder();
-            sb.AppendLine("// --- Semantische Analyse ---");
+            sb.AppendLine("// --- Semantic analysis ---");
             sb.AppendLine($"// Verdict: {report.Verdict}");
 
             if (report.Method?.ContainingType != null)
@@ -343,9 +343,9 @@ public class ResxTranslationOrchestrator
 
             if (staticDeps.Count > 0)
             {
-                sb.AppendLine($"// Statische Abhängigkeiten: {string.Join(", ", staticDeps)}");
-                sb.AppendLine("// Hinweis: Diese sind nicht mockbar – im Test ggf. via " +
-                              "System.IO.Abstractions oder Wrapper umgehen.");
+                sb.AppendLine($"// Static dependencies: {string.Join(", ", staticDeps)}");
+                sb.AppendLine("// Note: These cannot be mocked; consider working around them in the test via " +
+                              "System.IO.Abstractions or a wrapper.");
             }
 
             var injectable = report.ReferencedTypes?
@@ -357,35 +357,35 @@ public class ResxTranslationOrchestrator
 
             if (injectable.Count > 0)
             {
-                sb.AppendLine($"// Konkrete Typen (besser per Konstruktor injizieren): " +
+                sb.AppendLine($"// Concrete types (prefer constructor injection): " +
                               $"{string.Join(", ", injectable)}");
             }
 
             if (report.Recommendations?.Count > 0)
             {
-                sb.AppendLine("// Empfehlungen:");
+                sb.AppendLine("// Recommendations:");
                 foreach (var rec in report.Recommendations)
                     sb.AppendLine($"//   - {rec}");
             }
 
             if (report.CompilationErrors?.Count > 0)
             {
-                sb.AppendLine($"// Compiler-Fehler in der Compilation: {report.CompilationErrors.Count}");
+                sb.AppendLine($"// Compilation errors: {report.CompilationErrors.Count}");
                 foreach (var err in report.CompilationErrors.Take(3))
                     sb.AppendLine($"//   {err}");
             }
 
-            logInfo?.Invoke($"[NetAI] Semantik für '{methodName}': {report.Verdict}");
+            logInfo?.Invoke($"[NetAI] Semantic analysis for '{methodName}': {report.Verdict}");
             return sb.ToString();
         }
         catch (InvalidOperationException ex)
         {
-            logInfo?.Invoke($"[NetAI] Semantik für '{methodName}' übersprungen: {ex.Message}");
+            logInfo?.Invoke($"[NetAI] Skipped semantic analysis for '{methodName}': {ex.Message}");
             return string.Empty;
         }
         catch (Exception ex)
         {
-            logInfo?.Invoke($"[NetAI] Semantik für '{methodName}' fehlgeschlagen: {ex.Message}");
+            logInfo?.Invoke($"[NetAI] Semantic analysis for '{methodName}' failed: {ex.Message}");
             return string.Empty;
         }
     }

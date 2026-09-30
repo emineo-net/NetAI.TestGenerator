@@ -33,7 +33,7 @@
 	        BeforeTargets="PrepareForBuild"
 	        Condition="'$(TestGeneratorEnabled)' != 'false' And '$(DesignTimeBuild)' != 'true' And '$(TestGeneratorTaskExists)' != 'true'">
 		<Warning Code="RESXT001"
-		         Text="NetAI.TestGenerator: Task-Assembly nicht gefunden ($(TestGeneratorTaskAssembly)). Es wird nichts übersetzt." />
+		         Text="NetAI.TestGenerator: Task assembly not found ($(TestGeneratorTaskAssembly)). No translation will be performed." />
 	</Target>
 
 	<Target Name="SetupTestGeneratorSettings" Condition="'$(TestGeneratorActive)' == 'true'">

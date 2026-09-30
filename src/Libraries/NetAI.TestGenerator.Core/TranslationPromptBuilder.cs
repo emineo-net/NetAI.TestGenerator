@@ -102,8 +102,8 @@ public class TranslationPromptBuilder
                                            [KEY:msg_welcome] ||| Welcome back, {0}!
 
                                            Output (You):
-                                           [KEY:lbl_assigned_categories] assegna le categorie deine pagine o eliminale
-                                           [KEY:msg_welcome] Bentornato, {0}!                                        
+                                           [KEY:lbl_assigned_categories] assegna categorie alle tue pagine o eliminale
+                                           [KEY:msg_welcome] Bentornato, {0}!
                                            """;
 
             var finalSystemPrompt = isKeySentenceStyle ? systemPromptAlternativ : systemPromptStandard;

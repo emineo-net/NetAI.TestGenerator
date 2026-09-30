@@ -44,7 +44,7 @@ namespace NetAI.TestGenerator.Core.Analysis
             CancellationToken ct = default)
         {
             if (string.IsNullOrWhiteSpace(directory))
-                throw new ArgumentException("Verzeichnis darf nicht leer sein.", nameof(directory));
+                throw new ArgumentException("Directory must not be empty.", nameof(directory));
             if (!Directory.Exists(directory))
                 throw new DirectoryNotFoundException(directory);
 
@@ -68,12 +68,12 @@ namespace NetAI.TestGenerator.Core.Analysis
 
             var (tree, methodDecl) = FindMethodAcrossTrees(compilation, methodName, documentName, ct)
                                      ?? throw new InvalidOperationException(
-                                         $"Methode '{methodName}' wurde in keiner Quelldatei gefunden.");
+                                         $"Method '{methodName}' was not found in any source file.");
 
             var model = compilation.GetSemanticModel(tree);
 
             var methodSymbol = model.GetDeclaredSymbol(methodDecl, ct) as IMethodSymbol
-                               ?? throw new InvalidOperationException("Kein Methodensymbol gefunden.");
+                               ?? throw new InvalidOperationException("No method symbol was found.");
 
             var resolvedDocumentName = ResolveDocumentName(documentName, tree);
 
@@ -92,7 +92,7 @@ namespace NetAI.TestGenerator.Core.Analysis
             if (!string.IsNullOrEmpty(fromPath))
                 return fromPath;
 
-            return "(unbenannt)";
+            return "(unnamed)";
         }
 
         public static CSharpCompilation BuildCompilation(
@@ -324,20 +324,20 @@ namespace NetAI.TestGenerator.Core.Analysis
             var blockers = new List<string>();
 
             if (method.Accessibility is "Private" or "Protected")
-                blockers.Add($"Methode ist '{method.Accessibility}' und kann nicht direkt aufgerufen werden.");
+                blockers.Add($"Method is '{method.Accessibility}' and cannot be called directly.");
 
             if (method.IsAsyncVoid)
-                blockers.Add("Methode ist 'async void' und kann nicht awaited werden.");
+                blockers.Add("Method is 'async void' and cannot be awaited.");
 
             if (method.IsStatic)
-                blockers.Add("Methode ist 'static' und schlecht isolierbar.");
+                blockers.Add("Method is 'static' and difficult to isolate.");
 
             foreach (var t in types.Where(t => t.UsedStatically))
-                blockers.Add($"Statische Abhängigkeit auf '{t.FullName}' – nicht mockbar.");
+                blockers.Add($"Static dependency on '{t.FullName}' - cannot be mocked.");
 
             return blockers.Count == 0
-                ? "Direkt testbar."
-                : "NICHT direkt testbar: " + string.Join(" | ", blockers);
+                ? "Directly testable."
+                : "NOT directly testable: " + string.Join(" | ", blockers);
         }
 
         private static List<string> BuildRecommendations(MethodFact method, List<TypeFact> types)
@@ -345,19 +345,19 @@ namespace NetAI.TestGenerator.Core.Analysis
             var recs = new List<string>();
 
             if (method.Accessibility is "Private" or "Protected")
-                recs.Add("Sichtbarkeit auf 'internal' setzen + InternalsVisibleTo, " +
-                         "oder Logik in eine separate Klasse verschieben.");
+                recs.Add("Set accessibility to 'internal' and add InternalsVisibleTo, " +
+                         "or move the logic into a separate class.");
 
             if (method.IsAsyncVoid)
-                recs.Add("Event-Handler auf 'async Task' umstellen; " +
-                         "XAML-Handler wird dünner Wrapper.");
+                recs.Add("Change the event handler to 'async Task'; " +
+                         "keep the XAML handler as a thin wrapper.");
 
             var statics = types.Where(t => t.UsedStatically && !t.IsInterface).ToList();
             if (statics.Count > 0)
             {
-                recs.Add("Statische Abhängigkeiten hinter Interfaces legen (" +
+                recs.Add("Put static dependencies behind interfaces (" +
                          string.Join(", ", statics.Select(t => t.FullName)) +
-                         ") – z. B. via System.IO.Abstractions für File/Directory.");
+                         "), e.g. use System.IO.Abstractions for File/Directory.");
             }
 
             var concrete = types
@@ -367,8 +367,8 @@ namespace NetAI.TestGenerator.Core.Analysis
 
             if (concrete.Count > 0)
             {
-                recs.Add("Konkrete Typen werden intern erzeugt – besser per Konstruktor " +
-                         "injizieren: " + string.Join(", ", concrete.Select(t => t.FullName)));
+                recs.Add("Concrete types are created internally; prefer constructor " +
+                         "injection: " + string.Join(", ", concrete.Select(t => t.FullName)));
             }
 
             return recs;
@@ -386,17 +386,17 @@ namespace NetAI.TestGenerator.Core.Analysis
 
         private static string ClassMockability(INamedTypeSymbol type)
         {
-            if (type.TypeKind == TypeKind.Interface) return "Ja (Interface)";
-            if (type.IsStatic) return "Nein (static)";
-            if (type.IsSealed) return "Nein (sealed)";
-            if (type.IsAbstract) return "Ja (abstract)";
+            if (type.TypeKind == TypeKind.Interface) return "Yes (interface)";
+            if (type.IsStatic) return "No (static)";
+            if (type.IsSealed) return "No (sealed)";
+            if (type.IsAbstract) return "Yes (abstract)";
 
             var virtualCount = type.GetMembers()
                 .Count(m => m.IsVirtual || m.IsAbstract || m.IsOverride);
 
             return virtualCount == 0
-                ? "Nein (keine virtuellen Member)"
-                : "Eingeschränkt (virtuelle Member vorhanden)";
+                ? "No (no virtual members)"
+                : "Limited (virtual members exist)";
         }
 
         private static (SyntaxTree Tree, MethodDeclarationSyntax Method)? FindMethodAcrossTrees(
