@@ -41,12 +41,13 @@ public class TestGeneratorTask : Task
         }
 #endif
 
+        var folderName = Path.GetFileName(ProjectDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
 
-        // 1. WPF Protection: Wenn der Projektname auf "_wpftmp" endet, lautlos abbrechen
-        if (!string.IsNullOrEmpty(ProjectDir) && ProjectDir.EndsWith("_wpftmp", StringComparison.OrdinalIgnoreCase))
+        if (!string.IsNullOrEmpty(folderName) && folderName.EndsWith("_wpftmp", StringComparison.OrdinalIgnoreCase))
         {
-            return true;
+            return true; 
         }
+
 
         // 2. Modus-Erkennung:
         //    Wenn MSBuild uns Compile- UND Reference-Items UND ein Ausgabeverzeichnis
