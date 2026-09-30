@@ -18,7 +18,7 @@
 		<_TestGeneratorProjectDir>$(MSBuildProjectDirectory)/</_TestGeneratorProjectDir>
 
 		<TestGeneratorSemanticAnalysisEnabled Condition="'$(TestGeneratorSemanticAnalysisEnabled)' == ''">true</TestGeneratorSemanticAnalysisEnabled>
-		<TestGeneratorPromptOnly Condition="'$(TestGeneratorPromptOnly)' == ''">false</TestGeneratorPromptOnly>
+		<TestGeneratorPromptOnly Condition="'$(TestGeneratorPromptOnly)' == ''">true</TestGeneratorPromptOnly>
 
 		<_TestGeneratorAnalysisDir>$(IntermediateOutputPath)netai\</_TestGeneratorAnalysisDir>
 

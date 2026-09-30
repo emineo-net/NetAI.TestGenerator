@@ -78,8 +78,7 @@ public class ResxTranslationOrchestrator
             var testProjectManager = new TestProjectManager();
 
             var compilerService = new TestProjectManagerCompilerService(
-                code => testProjectManager.SetupAndValidateTestAsync(
-                    sourceFilePath, code, testProjectDirectoryOverride: testProjectDirectory));
+                code => testProjectManager.SetupAndValidateTestAsync(sourceFilePath, code));
 
             var testCodeProcessor = new TestCodeProcessor(compilerService);
 
@@ -195,10 +194,7 @@ public class ResxTranslationOrchestrator
                         testFramework: TestFramework.xUnit,
                         mockFramework: MockFramework.Unknown).ConfigureAwait(false);
 
-                    result = await testProjectManager.SetupAndValidateTestAsync(
-                        sourceFilePath,
-                        validationClassStructure,
-                        testProjectDirectoryOverride: testProjectDirectory).ConfigureAwait(false);
+                    result = await testProjectManager.SetupAndValidateTestAsync(sourceFilePath, validationClassStructure).ConfigureAwait(false);
 
                     if (result.IsSuccess)
                     {
