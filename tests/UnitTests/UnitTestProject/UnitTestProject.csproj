@@ -33,6 +33,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\UI\WpftranlationTestApp\WpftranlationTestApp.csproj" />
-    <ProjectReference Include="..\..\..\src\Libraries\NetAI.TestGenerator.Core\NetAI.TestGenerator.Core.csproj" />
   </ItemGroup>
 </Project>

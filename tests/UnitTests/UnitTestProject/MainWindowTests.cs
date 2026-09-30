@@ -1,6 +1,7 @@
 ﻿using WpftranlationTestApp;
 using System.Windows;
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 namespace NetAI.Generated.Tests
