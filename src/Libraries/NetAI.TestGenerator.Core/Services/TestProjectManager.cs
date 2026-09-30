@@ -1512,6 +1512,7 @@ public class TestProjectManager
                 {
                     buildArgs[referencesPropertyIndex] = "-p:BuildProjectReferences=true";
                     buildArgs.Remove("-t:Compile");
+                    buildArgs.Add("-p:TestGeneratorEnabled=false");
                     var referenceBuildResult = await RunDotNetCliAsync(buildArgs, projectDir, cancellationToken);
                     result = (
                         referenceBuildResult.ExitCode,
@@ -1660,7 +1661,7 @@ public class TestProjectManager
     private async Task<(int ExitCode, string[] Output, string[] Errors)> ExecuteDotNetProcessAsync(
         IEnumerable<string> arguments, string workingDirectory,
         CancellationToken cancellationToken, TimeSpan? timeout)
-    { 
+    {
         var argumentsString = BuildArgumentString(arguments.ToList());
         var startInfo = new ProcessStartInfo
         {
@@ -1706,12 +1707,6 @@ public class TestProjectManager
             return (-1, outputList.ToArray(), errorList.ToArray());
         }
         catch (OperationCanceledException) { TryKill(process); throw; }
-
-        var allOutput = string.Join("\n", outputList.ToArray());
-
-        File.WriteAllText(@"C:\temp\tempxyzoutput.txt", allOutput);
-
-        File.Open(@"C:\temp\tempxyzoutput.txt",FileMode.Open);
 
         return (process.ExitCode, outputList.ToArray(), errorList.ToArray());
     }

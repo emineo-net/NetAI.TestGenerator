@@ -38,7 +38,8 @@ public class ResxTranslationOrchestrator
     string sourceFilePath,
     string testProjectDirectory,
     Action<string>? logInfo = null,
-    Compilation? compilation = null)
+    Compilation? compilation = null,
+    bool promptOnly = false)
     {
         try
         {
@@ -178,8 +179,14 @@ public class ResxTranslationOrchestrator
                     $"Relevanter Kontext (Usings, Felder, zu testende Methode, aufgerufene Hilfsmethoden):\n\n" +
                     $"<Quellcode>\n{classSkeleton}\n</Quellcode>";
 
-                // Datei-Schreiben kann synchron bleiben (oder auf File.WriteAllTextAsync umgebaut werden)
-                File.WriteAllText(@"C:\temp\tempxyz.txt", "semanticHint: " + semanticHint);
+                if (promptOnly)
+                {
+                    string promptDirectory = Path.Combine(hostProjectDir ?? Path.GetDirectoryName(sourceFilePath)!, "obj", "netai", "prompts");
+                    Directory.CreateDirectory(promptDirectory);
+                    string promptPath = Path.Combine(promptDirectory, $"{className}.{methodName}.prompt.md");
+                    File.WriteAllText(promptPath, basePrompt, Encoding.UTF8);
+                    logInfo?.Invoke($"[NetAI] Prompt mit semantischem Kontext gespeichert: {promptPath}");
+                }
 
                 // Richtig platziertes ConfigureAwait!
                 var newTestClassResponse = await localLlmClient.AskAsync(
@@ -189,7 +196,26 @@ public class ResxTranslationOrchestrator
                 // Reinen Methoden-Code isolieren
                 string testMethodCode = ExtractTestClass(newTestClassResponse);
 
-             
+                if (promptOnly)
+                {
+                    if (!File.Exists(testFilePath))
+                    {
+                        _testGeneratorService.CreateNewTestClassFile(
+                            testFilePath, testClassName,
+                            targetClass.Parent as NamespaceDeclarationSyntax,
+                            testMethodCode);
+                    }
+                    else
+                    {
+                        _testGeneratorService.AppendMethodToExistingClassFile(testFilePath, testMethodCode);
+                    }
+
+                    existingTestMethods.Add(methodName);
+                    logInfo?.Invoke($"[NetAI] Testentwurf für '{methodName}' gespeichert; Compile-Validierung übersprungen.");
+                    continue;
+                }
+
+
 
                 TestGenerationResult? result = null;
                 bool isCompiledSuccessfully = false;
@@ -407,7 +433,7 @@ public class ResxTranslationOrchestrator
             }
 
             var staticDeps = report.ReferencedTypes?
-                .Where(t => t.UsedStatically && !string.IsNullOrWhiteSpace(t.FullName)) 
+                .Where(t => t.UsedStatically && !string.IsNullOrWhiteSpace(t.FullName))
                 .Select(t => t.FullName)
                 .ToList() ?? new List<string>();
 
