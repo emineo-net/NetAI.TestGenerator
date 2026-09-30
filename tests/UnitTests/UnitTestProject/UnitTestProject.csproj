@@ -19,7 +19,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Xunit.StaFact" />
-    <PackageReference Include="Moq" />
+
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

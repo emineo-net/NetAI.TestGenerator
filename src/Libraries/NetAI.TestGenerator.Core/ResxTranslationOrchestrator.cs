@@ -45,7 +45,7 @@ public class ResxTranslationOrchestrator
     {
         try
         {
-            bool tääästDebugger = true;
+            bool tääästDebugger = false;
 
 #if DEBUG
             if (tääästDebugger)
@@ -152,12 +152,29 @@ public class ResxTranslationOrchestrator
                     semanticAnalyzer, compilation, sourceFilePath, methodName, logInfo);
                 // -----------------------------------------------------------------
 
+                //string basePrompt =
+                //    $"Erstelle eine präzise, lauffähige xUnit Unit-Test-Methode (mit [Fact]) für die Methode '{methodName}' " +
+                //    $"aus der Klasse '{className}'.\n\n" +
+                //    $"{semanticHint}\n" +
+                //    $"Relevanter Kontext (Usings, Felder, zu testende Methode, aufgerufene Hilfsmethoden):\n\n" +
+                //    $"{classSkeleton}";
+
                 string basePrompt =
-                    $"Erstelle eine präzise, lauffähige xUnit Unit-Test-Methode (mit [Fact]) für die Methode '{methodName}' " +
-                    $"aus der Klasse '{className}'.\n\n" +
-                    $"{semanticHint}\n" +
+                    $"Du bist ein .NET-Test-Experte. Erstelle eine präzise xUnit-Testmethode (mit [Fact]) für die Methode '{methodName}' aus der Klasse '{className}'.\n\n" +
+                    "Lies dazu die <Analyse>, automatisch generierte semantische Analyse genau aus. " +
+                    "Falls das 'Verdict' Einschränkungen (wie 'private' oder statische Abhängigkeiten) aufzeigt, versuche diese im Test pragmatisch zu umgehen " +
+                    "(z. B. via Reflection für private Member oder durch Nutzung von Bibliotheken wie 'System.IO.Abstractions', falls in den Hinweisen erwähnt). " +
+
+                     "Gib IMMER eine xUnit-Testmethode zurück. Falls ein lauffähiger Test technisch unmöglich ist (z. B. bei 'async void' oder nicht testbarem Code), erstelle trotzdem eine Testmethode mit [Fact(Skip = \"<kurze Begründung, z. B. Kompilierfehler während der KI-Generierung: Methode 'X' ist privat oder nicht testbar.>\")] und füge den problematischen Code nur als Kommentar oder Block-Kommentar im Body ein.\n\n" +
+
+                    $"<Analyse>\n{semanticHint}\n</Analyse>\n\n" +
                     $"Relevanter Kontext (Usings, Felder, zu testende Methode, aufgerufene Hilfsmethoden):\n\n" +
-                    $"{classSkeleton}";
+                    $"<Quellcode>\n{classSkeleton}\n</Quellcode>";
+
+
+              
+
+
 
                 File.WriteAllText(@"C:\temp\tempxyz.txt", "semanticHint: " + semanticHint);
 
@@ -388,7 +405,7 @@ public class ResxTranslationOrchestrator
             }
 
             var staticDeps = report.ReferencedTypes?
-                .Where(t => t.UsedStatically)
+                .Where(t => t.UsedStatically && !string.IsNullOrWhiteSpace(t.FullName)) 
                 .Select(t => t.FullName)
                 .ToList() ?? new List<string>();
 
@@ -401,6 +418,7 @@ public class ResxTranslationOrchestrator
 
             var injectable = report.ReferencedTypes?
                 .Where(t => !t.IsInterface && !t.IsAbstract && !t.IsStatic && !t.IsSealed
+                            && !string.IsNullOrWhiteSpace(t.FullName)
                             && !t.Namespace.StartsWith("System", StringComparison.Ordinal))
                 .Select(t => t.FullName)
                 .ToList() ?? new List<string>();

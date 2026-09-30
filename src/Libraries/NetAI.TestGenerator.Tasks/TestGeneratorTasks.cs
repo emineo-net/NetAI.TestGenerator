@@ -4,20 +4,15 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NetAI.TestGenerator.Core;
 using NetAI.TestGenerator.Core.Analysis;
 using NetAI.TestGenerator.Core.Config;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
 using Task = Microsoft.Build.Utilities.Task;
 
 namespace NetAI.TestGenerator.Tasks;
 
 public class TestGeneratorTask : Task
 {
-    bool tääästXamlCs = true;
-    bool tääästDebugger = false;
+    bool testXamlCs = true;
+    bool testDebugger = false;
     [Required]
     public string ProjectDir { get; set; } = string.Empty;
 
@@ -27,7 +22,8 @@ public class TestGeneratorTask : Task
 
     // ---------------------------------------------------------------------
     //  Werden nur vom RunSemanticTestAnalysis-Target übergeben.
-    //  Im RunResxTranslation-Target bleiben sie leer.
+    //  Im RunResxTranslation-Target werden SourceFiles übergeben,
+    //  ReferencePaths bleibt dort leer (noch nicht aufgelöst).
     // ---------------------------------------------------------------------
     public ITaskItem[] SourceFiles { get; set; } = Array.Empty<ITaskItem>();
     public ITaskItem[] ReferencePaths { get; set; } = Array.Empty<ITaskItem>();
@@ -38,7 +34,7 @@ public class TestGeneratorTask : Task
 
 
 #if DEBUG
-        if (tääästDebugger)
+        if (testDebugger)
         {
             System.Diagnostics.Debugger.Launch();
 
@@ -53,8 +49,10 @@ public class TestGeneratorTask : Task
         }
 
         // 2. Modus-Erkennung:
-        //    Wenn MSBuild uns Compile- und Reference-Items geliefert hat, sind
-        //    wir im semantischen Analyse-Modus. Sonst: Resx-/Test-Generierung.
+        //    Wenn MSBuild uns Compile- UND Reference-Items UND ein Ausgabeverzeichnis
+        //    geliefert hat, sind wir im semantischen Analyse-Modus.
+        //    Sonst: Resx-/Test-Generierung (dort wird die Compilation aus SourceFiles
+        //    gebaut, mit Fallback auf geladene Assemblies als Referenzen).
         var hasSemanticInputs =
             SourceFiles.Length > 0 &&
             ReferencePaths.Length > 0 &&
@@ -215,12 +213,9 @@ public class TestGeneratorTask : Task
     // =====================================================================
     //  Modus B: Resx-/Test-Generierung
     //  (aufgerufen aus RunResxTranslation, VOR PrepareForBuild)
-    //  Unverändertes Verhalten zur bisherigen Version.
     // =====================================================================
     private bool ExecuteResxGeneration()
     {
-
-
 
         // Konfiguration aus aisettings.json laden
         AiTestingConfig config;
@@ -241,15 +236,24 @@ public class TestGeneratorTask : Task
             "🤖 [NetAI] Modus-Bedingung erfüllt. Starte Test-Analyse...");
 
         // Test-Projekt-Verzeichnis ermitteln
-        string testProjectDirectory =
-            $"{ProjectDir.TrimEnd(Path.DirectorySeparatorChar)}.Tests";
+        string testProjectDirectory = $"{ProjectDir.TrimEnd(Path.DirectorySeparatorChar)}.Tests";
 
         var collectedIssues = new List<string>();
         var orchestrator = new ResxTranslationOrchestrator();
 
+        // -----------------------------------------------------------------
+        // NEU: Compilation für den Orchestrator bauen.
+        //     In der Resx-Phase ist @(ReferencePath) noch nicht aufgelöst,
+        //     deshalb wird auf die aktuell geladenen Assemblies zurückgegriffen.
+        //     Damit kann der Orchestrator semantische Hinweise in den KI-Prompt
+        //     einbauen (Verdict, statische Abhängigkeiten, Mockability, Ctors).
+        // -----------------------------------------------------------------
+        Compilation? compilation = BuildCompilationForOrchestrator();
+        // -----------------------------------------------------------------
+
         var csharpFiles = new List<string>();
 
-        if (tääästXamlCs)
+        if (testXamlCs)
         {
             csharpFiles = Directory.GetFiles(ProjectDir, "*.cs", SearchOption.AllDirectories)
                 .Select(file => Path.GetFullPath(file))
@@ -338,7 +342,7 @@ public class TestGeneratorTask : Task
                         {
                             Log.LogMessage(MessageImportance.High, message);
                         }
-                    })
+                    }, compilation)   // <- Compilation an den Orchestrator durchreichen
                 ).GetAwaiter().GetResult();
 
                 Log.LogMessage(MessageImportance.High, "🤖 [NetAI]orchestrator.ProcessProjectAsyn end...");
@@ -369,6 +373,89 @@ public class TestGeneratorTask : Task
         }
 
         return overallSuccess;
+    }
+
+    // =====================================================================
+    //  Compilation-Aufbau für den Orchestrator
+    // =====================================================================
+
+    /// <summary>
+    /// Baut eine <see cref="Compilation"/> für den Orchestrator.
+    ///
+    /// Quelldateien kommen aus <see cref="SourceFiles"/> (MSBuild @(Compile)).
+    /// Referenzen kommen aus <see cref="ReferencePaths"/> (MSBuild @(ReferencePath)).
+    /// Wenn <see cref="ReferencePaths"/> leer ist – was in der frühen Resx-Phase
+    /// der Fall ist, weil @(ReferencePath) erst nach ResolveReferences aufgelöst
+    /// wird – greift ein Fallback auf die aktuell geladenen Assemblies.
+    ///
+    /// Gibt <c>null</c> zurück, wenn keine Quelldateien vorliegen oder der Aufbau
+    /// fehlschlägt. Der Orchestrator arbeitet dann rein syntaktisch weiter.
+    /// </summary>
+    private Compilation? BuildCompilationForOrchestrator()
+    {
+        var sourcePaths = SourceFiles
+            .Select(i => i.ItemSpec)
+            .Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
+            .Where(p => !p.EndsWith("AssemblyInfo.cs", StringComparison.OrdinalIgnoreCase))
+            .Where(p => !p.EndsWith("AssemblyAttributes.cs", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (sourcePaths.Count == 0)
+        {
+            Log.LogMessage(MessageImportance.High,
+                "[NetAI] Keine @(Compile)-Items vorhanden – keine Compilation möglich, " +
+                "Analyse läuft rein syntaktisch.");
+            return null;
+        }
+
+        // Referenzen: erst aus @(ReferencePath), sonst Fallback auf geladene Assemblies.
+        var referencePaths = ReferencePaths
+            .Select(i => i.ItemSpec)
+            .Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
+            .ToList();
+
+        bool usedFallback = false;
+        if (referencePaths.Count == 0)
+        {
+            usedFallback = true;
+            referencePaths = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => a.Location!)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(File.Exists)
+                .ToList();
+        }
+
+        try
+        {
+            var assemblyName = Path.GetFileNameWithoutExtension(
+                ProjectDir.TrimEnd('/', '\\'));
+            if (string.IsNullOrEmpty(assemblyName))
+                assemblyName = "TestabilityAnalysis";
+
+            var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(
+                sourcePaths,
+                referencePaths,
+                assemblyName);
+
+            var errorCount = compilation.GetDiagnostics()
+                .Count(d => d.Severity == DiagnosticSeverity.Error);
+
+            Log.LogMessage(MessageImportance.High,
+                $"[NetAI] Compilation für Orchestrator gebaut: " +
+                $"{sourcePaths.Count} Quelldateien, {referencePaths.Count} Referenzen" +
+                (usedFallback ? " (Fallback: geladene Assemblies)" : " (@(ReferencePath))") +
+                $", {errorCount} Compiler-Fehler.");
+
+            return compilation;
+        }
+        catch (Exception ex)
+        {
+            Log.LogWarning(
+                $"[NetAI] Compilation-Aufbau fehlgeschlagen: {ex.Message} – " +
+                "Analyse läuft rein syntaktisch.");
+            return null;
+        }
     }
 
     private void TryOpenSummaryLog(List<string> issues)

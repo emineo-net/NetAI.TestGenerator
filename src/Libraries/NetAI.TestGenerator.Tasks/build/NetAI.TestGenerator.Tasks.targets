@@ -74,7 +74,8 @@
 
 		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
 		                    CurrentConfiguration="$(Configuration)"
-		                    IsPublishing="$(_TestGeneratorIsPublishing)" />
+						IsPublishing="$(_TestGeneratorIsPublishing)"
+		                    SourceFiles="@(Compile)" />
 	</Target>
 
 	<!-- Läuft vor dem eigentlichen Build: Übersetzen und neu erzeugte .resx-Dateien noch in diesem Build einbinden -->
