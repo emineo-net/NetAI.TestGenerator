@@ -863,6 +863,8 @@ public class ResxTranslationOrchestrator
         if (!namespaceName.EndsWith(".Tests", StringComparison.Ordinal)) namespaceName += ".Tests";
 
         var (extractedUsings, methodsText) = SplitUsingsFromMethods(methodCode);
+        if (string.IsNullOrWhiteSpace(methodsText))
+            throw new InvalidOperationException("Generated code does not contain a test method.");
 
         var usings = new List<string> { $"using {GetTestFrameworkNamespace(_testFramework)};" };
         foreach (var u in extractedUsings)
@@ -979,7 +981,7 @@ namespace {namespaceName}
         var root = tree.GetCompilationUnitRoot();
 
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
-        if (methods.Count == 0) return rawCode.Trim();
+        if (methods.Count == 0) return string.Empty;
 
         var sb = new StringBuilder();
 
@@ -1015,7 +1017,7 @@ namespace {namespaceName}
 
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
         if (methods.Count == 0)
-            return (usings, extractedCode.Trim());
+            return (usings, string.Empty);
 
         var sb = new StringBuilder();
         foreach (var method in methods)

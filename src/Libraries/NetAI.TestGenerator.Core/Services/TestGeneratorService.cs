@@ -54,6 +54,8 @@ public class TestGeneratorService
 
         // usings vom Methodenkörper trennen, sonst landen sie im Klassenkörper (CS1529).
         var (extractedUsings, methodsText) = SplitUsingsFromMethods(methodCode);
+        if (string.IsNullOrWhiteSpace(methodsText))
+            throw new ArgumentException("Generated code does not contain a test method.", nameof(methodCode));
 
         var usings = new List<string>();
 
@@ -106,6 +108,9 @@ public class TestGeneratorService
         if (classDecl == null) return;
 
         var (extractedUsings, methodsText) = SplitUsingsFromMethods(methodCode);
+        if (string.IsNullOrWhiteSpace(methodsText))
+            throw new ArgumentException("Generated code does not contain a test method.", nameof(methodCode));
+
         var methodRoot = CSharpSyntaxTree.ParseText(
             $"class GeneratedTestContainer {{ {methodsText} }}").GetCompilationUnitRoot();
         var newMethodNode = methodRoot.DescendantNodes()
@@ -113,6 +118,11 @@ public class TestGeneratorService
             .FirstOrDefault();
 
         if (newMethodNode == null) return;
+        if (classDecl.Members.OfType<MethodDeclarationSyntax>()
+            .Any(existingMethod => HasSameSignature(existingMethod, newMethodNode)))
+        {
+            return;
+        }
 
         var usings = root.Usings.ToList();
         var existingUsings = new HashSet<string>(
@@ -148,6 +158,50 @@ public class TestGeneratorService
             normalized.Name?.ToString());
     }
 
+    private static bool HasSameSignature(
+        MethodDeclarationSyntax first,
+        MethodDeclarationSyntax second)
+    {
+        if (!string.Equals(first.Identifier.ValueText, second.Identifier.ValueText, StringComparison.Ordinal) ||
+            (first.TypeParameterList?.Parameters.Count ?? 0) !=
+            (second.TypeParameterList?.Parameters.Count ?? 0) ||
+            first.ParameterList.Parameters.Count != second.ParameterList.Parameters.Count)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < first.ParameterList.Parameters.Count; i++)
+        {
+            var firstParameter = first.ParameterList.Parameters[i];
+            var secondParameter = second.ParameterList.Parameters[i];
+            if (!string.Equals(
+                    firstParameter.Type?.WithoutTrivia().ToString(),
+                    secondParameter.Type?.WithoutTrivia().ToString(),
+                    StringComparison.Ordinal) ||
+                !string.Equals(GetRefKind(firstParameter), GetRefKind(secondParameter), StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static string GetRefKind(ParameterSyntax parameter)
+    {
+        foreach (var modifier in parameter.Modifiers)
+        {
+            if (modifier.IsKind(SyntaxKind.RefKeyword) ||
+                modifier.IsKind(SyntaxKind.OutKeyword) ||
+                modifier.IsKind(SyntaxKind.InKeyword))
+            {
+                return modifier.ValueText;
+            }
+        }
+
+        return string.Empty;
+    }
+
     /// <summary>
     /// Zerlegt einen Code-Snippet in Compilation-Unit-usings und Methodentext.
     /// Wird von <see cref="CreateNewTestClassFile"/> verwendet, um die usings aus
@@ -156,8 +210,9 @@ public class TestGeneratorService
     /// </summary>
     /// <returns>
     /// <c>Usings</c>: vollständige using-Zeilen (inkl. Semikolon), dedupliziert.
-    /// <c>Methods</c>: Methodenrümpfe ohne usings; nur wenn der Snippet gar keine
-    /// Methoden enthält, wird der ursprüngliche Text zurückgegeben (Fallback).
+    /// <c>Methods</c>: Methodendeklarationen ohne usings, oder leer wenn keine
+    /// Methodendeklaration erkannt wird. Vollständige Klassen-/Namespace-Wrapper
+    /// werden niemals als Methodeninhalt weitergereicht.
     /// </returns>
     private static (List<string> Usings, string Methods) SplitUsingsFromMethods(string code)
     {
@@ -175,7 +230,7 @@ public class TestGeneratorService
                 usings.Add(text);
         }
 
-        var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
+        var methods = GetDistinctMethods(root);
 
         if (methods.Count == 0)
         {
@@ -185,18 +240,12 @@ public class TestGeneratorService
 
             var wrappedRoot = CSharpSyntaxTree.ParseText(
                 $"class GeneratedTestContainer {{ {classMembers} }}").GetCompilationUnitRoot();
-            methods = wrappedRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
+            methods = GetDistinctMethods(wrappedRoot);
         }
 
         if (methods.Count == 0)
         {
-            // Snippet bestand nur aus usings (kein Methodenkörper). Dann die usings
-            // nicht zusätzlich in den Klassenkörper schreiben, sonst CS1529.
-            if (usings.Count > 0)
-                return (usings, string.Empty);
-
-            // Wirklich nichts Sinnvolles erkannt: unverändert durchreichen.
-            return (usings, code.Trim());
+            return (usings, string.Empty);
         }
 
         var sb = new System.Text.StringBuilder();
@@ -204,5 +253,17 @@ public class TestGeneratorService
             sb.AppendLine(m.ToFullString());
 
         return (usings, sb.ToString().Trim());
+    }
+
+    private static List<MethodDeclarationSyntax> GetDistinctMethods(CompilationUnitSyntax root)
+    {
+        var methods = new List<MethodDeclarationSyntax>();
+        foreach (var method in root.DescendantNodes().OfType<MethodDeclarationSyntax>())
+        {
+            if (!methods.Any(existingMethod => HasSameSignature(existingMethod, method)))
+                methods.Add(method);
+        }
+
+        return methods;
     }
 }
