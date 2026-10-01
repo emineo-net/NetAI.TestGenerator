@@ -570,8 +570,10 @@ public class TestProjectManager
         version = version.Trim();
         if (version.Length == 0) return false;
         if (version == "*" || version.Contains('*')) return true;
-        if (version.StartsWith("^") || version.StartsWith("~") ||
-            version.StartsWith(">") || version.StartsWith("<")) return true;
+        if (version.StartsWith("^", StringComparison.Ordinal) ||
+            version.StartsWith("~", StringComparison.Ordinal) ||
+            version.StartsWith(">", StringComparison.Ordinal) ||
+            version.StartsWith("<", StringComparison.Ordinal)) return true;
         return false;
     }
 
@@ -975,7 +977,7 @@ public class TestProjectManager
     private static List<string> ExtractUsingNamespaces(string code)
     {
         var codeWithoutLineComments = string.Join("\n",
-            code.Split('\n').Where(l => !l.TrimStart().StartsWith("//")));
+            code.Split('\n').Where(l => !l.TrimStart().StartsWith("//", StringComparison.Ordinal)));
         var matches = Regex.Matches(codeWithoutLineComments,
             @"^\s*using\s+(?!static\s)([A-Za-z_][A-Za-z0-9_.]*)\s*;",
             RegexOptions.Multiline | RegexOptions.Compiled);
@@ -1413,7 +1415,7 @@ public class TestProjectManager
     private static string ExtractClassName(string classCode, string generatedNamePrefix)
     {
         var codeWithoutLineComments = string.Join("\n",
-            classCode.Split('\n').Where(l => !l.TrimStart().StartsWith("//")));
+            classCode.Split('\n').Where(l => !l.TrimStart().StartsWith("//", StringComparison.Ordinal)));
         var match = Regex.Match(codeWithoutLineComments, @"\bclass\s+([A-Za-z_][A-Za-z0-9_]*)", RegexOptions.Compiled);
         if (match.Success) return match.Groups[1].Value;
         string fallback = $"{generatedNamePrefix}{Guid.NewGuid():N}";
@@ -1758,7 +1760,8 @@ public class TestProjectManager
         {
             var relevantFrames = ex.StackTrace.Split('\n')
                 .Select(l => l.TrimEnd('\r'))
-                .Where(l => l.Length > 0 && !l.Contains("System.Runtime.CompilerServices"))
+                .Where(l => l.Length > 0 &&
+                    l.IndexOf("System.Runtime.CompilerServices", StringComparison.Ordinal) < 0)
                 .ToArray();
             if (relevantFrames.Length > 0) { lines.Add("Stack trace:"); lines.AddRange(relevantFrames); }
         }

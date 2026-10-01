@@ -349,7 +349,9 @@ public class ResxTranslationOrchestrator
                                     $"(AI attempt {aiAttempts}/{MaxAiRetries}). Running AI repair loop...");
 
                     if (result.CompilerErrors?.Any(i =>
-                            i.Contains("Could not automatically resolve a NuGet package for the namespace(s)")) == true)
+                            i.IndexOf(
+                                "Could not automatically resolve a NuGet package for the namespace(s)",
+                                StringComparison.Ordinal) >= 0) == true)
                     {
                         logInfo?.Invoke("[NetAI] Warning: Missing NuGet dependencies detected in generated test.");
                     }
@@ -858,7 +860,7 @@ public class ResxTranslationOrchestrator
         string methodCode)
     {
         string namespaceName = originalNamespace?.Name.ToString() ?? "NetAI.Generated.Tests";
-        if (!namespaceName.EndsWith(".Tests")) namespaceName += ".Tests";
+        if (!namespaceName.EndsWith(".Tests", StringComparison.Ordinal)) namespaceName += ".Tests";
 
         var (extractedUsings, methodsText) = SplitUsingsFromMethods(methodCode);
 

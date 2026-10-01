@@ -50,7 +50,7 @@ public class TestGeneratorService
         string? frameworkUsing = null)
     {
         string namespaceName = originalNamespace?.Name.ToString() ?? "NetAI.Generated.Tests";
-        if (!namespaceName.EndsWith(".Tests")) namespaceName += ".Tests";
+        if (!namespaceName.EndsWith(".Tests", StringComparison.Ordinal)) namespaceName += ".Tests";
 
         // usings vom Methodenkörper trennen, sonst landen sie im Klassenkörper (CS1529).
         var (extractedUsings, methodsText) = SplitUsingsFromMethods(methodCode);
@@ -102,8 +102,8 @@ public class TestGeneratorService
         var classDecl = root.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
         if (classDecl == null) return;
 
-        var newMethodRoot = CSharpSyntaxTree.ParseText(methodCode).GetCompilationUnitRoot();
-        var newMethodNode = newMethodRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault();
+        var generatedCode = ParseGeneratedCode(methodCode);
+        var newMethodNode = generatedCode.Methods.FirstOrDefault();
 
         if (newMethodNode == null) return;
 
