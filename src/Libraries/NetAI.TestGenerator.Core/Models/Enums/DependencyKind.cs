@@ -1,10 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace NetAI.TestGenerator.Core.Models.Enums;
 
-namespace NetAI.TestGenerator.Core.Models.Enums
+/// <summary>Classifies a referenced type by how it can be substituted in a test.</summary>
+public enum DependencyKind
 {
-    internal class DependencyKind
-    {
-    }
+    Interface,
+    AbstractClass,
+    ConcreteClass,
+    SealedClass,
+    StaticClass,
+    Delegate,
+    Struct,
+    Enum,
+    Primitive,
+    Unknown,
 }
