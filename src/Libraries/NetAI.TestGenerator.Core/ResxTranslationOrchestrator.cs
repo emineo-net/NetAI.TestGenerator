@@ -2,7 +2,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using NetAI.TestGenerator.Core.Models;
+using NetAI.TestGenerator.Core.Analysis;
+using NetAI.TestGenerator.Core.Config;
 using NetAI.TestGenerator.Core.Models.Enums;
 using NetAI.TestGenerator.Core.Services;
 using System.Text;
@@ -19,10 +20,36 @@ public class ResxTranslationOrchestrator
 
     private readonly TestGeneratorService _testGeneratorService;
     private readonly TestCodeBeautifier _testCodeBeautifier = new();
+    private readonly TestFramework _testFramework;
+    private readonly MockFramework _mockFramework;
 
+    /// <summary>Creates an orchestrator for generating tests from source files.</summary>
+    /// <param name="httpClient">Reserved for custom transport support; the current implementation uses <see cref="LocalLlmClient"/>.</param>
     public ResxTranslationOrchestrator(HttpClient? httpClient = null)
+        : this(TestFramework.xUnit, MockFramework.Unknown, httpClient)
+    {
+    }
+
+    /// <summary>Creates an orchestrator using the configured test and mocking frameworks.</summary>
+    /// <param name="config">Settings that select the test and mocking frameworks.</param>
+    /// <param name="httpClient">Reserved for custom transport support; the current implementation uses <see cref="LocalLlmClient"/>.</param>
+    /// <exception cref="ArgumentException">A configured test or mocking framework is unsupported.</exception>
+    public ResxTranslationOrchestrator(AiTestingConfig config, HttpClient? httpClient = null)
+        : this(
+            ParseTestFramework(config),
+            ParseMockFramework(config),
+            httpClient)
+    {
+    }
+
+    private ResxTranslationOrchestrator(
+        TestFramework testFramework,
+        MockFramework mockFramework,
+        HttpClient? httpClient)
     {
         _testGeneratorService = new TestGeneratorService();
+        _testFramework = testFramework;
+        _mockFramework = mockFramework;
     }
 
     /// <summary>Generates tests for uncovered methods in the first class found in a source file.</summary>
@@ -103,7 +130,10 @@ public class ResxTranslationOrchestrator
 
             var compilerService = new TestProjectManagerCompilerService(
                 code => testProjectManager.SetupAndValidateTestAsync(
-                    sourceFilePath, code, testProjectDirectoryOverride: testProjectDirectory));
+                    sourceFilePath,
+                    code,
+                    testTemplate: GetTestTemplate(_testFramework),
+                    testProjectDirectoryOverride: testProjectDirectory));
 
             var testCodeProcessor = new TestCodeProcessor(compilerService);
 
@@ -198,10 +228,20 @@ public class ResxTranslationOrchestrator
 
                 BuildLogger.BuildLog("\nsemanticHint: " + semanticHint);
 
-                logInfo?.Invoke($"[NetAI] semantic hint: {semanticHint}");
-
-                string basePrompt = BuildBasePrompt(
-                    className, methodName, semanticHint, projectContext, classSkeleton);
+                string frameworkName = GetTestFrameworkName(_testFramework);
+                string testAttribute = GetTestAttribute(_testFramework);
+                string mockFrameworkInstruction = _mockFramework == MockFramework.Unknown
+                    ? string.Empty
+                    : $"Use {_mockFramework} for mocking when mocks are needed. ";
+                string basePrompt =
+                    $"You are a .NET testing expert. Create a precise {frameworkName} test method using {testAttribute} for method '{methodName}' in class '{className}'.\n\n" +
+                    "Carefully read the automatically generated semantic analysis in <Analysis>. " +
+                    "If the 'Verdict' identifies constraints (such as 'private' or static dependencies), try to work around them pragmatically in the test " +
+                    "(e.g. use reflection for private members or libraries such as 'System.IO.Abstractions' if mentioned in the recommendations). " +
+                    $"{mockFrameworkInstruction}Always use the selected test framework. If a runnable test is technically impossible (e.g. for 'async void' or untestable code), return a test marked skipped/ignored using that framework's supported attribute, and include problematic code only as a comment or block comment in the body.\n\n" +
+                    $"<Analysis>\n{semanticHint}\n</Analysis>\n\n" +
+                    $"Relevant context (usings, fields, method under test, and called helper methods):\n\n" +
+                    $"<SourceCode>\n{classSkeleton}\n</SourceCode>";
 
                 BuildLogger.BuildLog("\nbasePrompt: " + basePrompt);
 
@@ -274,12 +314,13 @@ public class ResxTranslationOrchestrator
 
                     validationClassStructure = await testCodeProcessor.ProcessTestClassAsync(
                         validationClassStructure,
-                        testFramework: TestFramework.xUnit,
-                        mockFramework: MockFramework.Unknown).ConfigureAwait(false);
+                        testFramework: _testFramework,
+                        mockFramework: _mockFramework).ConfigureAwait(false);
 
                     result = await testProjectManager.SetupAndValidateTestAsync(
                         sourceFilePath,
                         validationClassStructure,
+                        testTemplate: GetTestTemplate(_testFramework),
                         testProjectDirectoryOverride: testProjectDirectory).ConfigureAwait(false);
 
                     BuildLogger.BuildLog("\nresultErrors: " +
@@ -290,6 +331,8 @@ public class ResxTranslationOrchestrator
                         isCompiledSuccessfully = true;
                         if (!string.IsNullOrEmpty(result.TestClassCode))
                             testMethodCode = ExtractTestClass(result.TestClassCode!);
+                        }
+
                         break;
                     }
 
@@ -805,4 +848,65 @@ namespace {namespaceName}
         catch { }
         return null;
     }
+
+    private static TestFramework ParseTestFramework(AiTestingConfig config)
+    {
+        if (config is null)
+            throw new ArgumentNullException(nameof(config));
+
+        if (config.Frameworks is not null &&
+            Enum.TryParse(config.Frameworks.TestFramework, ignoreCase: true, out TestFramework framework) &&
+            framework != TestFramework.Unknown &&
+            Enum.IsDefined(typeof(TestFramework), framework))
+        {
+            return framework;
+        }
+
+        throw new ArgumentException(
+            $"Unsupported test framework '{config.Frameworks?.TestFramework}'. Supported values are xunit, nunit, and mstest.",
+            nameof(config));
+    }
+
+    private static MockFramework ParseMockFramework(AiTestingConfig config)
+    {
+        if (config is null)
+            throw new ArgumentNullException(nameof(config));
+
+        if (config.Frameworks is not null &&
+            Enum.TryParse(config.Frameworks.MockingFramework, ignoreCase: true, out MockFramework framework) &&
+            framework != MockFramework.Unknown &&
+            Enum.IsDefined(typeof(MockFramework), framework))
+        {
+            return framework;
+        }
+
+        throw new ArgumentException(
+            $"Unsupported mocking framework '{config.Frameworks?.MockingFramework}'. Supported values are moq, nsubstitute, and fakeiteasy.",
+            nameof(config));
+    }
+
+    private static string GetTestTemplate(TestFramework testFramework) => testFramework switch
+    {
+        TestFramework.NUnit => "nunit",
+        TestFramework.MSTest => "mstest",
+        TestFramework.xUnit => "xunit",
+        _ => throw new ArgumentOutOfRangeException(nameof(testFramework), testFramework, "Unsupported test framework.")
+    };
+
+    private static string GetTestFrameworkName(TestFramework testFramework) => testFramework switch
+    {
+        TestFramework.NUnit => "NUnit",
+        TestFramework.MSTest => "MSTest",
+        TestFramework.xUnit => "xUnit",
+        _ => throw new ArgumentOutOfRangeException(nameof(testFramework), testFramework, "Unsupported test framework.")
+    };
+
+    private static string GetTestAttribute(TestFramework testFramework) => testFramework switch
+    {
+        TestFramework.NUnit => "[Test]",
+        TestFramework.MSTest => "[TestMethod]",
+        TestFramework.xUnit => "[Fact]",
+        _ => throw new ArgumentOutOfRangeException(nameof(testFramework), testFramework, "Unsupported test framework.")
+    };
+
 }

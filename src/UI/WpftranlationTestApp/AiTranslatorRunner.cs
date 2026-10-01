@@ -32,8 +32,6 @@ public class AiTranslatorRunner
             : SupportedLanguages.Split(',').Select(l => l.Trim()).Where(l => l.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-        var orchestrator = new ResxTranslationOrchestrator();
-
         AiTestingConfig config;
         try
         {
@@ -41,6 +39,18 @@ public class AiTranslatorRunner
         }
         catch (Exception ex)
         {
+            logError($"aisettings.json konnte nicht geladen werden: {ex.Message}");
+            return false;
+        }
+
+        ResxTranslationOrchestrator orchestrator;
+        try
+        {
+            orchestrator = new ResxTranslationOrchestrator(config);
+        }
+        catch (ArgumentException ex)
+        {
+            logError($"Ungültige Framework-Einstellungen in aisettings.json: {ex.Message}");
             return false;
         }
 

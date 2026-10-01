@@ -247,7 +247,16 @@ public class TestGeneratorTask : Task
             solutionDirectory, "tests", "UnitTests", $"{projectName}.Tests");
 
         var collectedIssues = new List<string>();
-        var orchestrator = new ResxTranslationOrchestrator();
+        ResxTranslationOrchestrator orchestrator;
+        try
+        {
+            orchestrator = new ResxTranslationOrchestrator(config);
+        }
+        catch (ArgumentException ex)
+        {
+            Log.LogError($"[NetAI] Invalid framework settings in aisettings.json: {ex.Message}");
+            return false;
+        }
 
         Compilation? compilation = BuildCompilationForOrchestrator();
 
