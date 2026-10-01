@@ -225,7 +225,8 @@ public class ResxTranslationOrchestrator
                         testProjectDirectoryOverride: testProjectDirectory).ConfigureAwait(false);
 
 
-                    BuildLogger.BuildLog("\nresultErrors: " + string.Join("\n", result.CompilerErrors.ToList()));
+                    BuildLogger.BuildLog("\nresultErrors: " + string.Join("\n", result.CompilerErrors ?? Array.Empty<string>()));
+
 
                     if (result.IsSuccess)
                     {
