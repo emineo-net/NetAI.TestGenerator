@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace NetAI.TestGenerator.Core.Analysis
+namespace NetAI.TestGenerator.Core.Models
 {
     /// <summary>Analyzes testability using Roslyn compilations assembled from source files and metadata references.</summary>
     public sealed class RoslynDllTestabilityAnalyzer

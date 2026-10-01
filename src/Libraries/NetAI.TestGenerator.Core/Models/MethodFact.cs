@@ -1,4 +1,4 @@
-﻿namespace NetAI.TestGenerator.Core.Analysis;
+﻿namespace NetAI.TestGenerator.Core.Models;
 
 /// <summary>Describes the signature, modifiers, parameters, and containing type of an analyzed method.</summary>
 public sealed class MethodFact

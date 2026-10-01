@@ -2,11 +2,11 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using NetAI.TestGenerator.Core.Analysis;
 using NetAI.TestGenerator.Core.Models.Enums;
 using NetAI.TestGenerator.Core.Services;
 using System.Text;
 using System.Text.RegularExpressions;
+using NetAI.TestGenerator.Core.Models;
 
 namespace NetAI.TestGenerator.Core;
 

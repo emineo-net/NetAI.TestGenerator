@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using NetAI.TestGenerator.Core.Models;
 
 namespace DotNet10TestGenerator;
 

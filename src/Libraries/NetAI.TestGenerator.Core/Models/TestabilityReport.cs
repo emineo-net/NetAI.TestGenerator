@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace NetAI.TestGenerator.Core.Analysis;
+namespace NetAI.TestGenerator.Core.Models;
 
 /// <summary>Summarizes a method's testability, referenced types, and relevant compilation diagnostics.</summary>
 public sealed class TestabilityReport

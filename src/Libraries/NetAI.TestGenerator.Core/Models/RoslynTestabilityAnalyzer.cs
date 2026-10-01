@@ -1,13 +1,15 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NetAI.TestGenerator.Core.Models;
+
 
 #if !NETSTANDARD2_0
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.Build.Locator;
 #endif
 
-namespace NetAI.TestGenerator.Core.Analysis;
+namespace NetAI.TestGenerator.Core.Models;
 
 /// <summary>Analyzes testability using Roslyn workspaces loaded from a solution, project, or document.</summary>
 public sealed class RoslynTestabilityAnalyzer
@@ -40,7 +42,7 @@ public sealed class RoslynTestabilityAnalyzer
         var solution = await workspace.OpenSolutionAsync(solutionPath, cancellationToken: ct);
         var document = FindDocument(solution, documentName) ?? throw new InvalidOperationException(
             $"Document '{documentName}' was not found in the solution.");
-        
+
         return await AnalyzeDocumentAsync(document, methodName, ct);
     }
 
@@ -62,7 +64,7 @@ public sealed class RoslynTestabilityAnalyzer
         var project = await workspace.OpenProjectAsync(projectPath, cancellationToken: ct);
         var document = FindDocument(project, documentName) ?? throw new InvalidOperationException(
             $"Document '{documentName}' was not found in the project.");
-            
+
         return await AnalyzeDocumentAsync(document, methodName, ct);
     }
 #endif

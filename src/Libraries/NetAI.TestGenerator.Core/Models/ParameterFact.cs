@@ -1,4 +1,4 @@
-﻿namespace NetAI.TestGenerator.Core.Analysis;
+﻿namespace NetAI.TestGenerator.Core.Models;
 
 /// <summary>Describes a parameter on an analyzed method.</summary>
 public sealed class ParameterFact

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using NetAI.TestGenerator.Core;
-using NetAI.TestGenerator.Core.Analysis;
 using NetAI.TestGenerator.Core.Config;
+using NetAI.TestGenerator.Core.Models;
 
 namespace WpftranlationTestApp;
 

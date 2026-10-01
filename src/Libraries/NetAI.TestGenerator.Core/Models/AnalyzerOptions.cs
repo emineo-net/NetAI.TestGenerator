@@ -1,4 +1,4 @@
-﻿namespace NetAI.TestGenerator.Core.Analysis;
+﻿namespace NetAI.TestGenerator.Core.Models;
 
 /// <summary>Controls which framework types and compilation diagnostics appear in testability reports.</summary>
 public sealed class AnalyzerOptions
