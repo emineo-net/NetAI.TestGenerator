@@ -2,11 +2,13 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NetAI.TestGenerator.Core.Analysis;
+using NetAI.TestGenerator.Core.Models;
 using NetAI.TestGenerator.Core.Models.Enums;
 using NetAI.TestGenerator.Core.Services;
 using System.Text;
 using System.Text.RegularExpressions;
-using NetAI.TestGenerator.Core.Models;
+using System.Xml.Linq;
 
 namespace NetAI.TestGenerator.Core;
 
@@ -19,43 +21,23 @@ public class ResxTranslationOrchestrator
     private readonly TestGeneratorService _testGeneratorService;
     private readonly TestCodeBeautifier _testCodeBeautifier = new();
 
-    /// <summary>Creates an orchestrator for generating tests from source files.</summary>
-    /// <param name="httpClient">Reserved for custom transport support; the current implementation uses <see cref="LocalLlmClient"/>.</param>
     public ResxTranslationOrchestrator(HttpClient? httpClient = null)
     {
         _testGeneratorService = new TestGeneratorService();
     }
 
-
     /// <summary>Generates tests for uncovered methods in the first class found in a source file.</summary>
-    /// <param name="sourceFilePath">Path to the source file to analyze.</param>
-    /// <param name="testProjectDirectory">Directory where generated test files and the test project are stored.</param>
-    /// <param name="logInfo">Optional callback for progress and diagnostic messages.</param>
-    /// <param name="compilation">Optional Roslyn compilation used to enrich prompts with semantic facts.</param>
-    /// <param name="promptOnly">When <see langword="true"/>, skips compile validation after saving each generated test.</param>
-    /// <returns><c>"ok"</c> when processing completes, or an error message if processing fails.</returns>
     public async Task<string> ProcessProjectAsync(
-    string sourceFilePath,
-    string testProjectDirectory,
-    Action<string>? logInfo = null,
-    Compilation? compilation = null,
-    bool promptOnly = false)
+        string sourceFilePath,
+        string testProjectDirectory,
+        Action<string>? logInfo = null,
+        Compilation? compilation = null,
+        bool promptOnly = false)
     {
         try
         {
-            bool tääästDebugger = true;
-
-//#if DEBUG
-//            if (tääästDebugger)
-//            {
-//                System.Diagnostics.Debugger.Launch();
-//            }
-//#endif
-
             if (string.IsNullOrWhiteSpace(sourceFilePath) || !File.Exists(sourceFilePath))
-            {
                 return "Source file empty or missing.";
-            }
 
             string sourceCode;
             using (var stream = new FileStream(sourceFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -66,11 +48,7 @@ public class ResxTranslationOrchestrator
 
             var sourceRoot = CSharpSyntaxTree.ParseText(sourceCode).GetCompilationUnitRoot();
             var targetClass = sourceRoot.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
-
-            if (targetClass == null)
-            {
-                return "No class found in source file.";
-            }
+            if (targetClass == null) return "No class found in source file.";
 
             string className = targetClass.Identifier.Text;
             string? hostProjectDir = promptOnly ? FindProjectDirectory(sourceFilePath) : null;
@@ -83,6 +61,8 @@ public class ResxTranslationOrchestrator
             BuildLogger.BuildLog("\ntestFilePath: " + testFilePath);
 
             logInfo?.Invoke($"[NetAI] Starting analysis for class: {className}");
+
+            File.Delete(@"C:\Users\steph\source\repos\NetAI.TestGenerator\tests\UnitTests\WpftranlationTestApp.Tests\MainWindowTests.cs");
 
             var existingTestMethods = _testGeneratorService.GetExistingTestMethods(testFilePath);
             var sourceMethods = targetClass.DescendantNodes().OfType<MethodDeclarationSyntax>();
@@ -108,13 +88,14 @@ public class ResxTranslationOrchestrator
                 logInfo?.Invoke("[NetAI] No compilation was provided; using syntax-only analysis.");
             }
 
+            // Project context is constant per file, so build it once.
+            string projectContext = BuildProjectContextHint(sourceFilePath);
+
             foreach (var method in sourceMethods)
             {
-                var methodString = method.ToString();
                 string methodName = method.Identifier.Text;
 
                 bool testExists = existingTestMethods.Any(t => t.Contains(methodName, StringComparison.OrdinalIgnoreCase));
-
                 if (testExists)
                 {
                     logInfo?.Invoke($"[NetAI] Method '{methodName}' is already covered by an existing test. Skipping.");
@@ -124,31 +105,26 @@ public class ResxTranslationOrchestrator
                 logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
 
                 string classSkeleton = BuildClassSkeleton(targetClass, method);
-
-
                 BuildLogger.BuildLog("\nclassSkeleton: " + classSkeleton);
 
                 string semanticHint = await BuildSemanticHintAsync(
-                    semanticAnalyzer, compilation, sourceFilePath, methodName, logInfo).ConfigureAwait(false);
-
+                    semanticAnalyzer, compilation, sourceFilePath, method, logInfo).ConfigureAwait(false);
 
                 BuildLogger.BuildLog("\nsemanticHint: " + semanticHint);
 
-                string basePrompt =
-                    $"You are a .NET testing expert. Create a precise xUnit test method (with [Fact]) for method '{methodName}' in class '{className}'.\n\n" +
-                    "Carefully read the automatically generated semantic analysis in <Analysis>. " +
-                    "If the 'Verdict' identifies constraints (such as 'private' or static dependencies), try to work around them pragmatically in the test " +
-                    "(e.g. use reflection for private members or libraries such as 'System.IO.Abstractions' if mentioned in the recommendations). " +
-                    "ALWAYS return an xUnit test method. If a runnable test is technically impossible (e.g. for 'async void' or untestable code), still create a test method with [Fact(Skip = \"<brief reason>\")] and include the problematic code only as a comment or block comment in the body.\n\n" +
-                    $"<Analysis>\n{semanticHint}\n</Analysis>\n\n" +
-                    $"Relevant context (usings, fields, method under test, and called helper methods):\n\n" +
-                    $"<SourceCode>\n{classSkeleton}\n</SourceCode>";
+                logInfo?.Invoke($"[NetAI] semantic hint: {semanticHint}");
+
+
+                string basePrompt = BuildBasePrompt(
+                    className, methodName, semanticHint, projectContext, classSkeleton);
 
                 BuildLogger.BuildLog("\nbasePrompt: " + basePrompt);
 
                 if (promptOnly)
                 {
-                    string promptDirectory = Path.Combine(hostProjectDir ?? Path.GetDirectoryName(sourceFilePath)!, "obj", "netai", "prompts");
+                    string promptDirectory = Path.Combine(
+                        hostProjectDir ?? Path.GetDirectoryName(sourceFilePath)!,
+                        "obj", "netai", "prompts");
                     Directory.CreateDirectory(promptDirectory);
                     string promptPath = Path.Combine(promptDirectory, $"{className}.{methodName}.prompt.md");
                     File.WriteAllText(promptPath, basePrompt, Encoding.UTF8);
@@ -160,7 +136,6 @@ public class ResxTranslationOrchestrator
                     "You are a C# testing expert. Respond only with runnable C# code and no explanations.").ConfigureAwait(false);
 
                 string testMethodCode = ExtractTestClass(newTestClassResponse);
-
                 BuildLogger.BuildLog("\ntestMethodCode: " + testMethodCode);
 
                 if (promptOnly)
@@ -181,8 +156,6 @@ public class ResxTranslationOrchestrator
                     logInfo?.Invoke($"[NetAI] Test draft for '{methodName}' saved; compile validation skipped.");
                     continue;
                 }
-
-             
 
                 TestGenerationResult? result = null;
                 bool isCompiledSuccessfully = false;
@@ -224,18 +197,14 @@ public class ResxTranslationOrchestrator
                         validationClassStructure,
                         testProjectDirectoryOverride: testProjectDirectory).ConfigureAwait(false);
 
-
-                    BuildLogger.BuildLog("\nresultErrors: " + string.Join("\n", result.CompilerErrors ?? Array.Empty<string>()));
-
+                    BuildLogger.BuildLog("\nresultErrors: " +
+                        string.Join("\n", result.CompilerErrors ?? Array.Empty<string>()));
 
                     if (result.IsSuccess)
                     {
                         isCompiledSuccessfully = true;
-
                         if (!string.IsNullOrEmpty(result.TestClassCode))
-                        {
                             testMethodCode = ExtractTestClass(result.TestClassCode!);
-                        }
                         break;
                     }
 
@@ -246,7 +215,6 @@ public class ResxTranslationOrchestrator
                                         $"(env retry {envAttempts}/{MaxEnvRetries}). " +
                                         $"Not asking the AI to repair – the test code itself is fine. " +
                                         $"Cause: a referenced assembly is locked by another process.");
-
                         await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
                         continue;
                     }
@@ -275,24 +243,19 @@ public class ResxTranslationOrchestrator
                     if (result.CompilerErrors?.Any() == true)
                     {
                         var roslynFixed = await _testCodeBeautifier.TryFixCompilerErrorsAsync(
-                            codeForRepair,
-                            result.CompilerErrors).ConfigureAwait(false);
+                            codeForRepair, result.CompilerErrors).ConfigureAwait(false);
 
                         if (!string.Equals(roslynFixed, codeForRepair, StringComparison.Ordinal))
                         {
                             BuildLogger.BuildLog("\nroslynFixed: " + roslynFixed);
                             logInfo?.Invoke("[NetAI] Roslyn automatically added missing using directives; " +
                                             "retrying compilation without AI.");
-
                             testMethodCode = ExtractTestClass(roslynFixed);
                             continue;
                         }
                     }
 
-
-
                     var errorPrompt = aiPromptBuilderSimple.FixUnittestPromptSimple(errorsText, codeForRepair);
-
                     BuildLogger.BuildLog("\nerrorPrompt: " + errorPrompt);
 
                     var systemPrompt = "You are a precise C# compiler assistant. Your only task is to accurately fix " +
@@ -300,20 +263,20 @@ public class ResxTranslationOrchestrator
                                        "and return runnable code without textual explanations.\n";
 
                     var correctedOutput = await localLlmClient.AskAsync(errorPrompt, systemPrompt).ConfigureAwait(false);
-
                     testMethodCode = ExtractTestClass(correctedOutput);
                     BuildLogger.BuildLog("\ntestMethodCode: " + testMethodCode);
-
                 }
 
                 BuildLogger.BuildLog("DONE");
-
 
                 if (isCompiledSuccessfully)
                 {
                     if (!File.Exists(testFilePath))
                     {
-                        _testGeneratorService.CreateNewTestClassFile(testFilePath, testClassName, targetClass.Parent as NamespaceDeclarationSyntax, testMethodCode);
+                        _testGeneratorService.CreateNewTestClassFile(
+                            testFilePath, testClassName,
+                            targetClass.Parent as NamespaceDeclarationSyntax,
+                            testMethodCode);
                         logInfo?.Invoke($"[NetAI] Successfully created new test file and added '{methodName}_GeneratedTest'.");
                     }
                     else
@@ -327,11 +290,8 @@ public class ResxTranslationOrchestrator
                 else
                 {
                     logInfo?.Invoke($"[NetAI Warning] Could not generate a compilable test for '{methodName}' after {MaxAiRetries} retries.");
-                    
                     if (result?.CompilerErrors != null)
-                    {
                         logInfo?.Invoke($"[NetAI] Final Compiler Errors:\n{string.Join("\n", result.CompilerErrors)}");
-                    }
                 }
             }
 
@@ -343,77 +303,63 @@ public class ResxTranslationOrchestrator
         }
     }
 
+    // ---------------------------------------------------------------- prompt building
+
+    private static string BuildBasePrompt(
+        string className,
+        string methodName,
+        string semanticHintXml,
+        string projectContext,
+        string classSkeleton)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"You are a .NET testing expert. Create a precise xUnit test method (with [Fact]) for method '{methodName}' in class '{className}'.");
+        sb.AppendLine();
+        sb.AppendLine("Carefully read the automatically generated semantic analysis in <SemanticAnalysis> and the project context in <ProjectContext>.");
+        sb.AppendLine("If a 'Verdict' or 'Blockers' entry identifies constraints (private, static deps, no public ctor), work around them pragmatically:");
+        sb.AppendLine("- Use reflection for private members when unavoidable.");
+        sb.AppendLine("- Use a recommended abstraction (e.g. System.IO.Abstractions) if it is listed and referenced.");
+        sb.AppendLine("- Do NOT invent NuGet packages that are not in <ProjectContext>/<PackageReferences>.");
+        sb.AppendLine("ALWAYS return a single xUnit test method.");
+        sb.AppendLine("If a runnable test is technically impossible (e.g. 'async void'), still emit [Fact(Skip = \"<brief reason>\")] with the problematic code as a comment.");
+        sb.AppendLine();
+        if (!string.IsNullOrWhiteSpace(projectContext))
+        {
+            sb.AppendLine(projectContext);
+            sb.AppendLine();
+        }
+        if (!string.IsNullOrWhiteSpace(semanticHintXml))
+        {
+            sb.AppendLine(semanticHintXml);
+            sb.AppendLine();
+        }
+        sb.AppendLine("Relevant source context (usings, fields, method under test, and called helpers):");
+        sb.AppendLine("<SourceCode>");
+        sb.AppendLine(classSkeleton);
+        sb.AppendLine("</SourceCode>");
+        return sb.ToString();
+    }
+
     private static async Task<string> BuildSemanticHintAsync(
         RoslynDllTestabilityAnalyzer? analyzer,
         Compilation? compilation,
         string sourceFilePath,
-        string methodName,
+        MethodDeclarationSyntax methodDeclaration,
         Action<string>? logInfo)
     {
         if (analyzer == null || compilation == null)
             return string.Empty;
 
+        string methodName = methodDeclaration.Identifier.Text;
+
         try
         {
-            var report = await analyzer.AnalyzeFromCompilationAsync(
-                compilation,
-                methodName,
-                documentName: Path.GetFileName(sourceFilePath));
-
-            var sb = new StringBuilder();
-            sb.AppendLine("// --- Semantic analysis ---");
-            sb.AppendLine($"// Verdict: {report.Verdict}");
-
-            if (report.Method?.ContainingType != null)
-            {
-                var ct = report.Method.ContainingType;
-                sb.AppendLine($"// ContainingType: {ct.FullName}");
-                sb.AppendLine($"// Mockable: {ct.Mockable}");
-                sb.AppendLine($"// Interfaces: {string.Join(", ", ct.Interfaces)}");
-                sb.AppendLine($"// Public Ctors: {string.Join(" | ", ct.Constructors)}");
-            }
-
-            var staticDeps = report.ReferencedTypes?
-                .Where(t => t.UsedStatically && !string.IsNullOrWhiteSpace(t.FullName)) 
-                .Select(t => t.FullName)
-                .ToList() ?? new List<string>();
-
-            if (staticDeps.Count > 0)
-            {
-                sb.AppendLine($"// Static dependencies: {string.Join(", ", staticDeps)}");
-                sb.AppendLine("// Note: These cannot be mocked; consider working around them in the test via " +
-                              "System.IO.Abstractions or a wrapper.");
-            }
-
-            var injectable = report.ReferencedTypes?
-                .Where(t => !t.IsInterface && !t.IsAbstract && !t.IsStatic && !t.IsSealed
-                            && !string.IsNullOrWhiteSpace(t.FullName)
-                            && !t.Namespace.StartsWith("System", StringComparison.Ordinal))
-                .Select(t => t.FullName)
-                .ToList() ?? new List<string>();
-
-            if (injectable.Count > 0)
-            {
-                sb.AppendLine($"// Concrete types (prefer constructor injection): " +
-                              $"{string.Join(", ", injectable)}");
-            }
-
-            if (report.Recommendations?.Count > 0)
-            {
-                sb.AppendLine("// Recommendations:");
-                foreach (var rec in report.Recommendations)
-                    sb.AppendLine($"//   - {rec}");
-            }
-
-            if (report.CompilationErrors?.Count > 0)
-            {
-                sb.AppendLine($"// Compilation errors: {report.CompilationErrors.Count}");
-                foreach (var err in report.CompilationErrors.Take(3))
-                    sb.AppendLine($"//   {err}");
-            }
+            var report = await analyzer.AnalyzeFromCompilationAsync(compilation, methodDeclaration)
+                .ConfigureAwait(false);
 
             logInfo?.Invoke($"[NetAI] Semantic analysis for '{methodName}': {report.Verdict}");
-            return sb.ToString();
+
+            return FormatReportAsXml(report, sourceFilePath, methodName);
         }
         catch (InvalidOperationException ex)
         {
@@ -427,7 +373,192 @@ public class ResxTranslationOrchestrator
         }
     }
 
-    private string PrepareValidationStructure(string testClassName, NamespaceDeclarationSyntax? originalNamespace, string methodCode)
+    private static string FormatReportAsXml(TestabilityReport report, string sourceFilePath, string methodName)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("<SemanticAnalysis>");
+        sb.AppendLine($"  <Document name=\"{X(Path.GetFileName(sourceFilePath))}\" method=\"{X(methodName)}\" generatedAt=\"{report.GeneratedAt:O}\" />");
+
+        if (report.Method is { } m)
+        {
+            sb.AppendLine($"  <Method name=\"{X(m.Name)}\" signature=\"{X(m.Signature)}\" accessibility=\"{X(m.Accessibility)}\" " +
+                          $"returnType=\"{X(m.ReturnType)}\" isStatic=\"{m.IsStatic}\" isAsync=\"{m.IsAsync}\" " +
+                          $"returnsVoid=\"{m.ReturnsVoid}\" isAsyncVoid=\"{m.IsAsyncVoid}\" isVirtual=\"{m.IsVirtual}\" " +
+                          $"returnsTask=\"{m.ReturnsTask}\" hasCancellationToken=\"{m.HasCancellationToken}\" />");
+
+            if (m.GenericParameters.Count > 0)
+                sb.AppendLine($"    <GenericParameters>{X(string.Join(", ", m.GenericParameters))}</GenericParameters>");
+
+            if (m.Attributes.Count > 0)
+            {
+                sb.AppendLine("    <Attributes>");
+                foreach (var a in m.Attributes) sb.AppendLine($"      <Attribute>{X(a)}</Attribute>");
+                sb.AppendLine("    </Attributes>");
+            }
+
+            if (m.ThrownExceptions.Count > 0)
+            {
+                sb.AppendLine("    <ThrownExceptions>");
+                foreach (var t in m.ThrownExceptions) sb.AppendLine($"      <Exception>{X(t)}</Exception>");
+                sb.AppendLine("    </ThrownExceptions>");
+            }
+
+            if (m.ContainingType is { } ct)
+            {
+                sb.AppendLine($"  <ContainingType fullName=\"{X(ct.FullName)}\" kind=\"{X(ct.Kind)}\" " +
+                              $"accessibility=\"{X(ct.Accessibility)}\" isStatic=\"{ct.IsStatic}\" " +
+                              $"isSealed=\"{ct.IsSealed}\" isAbstract=\"{ct.IsAbstract}\" mockable=\"{X(ct.Mockable)}\" />");
+                if (!string.IsNullOrEmpty(ct.BaseType))
+                    sb.AppendLine($"    <BaseType>{X(ct.BaseType)}</BaseType>");
+                if (ct.Interfaces.Count > 0)
+                    sb.AppendLine($"    <Interfaces>{X(string.Join(", ", ct.Interfaces))}</Interfaces>");
+                if (ct.Constructors.Count > 0)
+                    sb.AppendLine($"    <PublicCtors>{X(string.Join(" | ", ct.Constructors))}</PublicCtors>");
+                else
+                    sb.AppendLine("    <PublicCtors>none</PublicCtors>");
+            }
+        }
+
+        sb.AppendLine($"  <Testability verdict=\"{X(report.Verdict)}\" isDirectlyTestable=\"{report.IsDirectlyTestable}\" />");
+
+        if (report.Blockers.Count > 0)
+        {
+            sb.AppendLine("  <Blockers>");
+            foreach (var b in report.Blockers) sb.AppendLine($"    <Blocker>{X(b)}</Blocker>");
+            sb.AppendLine("  </Blockers>");
+        }
+
+        var relevant = report.ReferencedTypes?
+            .Where(t => t.UsedStatically
+                        || t.DependencyKind == DependencyKind.Interface
+                        || t.DependencyKind == DependencyKind.AbstractClass
+                        || !t.Namespace.StartsWith("System", StringComparison.Ordinal))
+            .ToList() ?? new List<TypeFact>();
+
+        if (relevant.Count > 0)
+        {
+            sb.AppendLine("  <Dependencies>");
+            foreach (var t in relevant)
+            {
+                sb.AppendLine($"    <Dependency type=\"{X(t.FullName)}\" kind=\"{t.DependencyKind}\" " +
+                              $"mockable=\"{X(t.Mockable)}\" usedStatically=\"{t.UsedStatically}\" " +
+                              $"usages=\"{t.Usages}\" />");
+                if (!string.IsNullOrEmpty(t.RecommendedAbstraction))
+                    sb.AppendLine($"      <RecommendedAbstraction>{X(t.RecommendedAbstraction)}</RecommendedAbstraction>");
+                if (!string.IsNullOrEmpty(t.RecommendationReason))
+                    sb.AppendLine($"      <Reason>{X(t.RecommendationReason)}</Reason>");
+            }
+            sb.AppendLine("  </Dependencies>");
+        }
+
+        if (report.AnalyzedCallGraph.Count > 1)
+        {
+            sb.AppendLine("  <CallGraph>");
+            foreach (var c in report.AnalyzedCallGraph)
+                sb.AppendLine($"    <Call>{X(c)}</Call>");
+            sb.AppendLine("  </CallGraph>");
+        }
+
+        if (report.Recommendations.Count > 0)
+        {
+            sb.AppendLine("  <Recommendations>");
+            foreach (var r in report.Recommendations)
+                sb.AppendLine($"    <Recommendation>{X(r)}</Recommendation>");
+            sb.AppendLine("  </Recommendations>");
+        }
+
+        if (report.CompilationErrors.Count > 0)
+        {
+            sb.AppendLine($"  <CompilationErrors count=\"{report.CompilationErrors.Count}\">");
+            foreach (var e in report.CompilationErrors.Take(3))
+                sb.AppendLine($"    <Error>{X(e)}</Error>");
+            sb.AppendLine("  </CompilationErrors>");
+        }
+
+        sb.AppendLine("</SemanticAnalysis>");
+        return sb.ToString();
+    }
+
+    private static string BuildProjectContextHint(string sourceFilePath)
+    {
+        try
+        {
+            var csproj = FindProjectFile(sourceFilePath);
+            if (csproj == null) return string.Empty;
+
+            var doc = XDocument.Load(csproj);
+            string? Val(string name) =>
+                doc.Descendants().FirstOrDefault(e => e.Name.LocalName == name)?.Value?.Trim();
+
+            var sb = new StringBuilder();
+            sb.AppendLine("<ProjectContext>");
+            sb.AppendLine($"  <ProjectFile>{X(Path.GetFileName(csproj))}</ProjectFile>");
+            AppendIfSet(sb, "TargetFramework", Val("TargetFramework") ?? Val("TargetFrameworks"));
+            AppendIfSet(sb, "LangVersion", Val("LangVersion"));
+            AppendIfSet(sb, "Nullable", Val("Nullable"));
+            AppendIfSet(sb, "ImplicitUsings", Val("ImplicitUsings"));
+
+            var packages = doc.Descendants()
+                .Where(e => e.Name.LocalName == "PackageReference")
+                .Select(e => new
+                {
+                    Name = e.Attribute("Include")?.Value ?? e.Attribute("Update")?.Value ?? "",
+                    Version = e.Attribute("Version")?.Value ?? e.Elements().FirstOrDefault(x => x.Name.LocalName == "Version")?.Value ?? ""
+                })
+                .Where(p => !string.IsNullOrEmpty(p.Name))
+                .ToList();
+
+            if (packages.Count > 0)
+            {
+                sb.AppendLine("  <PackageReferences>");
+                foreach (var p in packages)
+                    sb.AppendLine($"    <Package id=\"{X(p.Name)}\" version=\"{X(p.Version)}\" />");
+                sb.AppendLine("  </PackageReferences>");
+            }
+
+            var projRefs = doc.Descendants()
+                .Where(e => e.Name.LocalName == "ProjectReference")
+                .Select(e => e.Attribute("Include")?.Value ?? "")
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToList();
+
+            if (projRefs.Count > 0)
+            {
+                sb.AppendLine("  <ProjectReferences>");
+                foreach (var r in projRefs)
+                    sb.AppendLine($"    <ProjectReference>{X(Path.GetFileName(r))}</ProjectReference>");
+                sb.AppendLine("  </ProjectReferences>");
+            }
+
+            sb.AppendLine("</ProjectContext>");
+            return sb.ToString();
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    private static void AppendIfSet(StringBuilder sb, string name, string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+            sb.AppendLine($"  <{name}>{X(value)}</{name}>");
+    }
+
+    private static string X(string? s) =>
+        string.IsNullOrEmpty(s) ? "" :
+        s.Replace("&", "&amp;")
+         .Replace("<", "&lt;")
+         .Replace(">", "&gt;")
+         .Replace("\"", "&quot;")
+         .Replace("'", "&apos;");
+
+    // ---------------------------------------------------------------- skeleton
+
+    private string PrepareValidationStructure(
+        string testClassName,
+        NamespaceDeclarationSyntax? originalNamespace,
+        string methodCode)
     {
         string namespaceName = originalNamespace?.Name.ToString() ?? "NetAI.Generated.Tests";
         if (!namespaceName.EndsWith(".Tests")) namespaceName += ".Tests";
@@ -442,20 +573,16 @@ namespace {namespaceName}
 }}";
     }
 
-
     private static string BuildClassSkeleton(
-    ClassDeclarationSyntax targetClass,
-    MethodDeclarationSyntax targetMethod,
-    bool includeProperties = true,
-    bool includeConstructors = true,
-    bool includeRecursiveHelpers = true)
+        ClassDeclarationSyntax targetClass,
+        MethodDeclarationSyntax targetMethod,
+        bool includeProperties = true,
+        bool includeConstructors = true,
+        bool includeRecursiveHelpers = true)
     {
         var sb = new StringBuilder();
 
-        var usings = targetClass.SyntaxTree
-            .GetCompilationUnitRoot()
-            .Usings;
-
+        var usings = targetClass.SyntaxTree.GetCompilationUnitRoot().Usings;
         if (usings.Any())
         {
             foreach (var u in usings)
@@ -511,8 +638,6 @@ namespace {namespaceName}
         return sb.ToString().Trim();
     }
 
-
-
     private static IEnumerable<string> GetCalledMethodNames(MethodDeclarationSyntax method)
     {
         foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
@@ -522,11 +647,9 @@ namespace {namespaceName}
                 case IdentifierNameSyntax id:
                     yield return id.Identifier.Text;
                     break;
-
                 case MemberAccessExpressionSyntax ma:
                     yield return ma.Name.Identifier.Text;
                     break;
-
                 case GenericNameSyntax gen:
                     yield return gen.Identifier.Text;
                     break;
@@ -535,12 +658,9 @@ namespace {namespaceName}
     }
 
     /// <summary>Extracts method declarations from an AI response, including responses wrapped in a code fence.</summary>
-    /// <param name="aiResponse">Raw response returned by the model.</param>
-    /// <returns>Extracted method declarations, or the trimmed response when no methods are found.</returns>
     public static string ExtractTestClass(string aiResponse)
     {
-        if (string.IsNullOrWhiteSpace(aiResponse))
-            return string.Empty;
+        if (string.IsNullOrWhiteSpace(aiResponse)) return string.Empty;
 
         var match = TestCodeBlockRegex.Match(aiResponse);
         string rawCode = match.Success ? match.Groups[1].Value : aiResponse;
@@ -549,17 +669,11 @@ namespace {namespaceName}
         var root = tree.GetCompilationUnitRoot();
 
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
-
-        if (!methods.Any())
-        {
-            return rawCode.Trim();
-        }
+        if (methods.Count == 0) return rawCode.Trim();
 
         var sb = new StringBuilder();
         foreach (var method in methods)
-        {
             sb.AppendLine(method.ToFullString());
-        }
 
         return sb.ToString().Trim();
     }
@@ -572,16 +686,27 @@ namespace {namespaceName}
             while (currentDir != null)
             {
                 if (Directory.EnumerateFiles(currentDir, "*.csproj").Any())
-                {
                     return currentDir;
-                }
                 currentDir = Directory.GetParent(currentDir)?.FullName;
             }
         }
-        catch
-        {
-        }
+        catch { }
         return null;
     }
 
+    private static string? FindProjectFile(string filePath)
+    {
+        try
+        {
+            var currentDir = Path.GetDirectoryName(filePath);
+            while (currentDir != null)
+            {
+                var csproj = Directory.EnumerateFiles(currentDir, "*.csproj").FirstOrDefault();
+                if (csproj != null) return csproj;
+                currentDir = Directory.GetParent(currentDir)?.FullName;
+            }
+        }
+        catch { }
+        return null;
+    }
 }

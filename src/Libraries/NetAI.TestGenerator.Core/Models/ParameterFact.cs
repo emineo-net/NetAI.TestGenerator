@@ -17,4 +17,10 @@ public sealed class ParameterFact
 
     /// <summary>Gets the default value's display text, or <see langword="null"/> when none is declared.</summary>
     public string? DefaultValue { get; init; }
+
+    // NEW:
+    public string RefKind { get; init; } = "None"; // None, Ref, Out, In
+    public bool IsParams { get; init; }
+    public bool IsNullable { get; init; }
+    public bool IsCancellationToken { get; init; }
 }

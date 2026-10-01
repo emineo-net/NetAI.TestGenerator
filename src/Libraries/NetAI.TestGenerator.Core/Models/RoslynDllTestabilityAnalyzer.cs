@@ -7,30 +7,46 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
+using NetAI.TestGenerator.Core.Models;
+using NetAI.TestGenerator.Core.Models.Enums;
 
-namespace NetAI.TestGenerator.Core.Models
+namespace NetAI.TestGenerator.Core.Analysis
 {
-    /// <summary>Analyzes testability using Roslyn compilations assembled from source files and metadata references.</summary>
+    /// <summary>Analyzes testability using Roslyn compilations and IOperation semantics.</summary>
     public sealed class RoslynDllTestabilityAnalyzer
     {
         private static readonly SymbolDisplayFormat FqFormat =
             SymbolDisplayFormat.FullyQualifiedFormat
                 .WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
 
+        /// <summary>Maps well-known static APIs to a recommended abstraction.</summary>
+        private static readonly IReadOnlyDictionary<string, string> StaticApiAbstractions =
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["System.IO.File"] = "System.IO.Abstractions.IFileSystem",
+                ["System.IO.Directory"] = "System.IO.Abstractions.IFileSystem",
+                ["System.IO.Path"] = "System.IO.Abstractions.IPath",
+                ["System.IO.FileStream"] = "System.IO.Abstractions.IFileSystem",
+                ["System.DateTime"] = "System.TimeProvider (or custom ITimeProvider)",
+                ["System.DateTimeOffset"] = "System.TimeProvider (or custom ITimeProvider)",
+                ["System.Guid"] = "custom IGuidProvider",
+                ["System.Random"] = "custom IRandom",
+                ["System.Environment"] = "custom IEnvironment",
+                ["System.Console"] = "custom IConsole",
+                ["System.Net.Http.HttpClient"] = "System.Net.Http.IHttpClientFactory",
+                ["System.Threading.Thread"] = "avoid - use Task / TimeProvider",
+                ["System.Diagnostics.Process"] = "abstraction over IProcessRunner",
+                ["System.IO.Compression.ZipFile"] = "abstraction over IZipService",
+            };
+
         private readonly AnalyzerOptions _options;
 
-        /// <summary>Creates an analyzer with optional report and framework-type settings.</summary>
-        /// <param name="options">Analysis options, or <see langword="null"/> to use defaults.</param>
         public RoslynDllTestabilityAnalyzer(AnalyzerOptions? options = null)
             => _options = options ?? new AnalyzerOptions();
 
-        /// <summary>Builds a compilation from source files and references, then analyzes a named method.</summary>
-        /// <param name="sourceFilePaths">Source files included in the compilation.</param>
-        /// <param name="referenceDllPaths">Assembly files available as compilation references.</param>
-        /// <param name="methodName">Name of the method to analyze.</param>
-        /// <param name="documentName">Optional document name used to narrow the search.</param>
-        /// <param name="ct">Token used to cancel the analysis.</param>
-        /// <returns>A report describing the method and its testability.</returns>
+        // ---------------------------------------------------------------- public API
+
         public Task<TestabilityReport> AnalyzeFromSourceFilesAsync(
             IEnumerable<string> sourceFilePaths,
             IEnumerable<string> referenceDllPaths,
@@ -39,22 +55,9 @@ namespace NetAI.TestGenerator.Core.Models
             CancellationToken ct = default)
         {
             var compilation = BuildCompilation(sourceFilePaths, referenceDllPaths);
-
-            return AnalyzeFromCompilationAsync(
-                compilation, methodName, documentName, ct);
+            return AnalyzeFromCompilationAsync(compilation, methodName, documentName, ct);
         }
 
-        /// <summary>Finds source files in a directory, builds a compilation, and analyzes a named method.</summary>
-        /// <param name="directory">Root directory to search.</param>
-        /// <param name="referenceDllPaths">Assembly files available as compilation references.</param>
-        /// <param name="methodName">Name of the method to analyze.</param>
-        /// <param name="documentName">Optional document name used to narrow the search.</param>
-        /// <param name="searchPattern">File pattern used to find source files.</param>
-        /// <param name="recursive">Whether to search subdirectories.</param>
-        /// <param name="ct">Token used to cancel the analysis.</param>
-        /// <returns>A report describing the method and its testability.</returns>
-        /// <exception cref="ArgumentException">The directory path is empty.</exception>
-        /// <exception cref="DirectoryNotFoundException">The directory does not exist.</exception>
         public Task<TestabilityReport> AnalyzeFromDirectoryAsync(
             string directory,
             IEnumerable<string> referenceDllPaths,
@@ -75,16 +78,10 @@ namespace NetAI.TestGenerator.Core.Models
                 .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"))
                 .ToList();
 
-            return AnalyzeFromSourceFilesAsync(
-                files, referenceDllPaths, methodName, documentName, ct);
+            return AnalyzeFromSourceFilesAsync(files, referenceDllPaths, methodName, documentName, ct);
         }
 
-        /// <summary>Analyzes a named method in an existing Roslyn compilation.</summary>
-        /// <param name="compilation">Compilation containing the method's syntax tree and semantic model.</param>
-        /// <param name="methodName">Name of the method to analyze.</param>
-        /// <param name="documentName">Optional document name used to narrow the search.</param>
-        /// <param name="ct">Token used to cancel the analysis.</param>
-        /// <returns>A report describing the method and its testability.</returns>
+        /// <summary>Analyzes a method by name (first match wins). Prefer the syntax overload.</summary>
         public Task<TestabilityReport> AnalyzeFromCompilationAsync(
             Compilation compilation,
             string methodName,
@@ -98,35 +95,35 @@ namespace NetAI.TestGenerator.Core.Models
                                          $"Method '{methodName}' was not found in any source file.");
 
             var model = compilation.GetSemanticModel(tree);
-
             var methodSymbol = model.GetDeclaredSymbol(methodDecl, ct) as IMethodSymbol
                                ?? throw new InvalidOperationException("No method symbol was found.");
 
-            var resolvedDocumentName = ResolveDocumentName(documentName, tree);
-
-            var report = BuildReport(
-                resolvedDocumentName, methodSymbol, methodDecl, model, compilation);
-
+            var documentNameResolved = ResolveDocumentName(documentName, tree);
+            var report = BuildReport(documentNameResolved, methodSymbol, methodDecl, model, compilation);
             return Task.FromResult(report);
         }
 
-        private static string ResolveDocumentName(string? requestedName, SyntaxTree tree)
+        /// <summary>Analyzes a method directly from its syntax node (handles overloads correctly).</summary>
+        public Task<TestabilityReport> AnalyzeFromCompilationAsync(
+            Compilation compilation,
+            MethodDeclarationSyntax methodDeclaration,
+            CancellationToken ct = default)
         {
-            if (!string.IsNullOrWhiteSpace(requestedName))
-                return requestedName!;
+            if (compilation is null) throw new ArgumentNullException(nameof(compilation));
+            if (methodDeclaration is null) throw new ArgumentNullException(nameof(methodDeclaration));
 
-            var fromPath = Path.GetFileName(tree.FilePath);
-            if (!string.IsNullOrEmpty(fromPath))
-                return fromPath;
+            var tree = methodDeclaration.SyntaxTree;
+            var model = compilation.GetSemanticModel(tree);
+            var methodSymbol = model.GetDeclaredSymbol(methodDeclaration, ct) as IMethodSymbol
+                               ?? throw new InvalidOperationException("No method symbol was found.");
 
-            return "(unnamed)";
+            var documentNameResolved = ResolveDocumentName(null, tree);
+            var report = BuildReport(documentNameResolved, methodSymbol, methodDeclaration, model, compilation);
+            return Task.FromResult(report);
         }
 
-        /// <summary>Creates a Roslyn compilation from existing source files and metadata references.</summary>
-        /// <param name="sourceFilePaths">Source files to parse into syntax trees.</param>
-        /// <param name="referenceDllPaths">Assembly files to use as metadata references.</param>
-        /// <param name="assemblyName">Name assigned to the resulting compilation.</param>
-        /// <returns>A dynamically linked library compilation.</returns>
+        // ---------------------------------------------------------------- compilation
+
         public static CSharpCompilation BuildCompilation(
             IEnumerable<string> sourceFilePaths,
             IEnumerable<string> referenceDllPaths,
@@ -140,15 +137,12 @@ namespace NetAI.TestGenerator.Core.Models
             foreach (var path in sourceFilePaths)
             {
                 if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) continue;
-
                 try
                 {
                     var text = File.ReadAllText(path);
                     trees.Add(CSharpSyntaxTree.ParseText(text, parseOptions, path: path));
                 }
-                catch
-                {
-                }
+                catch { /* ignore unreadable files */ }
             }
 
             var references = new List<MetadataReference>();
@@ -157,14 +151,8 @@ namespace NetAI.TestGenerator.Core.Models
                 foreach (var dll in referenceDllPaths)
                 {
                     if (string.IsNullOrWhiteSpace(dll) || !File.Exists(dll)) continue;
-
-                    try
-                    {
-                        references.Add(MetadataReference.CreateFromFile(dll));
-                    }
-                    catch
-                    {
-                    }
+                    try { references.Add(MetadataReference.CreateFromFile(dll)); }
+                    catch { /* ignore invalid references */ }
                 }
             }
 
@@ -176,6 +164,8 @@ namespace NetAI.TestGenerator.Core.Models
                     OutputKind.DynamicallyLinkedLibrary,
                     optimizationLevel: OptimizationLevel.Debug));
         }
+
+        // ---------------------------------------------------------------- report assembly
 
         private TestabilityReport BuildReport(
             string documentName,
@@ -191,9 +181,10 @@ namespace NetAI.TestGenerator.Core.Models
                 .ToList();
 
             var methodFact = BuildMethodFact(method);
-            var typeFacts = CollectReferencedTypes(syntax, model);
+            var typeFacts = CollectReferencedTypes(method, compilation);
             var verdict = EvaluateTestability(methodFact, typeFacts);
             var recs = BuildRecommendations(methodFact, typeFacts);
+            var callGraph = BuildCallGraph(method, compilation);
 
             return new TestabilityReport
             {
@@ -201,76 +192,171 @@ namespace NetAI.TestGenerator.Core.Models
                 DocumentName = documentName,
                 Method = methodFact,
                 ReferencedTypes = typeFacts,
-                Verdict = verdict,
+                Verdict = verdict.Text,
+                IsDirectlyTestable = verdict.IsDirectlyTestable,
+                Blockers = verdict.Blockers,
                 Recommendations = recs,
                 CompilationErrors = errors,
+                AnalyzedCallGraph = callGraph,
             };
         }
+
+        // ---------------------------------------------------------------- method fact
 
         private static MethodFact BuildMethodFact(IMethodSymbol method)
         {
             var containing = method.ContainingType;
+            var parameters = method.Parameters.Select(p => new ParameterFact
+            {
+                Name = p.Name,
+                Type = p.Type.ToDisplayString(FqFormat),
+                IsOptional = p.IsOptional,
+                HasDefaultValue = p.HasExplicitDefaultValue,
+                DefaultValue = p.HasExplicitDefaultValue ? p.ExplicitDefaultValue?.ToString() : null,
+                RefKind = p.RefKind.ToString(),
+                IsParams = p.IsParams,
+                IsNullable = p.Type.NullableAnnotation == NullableAnnotation.Annotated,
+                IsCancellationToken = p.Type.ToDisplayString(FqFormat) == "System.Threading.CancellationToken",
+            }).ToList();
+
+            var attributes = method.GetAttributes()
+                .Select(a => a.AttributeClass?.ToDisplayString(FqFormat) ?? "")
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToList();
+
+            var thrown = new List<string>();
+            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax decl) continue;
+                foreach (var throwStmt in decl.DescendantNodes().OfType<ThrowStatementSyntax>())
+                {
+                    var expr = throwStmt.Expression?.ToString();
+                    if (!string.IsNullOrEmpty(expr)) thrown.Add(expr);
+                }
+            }
+
+            var genericParameters = method.TypeParameters
+                .Select(tp => tp.Name + (tp.HasReferenceTypeConstraint ? " : class" :
+                                        tp.HasValueTypeConstraint ? " : struct" : ""))
+                .ToList();
+
+            var returnTypeName = method.ReturnType.ToDisplayString(FqFormat);
+            var isTaskLike = returnTypeName.StartsWith("System.Threading.Tasks.Task", StringComparison.Ordinal)
+                             || returnTypeName.StartsWith("System.Threading.Tasks.ValueTask", StringComparison.Ordinal);
 
             return new MethodFact
             {
                 Name = method.Name,
                 Signature = method.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
-                ReturnType = method.ReturnType.ToDisplayString(FqFormat),
+                ReturnType = returnTypeName,
                 Accessibility = method.DeclaredAccessibility.ToString(),
                 IsStatic = method.IsStatic,
                 IsAsync = method.IsAsync,
                 ReturnsVoid = method.ReturnsVoid,
                 IsAsyncVoid = method.IsAsync && method.ReturnsVoid,
-                ContainingType = new TypeFact
-                {
-                    FullName = containing.ToDisplayString(FqFormat),
-                    Namespace = containing.ContainingNamespace?.ToDisplayString() ?? "",
-                    Kind = KindOf(containing),
-                    Accessibility = containing.DeclaredAccessibility.ToString(),
-                    IsStatic = containing.IsStatic,
-                    IsSealed = containing.IsSealed,
-                    IsAbstract = containing.IsAbstract,
-                    IsInterface = containing.TypeKind == TypeKind.Interface,
-                    Mockable = ClassMockability(containing),
-                    UsedStatically = false,
-                    Interfaces = containing.AllInterfaces
-                        .Select(i => i.ToDisplayString(FqFormat)).ToList(),
-                    Constructors = containing.InstanceConstructors
-                        .Where(c => c.DeclaredAccessibility == Accessibility.Public)
-                        .Select(c => c.ToDisplayString(
-                            SymbolDisplayFormat.MinimallyQualifiedFormat))
-                        .ToList(),
-                },
-                Parameters = method.Parameters.Select(p => new ParameterFact
-                {
-                    Name = p.Name,
-                    Type = p.Type.ToDisplayString(FqFormat),
-                    IsOptional = p.IsOptional,
-                    HasDefaultValue = p.HasExplicitDefaultValue,
-                    DefaultValue = p.HasExplicitDefaultValue
-                        ? p.ExplicitDefaultValue?.ToString()
-                        : null,
-                }).ToList(),
+                IsVirtual = method.IsVirtual,
+                IsOverride = method.IsOverride,
+                IsAbstract = method.IsAbstract,
+                IsIterator = method.IsIterator,
+                IsExtension = method.IsExtensionMethod,
+                ReturnsTask = isTaskLike,
+                HasCancellationToken = parameters.Any(p => p.IsCancellationToken),
+                GenericParameters = genericParameters,
+                Attributes = attributes,
+                ThrownExceptions = thrown.Distinct().ToList(),
+                ContainingType = BuildContainingTypeFact(containing),
+                Parameters = parameters,
             };
         }
 
-        private List<TypeFact> CollectReferencedTypes(
-            MethodDeclarationSyntax syntax,
-            SemanticModel model)
+        private static TypeFact BuildContainingTypeFact(INamedTypeSymbol containing)
+        {
+            return new TypeFact
+            {
+                FullName = containing.ToDisplayString(FqFormat),
+                Namespace = containing.ContainingNamespace?.ToDisplayString() ?? "",
+                Kind = KindOf(containing),
+                Accessibility = containing.DeclaredAccessibility.ToString(),
+                IsStatic = containing.IsStatic,
+                IsSealed = containing.IsSealed,
+                IsAbstract = containing.IsAbstract,
+                IsInterface = containing.TypeKind == TypeKind.Interface,
+                IsRecord = containing.IsRecord,
+                IsValueType = containing.IsValueType,
+                IsDelegate = containing.TypeKind == TypeKind.Delegate,
+                IsEnum = containing.TypeKind == TypeKind.Enum,
+                Mockable = ClassMockability(containing),
+                UsedStatically = false,
+                DependencyKind = ClassifyDependencyKind(containing),
+                BaseType = containing.BaseType?.ToDisplayString(FqFormat) ?? "",
+                Interfaces = containing.AllInterfaces.Select(i => i.ToDisplayString(FqFormat)).ToList(),
+                Constructors = containing.InstanceConstructors
+                    .Where(c => c.DeclaredAccessibility == Accessibility.Public)
+                    .Select(c => c.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))
+                    .ToList(),
+                VirtualMemberCount = containing.GetMembers()
+                    .Count(m => m.IsVirtual || m.IsAbstract || m.IsOverride),
+                MemberCount = containing.GetMembers().Length,
+            };
+        }
+
+        // ---------------------------------------------------------------- call graph + dependencies
+
+        private IReadOnlyList<string> BuildCallGraph(IMethodSymbol root, Compilation compilation)
+        {
+            if (!_options.IncludeRecursiveCallGraph)
+                return new[] { root.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) };
+
+            var visited = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+            var ordered = new List<string>();
+            var queue = new Queue<(IMethodSymbol method, int depth)>();
+            queue.Enqueue((root, 0));
+
+            while (queue.Count > 0)
+            {
+                var (method, depth) = queue.Dequeue();
+                if (!visited.Add(method)) continue;
+
+                ordered.Add(method.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
+                if (depth >= _options.MaxCallGraphDepth) continue;
+
+                foreach (var syntaxRef in method.DeclaringSyntaxReferences)
+                {
+                    if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax decl) continue;
+                    var model = compilation.GetSemanticModel(decl.SyntaxTree);
+                    if (model.GetOperation(decl) is not IMethodBodyOperation body) continue;
+
+                    foreach (var inv in body.Descendants().OfType<IInvocationOperation>())
+                    {
+                        var target = inv.TargetMethod;
+                        if (target == null) continue;
+                        if (target.MethodKind == MethodKind.DelegateInvoke) continue;
+                        if (!SymbolEqualityComparer.Default.Equals(target.ContainingType, method.ContainingType))
+                            continue;
+                        if (!visited.Contains(target))
+                            queue.Enqueue((target, depth + 1));
+                    }
+                }
+            }
+
+            return ordered;
+        }
+
+        private List<TypeFact> CollectReferencedTypes(IMethodSymbol root, Compilation compilation)
         {
             var seen = new Dictionary<string, TypeFact>(StringComparer.Ordinal);
 
-            void Add(ITypeSymbol? symbol, bool staticUse = false)
+            void Add(ITypeSymbol? symbol, bool staticUse, UsageKind usage)
             {
                 if (symbol is null) return;
                 if (symbol is ITypeParameterSymbol) return;
                 if (symbol.SpecialType != SpecialType.None) return;
-                if (!(symbol is INamedTypeSymbol named)) return;
+                if (symbol is not INamedTypeSymbol named) return;
 
                 if (named.IsGenericType)
                 {
                     foreach (var arg in named.TypeArguments)
-                        Add(arg, staticUse);
+                        Add(arg, staticUse, usage);
                 }
 
                 var full = named.OriginalDefinition.ToDisplayString(FqFormat);
@@ -279,15 +365,42 @@ namespace NetAI.TestGenerator.Core.Models
                 var isFramework = named.ContainingNamespace?.ToDisplayString()
                     .StartsWith("System", StringComparison.Ordinal) == true;
 
-                if (isFramework && !_options.IncludeFrameworkTypes && !staticUse)
-                    return;
+                if (isFramework && !_options.IncludeFrameworkTypes && !staticUse) return;
 
                 if (seen.TryGetValue(full, out var existing))
                 {
-                    if (staticUse) existing.UsedStatically = true;
+                    var merged = existing.Usages | usage;
+                    var updated = new TypeFact
+                    {
+                        FullName = existing.FullName,
+                        Namespace = existing.Namespace,
+                        Kind = existing.Kind,
+                        Accessibility = existing.Accessibility,
+                        IsStatic = existing.IsStatic,
+                        IsSealed = existing.IsSealed,
+                        IsAbstract = existing.IsAbstract,
+                        IsInterface = existing.IsInterface,
+                        IsRecord = existing.IsRecord,
+                        IsValueType = existing.IsValueType,
+                        IsDelegate = existing.IsDelegate,
+                        IsEnum = existing.IsEnum,
+                        Mockable = existing.Mockable,
+                        UsedStatically = existing.UsedStatically || staticUse,
+                        DependencyKind = existing.DependencyKind,
+                        Usages = merged,
+                        BaseType = existing.BaseType,
+                        RecommendedAbstraction = existing.RecommendedAbstraction,
+                        RecommendationReason = existing.RecommendationReason,
+                        Interfaces = existing.Interfaces,
+                        Constructors = existing.Constructors,
+                        VirtualMemberCount = existing.VirtualMemberCount,
+                        MemberCount = existing.MemberCount,
+                    };
+                    seen[full] = updated;
                     return;
                 }
 
+                var abstraction = ResolveAbstraction(named);
                 seen[full] = new TypeFact
                 {
                     FullName = full,
@@ -298,50 +411,111 @@ namespace NetAI.TestGenerator.Core.Models
                     IsSealed = named.IsSealed,
                     IsAbstract = named.IsAbstract,
                     IsInterface = named.TypeKind == TypeKind.Interface,
+                    IsRecord = named.IsRecord,
+                    IsValueType = named.IsValueType,
+                    IsDelegate = named.TypeKind == TypeKind.Delegate,
+                    IsEnum = named.TypeKind == TypeKind.Enum,
                     Mockable = ClassMockability(named),
                     UsedStatically = staticUse,
+                    DependencyKind = ClassifyDependencyKind(named),
+                    Usages = usage,
+                    BaseType = named.BaseType?.ToDisplayString(FqFormat) ?? "",
+                    RecommendedAbstraction = abstraction.Abstraction,
+                    RecommendationReason = abstraction.Reason,
                     Constructors = named.InstanceConstructors
                         .Where(c => c.DeclaredAccessibility == Accessibility.Public)
-                        .Select(c => c.ToDisplayString(
-                            SymbolDisplayFormat.MinimallyQualifiedFormat))
+                        .Select(c => c.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))
                         .ToList(),
-                    Interfaces = named.AllInterfaces
-                        .Select(i => i.ToDisplayString(FqFormat)).ToList(),
+                    Interfaces = named.AllInterfaces.Select(i => i.ToDisplayString(FqFormat)).ToList(),
                     VirtualMemberCount = named.GetMembers()
                         .Count(m => m.IsVirtual || m.IsAbstract || m.IsOverride),
                     MemberCount = named.GetMembers().Length,
                 };
             }
 
-            foreach (var node in syntax.DescendantNodes())
+            // walk call graph
+            var methodsToInspect = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default) { root };
+            if (_options.IncludeRecursiveCallGraph)
             {
-                switch (node)
+                foreach (var syntaxRef in root.DeclaringSyntaxReferences)
                 {
-                    case ObjectCreationExpressionSyntax oc:
-                        Add(model.GetTypeInfo(oc).Type);
-                        break;
+                    if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax rootDecl) continue;
+                    var model = compilation.GetSemanticModel(rootDecl.SyntaxTree);
+                    if (model.GetOperation(rootDecl) is not IMethodBodyOperation body) continue;
 
-                    case InvocationExpressionSyntax inv:
-                        if (model.GetSymbolInfo(inv).Symbol is IMethodSymbol mi)
+                    foreach (var inv in body.Descendants().OfType<IInvocationOperation>())
+                    {
+                        var t = inv.TargetMethod;
+                        if (t == null) continue;
+                        if (!SymbolEqualityComparer.Default.Equals(t.ContainingType, root.ContainingType)) continue;
+                        methodsToInspect.Add(t);
+                    }
+                }
+            }
+
+            foreach (var method in methodsToInspect)
+            {
+                foreach (var syntaxRef in method.DeclaringSyntaxReferences)
+                {
+                    if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax decl) continue;
+                    var model = compilation.GetSemanticModel(decl.SyntaxTree);
+                    if (model.GetOperation(decl) is not IMethodBodyOperation body) continue;
+
+                    foreach (var op in body.Descendants())
+                    {
+                        switch (op)
                         {
-                            Add(mi.ContainingType, mi.IsStatic);
-                            Add(mi.ReturnType, mi.IsStatic);
+                            case IInvocationOperation inv:
+                                Add(inv.TargetMethod.ContainingType, inv.TargetMethod.IsStatic, UsageKind.Call);
+                                Add(inv.TargetMethod.ReturnType as INamedTypeSymbol, inv.TargetMethod.IsStatic, UsageKind.Call);
+                                if (inv.Instance?.Type is INamedTypeSymbol instType)
+                                    Add(instType, false, UsageKind.Call);
+                                break;
+
+                            case IObjectCreationOperation oc:
+                                Add(oc.Type, false, UsageKind.Create);
+                                break;
+
+                            case IFieldReferenceOperation fr:
+                                Add(fr.Field.ContainingType, fr.Field.IsStatic, UsageKind.Read);
+                                Add(fr.Field.Type as INamedTypeSymbol, fr.Field.IsStatic, UsageKind.Read);
+                                break;
+
+                            case IPropertyReferenceOperation pr:
+                                Add(pr.Property.ContainingType, pr.Property.IsStatic, UsageKind.Read);
+                                Add(pr.Property.Type as INamedTypeSymbol, pr.Property.IsStatic, UsageKind.Read);
+                                break;
+
+                            case IEventReferenceOperation er:
+                                Add(er.Event.ContainingType, er.Event.IsStatic, UsageKind.Read);
+                                break;
+
+                            case IParameterReferenceOperation par:
+                                Add(par.Parameter.Type as INamedTypeSymbol, false, UsageKind.Read);
+                                break;
+
+                            case ILocalReferenceOperation lr:
+                                Add(lr.Local.Type as INamedTypeSymbol, false, UsageKind.Read);
+                                break;
+
+                            case IVariableDeclaratorOperation vd:
+                                Add(vd.Symbol.Type as INamedTypeSymbol, false, UsageKind.Read);
+                                break;
+
+                            case IAwaitOperation aw:
+                                Add(aw.Operation.Type as INamedTypeSymbol, false, UsageKind.Await);
+                                break;
+
+                            case IThrowOperation th:
+                                if (th.Exception?.Type is INamedTypeSymbol exType)
+                                    Add(exType, false, UsageKind.Throw);
+                                break;
+
+                            case ITypeOfOperation to:
+                                Add(to.TypeOperand, false, UsageKind.TypeOf);
+                                break;
                         }
-                        break;
-
-                    case MemberAccessExpressionSyntax ma:
-                        if (model.GetSymbolInfo(ma).Symbol is IMethodSymbol m)
-                            Add(m.ContainingType, m.IsStatic);
-                        else if (model.GetSymbolInfo(ma).Symbol is IPropertySymbol p)
-                            Add(p.ContainingType, p.IsStatic);
-
-                        if (model.GetSymbolInfo(ma.Expression).Symbol is INamedTypeSymbol nt)
-                            Add(nt, staticUse: true);
-                        break;
-
-                    case VariableDeclarationSyntax vd:
-                        Add(model.GetTypeInfo(vd.Type).Type);
-                        break;
+                    }
                 }
             }
 
@@ -351,11 +525,14 @@ namespace NetAI.TestGenerator.Core.Models
                 .ToList();
         }
 
-        private static string EvaluateTestability(MethodFact method, List<TypeFact> types)
+        // ---------------------------------------------------------------- evaluation
+
+        private static (string Text, bool IsDirectlyTestable, List<string> Blockers) EvaluateTestability(
+            MethodFact method, List<TypeFact> types)
         {
             var blockers = new List<string>();
 
-            if (method.Accessibility is "Private" or "Protected")
+            if (method.Accessibility is "Private" or "Protected" or "ProtectedAndInternal")
                 blockers.Add($"Method is '{method.Accessibility}' and cannot be called directly.");
 
             if (method.IsAsyncVoid)
@@ -367,9 +544,21 @@ namespace NetAI.TestGenerator.Core.Models
             foreach (var t in types.Where(t => t.UsedStatically))
                 blockers.Add($"Static dependency on '{t.FullName}' - cannot be mocked.");
 
-            return blockers.Count == 0
+            if (method.ContainingType is { IsSealed: true })
+                blockers.Add("Containing type is sealed - cannot be subclassed for test doubles.");
+
+            if (method.ContainingType is { IsStatic: true })
+                blockers.Add("Containing type is static - test must rely on public entry points only.");
+
+            if (method.ContainingType is { Constructors.Count: 0 })
+                blockers.Add("Containing type has no public constructor - instantiation in test may require reflection or a factory.");
+
+            var isTestable = blockers.Count == 0;
+            var text = isTestable
                 ? "Directly testable."
                 : "NOT directly testable: " + string.Join(" | ", blockers);
+
+            return (text, isTestable, blockers);
         }
 
         private static List<string> BuildRecommendations(MethodFact method, List<TypeFact> types)
@@ -377,19 +566,17 @@ namespace NetAI.TestGenerator.Core.Models
             var recs = new List<string>();
 
             if (method.Accessibility is "Private" or "Protected")
-                recs.Add("Set accessibility to 'internal' and add InternalsVisibleTo, " +
-                         "or move the logic into a separate class.");
+                recs.Add("Set accessibility to 'internal' and add InternalsVisibleTo, or move the logic into a separate class.");
 
             if (method.IsAsyncVoid)
-                recs.Add("Change the event handler to 'async Task'; " +
-                         "keep the XAML handler as a thin wrapper.");
+                recs.Add("Change the event handler to 'async Task'; keep the XAML handler as a thin wrapper.");
 
-            var statics = types.Where(t => t.UsedStatically && !t.IsInterface).ToList();
-            if (statics.Count > 0)
+            foreach (var t in types.Where(t => t.UsedStatically))
             {
-                recs.Add("Put static dependencies behind interfaces (" +
-                         string.Join(", ", statics.Select(t => t.FullName)) +
-                         "), e.g. use System.IO.Abstractions for File/Directory.");
+                if (!string.IsNullOrEmpty(t.RecommendedAbstraction))
+                    recs.Add($"'{t.FullName}' -> use '{t.RecommendedAbstraction}' and mock it (e.g. with Moq / NSubstitute).");
+                else if (!t.IsInterface)
+                    recs.Add($"'{t.FullName}' is used statically. Put it behind an interface so it can be mocked.");
             }
 
             var concrete = types
@@ -398,23 +585,55 @@ namespace NetAI.TestGenerator.Core.Models
                 .ToList();
 
             if (concrete.Count > 0)
-            {
-                recs.Add("Concrete types are created internally; prefer constructor " +
-                         "injection: " + string.Join(", ", concrete.Select(t => t.FullName)));
-            }
+                recs.Add("Concrete types are created internally; prefer constructor injection: " +
+                         string.Join(", ", concrete.Select(t => t.FullName)));
 
-            return recs;
+            if (method.HasCancellationToken)
+                recs.Add("Method accepts a CancellationToken - pass CancellationToken.None or a cancelled token in the test.");
+
+            if (method.ReturnsTask)
+                recs.Add("Method returns Task/ValueTask - test must be async and await the result.");
+
+            return recs.Distinct().ToList();
+        }
+
+        // ---------------------------------------------------------------- helpers
+
+        private static (string Abstraction, string Reason) ResolveAbstraction(INamedTypeSymbol type)
+        {
+            var full = type.OriginalDefinition.ToDisplayString(FqFormat);
+            if (StaticApiAbstractions.TryGetValue(full, out var mapped))
+                return (mapped, $"'{full}' is a well-known static API without an abstraction.");
+
+            if (type.IsStatic)
+                return ("", "static type - cannot be mocked.");
+
+            return ("", "");
         }
 
         private static string KindOf(INamedTypeSymbol type) => type.TypeKind switch
         {
-            TypeKind.Class => "Class",
+            TypeKind.Class => type.IsRecord ? "Record" : "Class",
             TypeKind.Interface => "Interface",
-            TypeKind.Struct => "Struct",
+            TypeKind.Struct => type.IsRecord ? "RecordStruct" : "Struct",
             TypeKind.Enum => "Enum",
             TypeKind.Delegate => "Delegate",
             _ => type.TypeKind.ToString(),
         };
+
+        private static DependencyKind ClassifyDependencyKind(INamedTypeSymbol type)
+        {
+            if (type.TypeKind == TypeKind.Interface) return DependencyKind.Interface;
+            if (type.TypeKind == TypeKind.Delegate) return DependencyKind.Delegate;
+            if (type.TypeKind == TypeKind.Enum) return DependencyKind.Enum;
+            if (type.IsStatic) return DependencyKind.StaticClass;
+            if (type.IsAbstract) return DependencyKind.AbstractClass;
+            if (type.IsSealed) return DependencyKind.SealedClass;
+            if (type.IsValueType) return DependencyKind.Struct;
+            if (type.SpecialType != SpecialType.None) return DependencyKind.Primitive;
+            if (type.TypeKind == TypeKind.Class) return DependencyKind.ConcreteClass;
+            return DependencyKind.Unknown;
+        }
 
         private static string ClassMockability(INamedTypeSymbol type)
         {
@@ -431,11 +650,15 @@ namespace NetAI.TestGenerator.Core.Models
                 : "Limited (virtual members exist)";
         }
 
+        private static string ResolveDocumentName(string? requestedName, SyntaxTree tree)
+        {
+            if (!string.IsNullOrWhiteSpace(requestedName)) return requestedName!;
+            var fromPath = Path.GetFileName(tree.FilePath);
+            return string.IsNullOrEmpty(fromPath) ? "(unnamed)" : fromPath;
+        }
+
         private static (SyntaxTree Tree, MethodDeclarationSyntax Method)? FindMethodAcrossTrees(
-            Compilation compilation,
-            string methodName,
-            string? documentName,
-            CancellationToken ct)
+            Compilation compilation, string methodName, string? documentName, CancellationToken ct)
         {
             foreach (var tree in compilation.SyntaxTrees)
             {
@@ -452,12 +675,19 @@ namespace NetAI.TestGenerator.Core.Models
                 }
 
                 var root = tree.GetRoot(ct);
-                var method = root.DescendantNodes()
+                var candidates = root.DescendantNodes()
                     .OfType<MethodDeclarationSyntax>()
-                    .FirstOrDefault(m => m.Identifier.Text == methodName);
+                    .Where(m => m.Identifier.Text == methodName)
+                    .ToList();
 
-                if (method != null)
-                    return (tree, method);
+                if (candidates.Count == 0) continue;
+
+                // prefer public / non-generic when overloads exist
+                var preferred = candidates.FirstOrDefault(m =>
+                    m.Modifiers.Any(t => t.IsKind(SyntaxKind.PublicKeyword)) && m.TypeParameterList == null)
+                    ?? candidates[0];
+
+                return (tree, preferred);
             }
 
             return null;

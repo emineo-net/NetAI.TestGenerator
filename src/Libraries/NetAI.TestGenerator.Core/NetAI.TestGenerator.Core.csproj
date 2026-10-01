@@ -25,10 +25,6 @@
 		</PackageReference>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Analysis\" />
-	</ItemGroup>
-
 	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<DefineConstants>$(DefineConstants);NETSTANDARD2_0</DefineConstants>
 	</PropertyGroup>

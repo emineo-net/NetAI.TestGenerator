@@ -26,6 +26,15 @@ public sealed class TestabilityReport
     /// <summary>Gets compilation errors captured as context for the analysis.</summary>
     public List<string> CompilationErrors { get; init; } = new();
 
+
+    // NEW:
+    public bool IsDirectlyTestable { get; init; }
+    public IReadOnlyList<string> Blockers { get; init; } = new List<string>();
+    public IReadOnlyList<string> AnalyzedCallGraph { get; init; } = new List<string>();
+
+
+
+
     /// <summary>Formats the report as prompt-ready text, including rules that prevent invented code facts.</summary>
     /// <returns>A plain-text representation of the report.</returns>
     public string ToPromptText()

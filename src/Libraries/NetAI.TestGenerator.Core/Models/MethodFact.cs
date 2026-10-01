@@ -32,4 +32,22 @@ public sealed class MethodFact
 
     /// <summary>Gets the method's parameters in declaration order.</summary>
     public List<ParameterFact> Parameters { get; init; } = new();
+
+
+    // NEW:
+    public bool IsVirtual { get; init; }
+    public bool IsOverride { get; init; }
+    public bool IsAbstract { get; init; }
+    public bool IsIterator { get; init; }
+    public bool IsExtension { get; init; }
+    public bool ReturnsTask { get; init; }
+    public bool HasCancellationToken { get; init; }
+    public IReadOnlyList<string> GenericParameters { get; init; } = new List<string>();
+    public IReadOnlyList<string> Attributes { get; init; } = new List<string>();
+    public IReadOnlyList<string> ThrownExceptions { get; init; } = new List<string>();
+
+
+
+
+
 }

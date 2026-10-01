@@ -1,4 +1,6 @@
-﻿namespace NetAI.TestGenerator.Core.Models;
+﻿using NetAI.TestGenerator.Core.Models.Enums;
+
+namespace NetAI.TestGenerator.Core.Models;
 
 /// <summary>Describes a type referenced by a method and the analyzer's basic mockability facts.</summary>
 public sealed class TypeFact
@@ -32,6 +34,17 @@ public sealed class TypeFact
 
     /// <summary>Gets or sets whether the method uses this type through a static member.</summary>
     public bool UsedStatically { get; set; }
+
+    // NEW:
+    public DependencyKind DependencyKind { get; init; } = DependencyKind.Unknown;
+    public UsageKind Usages { get; init; } = UsageKind.None;
+    public string BaseType { get; init; } = "";
+    public bool IsRecord { get; init; }
+    public bool IsValueType { get; init; }
+    public bool IsDelegate { get; init; }
+    public bool IsEnum { get; init; }
+    public string RecommendedAbstraction { get; init; } = "";
+    public string RecommendationReason { get; init; } = "";
 
     /// <summary>Gets the type's public instance constructors.</summary>
     public List<string> Constructors { get; init; } = new();

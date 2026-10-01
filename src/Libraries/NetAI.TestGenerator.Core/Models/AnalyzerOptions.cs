@@ -7,5 +7,9 @@ public sealed class AnalyzerOptions
     public bool IncludeFrameworkTypes { get; init; } = true;
 
     /// <summary>Gets the maximum number of compilation diagnostics included in a report.</summary>
-    public int MaxDiagnostics { get; init; } = 20;
+    public int MaxDiagnostics { get; init; } = 25;
+
+    // NEW:
+    public int MaxCallGraphDepth { get; init; } = 3;
+    public bool IncludeRecursiveCallGraph { get; init; } = true;
 }
