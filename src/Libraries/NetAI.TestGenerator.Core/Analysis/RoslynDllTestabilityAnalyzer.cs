@@ -16,7 +16,7 @@ using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
 #endif
 
-namespace NetAI.TestGenerator.Core.Models
+namespace NetAI.TestGenerator.Core.Analysis
 {
     /// <summary>
     /// Analyzes testability using Roslyn. Supports two load strategies:
@@ -477,7 +477,12 @@ namespace NetAI.TestGenerator.Core.Models
                 Verdict = verdict.Text,
                 IsDirectlyTestable = verdict.IsDirectlyTestable,
                 Blockers = verdict.Blockers,
-                Recommendations = recs,
+                Recommendations = recs.SourceRefactoring
+                    .Concat(recs.TestStrategy)
+                    .Distinct()
+                    .ToList(),
+                SourceRefactoringRecommendations = recs.SourceRefactoring,
+                TestStrategyRecommendations = recs.TestStrategy,
                 CompilationErrors = errors,
                 AnalyzedCallGraph = callGraph,
             };
@@ -845,22 +850,28 @@ namespace NetAI.TestGenerator.Core.Models
             return (text, isTestable, blockers);
         }
 
-        private static List<string> BuildRecommendations(MethodFact method, List<TypeFact> types)
+        private static (List<string> SourceRefactoring, List<string> TestStrategy) BuildRecommendations(
+            MethodFact method,
+            List<TypeFact> types)
         {
-            var recs = new List<string>();
+            var sourceRefactoring = new List<string>();
+            var testStrategy = new List<string>();
 
             if (method.Accessibility is "Private" or "Protected")
-                recs.Add("Set accessibility to 'internal' and add InternalsVisibleTo, or move the logic into a separate class.");
+                sourceRefactoring.Add("Set accessibility to 'internal' and add InternalsVisibleTo, or move the logic into a separate class.");
 
             if (method.IsAsyncVoid)
-                recs.Add("Change the event handler to 'async Task'; keep the XAML handler as a thin wrapper.");
+                sourceRefactoring.Add("Change the event handler to 'async Task'; keep the UI event handler as a thin wrapper.");
+
+            if (method.IsStatic)
+                sourceRefactoring.Add("Move the method to an instance service and inject its dependencies so the behavior can be isolated.");
 
             foreach (var t in types.Where(t => t.UsedStatically))
             {
                 if (!string.IsNullOrEmpty(t.RecommendedAbstraction))
-                    recs.Add($"'{t.FullName}' -> use '{t.RecommendedAbstraction}' and mock it (e.g. with Moq / NSubstitute).");
+                    sourceRefactoring.Add($"Wrap '{t.FullName}' behind '{t.RecommendedAbstraction}' and inject that abstraction.");
                 else if (!t.IsInterface)
-                    recs.Add($"'{t.FullName}' is used statically. Put it behind an interface so it can be mocked.");
+                    sourceRefactoring.Add($"'{t.FullName}' is used statically. Put it behind an injected interface or service.");
             }
 
             var concrete = types
@@ -869,16 +880,21 @@ namespace NetAI.TestGenerator.Core.Models
                 .ToList();
 
             if (concrete.Count > 0)
-                recs.Add("Concrete types are created internally; prefer constructor injection: " +
-                         string.Join(", ", concrete.Select(t => t.FullName)));
+                sourceRefactoring.Add("Concrete types are created internally; prefer constructor injection: " +
+                                      string.Join(", ", concrete.Select(t => t.FullName)));
 
             if (method.HasCancellationToken)
-                recs.Add("Method accepts a CancellationToken - pass CancellationToken.None or a cancelled token in the test.");
+                testStrategy.Add("Cover cancellation behavior by passing CancellationToken.None and, where relevant, a cancelled token.");
 
             if (method.ReturnsTask)
-                recs.Add("Method returns Task/ValueTask - test must be async and await the result.");
+                testStrategy.Add("Write the test as async and await the Task/ValueTask result.");
 
-            return recs.Distinct().ToList();
+            if (types.Any(t => t.UsedStatically && !string.IsNullOrEmpty(t.RecommendedAbstraction)))
+                testStrategy.Add("Do not mock static APIs directly; use only abstractions already present in the test project.");
+
+            return (
+                sourceRefactoring.Distinct().ToList(),
+                testStrategy.Distinct().ToList());
         }
 
         // ---------------------------------------------------------------- helpers

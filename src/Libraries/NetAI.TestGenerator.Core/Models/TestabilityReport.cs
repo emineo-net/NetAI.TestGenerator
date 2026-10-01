@@ -23,6 +23,12 @@ public sealed class TestabilityReport
     /// <summary>Gets recommendations for improving the method's testability.</summary>
     public List<string> Recommendations { get; init; } = new();
 
+    /// <summary>Gets recommendations for refactoring the source code to improve testability.</summary>
+    public List<string> SourceRefactoringRecommendations { get; init; } = new();
+
+    /// <summary>Gets recommendations for testing the method in its current state.</summary>
+    public List<string> TestStrategyRecommendations { get; init; } = new();
+
     /// <summary>Gets compilation errors captured as context for the analysis.</summary>
     public List<string> CompilationErrors { get; init; } = new();
 

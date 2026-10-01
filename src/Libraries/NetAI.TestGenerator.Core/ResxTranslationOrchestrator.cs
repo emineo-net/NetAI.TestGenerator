@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NetAI.TestGenerator.Core.Analysis;
 using NetAI.TestGenerator.Core.Config;
+using NetAI.TestGenerator.Core.Models;
 using NetAI.TestGenerator.Core.Models.Enums;
 using NetAI.TestGenerator.Core.Services;
 using System.Text;
@@ -202,7 +203,11 @@ public class ResxTranslationOrchestrator
             }
 
             // Project context is constant per file, so build it once.
-            string projectContext = BuildProjectContextHint(sourceFilePath);
+            string projectContext = BuildProjectContextHint(
+                sourceFilePath,
+                testProjectDirectory,
+                _testFramework,
+                _mockFramework);
 
             foreach (var method in sourceMethods)
             {
@@ -228,20 +233,12 @@ public class ResxTranslationOrchestrator
 
                 BuildLogger.BuildLog("\nsemanticHint: " + semanticHint);
 
-                string frameworkName = GetTestFrameworkName(_testFramework);
-                string testAttribute = GetTestAttribute(_testFramework);
-                string mockFrameworkInstruction = _mockFramework == MockFramework.Unknown
-                    ? string.Empty
-                    : $"Use {_mockFramework} for mocking when mocks are needed. ";
-                string basePrompt =
-                    $"You are a .NET testing expert. Create a precise {frameworkName} test method using {testAttribute} for method '{methodName}' in class '{className}'.\n\n" +
-                    "Carefully read the automatically generated semantic analysis in <Analysis>. " +
-                    "If the 'Verdict' identifies constraints (such as 'private' or static dependencies), try to work around them pragmatically in the test " +
-                    "(e.g. use reflection for private members or libraries such as 'System.IO.Abstractions' if mentioned in the recommendations). " +
-                    $"{mockFrameworkInstruction}Always use the selected test framework. If a runnable test is technically impossible (e.g. for 'async void' or untestable code), return a test marked skipped/ignored using that framework's supported attribute, and include problematic code only as a comment or block comment in the body.\n\n" +
-                    $"<Analysis>\n{semanticHint}\n</Analysis>\n\n" +
-                    $"Relevant context (usings, fields, method under test, and called helper methods):\n\n" +
-                    $"<SourceCode>\n{classSkeleton}\n</SourceCode>";
+                string basePrompt = BuildBasePrompt(
+                    className,
+                    methodName,
+                    semanticHint,
+                    projectContext,
+                    classSkeleton);
 
                 BuildLogger.BuildLog("\nbasePrompt: " + basePrompt);
 
@@ -331,7 +328,6 @@ public class ResxTranslationOrchestrator
                         isCompiledSuccessfully = true;
                         if (!string.IsNullOrEmpty(result.TestClassCode))
                             testMethodCode = ExtractTestClass(result.TestClassCode!);
-                        }
 
                         break;
                     }
@@ -437,23 +433,30 @@ public class ResxTranslationOrchestrator
 
     // ---------------------------------------------------------------- prompt building
 
-    private static string BuildBasePrompt(
+    private string BuildBasePrompt(
         string className,
         string methodName,
         string semanticHintXml,
         string projectContext,
         string classSkeleton)
     {
+        string frameworkName = GetTestFrameworkName(_testFramework);
+        string testAttribute = GetTestAttribute(_testFramework);
+        string mockFrameworkInstruction = _mockFramework == MockFramework.Unknown
+            ? "Do not introduce a mocking library unless it is listed in <TestProject>."
+            : $"When mocking is needed, use {_mockFramework} only if it is listed in <TestProject>.";
+
         var sb = new StringBuilder();
-        sb.AppendLine($"You are a .NET testing expert. Create a precise xUnit test method (with [Fact]) for method '{methodName}' in class '{className}'.");
+        sb.AppendLine($"You are a .NET testing expert. Create one precise {frameworkName} test method using {testAttribute} for method '{methodName}' in class '{className}'.");
         sb.AppendLine();
-        sb.AppendLine("Carefully read the automatically generated semantic analysis in <SemanticAnalysis> and the project context in <ProjectContext>.");
-        sb.AppendLine("If a 'Verdict' or 'Blockers' entry identifies constraints (private, static deps, no public ctor), work around them pragmatically:");
-        sb.AppendLine("- Use reflection for private members when unavoidable.");
-        sb.AppendLine("- Use a recommended abstraction (e.g. System.IO.Abstractions) if it is listed and referenced.");
-        sb.AppendLine("- Do NOT invent NuGet packages that are not in <ProjectContext>/<PackageReferences>.");
-        sb.AppendLine("ALWAYS return a single xUnit test method.");
-        sb.AppendLine("If a runnable test is technically impossible (e.g. 'async void'), still emit [Fact(Skip = \"<brief reason>\")] with the problematic code as a comment.");
+        sb.AppendLine("Use <SemanticAnalysis> as the source of truth for method and dependency facts, and follow <SuggestedTestStrategy> exactly.");
+        sb.AppendLine("Do not try reflection or workaround code when the suggested strategy is Skip or RefactorFirst.");
+        sb.AppendLine("Keep source-code refactoring advice separate from the test you generate; do not modify or assume changes to the source project.");
+        sb.AppendLine("- Do not invent types, members, project references, or NuGet packages.");
+        sb.AppendLine($"- {mockFrameworkInstruction}");
+        sb.AppendLine("- Use the selected test framework from <SelectedFrameworks>; the test project is created with that framework's template.");
+        sb.AppendLine("- Use a mocking library or helper only if it is listed in <TestProject>.");
+        sb.AppendLine("- If the strategy is Skip, return the selected framework's skip/ignore attribute and include the test body only as a comment.");
         sb.AppendLine();
         if (!string.IsNullOrWhiteSpace(projectContext))
         {
@@ -477,7 +480,7 @@ public class ResxTranslationOrchestrator
     /// <see cref="ProcessProjectAsync"/> (in-memory or MSBuild-loaded), so this
     /// method just runs the analyzer for the given method.
     /// </summary>
-    private static async Task<string> BuildSemanticHintAsync(
+    private async Task<string> BuildSemanticHintAsync(
         RoslynDllTestabilityAnalyzer? analyzer,
         Compilation? compilation,
         MethodDeclarationSyntax methodDeclaration,
@@ -510,7 +513,7 @@ public class ResxTranslationOrchestrator
         }
     }
 
-    private static string FormatReportAsXml(TestabilityReport report, string sourceFilePath, string methodName)
+    private string FormatReportAsXml(TestabilityReport report, string sourceFilePath, string methodName)
     {
         var sb = new StringBuilder();
         sb.AppendLine("<SemanticAnalysis>");
@@ -596,13 +599,18 @@ public class ResxTranslationOrchestrator
             sb.AppendLine("  </CallGraph>");
         }
 
-        if (report.Recommendations.Count > 0)
-        {
-            sb.AppendLine("  <Recommendations>");
-            foreach (var r in report.Recommendations)
-                sb.AppendLine($"    <Recommendation>{X(r)}</Recommendation>");
-            sb.AppendLine("  </Recommendations>");
-        }
+        sb.AppendLine("  <Recommendations>");
+        sb.AppendLine("    <SourceRefactoring>");
+        foreach (var recommendation in report.SourceRefactoringRecommendations)
+            sb.AppendLine($"      <Recommendation>{X(recommendation)}</Recommendation>");
+        sb.AppendLine("    </SourceRefactoring>");
+        sb.AppendLine("    <TestStrategy>");
+        foreach (var recommendation in report.TestStrategyRecommendations)
+            sb.AppendLine($"      <Recommendation>{X(recommendation)}</Recommendation>");
+        sb.AppendLine("    </TestStrategy>");
+        sb.AppendLine("  </Recommendations>");
+
+        AppendSuggestedTestStrategy(sb, report);
 
         if (report.CompilationErrors.Count > 0)
         {
@@ -618,70 +626,165 @@ public class ResxTranslationOrchestrator
         return sb.ToString();
     }
 
-    private static string BuildProjectContextHint(string sourceFilePath)
+    private void AppendSuggestedTestStrategy(StringBuilder sb, TestabilityReport report)
     {
-        try
+        var method = report.Method;
+        bool inaccessible = method.Accessibility is "Private" or "Protected" or "ProtectedAndInternal";
+        bool hasStaticDependency = report.ReferencedTypes.Any(type => type.UsedStatically);
+        bool privateAsyncVoidWithStaticDependency =
+            method.IsAsyncVoid && inaccessible && hasStaticDependency;
+
+        if (method.IsAsyncVoid)
         {
-            var csproj = FindProjectFile(sourceFilePath);
-            if (csproj == null) return string.Empty;
+            string reason = privateAsyncVoidWithStaticDependency
+                ? "private async void method with static dependencies is not safely invokable from a unit test"
+                : "async void cannot be awaited reliably by a unit test";
 
-            var doc = XDocument.Load(csproj);
-            string? Val(string name) =>
-                doc.Descendants().FirstOrDefault(e => e.Name.LocalName == name)?.Value?.Trim();
-
-            var sb = new StringBuilder();
-            sb.AppendLine("<ProjectContext>");
-            sb.AppendLine($"  <ProjectFile>{X(Path.GetFileName(csproj))}</ProjectFile>");
-            AppendIfSet(sb, "TargetFramework", Val("TargetFramework") ?? Val("TargetFrameworks"));
-            AppendIfSet(sb, "LangVersion", Val("LangVersion"));
-            AppendIfSet(sb, "Nullable", Val("Nullable"));
-            AppendIfSet(sb, "ImplicitUsings", Val("ImplicitUsings"));
-
-            var packages = doc.Descendants()
-                .Where(e => e.Name.LocalName == "PackageReference")
-                .Select(e => new
-                {
-                    Name = e.Attribute("Include")?.Value ?? e.Attribute("Update")?.Value ?? "",
-                    Version = e.Attribute("Version")?.Value ?? e.Elements().FirstOrDefault(x => x.Name.LocalName == "Version")?.Value ?? ""
-                })
-                .Where(p => !string.IsNullOrEmpty(p.Name))
-                .ToList();
-
-            if (packages.Count > 0)
-            {
-                sb.AppendLine("  <PackageReferences>");
-                foreach (var p in packages)
-                    sb.AppendLine($"    <Package id=\"{X(p.Name)}\" version=\"{X(p.Version)}\" />");
-                sb.AppendLine("  </PackageReferences>");
-            }
-
-            var projRefs = doc.Descendants()
-                .Where(e => e.Name.LocalName == "ProjectReference")
-                .Select(e => e.Attribute("Include")?.Value ?? "")
-                .Where(s => !string.IsNullOrEmpty(s))
-                .ToList();
-
-            if (projRefs.Count > 0)
-            {
-                sb.AppendLine("  <ProjectReferences>");
-                foreach (var r in projRefs)
-                    sb.AppendLine($"    <ProjectReference>{X(Path.GetFileName(r))}</ProjectReference>");
-                sb.AppendLine("  </ProjectReferences>");
-            }
-
-            sb.AppendLine("</ProjectContext>");
-            return sb.ToString();
+            sb.AppendLine($"  <SuggestedTestStrategy action=\"Skip\" testFramework=\"{X(GetTestFrameworkName(_testFramework))}\">");
+            sb.AppendLine($"    <Instruction>Emit {X(GetSkipAttribute(reason))}. Include any illustrative body only as a comment.</Instruction>");
+            if (privateAsyncVoidWithStaticDependency)
+                sb.AppendLine("    <Constraint>Do not use reflection. Do not invoke the handler or perform real static I/O.</Constraint>");
+            else
+                sb.AppendLine("    <Constraint>Do not invoke the async void method from the test.</Constraint>");
+            sb.AppendLine("  </SuggestedTestStrategy>");
+            return;
         }
-        catch
+
+        if (report.IsDirectlyTestable)
         {
-            return string.Empty;
+            sb.AppendLine($"  <SuggestedTestStrategy action=\"Direct\" testFramework=\"{X(GetTestFrameworkName(_testFramework))}\">");
+            sb.AppendLine("    <Instruction>Call the method through its declared accessible API and assert observable behavior.</Instruction>");
+            sb.AppendLine("  </SuggestedTestStrategy>");
+            return;
         }
+
+        bool onlyPrivateAccessBlocker =
+            method.Accessibility == "Private" &&
+            report.Blockers.Count == 1 &&
+            report.Blockers[0].StartsWith("Method is 'Private'", StringComparison.Ordinal);
+
+        if (onlyPrivateAccessBlocker)
+        {
+            sb.AppendLine($"  <SuggestedTestStrategy action=\"Reflection\" testFramework=\"{X(GetTestFrameworkName(_testFramework))}\">");
+            sb.AppendLine("    <Instruction>Use reflection only to invoke this synchronous private method; use no invented dependencies.</Instruction>");
+            sb.AppendLine("  </SuggestedTestStrategy>");
+            return;
+        }
+
+        sb.AppendLine($"  <SuggestedTestStrategy action=\"RefactorFirst\" testFramework=\"{X(GetTestFrameworkName(_testFramework))}\">");
+        sb.AppendLine($"    <Instruction>The method has blockers that cannot be safely worked around in a test: {X(string.Join(" | ", report.Blockers))}.</Instruction>");
+        sb.AppendLine($"    <Fallback>Do not change production code. Emit {X(GetSkipAttribute("requires production-code refactoring"))} and describe the required refactoring only in a comment.</Fallback>");
+        sb.AppendLine("  </SuggestedTestStrategy>");
     }
 
-    private static void AppendIfSet(StringBuilder sb, string name, string? value)
+    private string GetSkipAttribute(string reason) => _testFramework switch
+    {
+        TestFramework.NUnit => $"[Ignore(\"{reason}\")]",
+        TestFramework.MSTest => $"[Ignore(\"{reason}\")]",
+        TestFramework.xUnit => $"[Fact(Skip = \"{reason}\")]",
+        _ => throw new ArgumentOutOfRangeException(
+            nameof(_testFramework), _testFramework, "Unsupported test framework.")
+    };
+
+    private string BuildProjectContextHint(
+        string sourceFilePath,
+        string testProjectDirectory,
+        TestFramework testFramework,
+        MockFramework mockFramework)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("<ProjectContext>");
+
+        var sourceProjectPath = FindProjectFile(sourceFilePath);
+        if (sourceProjectPath is not null)
+        {
+            AppendProjectContext(sb, "SourceProject", sourceProjectPath);
+        }
+        else
+        {
+            sb.AppendLine("  <SourceProject status=\"not-found\" />");
+        }
+
+        var testProjectPath = Directory.Exists(testProjectDirectory)
+            ? Directory.GetFiles(testProjectDirectory, "*.csproj", SearchOption.TopDirectoryOnly)
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault()
+            : null;
+
+        if (testProjectPath is not null)
+        {
+            AppendProjectContext(sb, "TestProject", testProjectPath);
+        }
+        else
+        {
+            sb.AppendLine($"  <TestProject status=\"not-created\" directory=\"{X(testProjectDirectory)}\" template=\"{X(GetTestTemplate(testFramework))}\">");
+            sb.AppendLine("    <Note>The project will be created with the selected test framework template. No mocking library or helper package has been verified; do not assume it is available.</Note>");
+            sb.AppendLine("  </TestProject>");
+        }
+
+        sb.AppendLine($"  <SelectedFrameworks test=\"{X(GetTestFrameworkName(testFramework))}\" mocking=\"{X(mockFramework.ToString())}\" />");
+        sb.AppendLine("</ProjectContext>");
+        return sb.ToString();
+    }
+
+    private static void AppendProjectContext(StringBuilder sb, string elementName, string projectPath)
+    {
+        var doc = XDocument.Load(projectPath);
+        string? Val(string name) =>
+            doc.Descendants().FirstOrDefault(e => e.Name.LocalName == name)?.Value?.Trim();
+
+        sb.AppendLine($"  <{elementName} status=\"found\" file=\"{X(Path.GetFileName(projectPath))}\">");
+        AppendIfSet(sb, "TargetFramework", Val("TargetFramework") ?? Val("TargetFrameworks"), "    ");
+        AppendIfSet(sb, "LangVersion", Val("LangVersion"), "    ");
+        AppendIfSet(sb, "Nullable", Val("Nullable"), "    ");
+        AppendIfSet(sb, "ImplicitUsings", Val("ImplicitUsings"), "    ");
+
+        var packages = doc.Descendants()
+            .Where(e => e.Name.LocalName == "PackageReference")
+            .Select(e => new
+            {
+                Name = e.Attribute("Include")?.Value ?? e.Attribute("Update")?.Value ?? "",
+                Version = e.Attribute("Version")?.Value
+                          ?? e.Elements().FirstOrDefault(x => x.Name.LocalName == "Version")?.Value
+                          ?? ""
+            })
+            .Where(p => !string.IsNullOrWhiteSpace(p.Name))
+            .ToList();
+
+        sb.AppendLine("    <PackageReferences>");
+        foreach (var package in packages)
+        {
+            var version = string.IsNullOrWhiteSpace(package.Version)
+                ? "centrally managed or unspecified"
+                : package.Version;
+            sb.AppendLine($"      <Package id=\"{X(package.Name)}\" version=\"{X(version)}\" />");
+        }
+        sb.AppendLine("    </PackageReferences>");
+
+        var projectReferences = doc.Descendants()
+            .Where(e => e.Name.LocalName == "ProjectReference")
+            .Select(e => e.Attribute("Include")?.Value ?? "")
+            .Where(path => !string.IsNullOrWhiteSpace(path))
+            .ToList();
+
+        if (projectReferences.Count > 0)
+        {
+            sb.AppendLine("    <ProjectReferences>");
+            foreach (var reference in projectReferences)
+            {
+                var normalizedPath = reference.Replace('\\', Path.DirectorySeparatorChar);
+                sb.AppendLine($"      <ProjectReference>{X(Path.GetFileName(normalizedPath))}</ProjectReference>");
+            }
+            sb.AppendLine("    </ProjectReferences>");
+        }
+
+        sb.AppendLine($"  </{elementName}>");
+    }
+
+    private static void AppendIfSet(StringBuilder sb, string name, string? value, string indent = "  ")
     {
         if (!string.IsNullOrWhiteSpace(value))
-            sb.AppendLine($"  <{name}>{X(value)}</{name}>");
+            sb.AppendLine($"{indent}<{name}>{X(value)}</{name}>");
     }
 
     private static string X(string? s) =>
@@ -702,7 +805,7 @@ public class ResxTranslationOrchestrator
         string namespaceName = originalNamespace?.Name.ToString() ?? "NetAI.Generated.Tests";
         if (!namespaceName.EndsWith(".Tests")) namespaceName += ".Tests";
 
-        return $@"using Xunit;
+        return $@"using {GetTestFrameworkNamespace(_testFramework)};
 namespace {namespaceName}
 {{
     public class {testClassName}
@@ -906,6 +1009,14 @@ namespace {namespaceName}
         TestFramework.NUnit => "[Test]",
         TestFramework.MSTest => "[TestMethod]",
         TestFramework.xUnit => "[Fact]",
+        _ => throw new ArgumentOutOfRangeException(nameof(testFramework), testFramework, "Unsupported test framework.")
+    };
+
+    private static string GetTestFrameworkNamespace(TestFramework testFramework) => testFramework switch
+    {
+        TestFramework.NUnit => "NUnit.Framework",
+        TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting",
+        TestFramework.xUnit => "Xunit",
         _ => throw new ArgumentOutOfRangeException(nameof(testFramework), testFramework, "Unsupported test framework.")
     };
 

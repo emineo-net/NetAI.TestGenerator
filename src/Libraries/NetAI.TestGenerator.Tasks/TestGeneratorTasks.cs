@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NetAI.TestGenerator.Core;
+using NetAI.TestGenerator.Core.Analysis;
 using NetAI.TestGenerator.Core.Config;
 using System.Text;
 using NetAI.TestGenerator.Core.Models;
