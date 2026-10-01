@@ -325,7 +325,8 @@ public class ResxTranslationOrchestrator
                 }
                 else
                 {
-                    logInfo?.Invoke($"[NetAI] Error: Could not generate a compilable test for '{methodName}' after {MaxAiRetries} retries.");
+                    logInfo?.Invoke($"[NetAI Warning] Could not generate a compilable test for '{methodName}' after {MaxAiRetries} retries.");
+                    
                     if (result?.CompilerErrors != null)
                     {
                         logInfo?.Invoke($"[NetAI] Final Compiler Errors:\n{string.Join("\n", result.CompilerErrors)}");

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using NetAI.TestGenerator.Core;
+using NetAI.TestGenerator.Core.Analysis;
 using NetAI.TestGenerator.Core.Config;
 
 namespace WpftranlationTestApp;
@@ -57,17 +58,37 @@ public class AiTranslatorRunner
             string testProjectDirectory = Path.Combine(solutionDir, "tests", "UnitTests", $"{projectName}.Tests");
 
             // Ergebnis: C:\Users\steph\source\repos\NetAI.TestGenerator\tests\UnitTests\WpftranlationTestApp.Tests
-      
-        var result = await orchestrator.ProcessProjectAsync(@"C:\Users\steph\source\repos\NetAI.TestGenerator\src\UI\WpftranlationTestApp\MainWindow.xaml.cs", testProjectDirectory); //, translator); //, logInfo, supportedLanguagesOverride);
 
-        if (result.Contains("error"))
-        {
-            logError(result);
-            return false;
-        }
+            string sourceFilePath = Path.Combine(ProjectDir, "MainWindow.xaml.cs");
+            var sourceFiles = Directory.GetFiles(ProjectDir, "*.cs", SearchOption.AllDirectories)
+                .Where(file =>
+                    !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
+                    !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"))
+                .ToList();
+            var referencePaths = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => assembly.Location)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(
+                sourceFiles,
+                referencePaths,
+                assemblyName: projectName);
 
-        logInfo("✅ KI-Resx-Translator: Analyse abgeschlossen.");
-        return true;
+            var result = await orchestrator.ProcessProjectAsync(
+                sourceFilePath,
+                testProjectDirectory,
+                logInfo,
+                compilation);
+
+            if (result.Contains("error"))
+            {
+                logError(result);
+                return false;
+            }
+
+            logInfo("✅ KI-Resx-Translator: Analyse abgeschlossen.");
+            return true;
         }
         else
         {

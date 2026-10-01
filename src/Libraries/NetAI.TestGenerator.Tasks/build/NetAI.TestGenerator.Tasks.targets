@@ -61,7 +61,8 @@
 		                    CurrentConfiguration="$(Configuration)"
 						IsPublishing="$(_TestGeneratorIsPublishing)"
 						PromptOnly="$(TestGeneratorPromptOnly)"
-		                    SourceFiles="@(Compile)" />
+		                    SourceFiles="@(Compile)"
+		                    ReferencePaths="@(ReferencePath)" />
 	</Target>
 
 	<Target Name="IncludeGeneratedResx"
@@ -84,7 +85,9 @@
 		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
 		                    CurrentConfiguration="$(Configuration)"
 		                    IsPublishing="true"
-		                    PromptOnly="$(TestGeneratorPromptOnly)" />
+		                    PromptOnly="$(TestGeneratorPromptOnly)"
+		                    SourceFiles="@(Compile)"
+		                    ReferencePaths="@(ReferencePath)" />
 	</Target>
 
 	<Target Name="RunSemanticTestAnalysis"
