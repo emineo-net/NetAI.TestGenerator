@@ -58,8 +58,11 @@ public class TestGeneratorService
         var usings = new List<string>();
 
         // Framework-Using nur voranstellen, wenn der Aufrufer eines mitgegeben hat.
-        if (!string.IsNullOrWhiteSpace(frameworkUsing))
-            usings.Add(frameworkUsing.TrimEnd());
+        if (frameworkUsing is { } configuredFrameworkUsing &&
+            !string.IsNullOrWhiteSpace(configuredFrameworkUsing))
+        {
+            usings.Add(configuredFrameworkUsing.TrimEnd());
+        }
 
         foreach (var u in extractedUsings)
         {
@@ -102,32 +105,47 @@ public class TestGeneratorService
         var classDecl = root.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
         if (classDecl == null) return;
 
-        var generatedCode = ParseGeneratedCode(methodCode);
-        var newMethodNode = generatedCode.Methods.FirstOrDefault();
+        var (extractedUsings, methodsText) = SplitUsingsFromMethods(methodCode);
+        var methodRoot = CSharpSyntaxTree.ParseText(
+            $"class GeneratedTestContainer {{ {methodsText} }}").GetCompilationUnitRoot();
+        var newMethodNode = methodRoot.DescendantNodes()
+            .OfType<MethodDeclarationSyntax>()
+            .FirstOrDefault();
 
         if (newMethodNode == null) return;
 
-        // Neue usings aus dem Snippet sammeln, dedupliziert gegen bereits vorhandene.
+        var usings = root.Usings.ToList();
         var existingUsings = new HashSet<string>(
-            root.Usings.Select(u => u.ToFullString().TrimEnd()),
+            usings.Select(GetUsingKey),
             StringComparer.Ordinal);
 
-        var usingsToAdd = new List<UsingDirectiveSyntax>();
-        foreach (var u in newMethodRoot.Usings)
+        foreach (var usingText in extractedUsings)
         {
-            var text = u.ToFullString().TrimEnd();
-            if (existingUsings.Add(text))
-                usingsToAdd.Add(u);
+            var parsedUsing = CSharpSyntaxTree.ParseText(usingText)
+                .GetCompilationUnitRoot()
+                .Usings
+                .FirstOrDefault();
+            if (parsedUsing != null && existingUsings.Add(GetUsingKey(parsedUsing)))
+                usings.Add(parsedUsing);
         }
 
         var updatedClass = classDecl.AddMembers(newMethodNode);
-        var newRoot = root.ReplaceNode(classDecl, updatedClass);
-
-        if (usingsToAdd.Count > 0)
-            newRoot = newRoot.AddUsings(usingsToAdd.ToArray());
+        var newRoot = root.ReplaceNode(classDecl, updatedClass)
+            .WithUsings(SyntaxFactory.List(usings));
 
         var formattedRoot = Microsoft.CodeAnalysis.Formatting.Formatter.Format(newRoot, new AdhocWorkspace());
         File.WriteAllText(filePath, formattedRoot.ToFullString());
+    }
+
+    private static string GetUsingKey(UsingDirectiveSyntax usingDirective)
+    {
+        var normalized = usingDirective.WithoutTrivia();
+        return string.Join(
+            "|",
+            normalized.GlobalKeyword.RawKind,
+            normalized.StaticKeyword.RawKind,
+            normalized.Alias?.Name.ToString(),
+            normalized.Name?.ToString());
     }
 
     /// <summary>
@@ -158,6 +176,17 @@ public class TestGeneratorService
         }
 
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
+
+        if (methods.Count == 0)
+        {
+            string classMembers = code;
+            foreach (var usingDirective in root.Usings.OrderByDescending(directive => directive.SpanStart))
+                classMembers = classMembers.Remove(usingDirective.SpanStart, usingDirective.Span.Length);
+
+            var wrappedRoot = CSharpSyntaxTree.ParseText(
+                $"class GeneratedTestContainer {{ {classMembers} }}").GetCompilationUnitRoot();
+            methods = wrappedRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
+        }
 
         if (methods.Count == 0)
         {
