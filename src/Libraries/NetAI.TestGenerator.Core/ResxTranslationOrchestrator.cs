@@ -123,6 +123,11 @@ public class ResxTranslationOrchestrator
                 string semanticHint = await BuildSemanticHintAsync(
                     semanticAnalyzer, compilation, sourceFilePath, method, logInfo).ConfigureAwait(false);
 
+
+
+
+
+
                 BuildLogger.BuildLog("\nsemanticHint: " + semanticHint);
 
                 logInfo?.Invoke($"[NetAI] semantic hint: {semanticHint}");

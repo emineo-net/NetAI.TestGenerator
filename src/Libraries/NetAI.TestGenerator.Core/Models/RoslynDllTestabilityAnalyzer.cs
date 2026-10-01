@@ -11,9 +11,18 @@ using Microsoft.CodeAnalysis.Operations;
 using NetAI.TestGenerator.Core.Models;
 using NetAI.TestGenerator.Core.Models.Enums;
 
+#if !NETSTANDARD2_0
+using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis.MSBuild;
+#endif
+
 namespace NetAI.TestGenerator.Core.Analysis
 {
-    /// <summary>Analyzes testability using Roslyn compilations and IOperation semantics.</summary>
+    /// <summary>
+    /// Analyzes testability using Roslyn. Supports two load strategies:
+    /// (a) a pre-built <see cref="Compilation"/> (fast, works on all TFMs),
+    /// (b) MSBuild workspace loading of a solution or project (accurate, net10.0+).
+    /// </summary>
     public sealed class RoslynDllTestabilityAnalyzer
     {
         private static readonly SymbolDisplayFormat FqFormat =
@@ -127,6 +136,148 @@ namespace NetAI.TestGenerator.Core.Analysis
             var report = BuildReport(documentNameResolved, methodSymbol, localDecl, model, compilation);
             return Task.FromResult(report);
         }
+
+        // ---------------------------------------------------------------- MSBuild-based loading
+
+#if !NETSTANDARD2_0
+        /// <summary>
+        /// Loads a solution through MSBuild and analyzes a named method in the requested document.
+        /// Use this when you need full project context (NuGet, WPF, Directory.Build.props).
+        /// </summary>
+        /// <param name="solutionPath">Path to the .sln file.</param>
+        /// <param name="documentName">File name or path fragment of the document.</param>
+        /// <param name="methodName">Name of the method to analyze.</param>
+        /// <param name="ct">Cancellation token.</param>
+        public async Task<TestabilityReport> AnalyzeFromSolutionAsync(
+            string solutionPath,
+            string documentName,
+            string methodName,
+            CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(solutionPath))
+                throw new ArgumentException("Solution path must not be empty.", nameof(solutionPath));
+            if (!File.Exists(solutionPath))
+                throw new FileNotFoundException("Solution file not found.", solutionPath);
+
+            EnsureMSBuildRegistered();
+
+            using var workspace = MSBuildWorkspace.Create();
+            workspace.SkipUnrecognizedProjects = true;
+            workspace.WorkspaceFailed += (_, e) =>
+            {
+                // Non-fatal: some projects may fail to load, that's OK for our analysis.
+                System.Diagnostics.Debug.WriteLine($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
+            };
+
+            var solution = await workspace.OpenSolutionAsync(solutionPath, cancellationToken: ct)
+                .ConfigureAwait(false);
+
+            var document = solution.Projects
+                .SelectMany(p => p.Documents)
+                .FirstOrDefault(d => MatchesDocument(d, documentName))
+                ?? throw new InvalidOperationException(
+                    $"Document '{documentName}' was not found in solution '{Path.GetFileName(solutionPath)}'.");
+
+            return await AnalyzeDocumentAsync(document, methodName, ct).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Loads a project through MSBuild and analyzes a named method in the requested document.
+        /// Use this when you need full project context (NuGet, WPF, Directory.Build.props).
+        /// </summary>
+        /// <param name="projectPath">Path to the .csproj file.</param>
+        /// <param name="documentName">File name or path fragment of the document.</param>
+        /// <param name="methodName">Name of the method to analyze.</param>
+        /// <param name="ct">Cancellation token.</param>
+        public async Task<TestabilityReport> AnalyzeFromProjectAsync(
+            string projectPath,
+            string documentName,
+            string methodName,
+            CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(projectPath))
+                throw new ArgumentException("Project path must not be empty.", nameof(projectPath));
+            if (!File.Exists(projectPath))
+                throw new FileNotFoundException("Project file not found.", projectPath);
+
+            EnsureMSBuildRegistered();
+
+            using var workspace = MSBuildWorkspace.Create();
+            workspace.SkipUnrecognizedProjects = true;
+            workspace.WorkspaceFailed += (_, e) =>
+            {
+                System.Diagnostics.Debug.WriteLine($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
+            };
+
+            var project = await workspace.OpenProjectAsync(projectPath, cancellationToken: ct)
+                .ConfigureAwait(false);
+
+            var document = project.Documents
+                .FirstOrDefault(d => MatchesDocument(d, documentName))
+                ?? throw new InvalidOperationException(
+                    $"Document '{documentName}' was not found in project '{Path.GetFileName(projectPath)}'.");
+
+            return await AnalyzeDocumentAsync(document, methodName, ct).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Analyzes a method in an already loaded Roslyn <see cref="Document"/>.
+        /// The MSBuild workspace owns the document's lifetime, so do not dispose it here.
+        /// </summary>
+        public async Task<TestabilityReport> AnalyzeDocumentAsync(
+            Document document,
+            string methodName,
+            CancellationToken ct = default)
+        {
+            if (document is null) throw new ArgumentNullException(nameof(document));
+            if (string.IsNullOrWhiteSpace(methodName))
+                throw new ArgumentException("Method name must not be empty.", nameof(methodName));
+
+            var compilation = await document.Project.GetCompilationAsync(ct).ConfigureAwait(false)
+                ?? throw new InvalidOperationException("Compilation could not be created for the document's project.");
+            var tree = await document.GetSyntaxTreeAsync(ct).ConfigureAwait(false)
+                ?? throw new InvalidOperationException("Syntax tree is missing for the document.");
+
+            var model = compilation.GetSemanticModel(tree);
+
+            var methodDecl = tree.GetRoot(ct)
+                .DescendantNodes()
+                .OfType<MethodDeclarationSyntax>()
+                .FirstOrDefault(m => m.Identifier.Text == methodName)
+                ?? throw new InvalidOperationException(
+                    $"Method '{methodName}' was not found in document '{document.Name}'.");
+
+            var methodSymbol = model.GetDeclaredSymbol(methodDecl, ct) as IMethodSymbol
+                               ?? throw new InvalidOperationException("No method symbol was found.");
+
+            return BuildReport(document.Name, methodSymbol, methodDecl, model, compilation);
+        }
+
+        /// <summary>
+        /// Registers MSBuild once per process. <c>MSBuildLocator.RegisterDefaults()</c> throws
+        /// if called twice, so this helper is idempotent.
+        /// </summary>
+        private static void EnsureMSBuildRegistered()
+        {
+            if (!MSBuildLocator.IsRegistered)
+                MSBuildLocator.RegisterDefaults();
+        }
+
+        /// <summary>Matches a document by exact name, file name, or path fragment.</summary>
+        private static bool MatchesDocument(Document document, string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return false;
+
+            if (string.Equals(document.Name, name, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            var path = document.FilePath;
+            if (string.IsNullOrEmpty(path)) return false;
+
+            return path.EndsWith(name, StringComparison.OrdinalIgnoreCase)
+                || path.Contains(name, StringComparison.OrdinalIgnoreCase);
+        }
+#endif
 
         // ---------------------------------------------------------------- equivalent lookup
 
@@ -427,14 +578,13 @@ namespace NetAI.TestGenerator.Core.Analysis
                 if (symbol.SpecialType != SpecialType.None) return;
                 if (symbol is not INamedTypeSymbol named) return;
 
-
                 if (named.IsGenericType)
                 {
                     foreach (var arg in named.TypeArguments)
                         Add(arg, staticUse, usage);
                 }
 
-                // NEU: leere Namen und generische Task-Container rausfiltern
+                // Filter out empty names and generic Task containers.
                 var full = named.OriginalDefinition.ToDisplayString(FqFormat);
                 if (string.IsNullOrWhiteSpace(full)) return;
                 if (full is "System.Threading.Tasks.Task<>"
