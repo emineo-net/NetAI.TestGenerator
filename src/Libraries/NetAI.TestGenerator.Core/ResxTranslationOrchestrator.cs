@@ -434,11 +434,11 @@ public class ResxTranslationOrchestrator
     // ---------------------------------------------------------------- prompt building
 
     private string BuildBasePrompt(
-        string className,
-        string methodName,
-        string semanticHintXml,
-        string projectContext,
-        string classSkeleton)
+     string className,
+     string methodName,
+     string semanticHintXml,
+     string projectContext,
+     string classSkeleton)
     {
         string frameworkName = GetTestFrameworkName(_testFramework);
         string testAttribute = GetTestAttribute(_testFramework);
@@ -447,17 +447,40 @@ public class ResxTranslationOrchestrator
             : $"When mocking is needed, use {_mockFramework} only if it is listed in <TestProject>.";
 
         var sb = new StringBuilder();
-        sb.AppendLine($"You are a .NET testing expert. Create one precise {frameworkName} test method using {testAttribute} for method '{methodName}' in class '{className}'.");
+
+        // --- Rolle & Ziel (klarer formuliert, "one test method OR skip") ---
+        sb.AppendLine($"You are a .NET testing expert working with {frameworkName}.");
+        sb.AppendLine($"Generate the test for method '{methodName}' in class '{className}' according to <SuggestedTestStrategy>.");
+        sb.AppendLine($"- If the strategy is 'Generate', produce one test method using {testAttribute}.");
+        sb.AppendLine($"- If the strategy is 'Skip', produce one test method with the framework's skip/ignore attribute; put the body in a comment only.");
+        sb.AppendLine($"- If the strategy is 'RefactorFirst', produce a Skip test AND list the required source refactorings as comments above the test.");
         sb.AppendLine();
+
+        // --- Source of truth ---
         sb.AppendLine("Use <SemanticAnalysis> as the source of truth for method and dependency facts, and follow <SuggestedTestStrategy> exactly.");
-        sb.AppendLine("Do not try reflection or workaround code when the suggested strategy is Skip or RefactorFirst.");
-        sb.AppendLine("Keep source-code refactoring advice separate from the test you generate; do not modify or assume changes to the source project.");
-        sb.AppendLine("- Do not invent types, members, project references, or NuGet packages.");
-        sb.AppendLine($"- {mockFrameworkInstruction}");
-        sb.AppendLine("- Use the selected test framework from <SelectedFrameworks>; the test project is created with that framework's template.");
-        sb.AppendLine("- Use a mocking library or helper only if it is listed in <TestProject>.");
-        sb.AppendLine("- If the strategy is Skip, return the selected framework's skip/ignore attribute and include the test body only as a comment.");
+        sb.AppendLine("Do not use reflection, dynamic invocation, or workaround code for private/static/async-void members.");
         sb.AppendLine();
+
+        // --- Testprojekt-Regeln ---
+        sb.AppendLine("Rules for the test project:");
+        sb.AppendLine($"- You MAY create a new test class in the test project (naming: <ClassUnderTest>Tests).");
+        sb.AppendLine($"- Do NOT invent source types, members, namespaces, project references, or NuGet packages.");
+        sb.AppendLine($"- Do NOT invent types that are not present in <ProjectContext> or <SemanticAnalysis>.");
+        sb.AppendLine($"- {mockFrameworkInstruction}");
+        sb.AppendLine("- Use the selected test framework from <SelectedFrameworks>; the test project uses that framework's template.");
+        sb.AppendLine("- Use a mocking library or helper only if it is listed in <TestProject>.");
+        sb.AppendLine("- Keep source-code refactoring advice separate from the generated test; do not modify or assume changes to the source project.");
+        sb.AppendLine("- If the method under test is async (Task/Task<T>), make the test method async Task.");
+        sb.AppendLine();
+
+        // --- Ausgabeformat ---
+        sb.AppendLine("Output format:");
+        sb.AppendLine("- Return ONLY compilable C# code (no explanations, no prose, no TODO markers outside comments).");
+        sb.AppendLine("- Use top-level usings consistent with ImplicitUsings/Nullable settings from <ProjectContext>.");
+        sb.AppendLine("- Use a file-scoped or block namespace matching the test project, but do not invent a namespace that is not derivable from <ProjectContext>.");
+        sb.AppendLine("- Include [Fact] (or the framework-specific attribute) exactly once.");
+        sb.AppendLine();
+
         if (!string.IsNullOrWhiteSpace(projectContext))
         {
             sb.AppendLine(projectContext);
@@ -468,6 +491,7 @@ public class ResxTranslationOrchestrator
             sb.AppendLine(semanticHintXml);
             sb.AppendLine();
         }
+
         sb.AppendLine("Relevant source context (usings, fields, method under test, and called helpers):");
         sb.AppendLine("<SourceCode>");
         sb.AppendLine(classSkeleton);
@@ -612,13 +636,15 @@ public class ResxTranslationOrchestrator
 
         AppendSuggestedTestStrategy(sb, report);
 
+
         if (report.CompilationErrors.Count > 0)
         {
-            sb.AppendLine($"  <SourceCompilationErrors count=\"{report.CompilationErrors.Count}\" " +
-                          "note=\"Errors in the SOURCE project, not the test. Missing framework references " +
-                          "(e.g. WPF) are common here and unrelated to the generated test.\">");
-            foreach (var e in report.CompilationErrors.Take(3))
-                sb.AppendLine($"    <Error>{X(e)}</Error>");
+            sb.AppendLine("  <SourceCompilationErrors " +
+                          "note=\"Analyzer-host artifacts (e.g. missing WPF reference in the analyzer). " +
+                          "Provided as context only. Do NOT fix them, do NOT work around them, and do NOT " +
+                          "let them change the test design; <SuggestedTestStrategy> is authoritative.\">");
+            foreach (var e in report.CompilationErrors)
+                sb.AppendLine($"    <!-- {X(e)} -->");
             sb.AppendLine("  </SourceCompilationErrors>");
         }
 
