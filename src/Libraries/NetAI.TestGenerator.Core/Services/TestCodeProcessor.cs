@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace NetAI.TestGenerator.Core.Services;
 
+/// <summary>Prepares generated test classes and retries compilation after safe missing-using fixes.</summary>
 public class TestCodeProcessor
 {
     private const int MaxFixIterations = 5;
@@ -17,6 +18,8 @@ public class TestCodeProcessor
     private readonly AdhocWorkspace _workspace;
     private readonly TestCodeBeautifier _beautifier;
 
+    /// <summary>Creates a processor that uses the supplied compiler for validation.</summary>
+    /// <param name="compilerService">Compiler implementation used to validate generated code.</param>
     public TestCodeProcessor(ICompilerService compilerService)
     {
         _compilerService = compilerService
@@ -26,6 +29,14 @@ public class TestCodeProcessor
         _beautifier = new TestCodeBeautifier();
     }
 
+    /// <summary>Formats a test class, adds required usings, and applies safe fixes for missing namespaces.</summary>
+    /// <param name="sourceCode">Complete test class source code.</param>
+    /// <param name="testFramework">Test framework used by the test class.</param>
+    /// <param name="mockFramework">Mocking framework used by the test class.</param>
+    /// <param name="cancellationToken">Token used to cancel processing.</param>
+    /// <returns>The processed source code after formatting and fix attempts.</returns>
+    /// <exception cref="ArgumentNullException">The compiler service is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">The source code is empty.</exception>
     public async Task<string> ProcessTestClassAsync(
         string sourceCode,
         TestFramework testFramework,
@@ -33,7 +44,7 @@ public class TestCodeProcessor
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(sourceCode))
-            throw new ArgumentException("Der Quellcode darf nicht leer sein.", nameof(sourceCode));
+            throw new ArgumentException("Source code must not be empty.", nameof(sourceCode));
 
         string currentCode = await _beautifier.BeautifyAndAddUsingsAsync(
             sourceCode, testFramework, mockFramework, cancellationToken);

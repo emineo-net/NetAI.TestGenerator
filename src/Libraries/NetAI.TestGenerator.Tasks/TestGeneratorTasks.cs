@@ -9,22 +9,36 @@ using Task = Microsoft.Build.Utilities.Task;
 
 namespace NetAI.TestGenerator.Tasks;
 
+/// <summary>Runs testability analysis and AI-assisted test generation as part of an MSBuild build.</summary>
 public class TestGeneratorTask : Task
 {
     bool testXamlCs = true;
     bool testDebugger = false;
+
+    /// <summary>Gets or sets the project directory supplied by MSBuild.</summary>
     [Required]
     public string ProjectDir { get; set; } = string.Empty;
 
+    /// <summary>Gets or sets the active MSBuild configuration, such as <c>Debug</c> or <c>Release</c>.</summary>
     public string? CurrentConfiguration { get; set; }
 
+    /// <summary>Gets or sets whether the current build is publishing the project.</summary>
     public bool IsPublishing { get; set; }
+
+    /// <summary>Gets or sets whether to save generated drafts without compiling the test project.</summary>
     public bool PromptOnly { get; set; }
 
+    /// <summary>Gets or sets source files provided by the MSBuild <c>Compile</c> item group.</summary>
     public ITaskItem[] SourceFiles { get; set; } = Array.Empty<ITaskItem>();
+
+    /// <summary>Gets or sets resolved assembly references used to build semantic analysis compilations.</summary>
     public ITaskItem[] ReferencePaths { get; set; } = Array.Empty<ITaskItem>();
+
+    /// <summary>Gets or sets the directory where semantic analysis reports are written.</summary>
     public string? AnalysisOutputDirectory { get; set; }
 
+    /// <summary>Runs semantic analysis or test generation, depending on the inputs supplied by MSBuild.</summary>
+    /// <returns><see langword="true"/> when the task succeeds; otherwise, <see langword="false"/>.</returns>
     public override bool Execute()
     {
 
@@ -70,8 +84,8 @@ public class TestGeneratorTask : Task
                 .ToList();
 
             Log.LogMessage(MessageImportance.High,
-                $"[NetAI] Semantische Analyse gestartet: " +
-                $"{sourcePaths.Count} Quelldateien, {referencePaths.Count} Referenzen.");
+                $"[NetAI] Semantic analysis started: " +
+                $"{sourcePaths.Count} source files, {referencePaths.Count} references.");
 
             var assemblyName = Path.GetFileName(ProjectDir.TrimEnd('/', '\\'));
             var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(
@@ -85,9 +99,9 @@ public class TestGeneratorTask : Task
             if (compileErrorCount > 0)
             {
                 Log.LogMessage(MessageImportance.High,
-                    $"[NetAI] Hinweis: Compilation enthält {compileErrorCount} Fehler. " +
-                    "Das ist normal, wenn Quelldateien anderer Projekte fehlen – " +
-                    "die Analyse arbeitet mit dem, was auflösbar ist.");
+                    $"[NetAI] Note: Compilation contains {compileErrorCount} errors. " +
+                    "This is normal when source files from other projects are missing; " +
+                    "the analysis uses whatever can be resolved.");
             }
 
             var analyzer = new RoslynDllTestabilityAnalyzer();
@@ -127,17 +141,17 @@ public class TestGeneratorTask : Task
 
             var notTestableCount = reports.Count(r =>
                 r.Verdict != null &&
-                r.Verdict.StartsWith("NICHT", StringComparison.Ordinal));
+                r.Verdict.StartsWith("NOT", StringComparison.Ordinal));
 
             Log.LogMessage(MessageImportance.High,
-                $"[NetAI] {reports.Count} Methoden analysiert, " +
-                $"{notTestableCount} nicht direkt testbar. Report: {reportPath}");
+                $"[NetAI] Analyzed {reports.Count} methods; " +
+                $"{notTestableCount} are not directly testable. Report: {reportPath}");
 
             return true;
         }
         catch (Exception ex)
         {
-            Log.LogError($"[NetAI] Semantische Analyse fehlgeschlagen: {ex.Message}");
+            Log.LogError($"[NetAI] Semantic analysis failed: {ex.Message}");
             return false;
         }
     }
@@ -149,12 +163,12 @@ public class TestGeneratorTask : Task
         var sb = new StringBuilder();
         sb.AppendLine("NetAI Testability Report");
         sb.AppendLine("========================");
-        sb.AppendLine($"Erstellt: {DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss}");
-        sb.AppendLine($"Anzahl Methoden: {reports.Count}");
+        sb.AppendLine($"Generated: {DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss}");
+        sb.AppendLine($"Method count: {reports.Count}");
         sb.AppendLine();
 
         foreach (var group in reports
-                     .GroupBy(r => r.DocumentName ?? "(unbenannt)")
+                     .GroupBy(r => r.DocumentName ?? "(unnamed)")
                      .OrderBy(g => g.Key, StringComparer.Ordinal))
         {
             sb.AppendLine($"# {group.Key}");
@@ -163,7 +177,7 @@ public class TestGeneratorTask : Task
             foreach (var report in group.OrderBy(r => r.Method?.Name, StringComparer.Ordinal))
             {
                 var m = report.Method;
-                sb.AppendLine($"  {m?.Signature ?? "(unbekannte Signatur)"}");
+                sb.AppendLine($"  {m?.Signature ?? "(unknown signature)"}");
                 sb.AppendLine($"    Accessibility : {m?.Accessibility}");
                 sb.AppendLine($"    Static        : {m?.IsStatic}");
                 sb.AppendLine($"    Async         : {m?.IsAsync}");
@@ -172,14 +186,14 @@ public class TestGeneratorTask : Task
 
                 if (report.Recommendations?.Count > 0)
                 {
-                    sb.AppendLine("    Empfehlungen:");
+                    sb.AppendLine("    Recommendations:");
                     foreach (var rec in report.Recommendations)
                         sb.AppendLine($"      - {rec}");
                 }
 
                 if (report.ReferencedTypes?.Count > 0)
                 {
-                    sb.AppendLine("    Referenzierte Typen:");
+                    sb.AppendLine("    Referenced types:");
                     foreach (var t in report.ReferencedTypes)
                     {
                         sb.AppendLine(
@@ -206,19 +220,19 @@ public class TestGeneratorTask : Task
         }
         catch (Exception ex)
         {
-            Log.LogError($"[NetAI] aisettings.json konnte nicht geladen werden: {ex.Message}");
+            Log.LogError($"[NetAI] Could not load aisettings.json: {ex.Message}");
             return false;
         }
 
         var config_ = (CurrentConfiguration ?? "Debug").ToLowerInvariant();
 
         Log.LogMessage(MessageImportance.High,
-            "🤖 [NetAI] Modus-Bedingung erfüllt. Starte Test-Analyse...");
+            "[NetAI] Mode condition met. Starting test analysis...");
 
         string? solutionDirectory = FindSolutionDirectory(ProjectDir);
         if (solutionDirectory is null)
         {
-            Log.LogError($"[NetAI] Keine .sln- oder .slnx-Datei über '{ProjectDir}' gefunden.");
+            Log.LogError($"[NetAI] No .sln or .slnx file found above '{ProjectDir}'.");
             return false;
         }
 
@@ -284,7 +298,7 @@ public class TestGeneratorTask : Task
 
         bool overallSuccess = true;
 
-        Log.LogMessage(MessageImportance.High, $"🤖 [NetAI]csharpFiles  {csharpFiles.Count()} ");
+        Log.LogMessage(MessageImportance.High, $"[NetAI] C# files: {csharpFiles.Count()}");
 
 
         foreach (var sourceFilePath in csharpFiles)
@@ -292,7 +306,7 @@ public class TestGeneratorTask : Task
             try
             {
 
-                Log.LogMessage(MessageImportance.High, "🤖 [NetAI]orchestrator.ProcessProjectAsyn start...");
+                Log.LogMessage(MessageImportance.High, "[NetAI] Starting orchestrator.ProcessProjectAsync...");
                 string result = System.Threading.Tasks.Task.Run(async () =>
                     await orchestrator.ProcessProjectAsync(sourceFilePath, testProjectDirectory, message =>
                     {
@@ -326,13 +340,13 @@ public class TestGeneratorTask : Task
                     }, compilation, promptOnly: PromptOnly)
                 ).GetAwaiter().GetResult();
 
-                Log.LogMessage(MessageImportance.High, "🤖 [NetAI]orchestrator.ProcessProjectAsyn end...");
+                Log.LogMessage(MessageImportance.High, "[NetAI] Finished orchestrator.ProcessProjectAsync.");
 
-                Log.LogMessage(MessageImportance.High, "🤖 [NetAI] Modus-Bedingung erfüllt. Starte Test-Analyse...");
+                Log.LogMessage(MessageImportance.High, "[NetAI] Mode condition met. Starting test analysis...");
 
                 if (result != "ok")
                 {
-                    Log.LogError($"[NetAI] Fehler bei der Verarbeitung von " +
+                    Log.LogError($"[NetAI] Failed to process " +
                                  $"'{Path.GetFileName(sourceFilePath)}': {result}");
                     collectedIssues.Add($"[ERROR] {result}");
                     overallSuccess = false;
@@ -340,7 +354,7 @@ public class TestGeneratorTask : Task
             }
             catch (Exception ex)
             {
-                Log.LogError($"[NetAI] Kritischer Fehler bei Datei " +
+                Log.LogError($"[NetAI] Critical error processing file " +
                              $"'{Path.GetFileName(sourceFilePath)}': {ex.Message}");
                 collectedIssues.Add($"[CRITICAL] {ex.Message}");
                 overallSuccess = false;
@@ -368,8 +382,8 @@ public class TestGeneratorTask : Task
         if (sourcePaths.Count == 0)
         {
             Log.LogMessage(MessageImportance.High,
-                "[NetAI] Keine @(Compile)-Items vorhanden – keine Compilation möglich, " +
-                "Analyse läuft rein syntaktisch.");
+                "[NetAI] No @(Compile) items are available; compilation is not possible, " +
+                "so analysis will use syntax only.");
             return null;
         }
 
@@ -406,18 +420,18 @@ public class TestGeneratorTask : Task
                 .Count(d => d.Severity == DiagnosticSeverity.Error);
 
             Log.LogMessage(MessageImportance.High,
-                $"[NetAI] Compilation für Orchestrator gebaut: " +
-                $"{sourcePaths.Count} Quelldateien, {referencePaths.Count} Referenzen" +
+                $"[NetAI] Built compilation for orchestrator: " +
+                $"{sourcePaths.Count} source files, {referencePaths.Count} references" +
                 (usedFallback ? " (Fallback: geladene Assemblies)" : " (@(ReferencePath))") +
-                $", {errorCount} Compiler-Fehler.");
+                $", {errorCount} compiler errors.");
 
             return compilation;
         }
         catch (Exception ex)
         {
             Log.LogWarning(
-                $"[NetAI] Compilation-Aufbau fehlgeschlagen: {ex.Message} – " +
-                "Analyse läuft rein syntaktisch.");
+                $"[NetAI] Failed to build compilation: {ex.Message}; " +
+                "analysis will use syntax only.");
             return null;
         }
     }

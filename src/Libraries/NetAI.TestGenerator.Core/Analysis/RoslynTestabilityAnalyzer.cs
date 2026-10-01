@@ -9,6 +9,7 @@ using Microsoft.Build.Locator;
 
 namespace NetAI.TestGenerator.Core.Analysis;
 
+/// <summary>Analyzes testability using Roslyn workspaces loaded from a solution, project, or document.</summary>
 public sealed class RoslynTestabilityAnalyzer
 {
     private static readonly SymbolDisplayFormat FqFormat = SymbolDisplayFormat.FullyQualifiedFormat
@@ -16,9 +17,17 @@ public sealed class RoslynTestabilityAnalyzer
 
     private readonly AnalyzerOptions _options;
 
+    /// <summary>Creates an analyzer with optional report and framework-type settings.</summary>
+    /// <param name="options">Analysis options, or <see langword="null"/> to use defaults.</param>
     public RoslynTestabilityAnalyzer(AnalyzerOptions? options = null) => _options = options ?? new AnalyzerOptions();
 
 #if !NETSTANDARD2_0
+    /// <summary>Loads a solution and analyzes a named method in the requested document.</summary>
+    /// <param name="solutionPath">Path to the solution file.</param>
+    /// <param name="documentName">Document name or path fragment to locate.</param>
+    /// <param name="methodName">Name of the method to analyze.</param>
+    /// <param name="ct">Token used to cancel workspace loading or analysis.</param>
+    /// <returns>A report describing the method and its testability.</returns>
     public async Task<TestabilityReport> AnalyzeFromSolutionAsync(
         string solutionPath, string documentName, string methodName, CancellationToken ct = default)
     {
@@ -30,11 +39,17 @@ public sealed class RoslynTestabilityAnalyzer
         using var workspace = MSBuildWorkspace.Create();
         var solution = await workspace.OpenSolutionAsync(solutionPath, cancellationToken: ct);
         var document = FindDocument(solution, documentName) ?? throw new InvalidOperationException(
-            $"Dokument '{documentName}' wurde in der Solution nicht gefunden.");
+            $"Document '{documentName}' was not found in the solution.");
         
         return await AnalyzeDocumentAsync(document, methodName, ct);
     }
 
+    /// <summary>Loads a project and analyzes a named method in the requested document.</summary>
+    /// <param name="projectPath">Path to the project file.</param>
+    /// <param name="documentName">Document name or path fragment to locate.</param>
+    /// <param name="methodName">Name of the method to analyze.</param>
+    /// <param name="ct">Token used to cancel workspace loading or analysis.</param>
+    /// <returns>A report describing the method and its testability.</returns>
     public async Task<TestabilityReport> AnalyzeFromProjectAsync(
         string projectPath, string documentName, string methodName, CancellationToken ct = default)
     {
@@ -46,21 +61,26 @@ public sealed class RoslynTestabilityAnalyzer
         using var workspace = MSBuildWorkspace.Create();
         var project = await workspace.OpenProjectAsync(projectPath, cancellationToken: ct);
         var document = FindDocument(project, documentName) ?? throw new InvalidOperationException(
-            $"Dokument '{documentName}' wurde im Projekt nicht gefunden.");
+            $"Document '{documentName}' was not found in the project.");
             
         return await AnalyzeDocumentAsync(document, methodName, ct);
     }
 #endif
 
+    /// <summary>Analyzes a method in an already loaded Roslyn document.</summary>
+    /// <param name="document">Document containing the method to analyze.</param>
+    /// <param name="methodName">Name of the method to analyze.</param>
+    /// <param name="ct">Token used to cancel the analysis.</param>
+    /// <returns>A report describing the method and its testability.</returns>
     public async Task<TestabilityReport> AnalyzeDocumentAsync(
         Document document,
         string methodName,
         CancellationToken ct = default)
     {
         var compilation = await document.Project.GetCompilationAsync(ct)
-            ?? throw new InvalidOperationException("Compilation konnte nicht erstellt werden.");
+            ?? throw new InvalidOperationException("Compilation could not be created.");
         var tree = await document.GetSyntaxTreeAsync(ct)
-            ?? throw new InvalidOperationException("SyntaxTree fehlt.");
+            ?? throw new InvalidOperationException("Syntax tree is missing.");
         var model = compilation.GetSemanticModel(tree);
 
         var methodDecl = tree.GetRoot(ct)
@@ -68,10 +88,10 @@ public sealed class RoslynTestabilityAnalyzer
             .OfType<MethodDeclarationSyntax>()
             .FirstOrDefault(m => m.Identifier.Text == methodName)
             ?? throw new InvalidOperationException(
-                $"Methode '{methodName}' wurde im Dokument nicht gefunden.");
+                $"Method '{methodName}' was not found in the document.");
 
         var methodSymbol = model.GetDeclaredSymbol(methodDecl, ct) as IMethodSymbol
-                           ?? throw new InvalidOperationException("Kein Methodensymbol gefunden.");
+                           ?? throw new InvalidOperationException("No method symbol was found.");
 
         return BuildReport(document, methodSymbol, methodDecl, model, compilation);
     }
@@ -251,20 +271,20 @@ public sealed class RoslynTestabilityAnalyzer
         var blockers = new List<string>();
 
         if (method.Accessibility is "Private" or "Protected")
-            blockers.Add($"Methode ist '{method.Accessibility}' und kann nicht direkt aufgerufen werden.");
+            blockers.Add($"Method is '{method.Accessibility}' and cannot be called directly.");
 
         if (method.IsAsyncVoid)
-            blockers.Add("Methode ist 'async void' und kann nicht awaited werden.");
+            blockers.Add("Method is 'async void' and cannot be awaited.");
 
         if (method.IsStatic)
-            blockers.Add("Methode ist 'static' und schlecht isolierbar.");
+            blockers.Add("Method is 'static' and difficult to isolate.");
 
         foreach (var t in types.Where(t => t.UsedStatically))
-            blockers.Add($"Statische Abhängigkeit auf '{t.FullName}' – nicht mockbar.");
+            blockers.Add($"Static dependency on '{t.FullName}' - cannot be mocked.");
 
         return blockers.Count == 0
-            ? "Direkt testbar."
-            : "NICHT direkt testbar: " + string.Join(" | ", blockers);
+            ? "Directly testable."
+            : "NOT directly testable: " + string.Join(" | ", blockers);
     }
 
     private static List<string> BuildRecommendations(MethodFact method, List<TypeFact> types)
@@ -272,23 +292,23 @@ public sealed class RoslynTestabilityAnalyzer
         var recs = new List<string>();
 
         if (method.Accessibility is "Private" or "Protected")
-            recs.Add("Sichtbarkeit auf 'internal' setzen + InternalsVisibleTo, oder Logik in eine separate Klasse verschieben.");
+            recs.Add("Set accessibility to 'internal' and add InternalsVisibleTo, or move the logic into a separate class.");
 
         if (method.IsAsyncVoid)
-            recs.Add("Event-Handler auf 'async Task' umstellen; XAML-Handler wird dünner Wrapper.");
+            recs.Add("Change the event handler to 'async Task'; keep the XAML handler as a thin wrapper.");
 
         var statics = types.Where(t => t.UsedStatically && !t.IsInterface).ToList();
         if (statics.Count > 0)
-            recs.Add("Statische Abhängigkeiten hinter Interfaces legen (" +
+            recs.Add("Put static dependencies behind interfaces (" +
                      string.Join(", ", statics.Select(t => t.FullName)) +
-                     ") – z. B. via System.IO.Abstractions für File/Directory.");
+                     "), e.g. use System.IO.Abstractions for File/Directory.");
 
         var concrete = types
             .Where(t => !t.IsInterface && !t.IsAbstract && !t.IsStatic && !t.IsSealed
                         && !t.Namespace.StartsWith("System", StringComparison.Ordinal))
             .ToList();
         if (concrete.Count > 0)
-            recs.Add("Konkrete Typen werden intern erzeugt – besser per Konstruktor injizieren: " +
+            recs.Add("Concrete types are created internally; prefer constructor injection: " +
                      string.Join(", ", concrete.Select(t => t.FullName)));
 
         return recs;
@@ -306,17 +326,17 @@ public sealed class RoslynTestabilityAnalyzer
 
     private static string ClassMockability(INamedTypeSymbol type)
     {
-        if (type.TypeKind == TypeKind.Interface) return "Ja (Interface)";
-        if (type.IsStatic) return "Nein (static)";
-        if (type.IsSealed) return "Nein (sealed)";
-        if (type.IsAbstract) return "Ja (abstract)";
+        if (type.TypeKind == TypeKind.Interface) return "Yes (interface)";
+        if (type.IsStatic) return "No (static)";
+        if (type.IsSealed) return "No (sealed)";
+        if (type.IsAbstract) return "Yes (abstract)";
 
         var virtualCount = type.GetMembers()
             .Count(m => m.IsVirtual || m.IsAbstract || m.IsOverride);
 
         return virtualCount == 0
-            ? "Nein (keine virtuellen Member)"
-            : "Eingeschränkt (virtuelle Member vorhanden)";
+            ? "No (no virtual members)"
+            : "Limited (virtual members exist)";
     }
 
     private static Document? FindDocument(Solution solution, string name) =>

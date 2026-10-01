@@ -14,18 +14,42 @@ using System.Xml.Linq;
 
 namespace DotNet10TestGenerator;
 
+/// <summary>Reports the outcome, diagnostics, and generated source from test project validation.</summary>
 public sealed class TestGenerationResult
 {
+    /// <summary>Gets whether the generated test project compiled successfully.</summary>
     public bool IsSuccess { get; }
+
+    /// <summary>Gets a human-readable summary of the operation.</summary>
     public string Message { get; }
+
+    /// <summary>Gets compiler or build errors, if any.</summary>
     public string[]? CompilerErrors { get; }
+
+    /// <summary>Gets additional exception details, if available.</summary>
     public string[]? ExceptionDetails { get; }
 
+    /// <summary>Gets whether the generated test should be regenerated because of semantic errors.</summary>
     public bool RequiresRegeneration { get; }
+
+    /// <summary>Gets whether validation failed because of an environmental issue rather than test code.</summary>
     public bool IsEnvironmentIssue { get; }
+
+    /// <summary>Gets the path to the generated test class, when one was written.</summary>
     public string? TestClassPath { get; }
+
+    /// <summary>Gets the generated or repaired test class source code.</summary>
     public string? TestClassCode { get; }
 
+    /// <summary>Creates a result for test generation and validation.</summary>
+    /// <param name="isSuccess">Whether generation and validation succeeded.</param>
+    /// <param name="message">Human-readable operation summary.</param>
+    /// <param name="compilerErrors">Optional compiler or build errors.</param>
+    /// <param name="exceptionDetails">Optional exception details.</param>
+    /// <param name="requiresRegeneration">Whether the test code should be regenerated.</param>
+    /// <param name="isEnvironmentIssue">Whether the failure was caused by the environment.</param>
+    /// <param name="testClassPath">Path to the generated test class.</param>
+    /// <param name="testClassCode">Generated or repaired test source code.</param>
     public TestGenerationResult(
         bool isSuccess,
         string message,
@@ -47,6 +71,7 @@ public sealed class TestGenerationResult
     }
 }
 
+/// <summary>Creates test projects, manages source references, and validates generated tests with the .NET CLI.</summary>
 public class TestProjectManager
 {
     private const string DefaultSampleFileName = "UnitTest1.cs";
@@ -85,12 +110,16 @@ public class TestProjectManager
     private readonly ConcurrentDictionary<string, Task<Dictionary<string, List<TypeLocation>>>> _scanCache =
         new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Creates a manager for test project setup and compilation.</summary>
+    /// <param name="defaultProcessTimeout">Default timeout for .NET CLI processes.</param>
+    /// <param name="dotnetExecutable">Path or command name of the .NET CLI executable.</param>
     public TestProjectManager(TimeSpan? defaultProcessTimeout = null, string dotnetExecutable = "dotnet")
     {
         _defaultProcessTimeout = defaultProcessTimeout ?? TimeSpan.FromMinutes(5);
         _dotnetExecutable = string.IsNullOrWhiteSpace(dotnetExecutable) ? "dotnet" : dotnetExecutable;
     }
 
+    /// <summary>Gets namespace-to-NuGet-package mappings used to resolve missing test dependencies.</summary>
     public IDictionary<string, string> KnownNamespaceToPackageMap { get; } = new Dictionary<string, string>(StringComparer.Ordinal)
     {
         ["NSubstitute"] = "NSubstitute",
@@ -118,6 +147,18 @@ public class TestProjectManager
         ["Xunit.StaFact"] = "Xunit.StaFact",
     };
 
+    /// <summary>Creates or updates a test project, writes the supplied class, and builds the project.</summary>
+    /// <param name="sourceFilePath">Source file whose project should be referenced by the test project.</param>
+    /// <param name="testClassCode">Complete test class source code to compile.</param>
+    /// <param name="testProjectName">Name of the generated project when no directory override is supplied.</param>
+    /// <param name="testsRelativeSubPath">Test project parent directory relative to the solution root.</param>
+    /// <param name="testTemplate">Template passed to <c>dotnet new</c> when creating the project.</param>
+    /// <param name="targetFramework">Optional target framework for the generated project.</param>
+    /// <param name="generatedClassNamePrefix">Prefix used when a class name cannot be extracted from the code.</param>
+    /// <param name="cancellationToken">Token used to cancel project creation and validation.</param>
+    /// <param name="testProjectDirectoryOverride">Optional absolute directory that overrides the default solution-relative location.</param>
+    /// <returns>Generation status, build diagnostics, and the generated test source.</returns>
+    /// <remarks>The source project is discovered from <paramref name="sourceFilePath"/> and referenced automatically.</remarks>
     public async Task<TestGenerationResult> SetupAndValidateTestAsync(
         string sourceFilePath,
         string testClassCode,
