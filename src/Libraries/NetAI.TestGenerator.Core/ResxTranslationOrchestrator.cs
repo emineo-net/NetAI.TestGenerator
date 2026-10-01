@@ -2,7 +2,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using NetAI.TestGenerator.Core.Analysis;
 using NetAI.TestGenerator.Core.Models;
 using NetAI.TestGenerator.Core.Models.Enums;
 using NetAI.TestGenerator.Core.Services;
@@ -38,7 +37,7 @@ public class ResxTranslationOrchestrator
     /// <param name="solutionPath">
     /// Optional path to a .sln file. When set, MSBuild workspace loading is used and gives the most
     /// accurate semantic analysis (resolves NuGet, WPF, Directory.Build.props, project references).
-    /// Requires net10.0; ignored on netstandard2.0.
+    /// Requires net10.0; ignored on netstandard2.0. The solution is loaded once per file.
     /// </param>
     /// <param name="projectPath">
     /// Optional path to a .csproj file. Same as <paramref name="solutionPath"/> but loads a single project.
@@ -53,6 +52,8 @@ public class ResxTranslationOrchestrator
         string? solutionPath = null,
         string? projectPath = null)
     {
+        IDisposable? msbuildHandle = null;
+
         try
         {
             if (string.IsNullOrWhiteSpace(sourceFilePath) || !File.Exists(sourceFilePath))
@@ -107,8 +108,10 @@ public class ResxTranslationOrchestrator
             var testCodeProcessor = new TestCodeProcessor(compilerService);
 
             // --- Semantic analysis strategy selection -------------------------------
-            // Priority: solution > project > in-memory compilation > none.
+            // Priority: MSBuild (solution > project) > in-memory compilation > none.
+            // MSBuild is loaded ONCE per file, then reused for every method.
             RoslynDllTestabilityAnalyzer? semanticAnalyzer = null;
+            Compilation? effectiveCompilation = compilation;
 
 #if !NETSTANDARD2_0
             bool useMsbuild = !string.IsNullOrWhiteSpace(solutionPath)
@@ -120,10 +123,43 @@ public class ResxTranslationOrchestrator
             if (useMsbuild)
             {
                 semanticAnalyzer = new RoslynDllTestabilityAnalyzer();
+
                 var target = !string.IsNullOrWhiteSpace(solutionPath)
                     ? $"solution '{Path.GetFileName(solutionPath)}'"
                     : $"project '{Path.GetFileName(projectPath)}'";
-                logInfo?.Invoke($"[NetAI] MSBuild workspace will be used ({target}); full project context available.");
+
+#if !NETSTANDARD2_0
+                try
+                {
+                    logInfo?.Invoke($"[NetAI] Loading {target} via MSBuild (once per file)...");
+                    var loaded = await semanticAnalyzer.LoadCompilationFromMsbuildAsync(
+                            solutionPath,
+                            projectPath,
+                            Path.GetFileName(sourceFilePath),
+                            logInfo)
+                        .ConfigureAwait(false);
+
+                    msbuildHandle = loaded.Workspace;
+                    effectiveCompilation = loaded.Compilation;
+
+                    if (effectiveCompilation == null)
+                    {
+                        logInfo?.Invoke("[NetAI] MSBuild returned no compilation; falling back to syntax-only.");
+                    }
+                    else
+                    {
+                        var treeCount = effectiveCompilation.SyntaxTrees.Count();
+                        logInfo?.Invoke($"[NetAI] MSBuild context loaded ({target}); {treeCount} syntax trees.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logInfo?.Invoke($"[NetAI] MSBuild load failed: {ex.Message}; falling back to in-memory compilation.");
+                    msbuildHandle?.Dispose();
+                    msbuildHandle = null;
+                    effectiveCompilation = compilation;
+                }
+#endif
             }
             else if (compilation != null)
             {
@@ -156,10 +192,7 @@ public class ResxTranslationOrchestrator
 
                 string semanticHint = await BuildSemanticHintAsync(
                     semanticAnalyzer,
-                    compilation,
-                    solutionPath,
-                    projectPath,
-                    sourceFilePath,
+                    effectiveCompilation,
                     method,
                     logInfo).ConfigureAwait(false);
 
@@ -353,6 +386,10 @@ public class ResxTranslationOrchestrator
         {
             return ex.Message;
         }
+        finally
+        {
+            try { msbuildHandle?.Dispose(); } catch { /* ignore */ }
+        }
     }
 
     // ---------------------------------------------------------------- prompt building
@@ -393,58 +430,30 @@ public class ResxTranslationOrchestrator
     }
 
     /// <summary>
-    /// Builds the semantic hint. Strategy (in order of priority):
-    /// 1. MSBuild solution (net10.0 only) - full project context, no phantom errors.
-    /// 2. MSBuild project   (net10.0 only).
-    /// 3. In-memory compilation - fast, but missing external references.
-    /// 4. No analysis.
+    /// Builds the semantic hint. The compilation has already been prepared by
+    /// <see cref="ProcessProjectAsync"/> (in-memory or MSBuild-loaded), so this
+    /// method just runs the analyzer for the given method.
     /// </summary>
     private static async Task<string> BuildSemanticHintAsync(
         RoslynDllTestabilityAnalyzer? analyzer,
         Compilation? compilation,
-        string? solutionPath,
-        string? projectPath,
-        string sourceFilePath,
         MethodDeclarationSyntax methodDeclaration,
         Action<string>? logInfo)
     {
-        if (analyzer == null)
+        if (analyzer == null || compilation == null)
             return string.Empty;
 
         string methodName = methodDeclaration.Identifier.Text;
-        string fileName = Path.GetFileName(sourceFilePath);
 
         try
         {
-            TestabilityReport report;
-
-#if !NETSTANDARD2_0
-            if (!string.IsNullOrWhiteSpace(solutionPath))
-            {
-                logInfo?.Invoke($"[NetAI] Loading solution '{Path.GetFileName(solutionPath)}' via MSBuild for '{methodName}'...");
-                report = await analyzer.AnalyzeFromSolutionAsync(solutionPath, fileName, methodName)
-                    .ConfigureAwait(false);
-            }
-            else if (!string.IsNullOrWhiteSpace(projectPath))
-            {
-                logInfo?.Invoke($"[NetAI] Loading project '{Path.GetFileName(projectPath)}' via MSBuild for '{methodName}'...");
-                report = await analyzer.AnalyzeFromProjectAsync(projectPath, fileName, methodName)
-                    .ConfigureAwait(false);
-            }
-            else
-#endif
-            if (compilation != null)
-            {
-                report = await analyzer.AnalyzeFromCompilationAsync(compilation, methodDeclaration)
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                return string.Empty;
-            }
+            var report = await analyzer.AnalyzeFromCompilationAsync(compilation, methodDeclaration)
+                .ConfigureAwait(false);
 
             logInfo?.Invoke($"[NetAI] Semantic analysis for '{methodName}': {report.Verdict}");
-            return FormatReportAsXml(report, sourceFilePath, methodName);
+
+            var filePath = methodDeclaration.SyntaxTree.FilePath ?? methodName;
+            return FormatReportAsXml(report, filePath, methodName);
         }
         catch (InvalidOperationException ex)
         {

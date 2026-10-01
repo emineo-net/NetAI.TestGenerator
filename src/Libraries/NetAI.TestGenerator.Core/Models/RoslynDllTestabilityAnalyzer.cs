@@ -16,7 +16,7 @@ using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
 #endif
 
-namespace NetAI.TestGenerator.Core.Analysis
+namespace NetAI.TestGenerator.Core.Models
 {
     /// <summary>
     /// Analyzes testability using Roslyn. Supports two load strategies:
@@ -165,7 +165,6 @@ namespace NetAI.TestGenerator.Core.Analysis
             workspace.SkipUnrecognizedProjects = true;
             workspace.WorkspaceFailed += (_, e) =>
             {
-                // Non-fatal: some projects may fail to load, that's OK for our analysis.
                 System.Diagnostics.Debug.WriteLine($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
             };
 
@@ -185,10 +184,6 @@ namespace NetAI.TestGenerator.Core.Analysis
         /// Loads a project through MSBuild and analyzes a named method in the requested document.
         /// Use this when you need full project context (NuGet, WPF, Directory.Build.props).
         /// </summary>
-        /// <param name="projectPath">Path to the .csproj file.</param>
-        /// <param name="documentName">File name or path fragment of the document.</param>
-        /// <param name="methodName">Name of the method to analyze.</param>
-        /// <param name="ct">Cancellation token.</param>
         public async Task<TestabilityReport> AnalyzeFromProjectAsync(
             string projectPath,
             string documentName,
@@ -254,6 +249,60 @@ namespace NetAI.TestGenerator.Core.Analysis
         }
 
         /// <summary>
+        /// Loads a solution or project once and returns the workspace (caller disposes)
+        /// plus the target document's compilation. Use this when you need to analyze
+        /// multiple methods in the same file without reloading MSBuild each time.
+        /// </summary>
+        /// <param name="solutionPath">Optional .sln path. Takes precedence over <paramref name="projectPath"/>.</param>
+        /// <param name="projectPath">Optional .csproj path.</param>
+        /// <param name="documentName">File name or path fragment of the document to locate.</param>
+        /// <param name="logInfo">Optional callback for workspace diagnostics.</param>
+        /// <param name="ct">Cancellation token.</param>
+        public async Task<(IDisposable Workspace, Compilation? Compilation)> LoadCompilationFromMsbuildAsync(
+            string? solutionPath,
+            string? projectPath,
+            string documentName,
+            Action<string>? logInfo = null,
+            CancellationToken ct = default)
+        {
+            EnsureMSBuildRegistered();
+
+            var workspace = MSBuildWorkspace.Create();
+            workspace.SkipUnrecognizedProjects = true;
+            workspace.WorkspaceFailed += (_, e) =>
+            {
+                logInfo?.Invoke($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
+            };
+
+            Document? document = null;
+
+            if (!string.IsNullOrWhiteSpace(solutionPath))
+            {
+                var solution = await workspace.OpenSolutionAsync(solutionPath, cancellationToken: ct)
+                    .ConfigureAwait(false);
+                document = solution.Projects
+                    .SelectMany(p => p.Documents)
+                    .FirstOrDefault(d => MatchesDocument(d, documentName));
+            }
+            else if (!string.IsNullOrWhiteSpace(projectPath))
+            {
+                var project = await workspace.OpenProjectAsync(projectPath, cancellationToken: ct)
+                    .ConfigureAwait(false);
+                document = project.Documents
+                    .FirstOrDefault(d => MatchesDocument(d, documentName));
+            }
+
+            if (document == null)
+            {
+                workspace.Dispose();
+                return (new NoopDisposable(), null);
+            }
+
+            var compilation = await document.Project.GetCompilationAsync(ct).ConfigureAwait(false);
+            return (workspace, compilation);
+        }
+
+        /// <summary>
         /// Registers MSBuild once per process. <c>MSBuildLocator.RegisterDefaults()</c> throws
         /// if called twice, so this helper is idempotent.
         /// </summary>
@@ -276,6 +325,12 @@ namespace NetAI.TestGenerator.Core.Analysis
 
             return path.EndsWith(name, StringComparison.OrdinalIgnoreCase)
                 || path.Contains(name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>Disposable placeholder when no workspace needs to be released.</summary>
+        private sealed class NoopDisposable : IDisposable
+        {
+            public void Dispose() { }
         }
 #endif
 
@@ -352,11 +407,13 @@ namespace NetAI.TestGenerator.Core.Analysis
         public static CSharpCompilation BuildCompilation(
             IEnumerable<string> sourceFilePaths,
             IEnumerable<string> referenceDllPaths,
-            string assemblyName = "TestabilityAnalysis")
+            string assemblyName = "TestabilityAnalysis",
+            CSharpParseOptions? parseOptions = null,
+            CSharpCompilationOptions? compilationOptions = null)
         {
             if (sourceFilePaths is null) throw new ArgumentNullException(nameof(sourceFilePaths));
 
-            var parseOptions = new CSharpParseOptions(LanguageVersion.Latest);
+            parseOptions ??= new CSharpParseOptions(LanguageVersion.Latest);
 
             var trees = new List<SyntaxTree>();
             foreach (var path in sourceFilePaths)
@@ -385,7 +442,7 @@ namespace NetAI.TestGenerator.Core.Analysis
                 assemblyName,
                 syntaxTrees: trees,
                 references: references,
-                options: new CSharpCompilationOptions(
+                options: compilationOptions ?? new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary,
                     optimizationLevel: OptimizationLevel.Debug));
         }
@@ -584,7 +641,6 @@ namespace NetAI.TestGenerator.Core.Analysis
                         Add(arg, staticUse, usage);
                 }
 
-                // Filter out empty names and generic Task containers.
                 var full = named.OriginalDefinition.ToDisplayString(FqFormat);
                 if (string.IsNullOrWhiteSpace(full)) return;
                 if (full is "System.Threading.Tasks.Task<>"

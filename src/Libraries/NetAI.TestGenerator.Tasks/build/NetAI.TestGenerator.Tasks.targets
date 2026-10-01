@@ -20,6 +20,9 @@
 		<TestGeneratorSemanticAnalysisEnabled Condition="'$(TestGeneratorSemanticAnalysisEnabled)' == ''">true</TestGeneratorSemanticAnalysisEnabled>
 		<TestGeneratorPromptOnly Condition="'$(TestGeneratorPromptOnly)' == ''">false</TestGeneratorPromptOnly>
 
+		<!-- NEU: Default-Werte, die an die Task durchgereicht werden. -->
+		<TestGeneratorFailOnError Condition="'$(TestGeneratorFailOnError)' == ''">false</TestGeneratorFailOnError>
+
 		<_TestGeneratorAnalysisDir>$(IntermediateOutputPath)netai\</_TestGeneratorAnalysisDir>
 
 	</PropertyGroup>
@@ -58,11 +61,15 @@
 	        Condition="'$(TestGeneratorActive)' == 'true' And '$(_TestGeneratorIsFirstTfm)' == 'true'">
 
 		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
-		                    CurrentConfiguration="$(Configuration)"
-						IsPublishing="$(_TestGeneratorIsPublishing)"
-						PromptOnly="$(TestGeneratorPromptOnly)"
-		                    SourceFiles="@(Compile)"
-		                    ReferencePaths="@(ReferencePath)" />
+		                   CurrentConfiguration="$(Configuration)"
+		                   IsPublishing="$(_TestGeneratorIsPublishing)"
+		                   PromptOnly="$(TestGeneratorPromptOnly)"
+		                   SourceFiles="@(Compile)"
+		                   ReferencePaths="@(ReferencePath)"
+		                   DefineConstants="$(DefineConstants)"
+		                   UseWpf="$(UseWPF)"
+		                   UseWindowsForms="$(UseWindowsForms)"
+		                   FailOnError="$(TestGeneratorFailOnError)" />
 	</Target>
 
 	<Target Name="IncludeGeneratedResx"
@@ -83,11 +90,15 @@
 	        Condition="'$(TestGeneratorActive)' == 'true' And '$(_TestGeneratorIsFirstTfm)' == 'true' And '$(_TestGeneratorIsPublishing)' != 'true'">
 
 		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
-		                    CurrentConfiguration="$(Configuration)"
-		                    IsPublishing="true"
-		                    PromptOnly="$(TestGeneratorPromptOnly)"
-		                    SourceFiles="@(Compile)"
-		                    ReferencePaths="@(ReferencePath)" />
+		                   CurrentConfiguration="$(Configuration)"
+		                   IsPublishing="true"
+		                   PromptOnly="$(TestGeneratorPromptOnly)"
+		                   SourceFiles="@(Compile)"
+		                   ReferencePaths="@(ReferencePath)"
+		                   DefineConstants="$(DefineConstants)"
+		                   UseWpf="$(UseWPF)"
+		                   UseWindowsForms="$(UseWindowsForms)"
+		                   FailOnError="$(TestGeneratorFailOnError)" />
 	</Target>
 
 	<Target Name="RunSemanticTestAnalysis"
@@ -100,11 +111,15 @@
 		         Condition="!Exists('$(_TestGeneratorAnalysisDir)')" />
 
 		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
-		                    CurrentConfiguration="$(Configuration)"
-		                    IsPublishing="$(_TestGeneratorIsPublishing)"
-		                    SourceFiles="@(Compile)"
-		                    ReferencePaths="@(ReferencePath)"
-		                    AnalysisOutputDirectory="$(_TestGeneratorAnalysisDir)" />
+		                   CurrentConfiguration="$(Configuration)"
+		                   IsPublishing="$(_TestGeneratorIsPublishing)"
+		                   SourceFiles="@(Compile)"
+		                   ReferencePaths="@(ReferencePath)"
+		                   AnalysisOutputDirectory="$(_TestGeneratorAnalysisDir)"
+		                   DefineConstants="$(DefineConstants)"
+		                   UseWpf="$(UseWPF)"
+		                   UseWindowsForms="$(UseWindowsForms)"
+		                   FailOnError="$(TestGeneratorFailOnError)" />
 	</Target>
 
 </Project>

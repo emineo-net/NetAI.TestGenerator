@@ -1,10 +1,10 @@
 using Microsoft.Build.Framework;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NetAI.TestGenerator.Core;
 using NetAI.TestGenerator.Core.Config;
 using System.Text;
-using NetAI.TestGenerator.Core.Analysis;
 using NetAI.TestGenerator.Core.Models;
 using Task = Microsoft.Build.Utilities.Task;
 
@@ -38,27 +38,32 @@ public class TestGeneratorTask : Task
     /// <summary>Gets or sets the directory where semantic analysis reports are written.</summary>
     public string? AnalysisOutputDirectory { get; set; }
 
+    // --- NEU: Kontext-Properties -------------------------------------------
+
+    /// <summary>Gets or sets the MSBuild <c>$(DefineConstants)</c> value, e.g. <c>DEBUG;TRACE;NET10_0</c>.</summary>
+    public string? DefineConstants { get; set; }
+
+    /// <summary>Gets or sets whether the analyzed project uses WPF (<c>$(UseWPF)</c>).</summary>
+    public bool UseWpf { get; set; }
+
+    /// <summary>Gets or sets whether the analyzed project uses Windows Forms (<c>$(UseWindowsForms)</c>).</summary>
+    public bool UseWindowsForms { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether AI or generation failures should fail the build.
+    /// Default is <see langword="false"/> to keep unrelated builds green.
+    /// </summary>
+    public bool FailOnError { get; set; } = false;
+
+    // ------------------------------------------------------------------------
+
     /// <summary>Runs semantic analysis or test generation, depending on the inputs supplied by MSBuild.</summary>
     /// <returns><see langword="true"/> when the task succeeds; otherwise, <see langword="false"/>.</returns>
     public override bool Execute()
     {
-
-
-//#if DEBUG
-//        if (testDebugger)
-//        {
-//            System.Diagnostics.Debugger.Launch();
-
-//        }
-//#endif
-
-        var folderName = Path.GetFileName(ProjectDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-
-        if (!string.IsNullOrEmpty(folderName) && folderName.EndsWith("_wpftmp", StringComparison.OrdinalIgnoreCase))
-        {
-            return true; 
-        }
-
+        // GEÄNDERT: prüft den vollen Pfad (nicht nur den Ordner-Namen) auf "_wpftmp".
+        if (ProjectDir.IndexOf("_wpftmp", StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
 
         var hasSemanticInputs =
             SourceFiles.Length > 0 &&
@@ -89,10 +94,12 @@ public class TestGeneratorTask : Task
                 $"{sourcePaths.Count} source files, {referencePaths.Count} references.");
 
             var assemblyName = Path.GetFileName(ProjectDir.TrimEnd('/', '\\'));
+            var parseOptions = BuildParseOptions();
             var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(
                 sourcePaths,
                 referencePaths,
-                assemblyName: string.IsNullOrEmpty(assemblyName) ? "TestabilityAnalysis" : assemblyName);
+                assemblyName: string.IsNullOrEmpty(assemblyName) ? "TestabilityAnalysis" : assemblyName,
+                parseOptions: parseOptions);
 
             var compileErrorCount = compilation.GetDiagnostics()
                 .Count(d => d.Severity == DiagnosticSeverity.Error);
@@ -122,8 +129,7 @@ public class TestGeneratorTask : Task
                         var report = System.Threading.Tasks.Task.Run(async () =>
                             await analyzer.AnalyzeFromCompilationAsync(
                                 compilation,
-                                method.Identifier.Text,
-                                documentName: Path.GetFileName(tree.FilePath),
+                                method,
                                 ct: CancellationToken.None).ConfigureAwait(false)
                         ).GetAwaiter().GetResult();
 
@@ -133,7 +139,6 @@ public class TestGeneratorTask : Task
                     {
                     }
                 }
-
             }
 
             Directory.CreateDirectory(AnalysisOutputDirectory!);
@@ -213,7 +218,6 @@ public class TestGeneratorTask : Task
 
     private bool ExecuteResxGeneration()
     {
-
         AiTestingConfig config;
         try
         {
@@ -256,18 +260,12 @@ public class TestGeneratorTask : Task
                 .Where(file =>
                     !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
                     !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
-
                     !file.EndsWith("Tests.cs", StringComparison.OrdinalIgnoreCase) &&
-
                     !file.Contains("_wpftmp") &&
-
                     !file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) &&
                     !file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase) &&
                     !file.Contains("Designer.cs") &&
-
-
                     !file.Contains("AiTranslatorRunner") &&
-
                     !file.Contains("AssemblyAttributes") &&
                     !file.Contains("AssemblyInfo")
                 ).ToList();
@@ -279,19 +277,13 @@ public class TestGeneratorTask : Task
                 .Where(file =>
                     !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
                     !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
-
                     !file.EndsWith("Tests.cs", StringComparison.OrdinalIgnoreCase) &&
-
                     !file.Contains("_wpftmp") &&
-
                     !file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) &&
                     !file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase) &&
                     !file.Contains("Designer.cs") &&
-
                     !file.EndsWith(".xaml.cs", StringComparison.OrdinalIgnoreCase) &&
-
                     !file.Contains("AiTranslatorRunner") &&
-
                     !file.Contains("AssemblyAttributes") &&
                     !file.Contains("AssemblyInfo")
                 ).ToList();
@@ -301,12 +293,10 @@ public class TestGeneratorTask : Task
 
         Log.LogMessage(MessageImportance.High, $"[NetAI] C# files: {csharpFiles.Count()}");
 
-
         foreach (var sourceFilePath in csharpFiles)
         {
             try
             {
-
                 Log.LogMessage(MessageImportance.High, "[NetAI] Starting orchestrator.ProcessProjectAsync...");
                 string result = System.Threading.Tasks.Task.Run(async () =>
                     await orchestrator.ProcessProjectAsync(sourceFilePath, testProjectDirectory, message =>
@@ -322,7 +312,14 @@ public class TestGeneratorTask : Task
                                 .Replace("[NetAI Error]", "")
                                 .Replace("Error:", "")
                                 .Trim();
-                            Log.LogError($"[NetAI] {cleanMessage}");
+
+                            // GEÄNDERT: LogError nur bei FailOnError=true, sonst Warning,
+                            // damit AI-Aussetzer den Build nicht zwangsweise rot machen.
+                            if (FailOnError)
+                                Log.LogError($"[NetAI] {cleanMessage}");
+                            else
+                                Log.LogWarning($"[NetAI] {cleanMessage}");
+
                             collectedIssues.Add($"[ERROR] {cleanMessage}");
                         }
                         else if (isWarning)
@@ -343,20 +340,20 @@ public class TestGeneratorTask : Task
 
                 Log.LogMessage(MessageImportance.High, "[NetAI] Finished orchestrator.ProcessProjectAsync.");
 
-                Log.LogMessage(MessageImportance.High, "[NetAI] Mode condition met. Starting test analysis...");
-
                 if (result != "ok")
                 {
-                    Log.LogError($"[NetAI] Failed to process " +
-                                 $"'{Path.GetFileName(sourceFilePath)}': {result}");
+                    // GEÄNDERT: abhängig von FailOnError
+                    var msg = $"[NetAI] Failed to process '{Path.GetFileName(sourceFilePath)}': {result}";
+                    if (FailOnError) Log.LogError(msg); else Log.LogWarning(msg);
                     collectedIssues.Add($"[ERROR] {result}");
                     overallSuccess = false;
                 }
             }
             catch (Exception ex)
             {
-                Log.LogError($"[NetAI] Critical error processing file " +
-                             $"'{Path.GetFileName(sourceFilePath)}': {ex.Message}");
+                var msg = $"[NetAI] Critical error processing file " +
+                          $"'{Path.GetFileName(sourceFilePath)}': {ex.Message}";
+                if (FailOnError) Log.LogError(msg); else Log.LogWarning(msg);
                 collectedIssues.Add($"[CRITICAL] {ex.Message}");
                 overallSuccess = false;
             }
@@ -368,7 +365,47 @@ public class TestGeneratorTask : Task
             TryOpenSummaryLog(uniqueIssues);
         }
 
-        return overallSuccess;
+        return FailOnError ? overallSuccess : true;
+    }
+
+    /// <summary>
+    /// Builds <see cref="CSharpParseOptions"/> from MSBuild context.
+    /// Uses <see cref="DefineConstants"/> when provided; falls back to a sane default.
+    /// </summary>
+    private CSharpParseOptions BuildParseOptions()
+    {
+        var symbols = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        if (!string.IsNullOrWhiteSpace(DefineConstants))
+        {
+            foreach (var raw in DefineConstants.Split(
+                         new[] { ';', ',' },
+                         StringSplitOptions.RemoveEmptyEntries))
+            {
+                var s = raw.Trim();
+                if (s.Length > 0) symbols.Add(s);
+            }
+        }
+
+        // Basissymbole, falls MSBuild nichts mitgegeben hat
+        if (symbols.Count == 0)
+        {
+            symbols.Add("DEBUG");
+            symbols.Add("TRACE");
+            symbols.Add("NET");
+        }
+
+        // UI-Symbole nur setzen, wenn das Projekt sie auch nutzt
+        if (UseWpf || UseWindowsForms)
+            symbols.Add("WINDOWS");
+
+        var symbolArray = symbols.ToArray();
+
+        Log.LogMessage(MessageImportance.High,
+            $"[NetAI] Preprocessor symbols: {string.Join(", ", symbolArray)}");
+
+        return new CSharpParseOptions(LanguageVersion.Latest)
+            .WithPreprocessorSymbols(symbolArray);
     }
 
     private Compilation? BuildCompilationForOrchestrator()
@@ -406,12 +443,14 @@ public class TestGeneratorTask : Task
             if (string.IsNullOrEmpty(assemblyName))
                 assemblyName = "TestabilityAnalysis";
 
+            var parseOptions = BuildParseOptions();
+
             var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(
                 sourcePaths,
                 referencePaths,
-                assemblyName);
+                assemblyName,
+                parseOptions);
 
-            // Optional: verify that the compilation knows the fundamental types.
             var hasCorlib = compilation.GetTypeByMetadataName("System.Object") != null;
             var hasWpf = compilation.GetTypeByMetadataName("System.Windows.Window") != null;
 
@@ -440,7 +479,6 @@ public class TestGeneratorTask : Task
     {
         var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        // Trusted Platform Assemblies - the actual .NET runtime references.
         var tpa = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string;
         if (!string.IsNullOrEmpty(tpa))
         {
@@ -449,7 +487,6 @@ public class TestGeneratorTask : Task
                     paths.Add(p);
         }
 
-        // Already-loaded assemblies on top (catches some reflection-loaded ones).
         foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
         {
             if (asm.IsDynamic) continue;
