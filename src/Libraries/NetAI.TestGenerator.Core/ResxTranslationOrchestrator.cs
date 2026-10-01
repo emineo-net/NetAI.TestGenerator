@@ -477,7 +477,8 @@ public class ResxTranslationOrchestrator
         sb.AppendLine("Output format:");
         sb.AppendLine("- Return ONLY compilable C# code (no explanations, no prose, no TODO markers outside comments).");
         sb.AppendLine("- Use top-level usings consistent with ImplicitUsings/Nullable settings from <ProjectContext>.");
-        sb.AppendLine("- Use a file-scoped or block namespace matching the test project, but do not invent a namespace that is not derivable from <ProjectContext>.");
+        sb.AppendLine("- Use the test project's <RootNamespace> from <ProjectContext> verbatim when present.");
+        sb.AppendLine("- If <RootNamespace> is absent, derive the namespace from the test project file name (without the .csproj extension). Do not invent any other namespace.");
         sb.AppendLine("- Include [Fact] (or the framework-specific attribute) exactly once.");
         sb.AppendLine();
 
@@ -743,7 +744,13 @@ public class ResxTranslationOrchestrator
         }
         else
         {
+            string derivedRootNamespace = DeriveRootNamespaceFromDirectory(testProjectDirectory);
+
             sb.AppendLine($"  <TestProject status=\"not-created\" directory=\"{X(testProjectDirectory)}\" template=\"{X(GetTestTemplate(testFramework))}\">");
+
+            if (!string.IsNullOrWhiteSpace(derivedRootNamespace))
+                sb.AppendLine($"    <RootNamespace>{X(derivedRootNamespace)}</RootNamespace>");
+
             sb.AppendLine("    <Note>The project will be created with the selected test framework template. No mocking library or helper package has been verified; do not assume it is available.</Note>");
             sb.AppendLine("  </TestProject>");
         }
@@ -764,6 +771,9 @@ public class ResxTranslationOrchestrator
         AppendIfSet(sb, "LangVersion", Val("LangVersion"), "    ");
         AppendIfSet(sb, "Nullable", Val("Nullable"), "    ");
         AppendIfSet(sb, "ImplicitUsings", Val("ImplicitUsings"), "    ");
+        AppendIfSet(sb, "RootNamespace",
+            Val("RootNamespace") ?? DeriveRootNamespaceFromProjectFile(projectPath),
+            "    ");
 
         var packages = doc.Descendants()
             .Where(e => e.Name.LocalName == "PackageReference")
@@ -976,6 +986,48 @@ namespace {namespaceName}
         }
         catch { }
         return null;
+    }
+
+    /// <summary>
+    /// Derives a C#-legal root namespace from a test-project directory.
+    /// Used when the test project does not exist yet and no .csproj can be read.
+    /// Mirrors the SDK-style default: project file name without extension.
+    /// </summary>
+    private static string DeriveRootNamespaceFromDirectory(string directory)
+    {
+        if (string.IsNullOrWhiteSpace(directory))
+            return string.Empty;
+
+        var name = Path.GetFileName(
+            directory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+        return SanitizeNamespace(name);
+    }
+
+    /// <summary>
+    /// Derives a C#-legal root namespace from a project file path.
+    /// Mirrors the SDK-style default: project file name without extension.
+    /// </summary>
+    private static string DeriveRootNamespaceFromProjectFile(string projectPath)
+    {
+        if (string.IsNullOrWhiteSpace(projectPath))
+            return string.Empty;
+
+        return SanitizeNamespace(Path.GetFileNameWithoutExtension(projectPath));
+    }
+
+    private static string SanitizeNamespace(string? candidate)
+    {
+        if (string.IsNullOrWhiteSpace(candidate))
+            return string.Empty;
+
+        var sanitized = Regex.Replace(candidate, @"[^\w\.]", "_");
+        if (sanitized.Length == 0)
+            return string.Empty;
+        if (char.IsDigit(sanitized[0]))
+            sanitized = "_" + sanitized;
+
+        return sanitized;
     }
 
     private static TestFramework ParseTestFramework(AiTestingConfig config)
