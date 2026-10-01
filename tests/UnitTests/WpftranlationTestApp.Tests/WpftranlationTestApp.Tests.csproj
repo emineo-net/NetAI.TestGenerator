@@ -13,11 +13,14 @@
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="Xunit.StaFact" />
+    <PackageReference Include="FakeItEasy" />
+    <PackageReference Include="Moq" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\UI\WpftranlationTestApp\WpftranlationTestApp.csproj" />
+    <ProjectReference Include="..\..\..\src\Libraries\NetAI.TestGenerator.Core\NetAI.TestGenerator.Core.csproj" />
   </ItemGroup>
 </Project>

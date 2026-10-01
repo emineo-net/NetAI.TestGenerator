@@ -20,7 +20,5 @@
     <Project Path="src/UI/WpftranlationTestApp/WpftranlationTestApp.csproj" Id="75b1d199-bf94-4125-a7c8-3d747b94fa39" />
   </Folder>
   <Folder Name="/tests/" />
-  <Folder Name="/tests/UnitTests/">
-    <Project Path="tests/UnitTests/WpftranlationTestApp.Tests/WpftranlationTestApp.Tests.csproj" />
-  </Folder>
+  <Folder Name="/tests/UnitTests/" />
 </Solution>
