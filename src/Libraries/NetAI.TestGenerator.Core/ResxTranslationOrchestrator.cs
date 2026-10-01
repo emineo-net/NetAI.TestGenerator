@@ -280,8 +280,8 @@ public class ResxTranslationOrchestrator
                         if (!string.Equals(roslynFixed, codeForRepair, StringComparison.Ordinal))
                         {
                             BuildLogger.BuildLog("\nroslynFixed: " + roslynFixed);
-                            logInfo?.Invoke("[NetAI] Roslyn hat fehlende usings automatisch ergänzt – " +
-                                            "erneuter Compile-Versuch ohne AI.");
+                            logInfo?.Invoke("[NetAI] Roslyn automatically added missing using directives; " +
+                                            "retrying compilation without AI.");
 
                             testMethodCode = ExtractTestClass(roslynFixed);
                             continue;
@@ -294,9 +294,9 @@ public class ResxTranslationOrchestrator
 
                     BuildLogger.BuildLog("\nerrorPrompt: " + errorPrompt);
 
-                    var systemPrompt = "Du bist ein präziser C#-Compiler-Assistent. Deine einzige Aufgabe ist es, " +
-                                       "Syntax- und Kompilierfehler in bereitgestelltem C#-Code exakt zu reparieren " +
-                                       "und lauffähigen Code ohne Text-Erklärungen zurückzugeben.\n";
+                    var systemPrompt = "You are a precise C# compiler assistant. Your only task is to accurately fix " +
+                                       "syntax and compilation errors in the provided C# code " +
+                                       "and return runnable code without textual explanations.\n";
 
                     var correctedOutput = await localLlmClient.AskAsync(errorPrompt, systemPrompt).ConfigureAwait(false);
 
