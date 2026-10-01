@@ -862,27 +862,68 @@ public class ResxTranslationOrchestrator
         string namespaceName = originalNamespace?.Name.ToString() ?? "NetAI.Generated.Tests";
         if (!namespaceName.EndsWith(".Tests", StringComparison.Ordinal)) namespaceName += ".Tests";
 
-        var (extractedUsings, methodsText) = SplitUsingsFromMethods(methodCode);
-        if (string.IsNullOrWhiteSpace(methodsText))
+        if (string.IsNullOrWhiteSpace(methodCode))
             throw new InvalidOperationException("Generated code does not contain a test method.");
 
-        var usings = new List<string> { $"using {GetTestFrameworkNamespace(_testFramework)};" };
-        foreach (var u in extractedUsings)
+        var generatedRoot = CSharpSyntaxTree.ParseText(methodCode).GetCompilationUnitRoot();
+        var methods = generatedRoot.DescendantNodes()
+            .OfType<MethodDeclarationSyntax>()
+            .ToArray();
+
+        if (methods.Length == 0)
         {
-            if (!usings.Contains(u, StringComparer.Ordinal))
-                usings.Add(u);
+            var classMembers = methodCode;
+            foreach (var usingDirective in generatedRoot.Usings.OrderByDescending(directive => directive.SpanStart))
+                classMembers = classMembers.Remove(usingDirective.SpanStart, usingDirective.Span.Length);
+
+            var wrappedRoot = CSharpSyntaxTree.ParseText(
+                $"class GeneratedTestContainer {{ {classMembers} }}").GetCompilationUnitRoot();
+            methods = wrappedRoot.DescendantNodes()
+                .OfType<MethodDeclarationSyntax>()
+                .ToArray();
         }
 
-        string usingsBlock = string.Join(Environment.NewLine, usings);
+        if (methods.Length == 0)
+            throw new InvalidOperationException("Generated code does not contain a test method.");
 
-        return $@"{usingsBlock}
-namespace {namespaceName}
-{{
-    public class {testClassName}
-    {{
-        {methodsText}
-    }}
-}}";
+        var usings = new List<UsingDirectiveSyntax>
+        {
+            SyntaxFactory.UsingDirective(
+                SyntaxFactory.ParseName(GetTestFrameworkNamespace(_testFramework)))
+        };
+
+        var usingKeys = new HashSet<string>(usings.Select(GetUsingKey), StringComparer.Ordinal);
+        foreach (var usingDirective in generatedRoot.Usings)
+        {
+            var normalizedUsing = usingDirective.WithoutTrivia();
+            if (usingKeys.Add(GetUsingKey(normalizedUsing)))
+                usings.Add(normalizedUsing);
+        }
+
+        var generatedClass = SyntaxFactory.ClassDeclaration(testClassName)
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+            .AddMembers(methods.Cast<MemberDeclarationSyntax>().ToArray());
+        var generatedNamespace = SyntaxFactory.NamespaceDeclaration(
+                SyntaxFactory.ParseName(namespaceName))
+            .AddMembers(generatedClass);
+        var compilationUnit = SyntaxFactory.CompilationUnit()
+            .WithUsings(SyntaxFactory.List(usings))
+            .AddMembers(generatedNamespace);
+
+        return Microsoft.CodeAnalysis.Formatting.Formatter.Format(
+            compilationUnit,
+            new AdhocWorkspace()).ToFullString();
+    }
+
+    private static string GetUsingKey(UsingDirectiveSyntax usingDirective)
+    {
+        var normalized = usingDirective.WithoutTrivia();
+        return string.Join(
+            "|",
+            normalized.GlobalKeyword.RawKind,
+            normalized.StaticKeyword.RawKind,
+            normalized.Alias?.Name.ToString(),
+            normalized.Name?.ToString());
     }
 
     private static string BuildClassSkeleton(

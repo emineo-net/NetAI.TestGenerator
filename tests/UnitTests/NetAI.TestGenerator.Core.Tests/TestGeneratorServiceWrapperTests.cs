@@ -2,12 +2,54 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NetAI.TestGenerator.Core;
 using NetAI.TestGenerator.Core.Services;
+using System.Reflection;
 using Xunit;
 
 namespace NetAI.TestGenerator.Core.Tests;
 
 public class TestGeneratorServiceWrapperTests
 {
+    [Fact]
+    public void PrepareValidationStructure_DoesNotNestIncomingNamespaceOrClass()
+    {
+        var orchestrator = new ResxTranslationOrchestrator();
+        var prepareMethod = typeof(ResxTranslationOrchestrator).GetMethod(
+            "PrepareValidationStructure",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+
+        Assert.NotNull(prepareMethod);
+        string validationCode = (string)prepareMethod.Invoke(orchestrator, new object?[]
+        {
+            "MainWindowTests",
+            null,
+            """
+            using Xunit;
+            namespace NetAI.Generated.Tests
+            {
+                public class MainWindowTests
+                {
+                    [Fact]
+                    public void TestButton_OnClick_ShouldBeSkipped() { }
+                }
+            }
+            """
+        })!;
+
+        var root = CSharpSyntaxTree.ParseText(validationCode).GetCompilationUnitRoot();
+        var namespaces = root.Members.OfType<NamespaceDeclarationSyntax>().ToArray();
+        var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>().ToArray();
+        var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToArray();
+
+        Assert.Single(namespaces);
+        Assert.Single(classes, declaration => declaration.Identifier.ValueText == "MainWindowTests");
+        Assert.Single(methods, declaration =>
+            declaration.Identifier.ValueText == "TestButton_OnClick_ShouldBeSkipped");
+        Assert.DoesNotContain(root.DescendantNodes().OfType<UsingDirectiveSyntax>(),
+            usingDirective => !root.Usings.Contains(usingDirective));
+        Assert.DoesNotContain(root.GetDiagnostics(),
+            diagnostic => diagnostic.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
+    }
+
     [Fact]
     public void CreateNewTestClassFile_FlattensCompleteGeneratedTestClass()
     {
