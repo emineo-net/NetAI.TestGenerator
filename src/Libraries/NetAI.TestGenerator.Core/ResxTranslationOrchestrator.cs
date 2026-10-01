@@ -27,12 +27,31 @@ public class ResxTranslationOrchestrator
     }
 
     /// <summary>Generates tests for uncovered methods in the first class found in a source file.</summary>
+    /// <param name="sourceFilePath">Path to the source file to analyze.</param>
+    /// <param name="testProjectDirectory">Directory where generated test files and the test project are stored.</param>
+    /// <param name="logInfo">Optional callback for progress and diagnostic messages.</param>
+    /// <param name="compilation">
+    /// Optional in-memory Roslyn compilation. Used only when neither
+    /// <paramref name="solutionPath"/> nor <paramref name="projectPath"/> is provided.
+    /// </param>
+    /// <param name="promptOnly">When <see langword="true"/>, skips compile validation after saving each generated test.</param>
+    /// <param name="solutionPath">
+    /// Optional path to a .sln file. When set, MSBuild workspace loading is used and gives the most
+    /// accurate semantic analysis (resolves NuGet, WPF, Directory.Build.props, project references).
+    /// Requires net10.0; ignored on netstandard2.0.
+    /// </param>
+    /// <param name="projectPath">
+    /// Optional path to a .csproj file. Same as <paramref name="solutionPath"/> but loads a single project.
+    /// </param>
+    /// <returns><c>"ok"</c> when processing completes, or an error message if processing fails.</returns>
     public async Task<string> ProcessProjectAsync(
         string sourceFilePath,
         string testProjectDirectory,
         Action<string>? logInfo = null,
         Compilation? compilation = null,
-        bool promptOnly = false)
+        bool promptOnly = false,
+        string? solutionPath = null,
+        string? projectPath = null)
     {
         try
         {
@@ -46,8 +65,7 @@ public class ResxTranslationOrchestrator
                 sourceCode = await reader.ReadToEndAsync().ConfigureAwait(false);
             }
 
-
-            //var sourceRoot = CSharpSyntaxTree.ParseText(sourceCode).GetCompilationUnitRoot();
+            // Prefer a compilation-owned syntax tree; only parse locally when no compilation is available.
             var sourceTree = compilation?.SyntaxTrees
                                  .FirstOrDefault(t => string.Equals(
                                      Path.GetFullPath(t.FilePath ?? ""),
@@ -56,9 +74,6 @@ public class ResxTranslationOrchestrator
                              ?? CSharpSyntaxTree.ParseText(sourceCode, path: sourceFilePath);
 
             var sourceRoot = sourceTree.GetCompilationUnitRoot();
-
-
-
 
             var targetClass = sourceRoot.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
             if (targetClass == null) return "No class found in source file.";
@@ -75,7 +90,8 @@ public class ResxTranslationOrchestrator
 
             logInfo?.Invoke($"[NetAI] Starting analysis for class: {className}");
 
-            File.Delete(@"C:\Users\steph\source\repos\NetAI.TestGenerator\tests\UnitTests\WpftranlationTestApp.Tests\MainWindowTests.cs");
+            // NOTE: Disabled hard-coded path - uncomment and adapt locally if you need a clean slate.
+            // File.Delete(@"C:\Users\steph\source\repos\NetAI.TestGenerator\tests\UnitTests\WpftranlationTestApp.Tests\MainWindowTests.cs");
 
             var existingTestMethods = _testGeneratorService.GetExistingTestMethods(testFilePath);
             var sourceMethods = targetClass.DescendantNodes().OfType<MethodDeclarationSyntax>();
@@ -90,15 +106,33 @@ public class ResxTranslationOrchestrator
 
             var testCodeProcessor = new TestCodeProcessor(compilerService);
 
+            // --- Semantic analysis strategy selection -------------------------------
+            // Priority: solution > project > in-memory compilation > none.
             RoslynDllTestabilityAnalyzer? semanticAnalyzer = null;
-            if (compilation != null)
+
+#if !NETSTANDARD2_0
+            bool useMsbuild = !string.IsNullOrWhiteSpace(solutionPath)
+                              || !string.IsNullOrWhiteSpace(projectPath);
+#else
+            bool useMsbuild = false;
+#endif
+
+            if (useMsbuild)
             {
                 semanticAnalyzer = new RoslynDllTestabilityAnalyzer();
-                logInfo?.Invoke("[NetAI] Semantic analysis is available; AI prompts will include semantic context.");
+                var target = !string.IsNullOrWhiteSpace(solutionPath)
+                    ? $"solution '{Path.GetFileName(solutionPath)}'"
+                    : $"project '{Path.GetFileName(projectPath)}'";
+                logInfo?.Invoke($"[NetAI] MSBuild workspace will be used ({target}); full project context available.");
+            }
+            else if (compilation != null)
+            {
+                semanticAnalyzer = new RoslynDllTestabilityAnalyzer();
+                logInfo?.Invoke("[NetAI] Semantic analysis is available via in-memory compilation; AI prompts will include semantic context.");
             }
             else
             {
-                logInfo?.Invoke("[NetAI] No compilation was provided; using syntax-only analysis.");
+                logInfo?.Invoke("[NetAI] No compilation or MSBuild path was provided; using syntax-only analysis.");
             }
 
             // Project context is constant per file, so build it once.
@@ -121,17 +155,17 @@ public class ResxTranslationOrchestrator
                 BuildLogger.BuildLog("\nclassSkeleton: " + classSkeleton);
 
                 string semanticHint = await BuildSemanticHintAsync(
-                    semanticAnalyzer, compilation, sourceFilePath, method, logInfo).ConfigureAwait(false);
-
-
-
-
-
+                    semanticAnalyzer,
+                    compilation,
+                    solutionPath,
+                    projectPath,
+                    sourceFilePath,
+                    method,
+                    logInfo).ConfigureAwait(false);
 
                 BuildLogger.BuildLog("\nsemanticHint: " + semanticHint);
 
                 logInfo?.Invoke($"[NetAI] semantic hint: {semanticHint}");
-
 
                 string basePrompt = BuildBasePrompt(
                     className, methodName, semanticHint, projectContext, classSkeleton);
@@ -358,25 +392,58 @@ public class ResxTranslationOrchestrator
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Builds the semantic hint. Strategy (in order of priority):
+    /// 1. MSBuild solution (net10.0 only) - full project context, no phantom errors.
+    /// 2. MSBuild project   (net10.0 only).
+    /// 3. In-memory compilation - fast, but missing external references.
+    /// 4. No analysis.
+    /// </summary>
     private static async Task<string> BuildSemanticHintAsync(
         RoslynDllTestabilityAnalyzer? analyzer,
         Compilation? compilation,
+        string? solutionPath,
+        string? projectPath,
         string sourceFilePath,
         MethodDeclarationSyntax methodDeclaration,
         Action<string>? logInfo)
     {
-        if (analyzer == null || compilation == null)
+        if (analyzer == null)
             return string.Empty;
 
         string methodName = methodDeclaration.Identifier.Text;
+        string fileName = Path.GetFileName(sourceFilePath);
 
         try
         {
-            var report = await analyzer.AnalyzeFromCompilationAsync(compilation, methodDeclaration)
-                .ConfigureAwait(false);
+            TestabilityReport report;
+
+#if !NETSTANDARD2_0
+            if (!string.IsNullOrWhiteSpace(solutionPath))
+            {
+                logInfo?.Invoke($"[NetAI] Loading solution '{Path.GetFileName(solutionPath)}' via MSBuild for '{methodName}'...");
+                report = await analyzer.AnalyzeFromSolutionAsync(solutionPath, fileName, methodName)
+                    .ConfigureAwait(false);
+            }
+            else if (!string.IsNullOrWhiteSpace(projectPath))
+            {
+                logInfo?.Invoke($"[NetAI] Loading project '{Path.GetFileName(projectPath)}' via MSBuild for '{methodName}'...");
+                report = await analyzer.AnalyzeFromProjectAsync(projectPath, fileName, methodName)
+                    .ConfigureAwait(false);
+            }
+            else
+#endif
+            if (compilation != null)
+            {
+                report = await analyzer.AnalyzeFromCompilationAsync(compilation, methodDeclaration)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                return string.Empty;
+            }
 
             logInfo?.Invoke($"[NetAI] Semantic analysis for '{methodName}': {report.Verdict}");
-
             return FormatReportAsXml(report, sourceFilePath, methodName);
         }
         catch (InvalidOperationException ex)

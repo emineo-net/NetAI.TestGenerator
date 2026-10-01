@@ -383,32 +383,26 @@ public class TestGeneratorTask : Task
         if (sourcePaths.Count == 0)
         {
             Log.LogMessage(MessageImportance.High,
-                "[NetAI] No @(Compile) items are available; compilation is not possible, " +
-                "so analysis will use syntax only.");
+                "[NetAI] No @(Compile) items available; falling back to syntax-only analysis.");
             return null;
         }
 
         var referencePaths = ReferencePaths
             .Select(i => i.ItemSpec)
             .Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         bool usedFallback = false;
         if (referencePaths.Count == 0)
         {
             usedFallback = true;
-            referencePaths = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
-                .Select(a => a.Location!)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Where(File.Exists)
-                .ToList();
+            referencePaths = BuildFallbackReferenceSet();
         }
 
         try
         {
-            var assemblyName = Path.GetFileNameWithoutExtension(
-                ProjectDir.TrimEnd('/', '\\'));
+            var assemblyName = Path.GetFileNameWithoutExtension(ProjectDir.TrimEnd('/', '\\'));
             if (string.IsNullOrEmpty(assemblyName))
                 assemblyName = "TestabilityAnalysis";
 
@@ -417,24 +411,54 @@ public class TestGeneratorTask : Task
                 referencePaths,
                 assemblyName);
 
+            // Optional: verify that the compilation knows the fundamental types.
+            var hasCorlib = compilation.GetTypeByMetadataName("System.Object") != null;
+            var hasWpf = compilation.GetTypeByMetadataName("System.Windows.Window") != null;
+
             var errorCount = compilation.GetDiagnostics()
                 .Count(d => d.Severity == DiagnosticSeverity.Error);
 
             Log.LogMessage(MessageImportance.High,
-                $"[NetAI] Built compilation for orchestrator: " +
-                $"{sourcePaths.Count} source files, {referencePaths.Count} references" +
-                (usedFallback ? " (Fallback: geladene Assemblies)" : " (@(ReferencePath))") +
-                $", {errorCount} compiler errors.");
+                $"[NetAI] Compilation: {sourcePaths.Count} files, {referencePaths.Count} refs" +
+                (usedFallback ? " (fallback)" : " (@(ReferencePath))") +
+                $", corlib={hasCorlib}, WPF={hasWpf}, {errorCount} errors.");
 
             return compilation;
         }
         catch (Exception ex)
         {
-            Log.LogWarning(
-                $"[NetAI] Failed to build compilation: {ex.Message}; " +
-                "analysis will use syntax only.");
+            Log.LogWarning($"[NetAI] Failed to build compilation: {ex.Message}; using syntax only.");
             return null;
         }
+    }
+
+    /// <summary>
+    /// Builds a reasonable reference set without @(ReferencePath): trusts the
+    /// running TPA list, plus any already-loaded assemblies. Should rarely be needed.
+    /// </summary>
+    private static List<string> BuildFallbackReferenceSet()
+    {
+        var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        // Trusted Platform Assemblies - the actual .NET runtime references.
+        var tpa = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string;
+        if (!string.IsNullOrEmpty(tpa))
+        {
+            foreach (var p in tpa.Split(Path.PathSeparator))
+                if (!string.IsNullOrWhiteSpace(p) && File.Exists(p))
+                    paths.Add(p);
+        }
+
+        // Already-loaded assemblies on top (catches some reflection-loaded ones).
+        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            if (asm.IsDynamic) continue;
+            var loc = asm.Location;
+            if (string.IsNullOrEmpty(loc)) continue;
+            if (File.Exists(loc)) paths.Add(loc);
+        }
+
+        return paths.ToList();
     }
 
     private void TryOpenSummaryLog(List<string> issues)

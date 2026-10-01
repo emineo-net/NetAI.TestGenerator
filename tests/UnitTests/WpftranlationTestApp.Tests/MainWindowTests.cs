@@ -1,7 +1,6 @@
 ﻿using WpftranlationTestApp;
 using System.Windows;
 using System;
-using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 namespace NetAI.Generated.Tests
@@ -9,18 +8,16 @@ namespace NetAI.Generated.Tests
     public class MainWindowTests
     {
         [Fact(Skip = "Method is 'async void' and cannot be awaited.")]
-        public async Task TestButton_OnClick_ShouldProcessOrder()
+        public void TestButton_OnClick_ShouldExecuteCorrectly()
         {
             // Arrange
             var mainWindow = new MainWindow();
-            var sender = new object();
-            var e = new RoutedEventArgs();
+            var eventArgs = new RoutedEventArgs();
 
             // Act & Assert
-            // Since the method is private, we use reflection to invoke it.
-            typeof(MainWindow)
-                .GetMethod("TestButton_OnClick", BindingFlags.NonPublic | BindingFlags.Instance)
-                ?.Invoke(mainWindow, new object[] { sender, e });
+            // Reflection to invoke the private method
+            typeof(MainWindow).GetMethod("TestButton_OnClick", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.Invoke(mainWindow, new object[] { null, eventArgs });
         }
     }
 }
