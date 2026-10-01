@@ -46,7 +46,20 @@ public class ResxTranslationOrchestrator
                 sourceCode = await reader.ReadToEndAsync().ConfigureAwait(false);
             }
 
-            var sourceRoot = CSharpSyntaxTree.ParseText(sourceCode).GetCompilationUnitRoot();
+
+            //var sourceRoot = CSharpSyntaxTree.ParseText(sourceCode).GetCompilationUnitRoot();
+            var sourceTree = compilation?.SyntaxTrees
+                                 .FirstOrDefault(t => string.Equals(
+                                     Path.GetFullPath(t.FilePath ?? ""),
+                                     Path.GetFullPath(sourceFilePath),
+                                     StringComparison.OrdinalIgnoreCase))
+                             ?? CSharpSyntaxTree.ParseText(sourceCode, path: sourceFilePath);
+
+            var sourceRoot = sourceTree.GetCompilationUnitRoot();
+
+
+
+
             var targetClass = sourceRoot.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
             if (targetClass == null) return "No class found in source file.";
 
@@ -469,10 +482,12 @@ public class ResxTranslationOrchestrator
 
         if (report.CompilationErrors.Count > 0)
         {
-            sb.AppendLine($"  <CompilationErrors count=\"{report.CompilationErrors.Count}\">");
+            sb.AppendLine($"  <SourceCompilationErrors count=\"{report.CompilationErrors.Count}\" " +
+                          "note=\"Errors in the SOURCE project, not the test. Missing framework references " +
+                          "(e.g. WPF) are common here and unrelated to the generated test.\">");
             foreach (var e in report.CompilationErrors.Take(3))
                 sb.AppendLine($"    <Error>{X(e)}</Error>");
-            sb.AppendLine("  </CompilationErrors>");
+            sb.AppendLine("  </SourceCompilationErrors>");
         }
 
         sb.AppendLine("</SemanticAnalysis>");

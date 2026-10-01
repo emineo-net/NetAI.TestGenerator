@@ -20,7 +20,6 @@ namespace NetAI.TestGenerator.Core.Analysis
             SymbolDisplayFormat.FullyQualifiedFormat
                 .WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
 
-        /// <summary>Maps well-known static APIs to a recommended abstraction.</summary>
         private static readonly IReadOnlyDictionary<string, string> StaticApiAbstractions =
             new Dictionary<string, string>(StringComparer.Ordinal)
             {
@@ -103,7 +102,11 @@ namespace NetAI.TestGenerator.Core.Analysis
             return Task.FromResult(report);
         }
 
-        /// <summary>Analyzes a method directly from its syntax node (handles overloads correctly).</summary>
+        /// <summary>
+        /// Analyzes a method from a syntax node. If the node does not belong to the
+        /// compilation (e.g. it was parsed separately), the equivalent declaration is
+        /// located inside the compilation by file path, method name and parameter count.
+        /// </summary>
         public Task<TestabilityReport> AnalyzeFromCompilationAsync(
             Compilation compilation,
             MethodDeclarationSyntax methodDeclaration,
@@ -112,14 +115,85 @@ namespace NetAI.TestGenerator.Core.Analysis
             if (compilation is null) throw new ArgumentNullException(nameof(compilation));
             if (methodDeclaration is null) throw new ArgumentNullException(nameof(methodDeclaration));
 
-            var tree = methodDeclaration.SyntaxTree;
+            var (tree, localDecl) = FindEquivalentDeclaration(compilation, methodDeclaration, ct)
+                ?? throw new InvalidOperationException(
+                    $"Method '{methodDeclaration.Identifier.Text}' was not found in the compilation.");
+
             var model = compilation.GetSemanticModel(tree);
-            var methodSymbol = model.GetDeclaredSymbol(methodDeclaration, ct) as IMethodSymbol
+            var methodSymbol = model.GetDeclaredSymbol(localDecl, ct) as IMethodSymbol
                                ?? throw new InvalidOperationException("No method symbol was found.");
 
             var documentNameResolved = ResolveDocumentName(null, tree);
-            var report = BuildReport(documentNameResolved, methodSymbol, methodDeclaration, model, compilation);
+            var report = BuildReport(documentNameResolved, methodSymbol, localDecl, model, compilation);
             return Task.FromResult(report);
+        }
+
+        // ---------------------------------------------------------------- equivalent lookup
+
+        /// <summary>
+        /// Locates the compilation-owned declaration that corresponds to an externally
+        /// parsed <see cref="MethodDeclarationSyntax"/>. Match key: file path (or file
+        /// name), method identifier, and parameter count.
+        /// </summary>
+        private static (SyntaxTree Tree, MethodDeclarationSyntax Method)? FindEquivalentDeclaration(
+            Compilation compilation,
+            MethodDeclarationSyntax external,
+            CancellationToken ct)
+        {
+            var methodName = external.Identifier.Text;
+            var paramCount = external.ParameterList.Parameters.Count;
+
+            var externalPath = external.SyntaxTree?.FilePath;
+            var externalFileName = string.IsNullOrEmpty(externalPath)
+                ? null
+                : Path.GetFileName(externalPath);
+
+            // 1) Match by exact file path (or, if paths differ, by file name).
+            if (!string.IsNullOrEmpty(externalPath) || !string.IsNullOrEmpty(externalFileName))
+            {
+                foreach (var tree in compilation.SyntaxTrees)
+                {
+                    ct.ThrowIfCancellationRequested();
+
+                    var treePath = tree.FilePath;
+                    if (string.IsNullOrEmpty(treePath)) continue;
+
+                    var sameFullPath = !string.IsNullOrEmpty(externalPath)
+                        && string.Equals(treePath, externalPath, StringComparison.OrdinalIgnoreCase);
+
+                    var sameFileName = !string.IsNullOrEmpty(externalFileName)
+                        && string.Equals(Path.GetFileName(treePath), externalFileName, StringComparison.OrdinalIgnoreCase);
+
+                    if (!sameFullPath && !sameFileName) continue;
+
+                    var match = FindMethodInTree(tree, methodName, paramCount, ct);
+                    if (match != null) return (tree, match);
+                }
+            }
+
+            // 2) Fallback: search all trees by name + arity.
+            foreach (var tree in compilation.SyntaxTrees)
+            {
+                ct.ThrowIfCancellationRequested();
+                var match = FindMethodInTree(tree, methodName, paramCount, ct);
+                if (match != null) return (tree, match);
+            }
+
+            return null;
+        }
+
+        private static MethodDeclarationSyntax? FindMethodInTree(
+            SyntaxTree tree,
+            string methodName,
+            int paramCount,
+            CancellationToken ct)
+        {
+            var root = tree.GetRoot(ct);
+            return root.DescendantNodes()
+                .OfType<MethodDeclarationSyntax>()
+                .FirstOrDefault(m =>
+                    m.Identifier.Text == methodName &&
+                    m.ParameterList.Parameters.Count == paramCount);
         }
 
         // ---------------------------------------------------------------- compilation
@@ -353,13 +427,20 @@ namespace NetAI.TestGenerator.Core.Analysis
                 if (symbol.SpecialType != SpecialType.None) return;
                 if (symbol is not INamedTypeSymbol named) return;
 
+
                 if (named.IsGenericType)
                 {
                     foreach (var arg in named.TypeArguments)
                         Add(arg, staticUse, usage);
                 }
 
+                // NEU: leere Namen und generische Task-Container rausfiltern
                 var full = named.OriginalDefinition.ToDisplayString(FqFormat);
+                if (string.IsNullOrWhiteSpace(full)) return;
+                if (full is "System.Threading.Tasks.Task<>"
+                    or "System.Threading.Tasks.ValueTask<>"
+                    or "System.Threading.Tasks.Task") return;
+
                 if (full.StartsWith("System.Nullable", StringComparison.Ordinal)) return;
 
                 var isFramework = named.ContainingNamespace?.ToDisplayString()
@@ -369,8 +450,7 @@ namespace NetAI.TestGenerator.Core.Analysis
 
                 if (seen.TryGetValue(full, out var existing))
                 {
-                    var merged = existing.Usages | usage;
-                    var updated = new TypeFact
+                    seen[full] = new TypeFact
                     {
                         FullName = existing.FullName,
                         Namespace = existing.Namespace,
@@ -387,7 +467,7 @@ namespace NetAI.TestGenerator.Core.Analysis
                         Mockable = existing.Mockable,
                         UsedStatically = existing.UsedStatically || staticUse,
                         DependencyKind = existing.DependencyKind,
-                        Usages = merged,
+                        Usages = existing.Usages | usage,
                         BaseType = existing.BaseType,
                         RecommendedAbstraction = existing.RecommendedAbstraction,
                         RecommendationReason = existing.RecommendationReason,
@@ -396,7 +476,6 @@ namespace NetAI.TestGenerator.Core.Analysis
                         VirtualMemberCount = existing.VirtualMemberCount,
                         MemberCount = existing.MemberCount,
                     };
-                    seen[full] = updated;
                     return;
                 }
 
@@ -433,7 +512,6 @@ namespace NetAI.TestGenerator.Core.Analysis
                 };
             }
 
-            // walk call graph
             var methodsToInspect = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default) { root };
             if (_options.IncludeRecursiveCallGraph)
             {
@@ -682,7 +760,6 @@ namespace NetAI.TestGenerator.Core.Analysis
 
                 if (candidates.Count == 0) continue;
 
-                // prefer public / non-generic when overloads exist
                 var preferred = candidates.FirstOrDefault(m =>
                     m.Modifiers.Any(t => t.IsKind(SyntaxKind.PublicKeyword)) && m.TypeParameterList == null)
                     ?? candidates[0];
