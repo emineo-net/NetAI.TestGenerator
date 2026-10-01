@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
-using NetAI.TestGenerator.Core.Models;
+using NetAI.TestGenerator.Core.Models.Enums;
 
 namespace DotNet10TestGenerator;
 
@@ -50,6 +43,9 @@ public class TestProjectManager
 
     private readonly TimeSpan _defaultProcessTimeout;
     private readonly string _dotnetExecutable;
+    private readonly TestFramework _testFramework;
+    private readonly MockFramework _mockFramework;
+    private readonly IReadOnlyDictionary<string, string> _wellKnownTypeToNamespace;
 
     private readonly ConcurrentDictionary<string, Task<Dictionary<string, List<TypeLocation>>>> _scanCache =
         new(StringComparer.OrdinalIgnoreCase);
@@ -57,10 +53,26 @@ public class TestProjectManager
     /// <summary>Creates a manager for test project setup and compilation.</summary>
     /// <param name="defaultProcessTimeout">Default timeout for .NET CLI processes.</param>
     /// <param name="dotnetExecutable">Path or command name of the .NET CLI executable.</param>
-    public TestProjectManager(TimeSpan? defaultProcessTimeout = null, string dotnetExecutable = "dotnet")
+    /// <param name="testFramework">
+    /// Selected test framework. Controls which well-known test types (e.g. <c>Assert</c>,
+    /// <c>[Test]</c>) are resolved to which namespace. Prevents adding <c>using Xunit;</c> to
+    /// an NUnit/MSTest project.
+    /// </param>
+    /// <param name="mockFramework">
+    /// Selected mocking framework. Only types of this framework are auto-resolved; a stray
+    /// <c>Mock&lt;T&gt;</c> in an NSubstitute project will NOT silently pull in the Moq package.
+    /// </param>
+    public TestProjectManager(
+        TimeSpan? defaultProcessTimeout = null,
+        string dotnetExecutable = "dotnet",
+        TestFramework testFramework = TestFramework.xUnit,
+        MockFramework mockFramework = MockFramework.Unknown)
     {
         _defaultProcessTimeout = defaultProcessTimeout ?? TimeSpan.FromMinutes(5);
         _dotnetExecutable = string.IsNullOrWhiteSpace(dotnetExecutable) ? "dotnet" : dotnetExecutable;
+        _testFramework = testFramework;
+        _mockFramework = mockFramework;
+        _wellKnownTypeToNamespace = BuildWellKnownTypeToNamespace(testFramework, mockFramework);
     }
 
     /// <summary>Gets namespace-to-NuGet-package mappings used to resolve missing test dependencies.</summary>
@@ -358,7 +370,7 @@ public class TestProjectManager
         foreach (var id in candidates)
         {
             if (sourceTypes.ContainsKey(id)) continue;
-            if (WellKnownTypeToNamespace.ContainsKey(id)) continue;
+            if (_wellKnownTypeToNamespace.ContainsKey(id)) continue;
             unresolvable.Add(id);
         }
 
@@ -790,7 +802,7 @@ public class TestProjectManager
                     if (distinctProjects.Count == 1) owningProject = distinctProjects[0];
                 }
             }
-            else if (WellKnownTypeToNamespace.TryGetValue(identifier, out var wellKnown))
+            else if (_wellKnownTypeToNamespace.TryGetValue(identifier, out var wellKnown))
             {
                 ns = wellKnown;
             }
@@ -979,7 +991,7 @@ public class TestProjectManager
         return namespaces;
     }
 
-    private static List<string> ExtractMissingNamespaceCandidates(
+    private List<string> ExtractMissingNamespaceCandidates(
         IReadOnlyList<string> compilerErrors, IReadOnlyList<string> usingNamespaces)
     {
         var missingIdentifiers = new HashSet<string>(StringComparer.Ordinal);
@@ -1006,7 +1018,7 @@ public class TestProjectManager
             .ToList();
 
         foreach (var id in missingIdentifiers)
-            if (WellKnownTypeToNamespace.TryGetValue(id, out var ns) &&
+            if (_wellKnownTypeToNamespace.TryGetValue(id, out var ns) &&
                 !string.Equals(ns, "System", StringComparison.Ordinal) &&
                 !candidates.Contains(ns, StringComparer.Ordinal))
                 candidates.Add(ns);
@@ -1014,21 +1026,18 @@ public class TestProjectManager
         return candidates;
     }
 
-    private static readonly IReadOnlyDictionary<string, string> WellKnownTypeToNamespace =
-        new Dictionary<string, string>(StringComparer.Ordinal)
+    /// <summary>
+    /// Builds the well-known-type-to-namespace map for the selected frameworks. BCL, WPF and
+    /// DI types are always present. Test-framework types (Assert, [Fact], [Test], [TestClass] …)
+    /// are added only for the configured test framework. Mock types are added only for the
+    /// configured mocking framework.
+    /// </summary>
+    private static IReadOnlyDictionary<string, string> BuildWellKnownTypeToNamespace(
+        TestFramework testFramework, MockFramework mockFramework)
+    {
+        var map = new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["Assert"] = "Xunit",
-            ["Fact"] = "Xunit",
-            ["Theory"] = "Xunit",
-            ["InlineData"] = "Xunit",
-            ["WpfFact"] = "Xunit",
-            ["StaFact"] = "Xunit",
-            ["UIFact"] = "Xunit",
-            ["Mock"] = "Moq",
-            ["It"] = "Moq",
-            ["Times"] = "Moq",
-            ["MockBehavior"] = "Moq",
-            ["MockException"] = "Moq",
+            // --- Framework-agnostisch: BCL / DI ---
             ["IServiceProvider"] = "System",
             ["Task"] = "System.Threading.Tasks",
             ["ServiceProvider"] = "Microsoft.Extensions.DependencyInjection",
@@ -1039,6 +1048,8 @@ public class TestProjectManager
             ["AddSingleton"] = "Microsoft.Extensions.DependencyInjection",
             ["AddScoped"] = "Microsoft.Extensions.DependencyInjection",
             ["AddTransient"] = "Microsoft.Extensions.DependencyInjection",
+
+            // --- Framework-agnostisch: WPF ---
             ["Application"] = "System.Windows",
             ["Window"] = "System.Windows",
             ["RoutedEventArgs"] = "System.Windows",
@@ -1062,6 +1073,72 @@ public class TestProjectManager
             ["Panel"] = "System.Windows.Controls",
             ["Dispatcher"] = "System.Windows.Threading",
         };
+
+        // Test-Framework-spezifische Typen — nur fuer das ausgewaehlte Framework.
+        switch (testFramework)
+        {
+            case TestFramework.xUnit:
+                map["Assert"] = "Xunit";
+                map["Fact"] = "Xunit";
+                map["Theory"] = "Xunit";
+                map["InlineData"] = "Xunit";
+                map["WpfFact"] = "Xunit";
+                map["StaFact"] = "Xunit";
+                map["UIFact"] = "Xunit";
+                break;
+
+            case TestFramework.NUnit:
+                map["Assert"] = "NUnit.Framework";
+                map["Test"] = "NUnit.Framework";
+                map["TestFixture"] = "NUnit.Framework";
+                map["SetUp"] = "NUnit.Framework";
+                map["TearDown"] = "NUnit.Framework";
+                map["OneTimeSetUp"] = "NUnit.Framework";
+                map["OneTimeTearDown"] = "NUnit.Framework";
+                map["TestCase"] = "NUnit.Framework";
+                map["TestCaseSource"] = "NUnit.Framework";
+                map["Ignore"] = "NUnit.Framework";
+                break;
+
+            case TestFramework.MSTest:
+                map["Assert"] = "Microsoft.VisualStudio.TestTools.UnitTesting";
+                map["TestClass"] = "Microsoft.VisualStudio.TestTools.UnitTesting";
+                map["TestMethod"] = "Microsoft.VisualStudio.TestTools.UnitTesting";
+                map["TestInitialize"] = "Microsoft.VisualStudio.TestTools.UnitTesting";
+                map["TestCleanup"] = "Microsoft.VisualStudio.TestTools.UnitTesting";
+                map["ClassInitialize"] = "Microsoft.VisualStudio.TestTools.UnitTesting";
+                map["ClassCleanup"] = "Microsoft.VisualStudio.TestTools.UnitTesting";
+                map["DataTestMethod"] = "Microsoft.VisualStudio.TestTools.UnitTesting";
+                map["DataRow"] = "Microsoft.VisualStudio.TestTools.UnitTesting";
+                map["Ignore"] = "Microsoft.VisualStudio.TestTools.UnitTesting";
+                break;
+        }
+
+        // Mock-Framework-spezifische Typen — nur fuer das ausgewaehlte Framework.
+        switch (mockFramework)
+        {
+            case MockFramework.Moq:
+                map["Mock"] = "Moq";
+                map["It"] = "Moq";
+                map["Times"] = "Moq";
+                map["MockBehavior"] = "Moq";
+                map["MockException"] = "Moq";
+                break;
+
+            case MockFramework.NSubstitute:
+                map["Substitute"] = "NSubstitute";
+                map["Arg"] = "NSubstitute";
+                map["Received"] = "NSubstitute";
+                break;
+
+            case MockFramework.FakeItEasy:
+                map["A"] = "FakeItEasy";
+                map["Fake"] = "FakeItEasy";
+                break;
+        }
+
+        return map;
+    }
 
     private sealed record TypeLocation(string Namespace, string ProjectPath);
     private enum XUnitFlavor { Unknown, V2, V3 }

@@ -1,8 +1,6 @@
 ﻿using DotNet10TestGenerator;
 using Microsoft.CodeAnalysis;
-using NetAI.TestGenerator.Core.Services;
 using System.Text.RegularExpressions;
-using NetAI.TestGenerator.Core.Models;
 
 namespace NetAI.TestGenerator.Core.Services;
 

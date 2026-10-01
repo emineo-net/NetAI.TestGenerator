@@ -52,11 +52,22 @@ public class TestCodeBeautifier
     /// <summary>Applies safe automatic fixes for compiler errors that can be resolved by adding a using directive.</summary>
     /// <param name="sourceCode">Source code to inspect and potentially update.</param>
     /// <param name="compilerErrors">Compiler error messages to analyze.</param>
+    /// <param name="testFramework">
+    /// Selected test framework. Controls which test-framework types (e.g. <c>Assert</c>, <c>[Test]</c>)
+    /// are mapped to which namespace. Prevents adding <c>using Xunit;</c> to an NUnit/MSTest file.
+    /// </param>
+    /// <param name="mockFramework">
+    /// Selected mocking framework. Only types belonging to this framework are resolved; if an unknown
+    /// or unconfigured mock type is encountered, no using is added (the compile error remains, which
+    /// is the intended feedback to the repair loop).
+    /// </param>
     /// <param name="cancellationToken">Token used to cancel formatting.</param>
     /// <returns>Updated source code when a fix was applied; otherwise the original source.</returns>
     public async Task<string> TryFixCompilerErrorsAsync(
         string sourceCode,
         IEnumerable<string> compilerErrors,
+        TestFramework testFramework = TestFramework.xUnit,
+        MockFramework mockFramework = MockFramework.Unknown,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(sourceCode))
@@ -71,7 +82,7 @@ public class TestCodeBeautifier
         {
             if (TryExtractMissingType(error, out var missingType))
             {
-                var ns = MapTypeToNamespace(missingType);
+                var ns = MapTypeToNamespace(missingType, testFramework, mockFramework);
                 if (ns != null && !HasUsing(root, ns))
                 {
                     root = root.AddUsings(
@@ -200,22 +211,96 @@ public class TestCodeBeautifier
         return false;
     }
 
-    private static string? MapTypeToNamespace(string typeName)
+    /// <summary>
+    /// Maps a missing type name to a namespace, taking the selected frameworks into account.
+    /// Test-framework types are only resolved for the configured test framework; mock types
+    /// only for the configured mock framework. This prevents injecting a using for a
+    /// framework the user did not choose. Returns <see langword="null"/> when the type is
+    /// unknown or belongs to an unconfigured framework.
+    /// </summary>
+    private static string? MapTypeToNamespace(
+        string typeName,
+        TestFramework testFramework,
+        MockFramework mockFramework)
     {
+        // --- Test-Framework-Typen ---------------------------------------------
+        // Nur Typen des konfigurierten Frameworks mappen. Wenn z. B. xUnit ausgewaehlt
+        // ist und der LLM faelschlich [Test] schreibt, wird KEIN NUnit.Framework
+        // hinzugefuegt - der Fehler bleibt und der Repair-Loop bekommt das Signal.
+        switch (testFramework)
+        {
+            case TestFramework.xUnit:
+                if (typeName is "Fact" or "Theory" or "InlineData"
+                    or "IClassFixture" or "ICollectionFixture"
+                    or "Assert")
+                    return "Xunit";
+                break;
+
+            case TestFramework.NUnit:
+                if (typeName is "Test" or "TestFixture" or "SetUp" or "TearDown"
+                    or "OneTimeSetUp" or "OneTimeTearDown"
+                    or "TestCase" or "TestCaseSource"
+                    or "Assert" or "Ignore")
+                    return "NUnit.Framework";
+                break;
+
+            case TestFramework.MSTest:
+                if (typeName is "TestClass" or "TestMethod"
+                    or "TestInitialize" or "TestCleanup"
+                    or "ClassInitialize" or "ClassCleanup"
+                    or "DataTestMethod" or "DataRow"
+                    or "Assert" or "Ignore")
+                    return "Microsoft.VisualStudio.TestTools.UnitTesting";
+                break;
+        }
+
+        // --- Mock-Framework-Typen ---------------------------------------------
+        switch (mockFramework)
+        {
+            case MockFramework.Moq:
+                if (typeName is "Mock" or "It" or "Times" or "MockBehavior")
+                    return "Moq";
+                break;
+
+            case MockFramework.NSubstitute:
+                if (typeName is "Substitute" or "Arg" or "Received")
+                    return "NSubstitute";
+                break;
+
+            case MockFramework.FakeItEasy:
+                if (typeName is "A" or "Fake" or "FakeItEasy")
+                    return "FakeItEasy";
+                break;
+        }
+
+        // --- Framework-agnostische BCL-Typen ----------------------------------
         return typeName switch
         {
-            "Mock" or "It" or "Times" or "MockBehavior" => "Moq",
-            "Substitute" or "Arg" or "Received" => "NSubstitute",
-            "A" or "Fake" => "FakeItEasy",
-            "Fact" or "Theory" or "InlineData" or "Assert" => "Xunit",
-            "Test" or "TestClass" or "TestMethod" => "NUnit.Framework",
-            "Task" => "System.Threading.Tasks",
-            "List" or "Dictionary" or "IEnumerable" or "IReadOnlyList" => "System.Collections.Generic",
+            "Task" or "ValueTask" => "System.Threading.Tasks",
+            "List" or "Dictionary" or "IEnumerable" or "IReadOnlyList" or "IList"
+                or "ICollection" or "ISet" or "HashSet" or "IReadOnlyDictionary"
+                => "System.Collections.Generic",
             "BindingFlags" or "MemberInfo" or "MethodBase" or "MethodInfo"
                 or "ConstructorInfo" or "PropertyInfo" or "FieldInfo" or "EventInfo"
                 or "ParameterInfo" or "Assembly" or "Module" or "TargetException"
-                or "TargetInvocationException" => "System.Reflection",
-            "Regex" => "System.Text.RegularExpressions",
+                or "TargetInvocationException" or "Activator" or "Binder"
+                => "System.Reflection",
+            "Regex" or "Match" or "MatchCollection" => "System.Text.RegularExpressions",
+            "XElement" or "XDocument" or "XAttribute" or "XName" => "System.Xml.Linq",
+            "Exception" or "ArgumentException" or "ArgumentNullException"
+                or "InvalidOperationException" or "NotSupportedException"
+                or "NotImplementedException" or "NullReferenceException"
+                or "FormatException" or "Guid" or "TimeSpan" or "DateTime"
+                or "DateTimeOffset" or "Environment" or "Console" or "Math"
+                or "StringComparer" or "IComparable" or "IEquatable" or "IFormattable"
+                => "System",
+            "File" or "Directory" or "Path" or "Stream" or "FileStream"
+                or "StreamReader" or "StreamWriter" or "MemoryStream"
+                => "System.IO",
+            "Debug" or "Stopwatch" or "DebuggerDisplayAttribute" => "System.Diagnostics",
+            "ConcurrentDictionary" or "ConcurrentQueue" or "ConcurrentBag"
+                => "System.Collections.Concurrent",
+            "Interlocked" or "Monitor" => "System.Threading",
             _ => null
         };
     }

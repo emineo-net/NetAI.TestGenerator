@@ -1,21 +1,18 @@
-﻿using WpftranlationTestApp;
-using Moq;
-using System;
-using System.Threading.Tasks;
-using Xunit;
+﻿using Xunit;
 namespace NetAI.Generated.Tests
 {
     public class MainWindowTests
     {
+        using Xunit;
+
         [Fact(Skip = "private async void method with static dependencies is not safely invokable from a unit test")]
-        public void TestButton_OnClick_ShouldExecuteCorrectly()
+        public void TestButton_OnClick_ShouldBeSkipped()
         {
             // Arrange
             var mainWindow = new MainWindow();
 
-            // Act & Assert (illustrative body only)
-            // This would involve invoking the private method, which is not possible.
-            // Additionally, static dependencies like System.IO.File cannot be mocked or controlled in a unit test.
+            // Act & Assert
+            // This is a skipped test. The actual implementation details are omitted.
         }
     }
 }

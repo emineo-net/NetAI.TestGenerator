@@ -30,18 +30,53 @@ public class TestGeneratorService
     /// <param name="filePath">Destination path for the test file.</param>
     /// <param name="testClassName">Name of the generated test class.</param>
     /// <param name="originalNamespace">Source namespace used to derive the test namespace, when available.</param>
-    /// <param name="methodCode">Test method code to place in the new class.</param>
-    public void CreateNewTestClassFile(string filePath, string testClassName, NamespaceDeclarationSyntax? originalNamespace, string methodCode)
+    /// <param name="methodCode">
+    /// Test method code to place in the new class. May contain compilation-unit level
+    /// using directives (e.g. from <c>ExtractTestClass</c>); these are hoisted to the
+    /// top of the file, not embedded in the class body.
+    /// </param>
+    /// <param name="frameworkUsing">
+    /// Fully-qualified test-framework using directive (e.g. <c>using Xunit;</c>,
+    /// <c>using NUnit.Framework;</c>, <c>using Microsoft.VisualStudio.TestTools.UnitTesting;</c>).
+    /// Supplied by the caller because the orchestrator owns the selected framework.
+    /// When <see langword="null"/> or whitespace, no framework using is prepended; the
+    /// snippet's own using directives are used as-is.
+    /// </param>
+    public void CreateNewTestClassFile(
+        string filePath,
+        string testClassName,
+        NamespaceDeclarationSyntax? originalNamespace,
+        string methodCode,
+        string? frameworkUsing = null)
     {
         string namespaceName = originalNamespace?.Name.ToString() ?? "NetAI.Generated.Tests";
         if (!namespaceName.EndsWith(".Tests")) namespaceName += ".Tests";
 
-        string fullCode = $@"using Xunit;
-namespace {namespaceName}
+        // usings vom Methodenkörper trennen, sonst landen sie im Klassenkörper (CS1529).
+        var (extractedUsings, methodsText) = SplitUsingsFromMethods(methodCode);
+
+        var usings = new List<string>();
+
+        // Framework-Using nur voranstellen, wenn der Aufrufer eines mitgegeben hat.
+        if (!string.IsNullOrWhiteSpace(frameworkUsing))
+            usings.Add(frameworkUsing.TrimEnd());
+
+        foreach (var u in extractedUsings)
+        {
+            if (!usings.Contains(u, StringComparer.Ordinal))
+                usings.Add(u);
+        }
+
+        // Sonderfall: keine usings, dann auch keine leere Zeile vor "namespace".
+        string usingsBlock = usings.Count > 0
+            ? string.Join(Environment.NewLine, usings) + Environment.NewLine
+            : string.Empty;
+
+        string fullCode = $@"{usingsBlock}namespace {namespaceName}
 {{
     public class {testClassName}
     {{
-        {methodCode}
+        {methodsText}
     }}
 }}";
         SyntaxTree tree = CSharpSyntaxTree.ParseText(fullCode);
@@ -53,7 +88,11 @@ namespace {namespaceName}
 
     /// <summary>Appends the first method declaration found in the supplied code to an existing test class.</summary>
     /// <param name="filePath">Path to the existing test source file.</param>
-    /// <param name="methodCode">Generated code containing the method to append.</param>
+    /// <param name="methodCode">
+    /// Generated code containing the method to append. May contain compilation-unit level
+    /// using directives (e.g. from <c>ExtractTestClass</c>); new ones are merged into the
+    /// existing file's using block, duplicates are skipped.
+    /// </param>
     public void AppendMethodToExistingClassFile(string filePath, string methodCode)
     {
         string existingCode = File.ReadAllText(filePath);
@@ -68,10 +107,73 @@ namespace {namespaceName}
 
         if (newMethodNode == null) return;
 
+        // Neue usings aus dem Snippet sammeln, dedupliziert gegen bereits vorhandene.
+        var existingUsings = new HashSet<string>(
+            root.Usings.Select(u => u.ToFullString().TrimEnd()),
+            StringComparer.Ordinal);
+
+        var usingsToAdd = new List<UsingDirectiveSyntax>();
+        foreach (var u in newMethodRoot.Usings)
+        {
+            var text = u.ToFullString().TrimEnd();
+            if (existingUsings.Add(text))
+                usingsToAdd.Add(u);
+        }
+
         var updatedClass = classDecl.AddMembers(newMethodNode);
         var newRoot = root.ReplaceNode(classDecl, updatedClass);
 
+        if (usingsToAdd.Count > 0)
+            newRoot = newRoot.AddUsings(usingsToAdd.ToArray());
+
         var formattedRoot = Microsoft.CodeAnalysis.Formatting.Formatter.Format(newRoot, new AdhocWorkspace());
         File.WriteAllText(filePath, formattedRoot.ToFullString());
+    }
+
+    /// <summary>
+    /// Zerlegt einen Code-Snippet in Compilation-Unit-usings und Methodentext.
+    /// Wird von <see cref="CreateNewTestClassFile"/> verwendet, um die usings aus
+    /// dem zuvor von <c>ExtractTestClass</c> erzeugten Text wieder an die richtige
+    /// Stelle zu heben.
+    /// </summary>
+    /// <returns>
+    /// <c>Usings</c>: vollständige using-Zeilen (inkl. Semikolon), dedupliziert.
+    /// <c>Methods</c>: Methodenrümpfe ohne usings; nur wenn der Snippet gar keine
+    /// Methoden enthält, wird der ursprüngliche Text zurückgegeben (Fallback).
+    /// </returns>
+    private static (List<string> Usings, string Methods) SplitUsingsFromMethods(string code)
+    {
+        var usings = new List<string>();
+        if (string.IsNullOrWhiteSpace(code))
+            return (usings, string.Empty);
+
+        var tree = CSharpSyntaxTree.ParseText(code);
+        var root = tree.GetCompilationUnitRoot();
+
+        foreach (var u in root.Usings)
+        {
+            var text = u.ToFullString().TrimEnd();
+            if (!usings.Contains(text, StringComparer.Ordinal))
+                usings.Add(text);
+        }
+
+        var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
+
+        if (methods.Count == 0)
+        {
+            // Snippet bestand nur aus usings (kein Methodenkörper). Dann die usings
+            // nicht zusätzlich in den Klassenkörper schreiben, sonst CS1529.
+            if (usings.Count > 0)
+                return (usings, string.Empty);
+
+            // Wirklich nichts Sinnvolles erkannt: unverändert durchreichen.
+            return (usings, code.Trim());
+        }
+
+        var sb = new System.Text.StringBuilder();
+        foreach (var m in methods)
+            sb.AppendLine(m.ToFullString());
+
+        return (usings, sb.ToString().Trim());
     }
 }
