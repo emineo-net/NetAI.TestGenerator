@@ -1193,6 +1193,12 @@ public class ResxTranslationOrchestrator
     }
 
     /// <summary>Extracts method declarations from an AI response, including responses wrapped in a code fence.</summary>
+    /// <summary>
+    ///     Extracts exactly one test method from an AI response, including responses
+    ///     wrapped in a code fence. Prefers the first method that carries a
+    ///     recognized test attribute (xUnit / NUnit / MSTest, including STA variants);
+    ///     falls back to the first method when no attribute is found.
+    /// </summary>
     public static string ExtractTestClass(string aiResponse)
     {
         if (string.IsNullOrWhiteSpace(aiResponse))
@@ -1212,6 +1218,11 @@ public class ResxTranslationOrchestrator
             return string.Empty;
         }
 
+        // Bevorzugt die erste Methode mit Test-Attribut.
+        // Fallback: die erste Methode überhaupt (falls das Modell das Attribut
+        // vergessen hat).
+        var chosen = methods.FirstOrDefault(HasTestAttribute) ?? methods[0];
+
         var sb = new StringBuilder();
 
         foreach (var u in root.Usings)
@@ -1224,12 +1235,36 @@ public class ResxTranslationOrchestrator
             sb.AppendLine();
         }
 
-        foreach (var method in methods)
-        {
-            sb.AppendLine(method.ToFullString());
-        }
+        sb.AppendLine(chosen.ToFullString());
 
         return sb.ToString().Trim();
+    }
+
+    /// <summary>
+    ///     True when the method carries a test attribute recognized across the
+    ///     supported frameworks (xUnit, NUnit, MSTest) and their STA variants.
+    /// </summary>
+    private static bool HasTestAttribute(MethodDeclarationSyntax method)
+    {
+        foreach (var attributeList in method.AttributeLists)
+        {
+            foreach (var attribute in attributeList.Attributes)
+            {
+                var name = attribute.Name.ToString();
+
+                if (name.EndsWith("Fact", StringComparison.Ordinal) ||
+                    name.EndsWith("Theory", StringComparison.Ordinal) ||
+                    name.EndsWith("Test", StringComparison.Ordinal) ||
+                    name.EndsWith("TestCase", StringComparison.Ordinal) ||
+                    name.EndsWith("TestMethod", StringComparison.Ordinal) ||
+                    name.EndsWith("DataTestMethod", StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static (List<string> Usings, string Methods) SplitUsingsFromMethods(string extractedCode)

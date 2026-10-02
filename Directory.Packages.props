@@ -163,5 +163,7 @@
     <PackageVersion Include="Moq" Version="4.21.0" />
     <PackageVersion Include="FakeItEasy" Version="9.0.1" />
     <PackageVersion Include="System.IO.Abstractions" Version="22.3.0" />
+    <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="22.3.0" />
+    <PackageVersion Include="System.IO" Version="4.3.0" />
   </ItemGroup>
 </Project>

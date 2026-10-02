@@ -16,6 +16,8 @@
     <PackageReference Include="FakeItEasy" />
     <PackageReference Include="Moq" />
     <PackageReference Include="System.IO.Abstractions" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
+    <PackageReference Include="System.IO" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
