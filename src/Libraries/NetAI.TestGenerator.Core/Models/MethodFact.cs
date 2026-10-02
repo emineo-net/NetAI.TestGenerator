@@ -21,7 +21,7 @@ public sealed class MethodFact
     /// <summary>Gets whether the method is declared with <c>async</c>.</summary>
     public bool IsAsync { get; init; }
 
-    /// <summary>Gets whether the method returns <see cref="void"/>.</summary>
+    /// <summary>Gets whether the method returns <see cref="void" />.</summary>
     public bool ReturnsVoid { get; init; }
 
     /// <summary>Gets whether the method is an <c>async void</c> method.</summary>
@@ -32,7 +32,6 @@ public sealed class MethodFact
 
     /// <summary>Gets the method's parameters in declaration order.</summary>
     public List<ParameterFact> Parameters { get; init; } = new();
-
 
     // NEW:
     public bool IsVirtual { get; init; }
@@ -45,9 +44,4 @@ public sealed class MethodFact
     public IReadOnlyList<string> GenericParameters { get; init; } = new List<string>();
     public IReadOnlyList<string> Attributes { get; init; } = new List<string>();
     public IReadOnlyList<string> ThrownExceptions { get; init; } = new List<string>();
-
-
-
-
-
 }

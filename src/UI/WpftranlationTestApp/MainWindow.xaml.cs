@@ -15,7 +15,7 @@ public partial class MainWindow : Window
     }
 
     private async void TestButton_OnClick(object sender, RoutedEventArgs e)
-     {
+    {
         //  await DownloadViaCloudFlare.DownloadWithCloudFlare();
 
         var builder = new AiPromptBuilder(@"C:\Users\steph\source\repos\NetAI.TestGenerator\src\UI\WpftranlationTestApp\aisettings.json");
@@ -25,14 +25,10 @@ public partial class MainWindow : Window
 
         var classCode = File.ReadAllText(@"C:\Users\steph\source\repos\NetAI.TestGenerator\src\UI\WpftranlationTestApp\MainWindow.xaml.cs");
 
-        var fertigerPrompt = builder.GeneratePrompt(
-            klassenCode: classCode,
-            methodenName: "ProcessOrder",
-            methodenSignatur: " public async Task<string> AskAsync(string userMessage, string? systemMessage = null, CancellationToken ct = default)"
-        );
+        var fertigerPrompt = builder.GeneratePrompt(classCode, "ProcessOrder",
+            " public async Task<string> AskAsync(string userMessage, string? systemMessage = null, CancellationToken ct = default)");
 
         Console.WriteLine(finalPrompt);
-
 
         var runner = new AiTranslatorRunner
         {
@@ -41,6 +37,6 @@ public partial class MainWindow : Window
             AppContext = "Rechnungs-Verwaltung für KMUs",
             SupportedLanguages = "en, de, it" // optional: überschreibt <SupportedLanguage> aus der .csproj
         };
-        var ok = await runner.Run(fertigerPrompt,msg => Console.WriteLine($"[Info]  {msg}"), msg => Console.WriteLine($"[Fehler] {msg}"));
+        var ok = await runner.Run(fertigerPrompt, msg => Console.WriteLine($"[Info]  {msg}"), msg => Console.WriteLine($"[Fehler] {msg}"));
     }
 }

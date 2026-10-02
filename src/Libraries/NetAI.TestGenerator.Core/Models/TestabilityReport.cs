@@ -32,14 +32,10 @@ public sealed class TestabilityReport
     /// <summary>Gets compilation errors captured as context for the analysis.</summary>
     public List<string> CompilationErrors { get; init; } = new();
 
-
     // NEW:
     public bool IsDirectlyTestable { get; init; }
     public IReadOnlyList<string> Blockers { get; init; } = new List<string>();
     public IReadOnlyList<string> AnalyzedCallGraph { get; init; } = new List<string>();
-
-
-
 
     /// <summary>Formats the report as prompt-ready text, including rules that prevent invented code facts.</summary>
     /// <returns>A plain-text representation of the report.</returns>
@@ -72,6 +68,7 @@ public sealed class TestabilityReport
                 var def = p.IsOptional ? $" (optional = {p.DefaultValue ?? "null"})" : "";
                 sb.AppendLine($"  - {p.Type} {p.Name}{def}");
             }
+
             sb.AppendLine();
         }
 
@@ -81,7 +78,10 @@ public sealed class TestabilityReport
         sb.AppendLine($"  - Accessibility: {ct.Accessibility}");
         sb.AppendLine($"  - Mockable:  {ct.Mockable}");
         if (ct.Interfaces.Count > 0)
+        {
             sb.AppendLine($"  - Interfaces: {string.Join(", ", ct.Interfaces)}");
+        }
+
         sb.AppendLine();
 
         sb.AppendLine("## Referenced types");
@@ -97,11 +97,17 @@ public sealed class TestabilityReport
                 sb.AppendLine($"    Kind={t.Kind}  Mockable={t.Mockable}  static={t.IsStatic}  " +
                               $"sealed={t.IsSealed}  used statically={t.UsedStatically}");
                 if (t.Interfaces.Count > 0)
+                {
                     sb.AppendLine($"    Interfaces: {string.Join(", ", t.Interfaces)}");
+                }
+
                 if (t.Constructors.Count > 0)
+                {
                     sb.AppendLine($"    Ctor: {string.Join(" | ", t.Constructors)}");
+                }
             }
         }
+
         sb.AppendLine();
 
         sb.AppendLine("## Testability");
@@ -112,7 +118,10 @@ public sealed class TestabilityReport
         {
             sb.AppendLine("## Recommendations");
             foreach (var r in Recommendations)
+            {
                 sb.AppendLine($"- {r}");
+            }
+
             sb.AppendLine();
         }
 
@@ -120,7 +129,9 @@ public sealed class TestabilityReport
         {
             sb.AppendLine("## Project compiler errors (context)");
             foreach (var e in CompilationErrors)
+            {
                 sb.AppendLine($"- {e}");
+            }
         }
 
         return sb.ToString();

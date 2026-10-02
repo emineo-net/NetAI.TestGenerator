@@ -1,5 +1,5 @@
-﻿using Scriban;
-using NetAI.TestGenerator.Core.Models.Enums;
+﻿using NetAI.TestGenerator.Core.Models.Enums;
+using Scriban;
 
 namespace NetAI.TestGenerator.Core.Services;
 
@@ -12,10 +12,7 @@ public class AiPromptBuilderSimple
     /// <param name="testFramework">Selected test framework, used to steer the repair prompt.</param>
     /// <param name="mockFramework">Selected mocking framework, used to steer the repair prompt.</param>
     /// <returns>A rendered prompt for repairing the code.</returns>
-    public string FixUnittestPrompt(
-        string generierter_code,
-        string compiler_fehler,
-        TestFramework testFramework = TestFramework.xUnit,
+    public string FixUnittestPrompt(string generierter_code, string compiler_fehler, TestFramework testFramework = TestFramework.xUnit,
         MockFramework mockFramework = MockFramework.Unknown)
     {
         var template = Template.Parse(PromptTemplates.UnitTestFixer);
@@ -28,7 +25,7 @@ public class AiPromptBuilderSimple
             { "test_framework_namespace", GetTestFrameworkNamespace(testFramework) },
             { "test_attribute", GetTestAttribute(testFramework) },
             { "mock_framework", GetMockFrameworkName(mockFramework) },
-            { "mock_framework_namespace", GetMockFrameworkNamespace(mockFramework) ?? string.Empty },
+            { "mock_framework_namespace", GetMockFrameworkNamespace(mockFramework) ?? string.Empty }
         };
 
         return template.Render(kontext);
@@ -40,10 +37,7 @@ public class AiPromptBuilderSimple
     /// <param name="testFramework">Selected test framework, used to steer the repair prompt.</param>
     /// <param name="mockFramework">Selected mocking framework, used to steer the repair prompt.</param>
     /// <returns>A rendered prompt that requests the complete corrected code.</returns>
-    public string FixUnittestPromptSimple(
-        string compiler_fehler,
-        string aktuellerCode,
-        TestFramework testFramework = TestFramework.xUnit,
+    public string FixUnittestPromptSimple(string compiler_fehler, string aktuellerCode, TestFramework testFramework = TestFramework.xUnit,
         MockFramework mockFramework = MockFramework.Unknown)
     {
         var template = Template.Parse(PromptTemplates.UnitTestFixerSimple);
@@ -56,7 +50,7 @@ public class AiPromptBuilderSimple
             { "test_framework_namespace", GetTestFrameworkNamespace(testFramework) },
             { "test_attribute", GetTestAttribute(testFramework) },
             { "mock_framework", GetMockFrameworkName(mockFramework) },
-            { "mock_framework_namespace", GetMockFrameworkNamespace(mockFramework) ?? string.Empty },
+            { "mock_framework_namespace", GetMockFrameworkNamespace(mockFramework) ?? string.Empty }
         };
 
         return template.Render(kontext);
@@ -64,43 +58,58 @@ public class AiPromptBuilderSimple
 
     // --- Framework-Mapping (bewusst lokal, um die Kopplung an andere Services zu vermeiden) ---
 
-    private static string GetTestFrameworkName(TestFramework testFramework) => testFramework switch
+    private static string GetTestFrameworkName(TestFramework testFramework)
     {
-        TestFramework.NUnit => "NUnit",
-        TestFramework.MSTest => "MSTest",
-        TestFramework.xUnit => "xUnit",
-        _ => "xUnit"
-    };
+        return testFramework switch
+        {
+            TestFramework.NUnit => "NUnit",
+            TestFramework.MSTest => "MSTest",
+            TestFramework.xUnit => "xUnit",
+            _ => "xUnit"
+        };
+    }
 
-    private static string GetTestFrameworkNamespace(TestFramework testFramework) => testFramework switch
+    private static string GetTestFrameworkNamespace(TestFramework testFramework)
     {
-        TestFramework.NUnit => "NUnit.Framework",
-        TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting",
-        TestFramework.xUnit => "Xunit",
-        _ => "Xunit"
-    };
+        return testFramework switch
+        {
+            TestFramework.NUnit => "NUnit.Framework",
+            TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting",
+            TestFramework.xUnit => "Xunit",
+            _ => "Xunit"
+        };
+    }
 
-    private static string GetTestAttribute(TestFramework testFramework) => testFramework switch
+    private static string GetTestAttribute(TestFramework testFramework)
     {
-        TestFramework.NUnit => "[Test]",
-        TestFramework.MSTest => "[TestMethod]",
-        TestFramework.xUnit => "[Fact]",
-        _ => "[Fact]"
-    };
+        return testFramework switch
+        {
+            TestFramework.NUnit => "[Test]",
+            TestFramework.MSTest => "[TestMethod]",
+            TestFramework.xUnit => "[Fact]",
+            _ => "[Fact]"
+        };
+    }
 
-    private static string GetMockFrameworkName(MockFramework mockFramework) => mockFramework switch
+    private static string GetMockFrameworkName(MockFramework mockFramework)
     {
-        MockFramework.Moq => "Moq",
-        MockFramework.NSubstitute => "NSubstitute",
-        MockFramework.FakeItEasy => "FakeItEasy",
-        _ => "none"
-    };
+        return mockFramework switch
+        {
+            MockFramework.Moq => "Moq",
+            MockFramework.NSubstitute => "NSubstitute",
+            MockFramework.FakeItEasy => "FakeItEasy",
+            _ => "none"
+        };
+    }
 
-    private static string? GetMockFrameworkNamespace(MockFramework mockFramework) => mockFramework switch
+    private static string? GetMockFrameworkNamespace(MockFramework mockFramework)
     {
-        MockFramework.Moq => "Moq",
-        MockFramework.NSubstitute => "NSubstitute",
-        MockFramework.FakeItEasy => "FakeItEasy",
-        _ => null
-    };
+        return mockFramework switch
+        {
+            MockFramework.Moq => "Moq",
+            MockFramework.NSubstitute => "NSubstitute",
+            MockFramework.FakeItEasy => "FakeItEasy",
+            _ => null
+        };
+    }
 }

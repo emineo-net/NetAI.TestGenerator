@@ -124,23 +124,31 @@ public class TranslationPromptBuilder
 
     private static bool HasSentenceStyleKey(string structuredInput)
     {
-        int lineStart = 0;
+        var lineStart = 0;
         while (lineStart < structuredInput.Length)
         {
-            int lineEnd = structuredInput.IndexOf('\n', lineStart);
-            if (lineEnd < 0) lineEnd = structuredInput.Length;
-
-            if (lineEnd - lineStart >= 5 &&
-                string.CompareOrdinal(structuredInput, lineStart, "[KEY:", 0, 5) == 0)
+            var lineEnd = structuredInput.IndexOf('\n', lineStart);
+            if (lineEnd < 0)
             {
-                int keyStart = lineStart + 5;
-                int closingBracket = structuredInput.IndexOf(']', keyStart);
-                if (closingBracket > keyStart && closingBracket < lineEnd &&
-                    structuredInput.IndexOf(' ', keyStart, closingBracket - keyStart) >= 0)
-                    return true;
+                lineEnd = structuredInput.Length;
             }
 
-            if (lineEnd == structuredInput.Length) break;
+            if (lineEnd - lineStart >= 5 && string.CompareOrdinal(structuredInput, lineStart, "[KEY:", 0, 5) == 0)
+            {
+                var keyStart = lineStart + 5;
+                var closingBracket = structuredInput.IndexOf(']', keyStart);
+                if (closingBracket > keyStart && closingBracket < lineEnd &&
+                    structuredInput.IndexOf(' ', keyStart, closingBracket - keyStart) >= 0)
+                {
+                    return true;
+                }
+            }
+
+            if (lineEnd == structuredInput.Length)
+            {
+                break;
+            }
+
             lineStart = lineEnd + 1;
         }
 

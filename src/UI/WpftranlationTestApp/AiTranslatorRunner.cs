@@ -2,7 +2,6 @@
 using NetAI.TestGenerator.Core;
 using NetAI.TestGenerator.Core.Analysis;
 using NetAI.TestGenerator.Core.Config;
-using NetAI.TestGenerator.Core.Models;
 
 namespace WpftranlationTestApp;
 
@@ -55,42 +54,31 @@ public class AiTranslatorRunner
             return false;
         }
 
-        string projectDir = ProjectDir.TrimEnd(Path.DirectorySeparatorChar);
+        var projectDir = ProjectDir.TrimEnd(Path.DirectorySeparatorChar);
 
         // 2. Den reinen Projektnamen extrahieren (z. B. "WpftranlationTestApp")
-        string projectName = Path.GetFileName(projectDir);
+        var projectName = Path.GetFileName(projectDir);
 
         // 3. Generisch das Solution-Root-Verzeichnis finden
-        string solutionDir = FindSolutionRoot(projectDir);
+        var solutionDir = FindSolutionRoot(projectDir);
 
         if (solutionDir != null)
         {
             // 4. Den Zielpfad immer fix unter "tests\UnitTests\" zusammenbauen
-            string testProjectDirectory = Path.Combine(solutionDir, "tests", "UnitTests", $"{projectName}.Tests");
+            var testProjectDirectory = Path.Combine(solutionDir, "tests", "UnitTests", $"{projectName}.Tests");
 
             // Ergebnis: C:\Users\steph\source\repos\NetAI.TestGenerator\tests\UnitTests\WpftranlationTestApp.Tests
 
-            string sourceFilePath = Path.Combine(ProjectDir, "MainWindow.xaml.cs");
-            var sourceFiles = Directory.GetFiles(ProjectDir, "*.cs", SearchOption.AllDirectories)
-                .Where(file =>
-                    !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
-                    !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"))
-                .ToList();
+            var sourceFilePath = Path.Combine(ProjectDir, "MainWindow.xaml.cs");
+            var sourceFiles = Directory.GetFiles(ProjectDir, "*.cs", SearchOption.AllDirectories).Where(file =>
+                !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
+                !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}")).ToList();
             var referencePaths = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
-                .Select(assembly => assembly.Location)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-            var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(
-                sourceFiles,
-                referencePaths,
-                assemblyName: projectName);
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location)).Select(assembly => assembly.Location)
+                .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(sourceFiles, referencePaths, projectName);
 
-            var result = await orchestrator.ProcessProjectAsync(
-                sourceFilePath,
-                testProjectDirectory,
-                logInfo,
-                compilation);
+            var result = await orchestrator.ProcessProjectAsync(sourceFilePath, testProjectDirectory, logInfo, compilation);
 
             if (result.Contains("error"))
             {
@@ -101,24 +89,21 @@ public class AiTranslatorRunner
             logInfo("✅ KI-Resx-Translator: Analyse abgeschlossen.");
             return true;
         }
-        else
-        {
-            // Fallback, falls keine .sln-Datei gefunden wurde
-            throw new DirectoryNotFoundException("Solution-Verzeichnis konnte nicht ermittelt werden.");
-        }
 
+        // Fallback, falls keine .sln-Datei gefunden wurde
+        throw new DirectoryNotFoundException("Solution-Verzeichnis konnte nicht ermittelt werden.");
     }
 
-    static string FindSolutionRoot(string currentDir)
+    private static string FindSolutionRoot(string currentDir)
     {
-        DirectoryInfo directory = new DirectoryInfo(currentDir);
+        var directory = new DirectoryInfo(currentDir);
 
         while (directory != null)
         {
             // Holt alle Dateien und prüft, ob eine davon auf .sln oder .slnx endet
-            bool hasSolutionFile = directory.GetFiles()
-                .Any(f => f.Extension.Equals(".sln", StringComparison.OrdinalIgnoreCase) ||
-                          f.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase));
+            var hasSolutionFile = directory.GetFiles().Any(f =>
+                f.Extension.Equals(".sln", StringComparison.OrdinalIgnoreCase) ||
+                f.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase));
 
             if (hasSolutionFile)
             {
@@ -131,8 +116,4 @@ public class AiTranslatorRunner
 
         return null;
     }
-
-
-
-
 }

@@ -10,16 +10,12 @@ public class TestGeneratorServiceDuplicateMethodTests
     [Fact]
     public void CreateNewTestClassFile_WritesDuplicateMethodSignatureOnlyOnce()
     {
-        string testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        string filePath = Path.Combine(testDirectory, "GeneratedTests.cs");
+        var testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var filePath = Path.Combine(testDirectory, "GeneratedTests.cs");
 
         try
         {
-            new TestGeneratorService().CreateNewTestClassFile(
-                filePath,
-                "GeneratedTests",
-                originalNamespace: null,
-                """
+            new TestGeneratorService().CreateNewTestClassFile(filePath, "GeneratedTests", null, """
                 [Fact]
                 public void GeneratedTest() { }
 
@@ -35,35 +31,35 @@ public class TestGeneratorServiceDuplicateMethodTests
         finally
         {
             if (Directory.Exists(testDirectory))
-                Directory.Delete(testDirectory, recursive: true);
+            {
+                Directory.Delete(testDirectory, true);
+            }
         }
     }
 
     [Fact]
     public void AppendMethodToExistingClassFile_DoesNotAppendExistingMethodSignature()
     {
-        string testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        string filePath = Path.Combine(testDirectory, "GeneratedTests.cs");
+        var testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var filePath = Path.Combine(testDirectory, "GeneratedTests.cs");
         Directory.CreateDirectory(testDirectory);
 
         try
         {
             File.WriteAllText(filePath, """
-                using Xunit;
+                                        using Xunit;
 
-                public class GeneratedTests
-                {
-                    [Fact]
-                    public void GeneratedTest() { }
-                }
-                """);
+                                        public class GeneratedTests
+                                        {
+                                            [Fact]
+                                            public void GeneratedTest() { }
+                                        }
+                                        """);
 
-            new TestGeneratorService().AppendMethodToExistingClassFile(
-                filePath,
-                """
-                [Fact]
-                public void GeneratedTest() { }
-                """);
+            new TestGeneratorService().AppendMethodToExistingClassFile(filePath, """
+                                                                                 [Fact]
+                                                                                 public void GeneratedTest() { }
+                                                                                 """);
 
             var root = CSharpSyntaxTree.ParseText(File.ReadAllText(filePath)).GetCompilationUnitRoot();
 
@@ -73,7 +69,9 @@ public class TestGeneratorServiceDuplicateMethodTests
         finally
         {
             if (Directory.Exists(testDirectory))
-                Directory.Delete(testDirectory, recursive: true);
+            {
+                Directory.Delete(testDirectory, true);
+            }
         }
     }
 }

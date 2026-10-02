@@ -15,7 +15,7 @@ public sealed class ParameterFact
     /// <summary>Gets whether the parameter declares an explicit default value.</summary>
     public bool HasDefaultValue { get; init; }
 
-    /// <summary>Gets the default value's display text, or <see langword="null"/> when none is declared.</summary>
+    /// <summary>Gets the default value's display text, or <see langword="null" /> when none is declared.</summary>
     public string? DefaultValue { get; init; }
 
     // NEW:

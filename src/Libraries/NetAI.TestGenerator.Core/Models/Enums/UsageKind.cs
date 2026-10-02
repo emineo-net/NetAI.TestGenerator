@@ -13,5 +13,5 @@ public enum UsageKind
     Throw = 32,
     TypeOf = 64,
     Inherit = 128,
-    Attribute = 256,
+    Attribute = 256
 }

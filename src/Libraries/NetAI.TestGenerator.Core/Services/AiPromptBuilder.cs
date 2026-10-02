@@ -1,7 +1,7 @@
-﻿using NetAI.TestGenerator.Core.Config;
+﻿using System.Text;
+using NetAI.TestGenerator.Core.Config;
 using NetAI.TestGenerator.Core.Models.Enums;
 using Scriban;
-using System.Text;
 
 namespace NetAI.TestGenerator.Core.Services;
 
@@ -107,73 +107,80 @@ public class AiPromptBuilder
     /// <param name="testFramework">Selected test framework; drives framework name, namespace and attribute.</param>
     /// <param name="mockFramework">Selected mocking framework; drives mocking library and namespace.</param>
     /// <returns>A rendered prompt for generating the test.</returns>
-    public string GeneratePrompt(
-        string klassenCode,
-        string methodenName,
-        string methodenSignatur,
-        TestFramework testFramework = TestFramework.xUnit,
-        MockFramework mockFramework = MockFramework.Unknown)
+    public string GeneratePrompt(string klassenCode, string methodenName, string methodenSignatur,
+        TestFramework testFramework = TestFramework.xUnit, MockFramework mockFramework = MockFramework.Unknown)
     {
         var template = Template.Parse(PromptTemplates.UnitTestGenerator);
 
         var kontext = new Dictionary<string, object>
-    {
-        { "test_framework", GetTestFrameworkName(testFramework) },
-        { "test_framework_namespace", GetTestFrameworkNamespace(testFramework) },
-        { "test_attribute", GetTestAttribute(testFramework) },
-        { "mocking_library", GetMockFrameworkName(mockFramework) },
-        { "mock_framework_namespace", GetMockFrameworkNamespace(mockFramework) ?? string.Empty },
-        { "ziel_methode_name", methodenName },
-        { "ziel_methode_signatur", methodenSignatur },
-        { "klassen_code", klassenCode }
-    };
+        {
+            { "test_framework", GetTestFrameworkName(testFramework) },
+            { "test_framework_namespace", GetTestFrameworkNamespace(testFramework) },
+            { "test_attribute", GetTestAttribute(testFramework) },
+            { "mocking_library", GetMockFrameworkName(mockFramework) },
+            { "mock_framework_namespace", GetMockFrameworkNamespace(mockFramework) ?? string.Empty },
+            { "ziel_methode_name", methodenName },
+            { "ziel_methode_signatur", methodenSignatur },
+            { "klassen_code", klassenCode }
+        };
 
         return template.Render(kontext);
     }
 
     // --- Framework-Mapping (bewusst lokal, um keine Kopplung an andere Services aufzubauen) ---
 
-    private static string GetTestFrameworkName(TestFramework testFramework) => testFramework switch
+    private static string GetTestFrameworkName(TestFramework testFramework)
     {
-        TestFramework.NUnit => "NUnit",
-        TestFramework.MSTest => "MSTest",
-        TestFramework.xUnit => "xUnit",
-        _ => "xUnit"
-    };
+        return testFramework switch
+        {
+            TestFramework.NUnit => "NUnit",
+            TestFramework.MSTest => "MSTest",
+            TestFramework.xUnit => "xUnit",
+            _ => "xUnit"
+        };
+    }
 
-    private static string GetTestFrameworkNamespace(TestFramework testFramework) => testFramework switch
+    private static string GetTestFrameworkNamespace(TestFramework testFramework)
     {
-        TestFramework.NUnit => "NUnit.Framework",
-        TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting",
-        TestFramework.xUnit => "Xunit",
-        _ => "Xunit"
-    };
+        return testFramework switch
+        {
+            TestFramework.NUnit => "NUnit.Framework",
+            TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting",
+            TestFramework.xUnit => "Xunit",
+            _ => "Xunit"
+        };
+    }
 
-    private static string GetTestAttribute(TestFramework testFramework) => testFramework switch
+    private static string GetTestAttribute(TestFramework testFramework)
     {
-        TestFramework.NUnit => "[Test]",
-        TestFramework.MSTest => "[TestMethod]",
-        TestFramework.xUnit => "[Fact]",
-        _ => "[Fact]"
-    };
+        return testFramework switch
+        {
+            TestFramework.NUnit => "[Test]",
+            TestFramework.MSTest => "[TestMethod]",
+            TestFramework.xUnit => "[Fact]",
+            _ => "[Fact]"
+        };
+    }
 
-    private static string GetMockFrameworkName(MockFramework mockFramework) => mockFramework switch
+    private static string GetMockFrameworkName(MockFramework mockFramework)
     {
-        MockFramework.Moq => "Moq",
-        MockFramework.NSubstitute => "NSubstitute",
-        MockFramework.FakeItEasy => "FakeItEasy",
-        _ => "none"
-    };
+        return mockFramework switch
+        {
+            MockFramework.Moq => "Moq",
+            MockFramework.NSubstitute => "NSubstitute",
+            MockFramework.FakeItEasy => "FakeItEasy",
+            _ => "none"
+        };
+    }
 
-    private static string? GetMockFrameworkNamespace(MockFramework mockFramework) => mockFramework switch
+    private static string? GetMockFrameworkNamespace(MockFramework mockFramework)
     {
-        MockFramework.Moq => "Moq",
-        MockFramework.NSubstitute => "NSubstitute",
-        MockFramework.FakeItEasy => "FakeItEasy",
-        _ => null
-    };
-
-
-
-
+        return mockFramework switch
+        {
+            MockFramework.Moq => "Moq",
+            MockFramework.NSubstitute => "NSubstitute",
+            MockFramework.FakeItEasy => "FakeItEasy",
+            _ => null
+        };
+    }
 }

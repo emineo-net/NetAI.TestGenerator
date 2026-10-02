@@ -25,23 +25,28 @@ public record AiTestingConfig
     }
 
     /// <summary>Gets or sets the configuration format version.</summary>
-    [JsonProperty("version")] public string Version { get; set; }
+    [JsonProperty("version")]
+    public string Version { get; set; }
 
     /// <summary>Gets or sets target framework and test project settings.</summary>
-    [JsonProperty("environment")] public EnvironmentConfig Environment { get; set; }
+    [JsonProperty("environment")]
+    public EnvironmentConfig Environment { get; set; }
 
     /// <summary>Gets or sets the test and mocking framework settings.</summary>
-    [JsonProperty("frameworks")] public FrameworksConfig Frameworks { get; set; }
+    [JsonProperty("frameworks")]
+    public FrameworksConfig Frameworks { get; set; }
 
     /// <summary>Gets or sets generated-code formatting preferences.</summary>
-    [JsonProperty("codeStyle")] public CodeStyleConfig CodeStyle { get; set; }
+    [JsonProperty("codeStyle")]
+    public CodeStyleConfig CodeStyle { get; set; }
 
     /// <summary>Gets or sets test generation scope and organization settings.</summary>
-    [JsonProperty("generationBehavior")] public GenerationBehaviorConfig GenerationBehavior { get; set; }
+    [JsonProperty("generationBehavior")]
+    public GenerationBehaviorConfig GenerationBehavior { get; set; }
 
     /// <summary>Gets or sets the AI model and system prompt settings.</summary>
-    [JsonProperty("aiConfiguration")] public AiConfigurationConfig AiConfiguration { get; set; }
-
+    [JsonProperty("aiConfiguration")]
+    public AiConfigurationConfig AiConfiguration { get; set; }
 }
 
 /// <summary>Defines the target .NET framework and generated test project name.</summary>

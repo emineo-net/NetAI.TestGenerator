@@ -9,7 +9,5 @@ public interface ICompilerService
     /// <param name="sourceCode">C# source code to compile.</param>
     /// <param name="cancellationToken">Token used to cancel compilation.</param>
     /// <returns>The diagnostics reported by the compiler.</returns>
-    Task<IReadOnlyList<Diagnostic>> CompileAndGetDiagnosticsAsync(
-        string sourceCode,
-        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Diagnostic>> CompileAndGetDiagnosticsAsync(string sourceCode, CancellationToken cancellationToken = default);
 }

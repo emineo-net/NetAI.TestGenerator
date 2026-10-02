@@ -1,8 +1,8 @@
+using System.Reflection;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using NetAI.TestGenerator.Core;
 using NetAI.TestGenerator.Core.Services;
-using System.Reflection;
 using Xunit;
 
 namespace NetAI.TestGenerator.Core.Tests;
@@ -14,25 +14,22 @@ public class TestGeneratorServiceWrapperTests
     {
         var orchestrator = new ResxTranslationOrchestrator();
         var prepareMethod = typeof(ResxTranslationOrchestrator).GetMethod(
-            "PrepareValidationStructure",
-            BindingFlags.Instance | BindingFlags.NonPublic);
+            "PrepareValidationStructure", BindingFlags.Instance | BindingFlags.NonPublic);
 
         Assert.NotNull(prepareMethod);
-        string validationCode = (string)prepareMethod.Invoke(orchestrator, new object?[]
+        var validationCode = (string)prepareMethod.Invoke(orchestrator, new object?[]
         {
-            "MainWindowTests",
-            null,
-            """
-            using Xunit;
-            namespace NetAI.Generated.Tests
-            {
-                public class MainWindowTests
-                {
-                    [Fact]
-                    public void TestButton_OnClick_ShouldBeSkipped() { }
-                }
-            }
-            """
+            "MainWindowTests", null, """
+                                     using Xunit;
+                                     namespace NetAI.Generated.Tests
+                                     {
+                                         public class MainWindowTests
+                                         {
+                                             [Fact]
+                                             public void TestButton_OnClick_ShouldBeSkipped() { }
+                                         }
+                                     }
+                                     """
         })!;
 
         var root = CSharpSyntaxTree.ParseText(validationCode).GetCompilationUnitRoot();
@@ -42,27 +39,21 @@ public class TestGeneratorServiceWrapperTests
 
         Assert.Single(namespaces);
         Assert.Single(classes, declaration => declaration.Identifier.ValueText == "MainWindowTests");
-        Assert.Single(methods, declaration =>
-            declaration.Identifier.ValueText == "TestButton_OnClick_ShouldBeSkipped");
+        Assert.Single(methods, declaration => declaration.Identifier.ValueText == "TestButton_OnClick_ShouldBeSkipped");
         Assert.DoesNotContain(root.DescendantNodes().OfType<UsingDirectiveSyntax>(),
             usingDirective => !root.Usings.Contains(usingDirective));
-        Assert.DoesNotContain(root.GetDiagnostics(),
-            diagnostic => diagnostic.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
+        Assert.DoesNotContain(root.GetDiagnostics(), diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
     public void CreateNewTestClassFile_FlattensCompleteGeneratedTestClass()
     {
-        string testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        string filePath = Path.Combine(testDirectory, "MainWindowTests.cs");
+        var testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var filePath = Path.Combine(testDirectory, "MainWindowTests.cs");
 
         try
         {
-            new TestGeneratorService().CreateNewTestClassFile(
-                filePath,
-                "MainWindowTests",
-                originalNamespace: null,
-                """
+            new TestGeneratorService().CreateNewTestClassFile(filePath, "MainWindowTests", null, """
                 using Xunit;
 
                 namespace NetAI.Generated.Tests
@@ -84,41 +75,38 @@ public class TestGeneratorServiceWrapperTests
                 method => method.Identifier.ValueText == "TestButton_OnClick_ShouldBeSkipped");
             Assert.DoesNotContain(root.DescendantNodes().OfType<UsingDirectiveSyntax>(),
                 usingDirective => !root.Usings.Contains(usingDirective));
-            Assert.DoesNotContain(root.GetDiagnostics(),
-                diagnostic => diagnostic.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
+            Assert.DoesNotContain(root.GetDiagnostics(), diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
         }
         finally
         {
             if (Directory.Exists(testDirectory))
-                Directory.Delete(testDirectory, recursive: true);
+            {
+                Directory.Delete(testDirectory, true);
+            }
         }
     }
 
     [Fact]
     public void CreateNewTestClassFile_RejectsWrappedCodeWithoutTestMethod()
     {
-        string testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        string filePath = Path.Combine(testDirectory, "MainWindowTests.cs");
+        var testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var filePath = Path.Combine(testDirectory, "MainWindowTests.cs");
 
         try
         {
-            var exception = Assert.Throws<ArgumentException>(() =>
-                new TestGeneratorService().CreateNewTestClassFile(
-                    filePath,
-                    "MainWindowTests",
-                    originalNamespace: null,
-                    """
-                    using Xunit;
+            var exception = Assert.Throws<ArgumentException>(() => new TestGeneratorService().CreateNewTestClassFile(filePath,
+                "MainWindowTests", null, """
+                                         using Xunit;
 
-                    namespace NetAI.Generated.Tests
-                    {
-                        public class MainWindowTests
-                        {
-                            [Fact(Skip = "No executable method was generated.")]
-                            // public void TestButton_OnClick_ShouldBeSkipped() { }
-                        }
-                    }
-                    """));
+                                         namespace NetAI.Generated.Tests
+                                         {
+                                             public class MainWindowTests
+                                             {
+                                                 [Fact(Skip = "No executable method was generated.")]
+                                                 // public void TestButton_OnClick_ShouldBeSkipped() { }
+                                             }
+                                         }
+                                         """));
 
             Assert.Contains("does not contain a test method", exception.Message);
             Assert.False(File.Exists(filePath));
@@ -126,28 +114,29 @@ public class TestGeneratorServiceWrapperTests
         finally
         {
             if (Directory.Exists(testDirectory))
-                Directory.Delete(testDirectory, recursive: true);
+            {
+                Directory.Delete(testDirectory, true);
+            }
         }
     }
 
     [Fact]
     public void ExtractTestClass_FlattensCompleteGeneratedTestClass()
     {
-        string testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        string filePath = Path.Combine(testDirectory, "MainWindowTests.cs");
-        string extracted = ResxTranslationOrchestrator.ExtractTestClass(
-            """
-            using Xunit;
+        var testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var filePath = Path.Combine(testDirectory, "MainWindowTests.cs");
+        var extracted = ResxTranslationOrchestrator.ExtractTestClass("""
+                                                                     using Xunit;
 
-            namespace NetAI.Generated.Tests
-            {
-                public class MainWindowTests
-                {
-                    [Fact]
-                    public void TestButton_OnClick_ShouldBeSkipped() { }
-                }
-            }
-            """);
+                                                                     namespace NetAI.Generated.Tests
+                                                                     {
+                                                                         public class MainWindowTests
+                                                                         {
+                                                                             [Fact]
+                                                                             public void TestButton_OnClick_ShouldBeSkipped() { }
+                                                                         }
+                                                                     }
+                                                                     """);
 
         try
         {
@@ -155,11 +144,7 @@ public class TestGeneratorServiceWrapperTests
             Assert.DoesNotContain("namespace NetAI.Generated.Tests", extracted);
             Assert.DoesNotContain("class MainWindowTests", extracted);
 
-            new TestGeneratorService().CreateNewTestClassFile(
-                filePath,
-                "MainWindowTests",
-                originalNamespace: null,
-                extracted);
+            new TestGeneratorService().CreateNewTestClassFile(filePath, "MainWindowTests", null, extracted);
 
             var root = CSharpSyntaxTree.ParseText(File.ReadAllText(filePath)).GetCompilationUnitRoot();
             Assert.Single(root.Members.OfType<NamespaceDeclarationSyntax>());
@@ -171,7 +156,9 @@ public class TestGeneratorServiceWrapperTests
         finally
         {
             if (Directory.Exists(testDirectory))
-                Directory.Delete(testDirectory, recursive: true);
+            {
+                Directory.Delete(testDirectory, true);
+            }
         }
     }
 }

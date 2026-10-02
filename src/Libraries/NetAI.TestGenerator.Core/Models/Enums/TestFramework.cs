@@ -1,5 +1,4 @@
-﻿
-namespace NetAI.TestGenerator.Core.Models.Enums;
+﻿namespace NetAI.TestGenerator.Core.Models.Enums;
 
 /// <summary>Identifies the test framework used to format or validate generated tests.</summary>
 public enum TestFramework

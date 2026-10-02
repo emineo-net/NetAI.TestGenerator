@@ -1,5 +1,4 @@
-﻿
-namespace NetAI.TestGenerator.Core.Models.Enums;
+﻿namespace NetAI.TestGenerator.Core.Models.Enums;
 
 /// <summary>Identifies the mocking library used when preparing generated tests.</summary>
 public enum MockFramework

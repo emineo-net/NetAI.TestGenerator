@@ -12,5 +12,5 @@ public enum DependencyKind
     Struct,
     Enum,
     Primitive,
-    Unknown,
+    Unknown
 }
