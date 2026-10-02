@@ -21,23 +21,28 @@ public sealed class RoslynDllTestabilityAnalyzer
     private static readonly SymbolDisplayFormat FqFormat =
         SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
 
-    private static readonly IReadOnlyDictionary<string, string> StaticApiAbstractions =
-        new Dictionary<string, string>(StringComparer.Ordinal)
+    /// <summary>
+    ///     Maps well-known static APIs to a suggested abstraction and (optionally)
+    ///     the NuGet package that provides it. A <c>null</c> package means the
+    ///     abstraction is in-box (no extra package required).
+    /// </summary>
+    private static readonly IReadOnlyDictionary<string, (string Abstraction, string? Package)> StaticApiAbstractions =
+        new Dictionary<string, (string, string?)>(StringComparer.Ordinal)
         {
-            ["System.IO.File"] = "System.IO.Abstractions.IFileSystem",
-            ["System.IO.Directory"] = "System.IO.Abstractions.IFileSystem",
-            ["System.IO.Path"] = "System.IO.Abstractions.IPath",
-            ["System.IO.FileStream"] = "System.IO.Abstractions.IFileSystem",
-            ["System.DateTime"] = "System.TimeProvider (or custom ITimeProvider)",
-            ["System.DateTimeOffset"] = "System.TimeProvider (or custom ITimeProvider)",
-            ["System.Guid"] = "custom IGuidProvider",
-            ["System.Random"] = "custom IRandom",
-            ["System.Environment"] = "custom IEnvironment",
-            ["System.Console"] = "custom IConsole",
-            ["System.Net.Http.HttpClient"] = "System.Net.Http.IHttpClientFactory",
-            ["System.Threading.Thread"] = "avoid - use Task / TimeProvider",
-            ["System.Diagnostics.Process"] = "abstraction over IProcessRunner",
-            ["System.IO.Compression.ZipFile"] = "abstraction over IZipService"
+            ["System.IO.File"] = ("System.IO.Abstractions.IFileSystem", "System.IO.Abstractions"),
+            ["System.IO.Directory"] = ("System.IO.Abstractions.IFileSystem", "System.IO.Abstractions"),
+            ["System.IO.Path"] = ("System.IO.Abstractions.IPath", "System.IO.Abstractions"),
+            ["System.IO.FileStream"] = ("System.IO.Abstractions.IFileSystem", "System.IO.Abstractions"),
+            ["System.DateTime"] = ("System.TimeProvider (or custom ITimeProvider)", null),
+            ["System.DateTimeOffset"] = ("System.TimeProvider (or custom ITimeProvider)", null),
+            ["System.Guid"] = ("custom IGuidProvider", null),
+            ["System.Random"] = ("custom IRandom", null),
+            ["System.Environment"] = ("custom IEnvironment", null),
+            ["System.Console"] = ("custom IConsole", null),
+            ["System.Net.Http.HttpClient"] = ("System.Net.Http.IHttpClientFactory", "Microsoft.Extensions.Http"),
+            ["System.Threading.Thread"] = ("avoid - use Task / TimeProvider", null),
+            ["System.Diagnostics.Process"] = ("abstraction over IProcessRunner", null),
+            ["System.IO.Compression.ZipFile"] = ("abstraction over IZipService", null)
         };
 
     private readonly AnalyzerOptions _options;
@@ -86,8 +91,27 @@ public sealed class RoslynDllTestabilityAnalyzer
             throw new ArgumentNullException(nameof(compilation));
         }
 
-        var (tree, methodDecl) = FindMethodAcrossTrees(compilation, methodName, documentName, ct) ??
-                                 throw new InvalidOperationException($"Method '{methodName}' was not found in any source file.");
+        var result = FindMethodAcrossTrees(compilation, methodName, documentName, ct);
+        if (result is null)
+        {
+            if (!string.IsNullOrWhiteSpace(documentName) &&
+                !compilation.SyntaxTrees.Any(t => MatchesDocumentPath(t.FilePath, documentName!)))
+            {
+                var available = compilation.SyntaxTrees
+                    .Select(t => Path.GetFileName(t.FilePath))
+                    .Where(n => !string.IsNullOrEmpty(n))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(n => n, StringComparer.OrdinalIgnoreCase);
+
+                throw new InvalidOperationException(
+                    $"Document '{documentName}' was not found in the compilation. " +
+                    $"Available documents: {string.Join(", ", available)}");
+            }
+
+            throw new InvalidOperationException($"Method '{methodName}' was not found in any source file.");
+        }
+
+        var (tree, methodDecl) = result.Value;
 
         var model = compilation.GetSemanticModel(tree);
         var methodSymbol = model.GetDeclaredSymbol(methodDecl, ct) ?? throw new InvalidOperationException("No method symbol was found.");
@@ -134,10 +158,6 @@ public sealed class RoslynDllTestabilityAnalyzer
         /// Loads a solution through MSBuild and analyzes a named method in the requested document.
         /// Use this when you need full project context (NuGet, WPF, Directory.Build.props).
         /// </summary>
-        /// <param name="solutionPath">Path to the .sln file.</param>
-        /// <param name="documentName">File name or path fragment of the document.</param>
-        /// <param name="methodName">Name of the method to analyze.</param>
-        /// <param name="ct">Cancellation token.</param>
         public async Task<TestabilityReport> AnalyzeFromSolutionAsync(
             string solutionPath,
             string documentName,
@@ -243,11 +263,6 @@ public sealed class RoslynDllTestabilityAnalyzer
         /// plus the target document's compilation. Use this when you need to analyze
         /// multiple methods in the same file without reloading MSBuild each time.
         /// </summary>
-        /// <param name="solutionPath">Optional .sln path. Takes precedence over <paramref name="projectPath"/>.</param>
-        /// <param name="projectPath">Optional .csproj path.</param>
-        /// <param name="documentName">File name or path fragment of the document to locate.</param>
-        /// <param name="logInfo">Optional callback for workspace diagnostics.</param>
-        /// <param name="ct">Cancellation token.</param>
         public async Task<(IDisposable Workspace, Compilation? Compilation)> LoadCompilationFromMsbuildAsync(
             string? solutionPath,
             string? projectPath,
@@ -310,11 +325,7 @@ public sealed class RoslynDllTestabilityAnalyzer
             if (string.Equals(document.Name, name, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            var path = document.FilePath;
-            if (string.IsNullOrEmpty(path)) return false;
-
-            return path.EndsWith(name, StringComparison.OrdinalIgnoreCase)
-                || path.Contains(name, StringComparison.OrdinalIgnoreCase);
+            return MatchesDocumentPath(document.FilePath, name);
         }
 
         /// <summary>Disposable placeholder when no workspace needs to be released.</summary>
@@ -340,7 +351,6 @@ public sealed class RoslynDllTestabilityAnalyzer
         var externalPath = external.SyntaxTree?.FilePath;
         var externalFileName = string.IsNullOrEmpty(externalPath) ? null : Path.GetFileName(externalPath);
 
-        // 1) Match by exact file path (or, if paths differ, by file name).
         if (!string.IsNullOrEmpty(externalPath) || !string.IsNullOrEmpty(externalFileName))
         {
             foreach (var tree in compilation.SyntaxTrees)
@@ -372,7 +382,6 @@ public sealed class RoslynDllTestabilityAnalyzer
             }
         }
 
-        // 2) Fallback: search all trees by name + arity.
         foreach (var tree in compilation.SyntaxTrees)
         {
             ct.ThrowIfCancellationRequested();
@@ -573,6 +582,7 @@ public sealed class RoslynDllTestabilityAnalyzer
             UsedStatically = false,
             DependencyKind = ClassifyDependencyKind(containing),
             BaseType = containing.BaseType?.ToDisplayString(FqFormat) ?? "",
+            AllBaseTypes = CollectAllBaseTypes(containing),
             Interfaces = containing.AllInterfaces.Select(i => i.ToDisplayString(FqFormat)).ToList(),
             Constructors =
                 containing.InstanceConstructors.Where(c => c.DeclaredAccessibility == Accessibility.Public)
@@ -584,16 +594,17 @@ public sealed class RoslynDllTestabilityAnalyzer
 
     // ---------------------------------------------------------------- call graph + dependencies
 
-    private IReadOnlyList<string> BuildCallGraph(IMethodSymbol root, Compilation compilation)
+    /// <summary>
+    ///     Returns all methods reachable from <paramref name="root" /> through invocations
+    ///     on the same containing type, in BFS order. The root is always the first element.
+    ///     The traversal is bounded by <see cref="AnalyzerOptions.MaxCallGraphDepth" /> and
+    ///     skips <see cref="MethodKind.DelegateInvoke" /> targets.
+    /// </summary>
+    private IReadOnlyList<IMethodSymbol> EnumerateReachableMethods(IMethodSymbol root, Compilation compilation)
     {
-        if (!_options.IncludeRecursiveCallGraph)
-        {
-            return new[] { root.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) };
-        }
-
         var visited = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
-        var ordered = new List<string>();
-        var queue = new Queue<(IMethodSymbol method, int depth)>();
+        var ordered = new List<IMethodSymbol>();
+        var queue = new Queue<(IMethodSymbol Method, int Depth)>();
         queue.Enqueue((root, 0));
 
         while (queue.Count > 0)
@@ -604,7 +615,8 @@ public sealed class RoslynDllTestabilityAnalyzer
                 continue;
             }
 
-            ordered.Add(method.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
+            ordered.Add(method);
+
             if (depth >= _options.MaxCallGraphDepth)
             {
                 continue;
@@ -626,7 +638,7 @@ public sealed class RoslynDllTestabilityAnalyzer
                 foreach (var inv in body.Descendants().OfType<IInvocationOperation>())
                 {
                     var target = inv.TargetMethod;
-                    if (target == null)
+                    if (target is null)
                     {
                         continue;
                     }
@@ -650,6 +662,18 @@ public sealed class RoslynDllTestabilityAnalyzer
         }
 
         return ordered;
+    }
+
+    private IReadOnlyList<string> BuildCallGraph(IMethodSymbol root, Compilation compilation)
+    {
+        if (!_options.IncludeRecursiveCallGraph)
+        {
+            return new[] { root.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) };
+        }
+
+        return EnumerateReachableMethods(root, compilation)
+            .Select(m => m.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))
+            .ToList();
     }
 
     private List<TypeFact> CollectReferencedTypes(IMethodSymbol root, Compilation compilation)
@@ -730,7 +754,9 @@ public sealed class RoslynDllTestabilityAnalyzer
                     DependencyKind = existing.DependencyKind,
                     Usages = existing.Usages | usage,
                     BaseType = existing.BaseType,
+                    AllBaseTypes = existing.AllBaseTypes,
                     RecommendedAbstraction = existing.RecommendedAbstraction,
+                    RecommendedAbstractionPackage = existing.RecommendedAbstractionPackage,
                     RecommendationReason = existing.RecommendationReason,
                     Interfaces = existing.Interfaces,
                     Constructors = existing.Constructors,
@@ -760,7 +786,9 @@ public sealed class RoslynDllTestabilityAnalyzer
                 DependencyKind = ClassifyDependencyKind(named),
                 Usages = usage,
                 BaseType = named.BaseType?.ToDisplayString(FqFormat) ?? "",
+                AllBaseTypes = CollectAllBaseTypes(named),
                 RecommendedAbstraction = abstraction.Abstraction,
+                RecommendedAbstractionPackage = abstraction.Package,
                 RecommendationReason = abstraction.Reason,
                 Constructors =
                     named.InstanceConstructors.Where(c => c.DeclaredAccessibility == Accessibility.Public)
@@ -771,39 +799,9 @@ public sealed class RoslynDllTestabilityAnalyzer
             };
         }
 
-        var methodsToInspect = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default) { root };
-        if (_options.IncludeRecursiveCallGraph)
-        {
-            foreach (var syntaxRef in root.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax rootDecl)
-                {
-                    continue;
-                }
-
-                var model = compilation.GetSemanticModel(rootDecl.SyntaxTree);
-                if (model.GetOperation(rootDecl) is not IMethodBodyOperation body)
-                {
-                    continue;
-                }
-
-                foreach (var inv in body.Descendants().OfType<IInvocationOperation>())
-                {
-                    var t = inv.TargetMethod;
-                    if (t == null)
-                    {
-                        continue;
-                    }
-
-                    if (!SymbolEqualityComparer.Default.Equals(t.ContainingType, root.ContainingType))
-                    {
-                        continue;
-                    }
-
-                    methodsToInspect.Add(t);
-                }
-            }
-        }
+        IReadOnlyList<IMethodSymbol> methodsToInspect = _options.IncludeRecursiveCallGraph
+            ? EnumerateReachableMethods(root, compilation)
+            : new[] { root };
 
         foreach (var method in methodsToInspect)
         {
@@ -960,7 +958,16 @@ public sealed class RoslynDllTestabilityAnalyzer
         {
             if (!string.IsNullOrEmpty(t.RecommendedAbstraction))
             {
-                sourceRefactoring.Add($"Wrap '{t.FullName}' behind '{t.RecommendedAbstraction}' and inject that abstraction.");
+                if (!string.IsNullOrEmpty(t.RecommendedAbstractionPackage))
+                {
+                    sourceRefactoring.Add(
+                        $"Wrap '{t.FullName}' behind '{t.RecommendedAbstraction}' " +
+                        $"(NuGet package '{t.RecommendedAbstractionPackage}' must be referenced) and inject that abstraction.");
+                }
+                else
+                {
+                    sourceRefactoring.Add($"Wrap '{t.FullName}' behind '{t.RecommendedAbstraction}' and inject that abstraction.");
+                }
             }
             else if (!t.IsInterface)
             {
@@ -999,20 +1006,51 @@ public sealed class RoslynDllTestabilityAnalyzer
 
     // ---------------------------------------------------------------- helpers
 
-    private static (string Abstraction, string Reason) ResolveAbstraction(INamedTypeSymbol type)
+    /// <summary>
+    ///     Walks the type's inheritance chain, returning every base type as a fully
+    ///     qualified display string, ordered from the immediate base up to (but
+    ///     excluding) <see cref="object" />. Interfaces are not included.
+    /// </summary>
+    private static List<string> CollectAllBaseTypes(INamedTypeSymbol type)
+    {
+        var result = new List<string>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        var current = type.BaseType;
+        while (current is not null && current.SpecialType != SpecialType.System_Object)
+        {
+            var name = current.ToDisplayString(FqFormat);
+            if (!seen.Add(name))
+            {
+                // Defensive: Roslyn does not produce cycles, but guard against it anyway.
+                break;
+            }
+
+            result.Add(name);
+            current = current.BaseType;
+        }
+
+        return result;
+    }
+
+    private static (string Abstraction, string? Package, string Reason) ResolveAbstraction(INamedTypeSymbol type)
     {
         var full = type.OriginalDefinition.ToDisplayString(FqFormat);
         if (StaticApiAbstractions.TryGetValue(full, out var mapped))
         {
-            return (mapped, $"'{full}' is a well-known static API without an abstraction.");
+            var reason = mapped.Package is null
+                ? $"'{full}' is a well-known static API; suggested abstraction: '{mapped.Abstraction}' (in-box)."
+                : $"'{full}' is a well-known static API; suggested abstraction: '{mapped.Abstraction}' " +
+                  $"(requires package '{mapped.Package}' - do not assume it is referenced).";
+            return (mapped.Abstraction, mapped.Package, reason);
         }
 
         if (type.IsStatic)
         {
-            return ("", "static type - cannot be mocked.");
+            return ("", null, "static type - cannot be mocked.");
         }
 
-        return ("", "");
+        return ("", null, "");
     }
 
     private static string KindOf(INamedTypeSymbol type)
@@ -1116,6 +1154,23 @@ public sealed class RoslynDllTestabilityAnalyzer
         return string.IsNullOrEmpty(fromPath) ? "(unnamed)" : fromPath;
     }
 
+    /// <summary>
+    ///     Shared document-path matcher used by both <see cref="MatchesDocument" /> (MSBuild)
+    ///     and <see cref="FindMethodAcrossTrees" /> (compilation-only). Matches by file name
+    ///     or by path fragment, case-insensitive.
+    /// </summary>
+    private static bool MatchesDocumentPath(string? treePath, string documentName)
+    {
+        if (string.IsNullOrEmpty(treePath))
+        {
+            return false;
+        }
+
+        var file = Path.GetFileName(treePath);
+        return string.Equals(file, documentName, StringComparison.OrdinalIgnoreCase) ||
+               treePath.Contains(documentName, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static (SyntaxTree Tree, MethodDeclarationSyntax Method)? FindMethodAcrossTrees(Compilation compilation, string methodName,
         string? documentName, CancellationToken ct)
     {
@@ -1123,14 +1178,9 @@ public sealed class RoslynDllTestabilityAnalyzer
         {
             ct.ThrowIfCancellationRequested();
 
-            if (!string.IsNullOrWhiteSpace(documentName))
+            if (!string.IsNullOrWhiteSpace(documentName) && !MatchesDocumentPath(tree.FilePath, documentName!))
             {
-                var file = Path.GetFileName(tree.FilePath);
-                if (!string.Equals(file, documentName, StringComparison.OrdinalIgnoreCase) &&
-                    tree.FilePath?.Contains(documentName!, StringComparison.OrdinalIgnoreCase) != true)
-                {
-                    continue;
-                }
+                continue;
             }
 
             var root = tree.GetRoot(ct);

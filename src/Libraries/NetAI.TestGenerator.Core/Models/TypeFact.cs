@@ -46,6 +46,27 @@ public sealed class TypeFact
     public string RecommendedAbstraction { get; init; } = "";
     public string RecommendationReason { get; init; } = "";
 
+    /// <summary>
+    ///     Gets the NuGet package that provides <see cref="RecommendedAbstraction" />,
+    ///     or <c>null</c> when the abstraction is in-box (no extra package required).
+    /// </summary>
+    /// <remarks>
+    ///     The analyzer never assumes the package is referenced by the test project.
+    ///     Consumers (e.g. prompt builders) must treat a non-null value as
+    ///     "optional suggestion, requires explicit reference" and must not emit the
+    ///     abstraction as if it were already available.
+    /// </remarks>
+    public string? RecommendedAbstractionPackage { get; init; }
+
+    /// <summary>
+    ///     Gets the type's full inheritance chain, ordered from the immediate base type
+    ///     up to (but excluding) <see cref="object" />. Interfaces are not included here;
+    ///     they are available via <see cref="Interfaces" />. Useful for transitively
+    ///     detecting whether a type derives from a framework base type
+    ///     (e.g. WPF's <c>System.Windows.Window</c>).
+    /// </summary>
+    public List<string> AllBaseTypes { get; init; } = new();
+
     /// <summary>Gets the type's public instance constructors.</summary>
     public List<string> Constructors { get; init; } = new();
 

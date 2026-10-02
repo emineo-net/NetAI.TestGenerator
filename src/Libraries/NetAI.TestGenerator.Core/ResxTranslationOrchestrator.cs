@@ -23,6 +23,26 @@ public class ResxTranslationOrchestrator
     private readonly MockFramework _mockFramework;
     private readonly TestCodeBeautifier _testCodeBeautifier = new();
     private readonly TestFramework _testFramework;
+    /// <summary>
+    ///     Well-known WPF base types. Presence of any of these in a type's inheritance
+    ///     chain indicates an STA thread is required for safe construction/use.
+    /// </summary>
+    private static readonly HashSet<string> WpfBaseTypes = new(StringComparer.Ordinal)
+    {
+        "System.Windows.Window",
+        "System.Windows.Controls.UserControl",
+        "System.Windows.Controls.Page",
+        "System.Windows.Controls.Control",
+        "System.Windows.Controls.ContentControl",
+        "System.Windows.Controls.ItemsControl",
+        "System.Windows.FrameworkElement",
+        "System.Windows.UIElement",
+        "System.Windows.Media.Visual",
+        "System.Windows.Media.Media3D.Visual3D",
+        "System.Windows.DependencyObject",
+        "System.Windows.Threading.DispatcherObject",
+        "System.Windows.Application"
+    };
 
     private readonly TestGeneratorService _testGeneratorService;
 
@@ -422,32 +442,43 @@ public class ResxTranslationOrchestrator
     {
         var frameworkName = GetTestFrameworkName(_testFramework);
         var testAttribute = GetTestAttribute(_testFramework);
+        var skipAttributeTemplate = GetSkipAttribute("<reason>");
         var mockFrameworkInstruction = _mockFramework == MockFramework.Unknown
             ? "Do not introduce a mocking library unless it is listed in <TestProject>."
             : $"When mocking is needed, use {_mockFramework} only if it is listed in <TestProject>.";
 
         var sb = new StringBuilder();
 
-        // --- Rolle & Ziel (klarer formuliert, "one test method OR skip") ---
+        // --- Role & goal ---
         sb.AppendLine($"You are a .NET testing expert working with {frameworkName}.");
         sb.AppendLine($"Generate the test for method '{methodName}' in class '{className}' according to <SuggestedTestStrategy>.");
-        sb.AppendLine($"- If the strategy is 'Generate', produce one test method using {testAttribute}.");
+        sb.AppendLine($"- If the strategy is 'Generate' or 'Direct', produce one test method using {testAttribute}.");
         sb.AppendLine(
-            "- If the strategy is 'Skip', produce one test method with the framework's skip/ignore attribute; put the body in a comment only.");
+            "- If the strategy is 'Skip', produce one test method with the framework's skip/ignore attribute " +
+            $"(e.g. {skipAttributeTemplate}); put the body in a comment only.");
         sb.AppendLine(
-            "- If the strategy is 'RefactorFirst', produce a Skip test AND list the required source refactorings as comments above the test.");
+            "- If the strategy is 'RefactorFirst', produce a Skip test AND list the required source refactorings as comments " +
+            "above the test. When the strategy includes a <SuggestedRefactoringPattern>, mirror it in the comments.");
+        sb.AppendLine(
+            "- If the strategy is 'Reflection', produce one test method that invokes the private method via reflection. " +
+            "This strategy explicitly overrides the 'no reflection' rule below and applies only when the strategy says so.");
         sb.AppendLine();
 
         // --- Source of truth ---
         sb.AppendLine(
             "Use <SemanticAnalysis> as the source of truth for method and dependency facts, and follow <SuggestedTestStrategy> exactly.");
-        sb.AppendLine("Do not use reflection, dynamic invocation, or workaround code for private/static/async-void members.");
+        sb.AppendLine(
+            "Do not use reflection, dynamic invocation, or workaround code for private/static/async-void members, " +
+            "unless <SuggestedTestStrategy> explicitly instructs it (see 'Reflection' strategy).");
         sb.AppendLine();
 
-        // --- Testprojekt-Regeln ---
+        // --- Test project rules ---
         sb.AppendLine("Rules for the test project:");
         sb.AppendLine("- You MAY create a new test class in the test project (naming: <ClassUnderTest>Tests).");
-        sb.AppendLine("- Do NOT invent source types, members, namespaces, project references, or NuGet packages.");
+        sb.AppendLine("- Do NOT invent source types, members, project references, or NuGet packages.");
+        sb.AppendLine(
+            "- You MAY use namespaces from referenced assemblies, from packages listed in <ProjectContext>, " +
+            "and from `using` directives shown in <SourceCode>. Do NOT invent new namespaces that are not derivable from these sources.");
         sb.AppendLine("- Do NOT invent types that are not present in <ProjectContext> or <SemanticAnalysis>.");
         sb.AppendLine($"- {mockFrameworkInstruction}");
         sb.AppendLine("- Use the selected test framework from <SelectedFrameworks>; the test project uses that framework's template.");
@@ -455,19 +486,34 @@ public class ResxTranslationOrchestrator
         sb.AppendLine(
             "- Keep source-code refactoring advice separate from the generated test; do not modify or assume changes to the source project.");
         sb.AppendLine(
-            "- If the method under test returns Task or Task<T>, make the test method async Task. Do NOT make the test method async for 'async void' methods; those are covered by <SuggestedTestStrategy> (Skip).");
+            "- If the method under test returns Task or Task<T>, make the test method async Task. " +
+            "Do NOT make the test method async for 'async void' methods; those are covered by <SuggestedTestStrategy> (Skip/RefactorFirst).");
+        sb.AppendLine(
+            "- If <SemanticAnalysis> contains <StaRequirement required=\"true\" />, the test must run on an STA thread. " +
+            $"If the test project lists a compatible STA helper package (e.g. \"Xunit.StaFact\" for xUnit) under <PackageReferences>, " +
+            $"use its attribute (e.g. [StaFact]) instead of {testAttribute}. " +
+            $"Otherwise keep {testAttribute} and add a comment noting the STA requirement.");
+        sb.AppendLine(
+            "- Name the test method following the pattern `MethodName_Scenario_ExpectedBehavior` " +
+            "(e.g. `ProcessOrder_EmptyCart_ThrowsInvalidOperationException`). " +
+            "For a Skip/RefactorFirst strategy, prefer a name like `MethodName_IsNotDirectlyTestable` or a similarly descriptive name.");
+        sb.AppendLine(
+            "- The test project has <Nullable>enable</Nullable>. The generated test code must be nullable-correct: " +
+            "no non-nullable fields left uninitialized, no `null` assigned to non-nullable references, " +
+            "and no null-forgiving `!` operator unless the source already uses it in the same member.");
         sb.AppendLine();
 
-        // --- Ausgabeformat ---
+        // --- Output format ---
         sb.AppendLine("Output format:");
         sb.AppendLine("- Return ONLY compilable C# code (no explanations, no prose, no TODO markers outside comments).");
+        sb.AppendLine("- \"Compilable C# code\" refers to the generated TEST code, assuming the source project\r\n  compiles as-is. Source compilation errors reported by the analyzer are host artifacts\r\n  and do not affect this assumption.");
         sb.AppendLine(
             $"- Include \"using {GetTestFrameworkNamespace(_testFramework)};\" at the top of the generated code UNLESS the test project's <ProjectContext> already lists that namespace under <GlobalUsings>.");
         sb.AppendLine("- Use top-level usings consistent with ImplicitUsings/Nullable settings from <ProjectContext>.");
         sb.AppendLine("- Use the test project's <RootNamespace> from <ProjectContext> verbatim when present.");
         sb.AppendLine(
             "- If <RootNamespace> is absent, derive the namespace from the test project file name (without the .csproj extension). Do not invent any other namespace.");
-        sb.AppendLine("- Include [Fact] (or the framework-specific attribute) exactly once.");
+        sb.AppendLine($"- Include {testAttribute} (or the framework-specific attribute, including STA variants) exactly once.");
         sb.AppendLine();
 
         if (!string.IsNullOrWhiteSpace(projectContext))
@@ -555,6 +601,7 @@ public class ResxTranslationOrchestrator
                 sb.AppendLine("    </Attributes>");
             }
 
+
             if (m.ThrownExceptions.Count > 0)
             {
                 sb.AppendLine("    <ThrownExceptions>");
@@ -581,6 +628,11 @@ public class ResxTranslationOrchestrator
                     sb.AppendLine($"    <Interfaces>{X(string.Join(", ", ct.Interfaces))}</Interfaces>");
                 }
 
+                if (ct.AllBaseTypes is { Count: > 0 })
+                {
+                    sb.AppendLine($"    <BaseTypes>{X(string.Join(" -> ", ct.AllBaseTypes))}</BaseTypes>");
+                }
+
                 if (ct.Constructors.Count > 0)
                 {
                     sb.AppendLine($"    <PublicCtors>{X(string.Join(" | ", ct.Constructors))}</PublicCtors>");
@@ -590,6 +642,13 @@ public class ResxTranslationOrchestrator
                     sb.AppendLine("    <PublicCtors>none</PublicCtors>");
                 }
             }
+        }
+
+        // NEW: WPF/STA relevance flag. Consumers (and the LLM) can decide which test attribute to use.
+        if (IsWpfStaRelevant(report))
+        {
+            sb.AppendLine("  <StaRequirement required=\"true\" framework=\"WPF\" " +
+                          "note=\"WPF UI types require an STA thread; use an STA-aware test attribute when available.\" />");
         }
 
         sb.AppendLine($"  <Testability verdict=\"{X(report.Verdict)}\" isDirectlyTestable=\"{report.IsDirectlyTestable}\" />");
@@ -616,9 +675,28 @@ public class ResxTranslationOrchestrator
             {
                 sb.AppendLine($"    <Dependency type=\"{X(t.FullName)}\" kind=\"{t.DependencyKind}\" " +
                               $"mockable=\"{X(t.Mockable)}\" usedStatically=\"{t.UsedStatically}\" " + $"usages=\"{t.Usages}\" />");
+
+                // NEW: enrich dependencies with ctors/interfaces so the LLM can construct/inject correctly.
+                if (t.Constructors.Count > 0)
+                {
+                    var ctors = t.Constructors.Take(3).ToList();
+                    sb.AppendLine($"      <PublicCtors>{X(string.Join(" | ", ctors))}</PublicCtors>");
+                }
+
+                if (t.Interfaces.Count > 0)
+                {
+                    var interfaces = t.Interfaces.Take(5).ToList();
+                    sb.AppendLine($"      <Interfaces>{X(string.Join(", ", interfaces))}</Interfaces>");
+                }
+
                 if (!string.IsNullOrEmpty(t.RecommendedAbstraction))
                 {
                     sb.AppendLine($"      <RecommendedAbstraction>{X(t.RecommendedAbstraction)}</RecommendedAbstraction>");
+                }
+
+                if (!string.IsNullOrEmpty(t.RecommendedAbstractionPackage))
+                {
+                    sb.AppendLine($"      <RecommendedAbstractionPackage>{X(t.RecommendedAbstractionPackage)}</RecommendedAbstractionPackage>");
                 }
 
                 if (!string.IsNullOrEmpty(t.RecommendationReason))
@@ -662,9 +740,13 @@ public class ResxTranslationOrchestrator
 
         if (report.CompilationErrors.Count > 0)
         {
-            sb.AppendLine("  <SourceCompilationErrors " + "note=\"Analyzer-host artifacts (e.g. missing WPF reference in the analyzer). " +
-                          "Provided as context only. Do NOT fix them, do NOT work around them, and do NOT " +
-                          "let them change the test design; <SuggestedTestStrategy> is authoritative.\">");
+            sb.AppendLine("  <SourceCompilationErrors " +
+                          "note=\"NOT real source errors. These are analyzer-host artifacts " +
+                          "(missing WPF/host references in the analyzer process). " +
+                          "The source project compiles in its own build; treat it as compiling. " +
+                          "Do NOT fix them, do NOT work around them, do NOT invent types to satisfy them, " +
+                          "and do NOT let them change the test design; SuggestedTestStrategy is authoritative.\">");
+
             foreach (var e in report.CompilationErrors)
             {
                 sb.AppendLine($"    <!-- {X(e)} -->");
@@ -682,26 +764,29 @@ public class ResxTranslationOrchestrator
         var method = report.Method;
         var inaccessible = method.Accessibility is "Private" or "Protected" or "ProtectedAndInternal";
         var hasStaticDependency = report.ReferencedTypes.Any(type => type.UsedStatically);
-        var privateAsyncVoidWithStaticDependency = method.IsAsyncVoid && inaccessible && hasStaticDependency;
 
         if (method.IsAsyncVoid)
         {
-            var reason = privateAsyncVoidWithStaticDependency
+            // UPDATED: prefer RefactorFirst because the async-void pattern is always trivially refactorable
+            // and produces a testable async Task. The Skip attribute is emitted as a fallback.
+            var reason = inaccessible && hasStaticDependency
                 ? "private async void method with static dependencies is not safely invokable from a unit test"
                 : "async void cannot be awaited reliably by a unit test";
 
-            sb.AppendLine($"  <SuggestedTestStrategy action=\"Skip\" testFramework=\"{X(GetTestFrameworkName(_testFramework))}\">");
+            sb.AppendLine($"  <SuggestedTestStrategy action=\"RefactorFirst\" testFramework=\"{X(GetTestFrameworkName(_testFramework))}\">");
             sb.AppendLine(
-                $"    <Instruction>Emit {X(GetSkipAttribute(reason))}. Include any illustrative body only as a comment.</Instruction>");
-            if (privateAsyncVoidWithStaticDependency)
+                "    <Instruction>Split the async void handler into a thin UI shim and a testable async Task, then write the test against the Task.</Instruction>");
+            sb.AppendLine(
+                $"    <Fallback>Do not change production code. Emit {X(GetSkipAttribute(reason))} and describe the required refactoring only in a comment.</Fallback>");
+            sb.AppendLine("    <SuggestedRefactoringPattern>");
+            foreach (var line in BuildAsyncVoidRefactoringPattern(method))
             {
-                sb.AppendLine("    <Constraint>Do not use reflection. Do not invoke the handler or perform real static I/O.</Constraint>");
-            }
-            else
-            {
-                sb.AppendLine("    <Constraint>Do not invoke the async void method from the test.</Constraint>");
+                sb.AppendLine($"      {X(line)}");
             }
 
+            sb.AppendLine("    </SuggestedRefactoringPattern>");
+            sb.AppendLine(
+                "    <Constraint>Do not use reflection. Do not invoke the handler directly. Do not perform real static I/O.</Constraint>");
             sb.AppendLine("  </SuggestedTestStrategy>");
             return;
         }
@@ -735,6 +820,34 @@ public class ResxTranslationOrchestrator
         sb.AppendLine("  </SuggestedTestStrategy>");
     }
 
+    /// <summary>
+    ///     Builds a concrete refactoring pattern (as C# comment lines) for an
+    ///     <c>async void</c> method: a thin UI shim plus a testable <c>async Task</c>.
+    /// </summary>
+    private static IReadOnlyList<string> BuildAsyncVoidRefactoringPattern(MethodFact method)
+    {
+        var asyncName = method.Name.EndsWith("Async", StringComparison.Ordinal)
+            ? method.Name + "Core"
+            : method.Name + "Async";
+
+        return new[]
+        {
+            $"// BEFORE:",
+            $"//   private async void {method.Name}(object sender, RoutedEventArgs e)",
+            $"//   {{ /* original async body */ }}",
+            $"//",
+            $"// AFTER:",
+            $"//   private async void {method.Name}(object sender, RoutedEventArgs e)",
+            $"//       => await {asyncName}();",
+            $"//",
+            $"//   private async Task {asyncName}()",
+            $"//   {{ /* original async body, now awaitable & testable */ }}",
+            $"//",
+            $"// Rationale: the shim stays UI-bound by design and is excluded from unit tests;",
+            $"// the {asyncName} method carries all logic and is fully unit-testable."
+        };
+    }
+
     private string GetSkipAttribute(string reason)
     {
         return _testFramework switch
@@ -744,6 +857,48 @@ public class ResxTranslationOrchestrator
             TestFramework.xUnit => $"[Fact(Skip = \"{reason}\")]",
             _ => throw new ArgumentOutOfRangeException(nameof(_testFramework), _testFramework, "Unsupported test framework.")
         };
+    }
+
+
+    private static bool IsWpfStaRelevant(TestabilityReport report)
+    {
+        var containing = report.Method?.ContainingType;
+        if (containing is null)
+        {
+            return false;
+        }
+
+        // Walk the entire inheritance chain: MyControl : BaseControl : UserControl : ... : DependencyObject
+        if (!string.IsNullOrEmpty(containing.BaseType) && WpfBaseTypes.Contains(containing.BaseType))
+        {
+            return true;
+        }
+
+        if (containing.AllBaseTypes is { Count: > 0 } &&
+            containing.AllBaseTypes.Any(bt => WpfBaseTypes.Contains(bt)))
+        {
+            return true;
+        }
+
+        // WPF-specific interfaces declared anywhere on the type or its bases.
+        if (containing.Interfaces.Any(i =>
+                i.StartsWith("System.Windows.Media.", StringComparison.Ordinal) ||
+                i.StartsWith("System.Windows.Controls.", StringComparison.Ordinal) ||
+                i.StartsWith("System.Windows.Threading.", StringComparison.Ordinal) ||
+                i is "System.Windows.IFrameworkInputElement"
+                    or "System.Windows.IInputElement"
+                    or "System.Windows.IWindowService"))
+        {
+            return true;
+        }
+
+        // Rare, but a method-level [STAThread] is a strong signal.
+        if (report.Method!.Attributes.Any(a => a.Contains("STAThread", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private string BuildProjectContextHint(string sourceFilePath, string testProjectDirectory, TestFramework testFramework,
@@ -826,8 +981,6 @@ public class ResxTranslationOrchestrator
 
         sb.AppendLine("    </PackageReferences>");
 
-        // NEU: <Using Include="..."/>-Items (= globale/implizite Usings) auslesen,
-        // damit der LLM weiss, ob "using Xunit;" bereits global verfuegbar ist.
         var globalUsings = doc.Descendants().Where(e => e.Name.LocalName == "Using").Select(e => e.Attribute("Include")?.Value)
             .Where(v => !string.IsNullOrWhiteSpace(v)).ToList();
 

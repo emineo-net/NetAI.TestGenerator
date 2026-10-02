@@ -1,15 +1,22 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace NetAI.TestGenerator.Core.Services;
 
+#if MY_LOCAL_LOGGING
 public static class BuildLogger
 {
     private static DateTime _lastLogTime = DateTime.Now;
     private static readonly bool LogEnabel = true;
 
     public static readonly string LogFilePath = Path.Combine(
-        @"C:\Closerpage\__BuildLogTestGenerator", $"BuildLog_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
+    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+    "NetAI",
+    "TestGenerator",
+    "BuildLogs",
+    $"BuildLog_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
+
 
     public static void Info<T>(T value, [CallerArgumentExpression(nameof(value))] string varName = "Unknown",
         [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "")
@@ -33,6 +40,12 @@ public static class BuildLogger
     {
         try
         {
+            var directory = Path.GetDirectoryName(LogFilePath);
+            if (!string.IsNullOrEmpty(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
             if (!LogEnabel)
             {
                 return;
@@ -45,11 +58,9 @@ public static class BuildLogger
             var timeDelta = $"+{secondsSinceLastLog:F2}s";
             var formattedValue = FormatValue(value);
 
-            // Caller-Informationen zuerst
             var callerInfo = $" ├─ Variable : {varName}{Environment.NewLine}" + $" ├─ Member   : {memberName}{Environment.NewLine}" +
                              $" ├─ File     : {filePath}{Environment.NewLine}" + $" ├─ Line     : {lineNumber}";
 
-            // Das Log-Level (INFO, WARN, ERROR) wird links mit ausgegeben
             var logLine = $"[{now:HH:mm:ss} | {level} | {timeDelta}]{Environment.NewLine}" + callerInfo + Environment.NewLine +
                           $" └─ Value    : {formattedValue}{Environment.NewLine}" + new string('-', 80) + Environment.NewLine;
 
@@ -93,3 +104,15 @@ public static class BuildLogger
         return value.ToString() ?? "null";
     }
 }
+#endif
+
+// HIER KORRIGIERT: C# nutzt "#if !" statt "#ifndef"
+#if !MY_LOCAL_LOGGING
+public static class BuildLogger
+{
+    // Die Parameter müssen exakt übereinstimmen (inklusive Standardwerte), damit es beim Kompilieren auf GitHub keine Überladungsfehler gibt.
+    public static void Info<T>(T value, string varName = "Unknown", int lineNumber = 0, string memberName = "", string filePath = "") { }
+    public static void Warning<T>(T value, string varName = "Unknown", int lineNumber = 0, string memberName = "", string filePath = "") { }
+    public static void Error<T>(T value, string varName = "Unknown", int lineNumber = 0, string memberName = "", string filePath = "") { }
+}
+#endif
