@@ -40,11 +40,12 @@
 	</Target>
 
 	<Target Name="SetupTestGeneratorSettings" Condition="'$(TestGeneratorActive)' == 'true'">
-		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\aisettings-schema.json"
+		<!-- Geänderter Pfad zu ..\content\ -->
+		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\content\aisettings-schema.json"
 		      DestinationFiles="$(MSBuildProjectDirectory)\aisettings-schema.json"
 		      Condition="!Exists('$(MSBuildProjectDirectory)\aisettings-schema.json')" />
 
-		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\aisettings.json"
+		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\content\aisettings.json"
 		      DestinationFiles="$(MSBuildProjectDirectory)\aisettings.json"
 		      Condition="!Exists('$(MSBuildProjectDirectory)\aisettings.json')" />
 
@@ -55,6 +56,7 @@
 			<None Include="aisettings.json" CopyToOutputDirectory="PreserveNewest" />
 		</ItemGroup>
 	</Target>
+
 
 	<Target Name="RunResxTranslation"
 	        DependsOnTargets="SetupTestGeneratorSettings"

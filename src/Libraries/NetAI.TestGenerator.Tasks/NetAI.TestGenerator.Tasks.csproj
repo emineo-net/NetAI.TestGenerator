@@ -27,9 +27,11 @@
 
 	<!-- 2. WICHTIG: Die .targets-Datei muss mit ins Paket! -->
 	<ItemGroup>
-		<!-- Ersetzen Sie 'NameIhrerDatei.targets' durch den echten Dateinamen -->
-		<None Include="NameIhrerDatei.targets" Pack="true" PackagePath="build\$(PackageId).targets" />
+		<!-- Zeigt jetzt korrekt in Ihren 'build'-Unterordner auf der Festplatte -->
+		<None Include="build\NetAI.TestGenerator.Tasks.targets" Pack="true" PackagePath="build\$(PackageId).targets" />
 	</ItemGroup>
+
+
 
 	<ItemGroup>
 		<ProjectReference Include="..\NetAI.TestGenerator.Core\NetAI.TestGenerator.Core.csproj" PrivateAssets="all" />
