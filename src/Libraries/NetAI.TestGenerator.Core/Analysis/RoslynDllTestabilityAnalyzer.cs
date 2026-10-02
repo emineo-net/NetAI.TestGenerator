@@ -25,6 +25,7 @@ public sealed class RoslynDllTestabilityAnalyzer
     ///     Maps well-known static APIs to a suggested abstraction and (optionally)
     ///     the NuGet package that provides it. A <c>null</c> package means the
     ///     abstraction is in-box (no extra package required).
+    ///     Only these APIs are treated as genuine static blockers.
     /// </summary>
     private static readonly IReadOnlyDictionary<string, (string Abstraction, string? Package)> StaticApiAbstractions =
         new Dictionary<string, (string, string?)>(StringComparer.Ordinal)
@@ -42,7 +43,8 @@ public sealed class RoslynDllTestabilityAnalyzer
             ["System.Net.Http.HttpClient"] = ("System.Net.Http.IHttpClientFactory", "Microsoft.Extensions.Http"),
             ["System.Threading.Thread"] = ("avoid - use Task / TimeProvider", null),
             ["System.Diagnostics.Process"] = ("abstraction over IProcessRunner", null),
-            ["System.IO.Compression.ZipFile"] = ("abstraction over IZipService", null)
+            ["System.IO.Compression.ZipFile"] = ("abstraction over IZipService", null),
+            ["System.AppDomain"] = ("custom IAppEnvironment", null)
         };
 
     private readonly AnalyzerOptions _options;
@@ -154,194 +156,135 @@ public sealed class RoslynDllTestabilityAnalyzer
     // ---------------------------------------------------------------- MSBuild-based loading
 
 #if !NETSTANDARD2_0
-        /// <summary>
-        /// Loads a solution through MSBuild and analyzes a named method in the requested document.
-        /// Use this when you need full project context (NuGet, WPF, Directory.Build.props).
-        /// </summary>
-        public async Task<TestabilityReport> AnalyzeFromSolutionAsync(
-            string solutionPath,
-            string documentName,
-            string methodName,
-            CancellationToken ct = default)
+    public async Task<TestabilityReport> AnalyzeFromSolutionAsync(
+        string solutionPath, string documentName, string methodName, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(solutionPath))
+            throw new ArgumentException("Solution path must not be empty.", nameof(solutionPath));
+        if (!File.Exists(solutionPath))
+            throw new FileNotFoundException("Solution file not found.", solutionPath);
+
+        EnsureMSBuildRegistered();
+
+        using var workspace = MSBuildWorkspace.Create();
+        workspace.SkipUnrecognizedProjects = true;
+        workspace.WorkspaceFailed += (_, e) =>
+            System.Diagnostics.Debug.WriteLine($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
+
+        var solution = await workspace.OpenSolutionAsync(solutionPath, cancellationToken: ct).ConfigureAwait(false);
+
+        var document = solution.Projects.SelectMany(p => p.Documents).FirstOrDefault(d => MatchesDocument(d, documentName))
+            ?? throw new InvalidOperationException(
+                $"Document '{documentName}' was not found in solution '{Path.GetFileName(solutionPath)}'.");
+
+        return await AnalyzeDocumentAsync(document, methodName, ct).ConfigureAwait(false);
+    }
+
+    public async Task<TestabilityReport> AnalyzeFromProjectAsync(
+        string projectPath, string documentName, string methodName, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(projectPath))
+            throw new ArgumentException("Project path must not be empty.", nameof(projectPath));
+        if (!File.Exists(projectPath))
+            throw new FileNotFoundException("Project file not found.", projectPath);
+
+        EnsureMSBuildRegistered();
+
+        using var workspace = MSBuildWorkspace.Create();
+        workspace.SkipUnrecognizedProjects = true;
+        workspace.WorkspaceFailed += (_, e) =>
+            System.Diagnostics.Debug.WriteLine($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
+
+        var project = await workspace.OpenProjectAsync(projectPath, cancellationToken: ct).ConfigureAwait(false);
+
+        var document = project.Documents.FirstOrDefault(d => MatchesDocument(d, documentName))
+            ?? throw new InvalidOperationException(
+                $"Document '{documentName}' was not found in project '{Path.GetFileName(projectPath)}'.");
+
+        return await AnalyzeDocumentAsync(document, methodName, ct).ConfigureAwait(false);
+    }
+
+    public async Task<TestabilityReport> AnalyzeDocumentAsync(Document document, string methodName, CancellationToken ct = default)
+    {
+        if (document is null) throw new ArgumentNullException(nameof(document));
+        if (string.IsNullOrWhiteSpace(methodName))
+            throw new ArgumentException("Method name must not be empty.", nameof(methodName));
+
+        var compilation = await document.Project.GetCompilationAsync(ct).ConfigureAwait(false)
+            ?? throw new InvalidOperationException("Compilation could not be created for the document's project.");
+        var tree = await document.GetSyntaxTreeAsync(ct).ConfigureAwait(false)
+            ?? throw new InvalidOperationException("Syntax tree is missing for the document.");
+
+        var model = compilation.GetSemanticModel(tree);
+
+        var methodDecl = tree.GetRoot(ct).DescendantNodes().OfType<MethodDeclarationSyntax>()
+                             .FirstOrDefault(m => m.Identifier.Text == methodName)
+            ?? throw new InvalidOperationException($"Method '{methodName}' was not found in document '{document.Name}'.");
+
+        var methodSymbol = model.GetDeclaredSymbol(methodDecl, ct) as IMethodSymbol
+            ?? throw new InvalidOperationException("No method symbol was found.");
+
+        return BuildReport(document.Name, methodSymbol, methodDecl, model, compilation);
+    }
+
+    public async Task<(IDisposable Workspace, Compilation? Compilation)> LoadCompilationFromMsbuildAsync(
+        string? solutionPath, string? projectPath, string documentName,
+        Action<string>? logInfo = null, CancellationToken ct = default)
+    {
+        EnsureMSBuildRegistered();
+
+        var workspace = MSBuildWorkspace.Create();
+        workspace.SkipUnrecognizedProjects = true;
+        workspace.WorkspaceFailed += (_, e) =>
+            logInfo?.Invoke($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
+
+        Document? document = null;
+
+        if (!string.IsNullOrWhiteSpace(solutionPath))
         {
-            if (string.IsNullOrWhiteSpace(solutionPath))
-                throw new ArgumentException("Solution path must not be empty.", nameof(solutionPath));
-            if (!File.Exists(solutionPath))
-                throw new FileNotFoundException("Solution file not found.", solutionPath);
-
-            EnsureMSBuildRegistered();
-
-            using var workspace = MSBuildWorkspace.Create();
-            workspace.SkipUnrecognizedProjects = true;
-            workspace.WorkspaceFailed += (_, e) =>
-            {
-                System.Diagnostics.Debug.WriteLine($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
-            };
-
-            var solution = await workspace.OpenSolutionAsync(solutionPath, cancellationToken: ct)
-                .ConfigureAwait(false);
-
-            var document = solution.Projects
-                .SelectMany(p => p.Documents)
-                .FirstOrDefault(d => MatchesDocument(d, documentName))
-                ?? throw new InvalidOperationException(
-                    $"Document '{documentName}' was not found in solution '{Path.GetFileName(solutionPath)}'.");
-
-            return await AnalyzeDocumentAsync(document, methodName, ct).ConfigureAwait(false);
+            var solution = await workspace.OpenSolutionAsync(solutionPath, cancellationToken: ct).ConfigureAwait(false);
+            document = solution.Projects.SelectMany(p => p.Documents).FirstOrDefault(d => MatchesDocument(d, documentName));
+        }
+        else if (!string.IsNullOrWhiteSpace(projectPath))
+        {
+            var project = await workspace.OpenProjectAsync(projectPath, cancellationToken: ct).ConfigureAwait(false);
+            document = project.Documents.FirstOrDefault(d => MatchesDocument(d, documentName));
         }
 
-        /// <summary>
-        /// Loads a project through MSBuild and analyzes a named method in the requested document.
-        /// Use this when you need full project context (NuGet, WPF, Directory.Build.props).
-        /// </summary>
-        public async Task<TestabilityReport> AnalyzeFromProjectAsync(
-            string projectPath,
-            string documentName,
-            string methodName,
-            CancellationToken ct = default)
+        if (document == null)
         {
-            if (string.IsNullOrWhiteSpace(projectPath))
-                throw new ArgumentException("Project path must not be empty.", nameof(projectPath));
-            if (!File.Exists(projectPath))
-                throw new FileNotFoundException("Project file not found.", projectPath);
-
-            EnsureMSBuildRegistered();
-
-            using var workspace = MSBuildWorkspace.Create();
-            workspace.SkipUnrecognizedProjects = true;
-            workspace.WorkspaceFailed += (_, e) =>
-            {
-                System.Diagnostics.Debug.WriteLine($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
-            };
-
-            var project = await workspace.OpenProjectAsync(projectPath, cancellationToken: ct)
-                .ConfigureAwait(false);
-
-            var document = project.Documents
-                .FirstOrDefault(d => MatchesDocument(d, documentName))
-                ?? throw new InvalidOperationException(
-                    $"Document '{documentName}' was not found in project '{Path.GetFileName(projectPath)}'.");
-
-            return await AnalyzeDocumentAsync(document, methodName, ct).ConfigureAwait(false);
+            workspace.Dispose();
+            return (new NoopDisposable(), null);
         }
 
-        /// <summary>
-        /// Analyzes a method in an already loaded Roslyn <see cref="Document"/>.
-        /// The MSBuild workspace owns the document's lifetime, so do not dispose it here.
-        /// </summary>
-        public async Task<TestabilityReport> AnalyzeDocumentAsync(
-            Document document,
-            string methodName,
-            CancellationToken ct = default)
-        {
-            if (document is null) throw new ArgumentNullException(nameof(document));
-            if (string.IsNullOrWhiteSpace(methodName))
-                throw new ArgumentException("Method name must not be empty.", nameof(methodName));
+        var compilation = await document.Project.GetCompilationAsync(ct).ConfigureAwait(false);
+        return (workspace, compilation);
+    }
 
-            var compilation = await document.Project.GetCompilationAsync(ct).ConfigureAwait(false)
-                ?? throw new InvalidOperationException("Compilation could not be created for the document's project.");
-            var tree = await document.GetSyntaxTreeAsync(ct).ConfigureAwait(false)
-                ?? throw new InvalidOperationException("Syntax tree is missing for the document.");
+    private static void EnsureMSBuildRegistered()
+    {
+        if (!MSBuildLocator.IsRegistered)
+            MSBuildLocator.RegisterDefaults();
+    }
 
-            var model = compilation.GetSemanticModel(tree);
+    private static bool MatchesDocument(Document document, string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
 
-            var methodDecl = tree.GetRoot(ct)
-                .DescendantNodes()
-                .OfType<MethodDeclarationSyntax>()
-                .FirstOrDefault(m => m.Identifier.Text == methodName)
-                ?? throw new InvalidOperationException(
-                    $"Method '{methodName}' was not found in document '{document.Name}'.");
+        if (string.Equals(document.Name, name, StringComparison.OrdinalIgnoreCase))
+            return true;
 
-            var methodSymbol = model.GetDeclaredSymbol(methodDecl, ct) as IMethodSymbol
-                               ?? throw new InvalidOperationException("No method symbol was found.");
+        return MatchesDocumentPath(document.FilePath, name);
+    }
 
-            return BuildReport(document.Name, methodSymbol, methodDecl, model, compilation);
-        }
-
-        /// <summary>
-        /// Loads a solution or project once and returns the workspace (caller disposes)
-        /// plus the target document's compilation. Use this when you need to analyze
-        /// multiple methods in the same file without reloading MSBuild each time.
-        /// </summary>
-        public async Task<(IDisposable Workspace, Compilation? Compilation)> LoadCompilationFromMsbuildAsync(
-            string? solutionPath,
-            string? projectPath,
-            string documentName,
-            Action<string>? logInfo = null,
-            CancellationToken ct = default)
-        {
-            EnsureMSBuildRegistered();
-
-            var workspace = MSBuildWorkspace.Create();
-            workspace.SkipUnrecognizedProjects = true;
-            workspace.WorkspaceFailed += (_, e) =>
-            {
-                logInfo?.Invoke($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
-            };
-
-            Document? document = null;
-
-            if (!string.IsNullOrWhiteSpace(solutionPath))
-            {
-                var solution = await workspace.OpenSolutionAsync(solutionPath, cancellationToken: ct)
-                    .ConfigureAwait(false);
-                document = solution.Projects
-                    .SelectMany(p => p.Documents)
-                    .FirstOrDefault(d => MatchesDocument(d, documentName));
-            }
-            else if (!string.IsNullOrWhiteSpace(projectPath))
-            {
-                var project = await workspace.OpenProjectAsync(projectPath, cancellationToken: ct)
-                    .ConfigureAwait(false);
-                document = project.Documents
-                    .FirstOrDefault(d => MatchesDocument(d, documentName));
-            }
-
-            if (document == null)
-            {
-                workspace.Dispose();
-                return (new NoopDisposable(), null);
-            }
-
-            var compilation = await document.Project.GetCompilationAsync(ct).ConfigureAwait(false);
-            return (workspace, compilation);
-        }
-
-        /// <summary>
-        /// Registers MSBuild once per process. <c>MSBuildLocator.RegisterDefaults()</c> throws
-        /// if called twice, so this helper is idempotent.
-        /// </summary>
-        private static void EnsureMSBuildRegistered()
-        {
-            if (!MSBuildLocator.IsRegistered)
-                MSBuildLocator.RegisterDefaults();
-        }
-
-        /// <summary>Matches a document by exact name, file name, or path fragment.</summary>
-        private static bool MatchesDocument(Document document, string name)
-        {
-            if (string.IsNullOrWhiteSpace(name)) return false;
-
-            if (string.Equals(document.Name, name, StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            return MatchesDocumentPath(document.FilePath, name);
-        }
-
-        /// <summary>Disposable placeholder when no workspace needs to be released.</summary>
-        private sealed class NoopDisposable : IDisposable
-        {
-            public void Dispose() { }
-        }
+    private sealed class NoopDisposable : IDisposable
+    {
+        public void Dispose() { }
+    }
 #endif
 
     // ---------------------------------------------------------------- equivalent lookup
 
-    /// <summary>
-    ///     Locates the compilation-owned declaration that corresponds to an externally
-    ///     parsed <see cref="MethodDeclarationSyntax" />. Match key: file path (or file
-    ///     name), method identifier, and parameter count.
-    /// </summary>
     private static (SyntaxTree Tree, MethodDeclarationSyntax Method)? FindEquivalentDeclaration(Compilation compilation,
         MethodDeclarationSyntax external, CancellationToken ct)
     {
@@ -358,27 +301,17 @@ public sealed class RoslynDllTestabilityAnalyzer
                 ct.ThrowIfCancellationRequested();
 
                 var treePath = tree.FilePath;
-                if (string.IsNullOrEmpty(treePath))
-                {
-                    continue;
-                }
+                if (string.IsNullOrEmpty(treePath)) continue;
 
                 var sameFullPath = !string.IsNullOrEmpty(externalPath) &&
                                    string.Equals(treePath, externalPath, StringComparison.OrdinalIgnoreCase);
-
                 var sameFileName = !string.IsNullOrEmpty(externalFileName) &&
                                    string.Equals(Path.GetFileName(treePath), externalFileName, StringComparison.OrdinalIgnoreCase);
 
-                if (!sameFullPath && !sameFileName)
-                {
-                    continue;
-                }
+                if (!sameFullPath && !sameFileName) continue;
 
                 var match = FindMethodInTree(tree, methodName, paramCount, ct);
-                if (match != null)
-                {
-                    return (tree, match);
-                }
+                if (match != null) return (tree, match);
             }
         }
 
@@ -386,10 +319,7 @@ public sealed class RoslynDllTestabilityAnalyzer
         {
             ct.ThrowIfCancellationRequested();
             var match = FindMethodInTree(tree, methodName, paramCount, ct);
-            if (match != null)
-            {
-                return (tree, match);
-            }
+            if (match != null) return (tree, match);
         }
 
         return null;
@@ -408,30 +338,20 @@ public sealed class RoslynDllTestabilityAnalyzer
         string assemblyName = "TestabilityAnalysis", CSharpParseOptions? parseOptions = null,
         CSharpCompilationOptions? compilationOptions = null)
     {
-        if (sourceFilePaths is null)
-        {
-            throw new ArgumentNullException(nameof(sourceFilePaths));
-        }
+        if (sourceFilePaths is null) throw new ArgumentNullException(nameof(sourceFilePaths));
 
         parseOptions ??= new CSharpParseOptions(LanguageVersion.Latest);
 
         var trees = new List<SyntaxTree>();
         foreach (var path in sourceFilePaths)
         {
-            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-            {
-                continue;
-            }
-
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) continue;
             try
             {
                 var text = File.ReadAllText(path);
                 trees.Add(CSharpSyntaxTree.ParseText(text, parseOptions, path));
             }
-            catch
-            {
-                /* ignore unreadable files */
-            }
+            catch { /* ignore */ }
         }
 
         var references = new List<MetadataReference>();
@@ -439,19 +359,9 @@ public sealed class RoslynDllTestabilityAnalyzer
         {
             foreach (var dll in referenceDllPaths)
             {
-                if (string.IsNullOrWhiteSpace(dll) || !File.Exists(dll))
-                {
-                    continue;
-                }
-
-                try
-                {
-                    references.Add(MetadataReference.CreateFromFile(dll));
-                }
-                catch
-                {
-                    /* ignore invalid references */
-                }
+                if (string.IsNullOrWhiteSpace(dll) || !File.Exists(dll)) continue;
+                try { references.Add(MetadataReference.CreateFromFile(dll)); }
+                catch { /* ignore */ }
             }
         }
 
@@ -462,16 +372,18 @@ public sealed class RoslynDllTestabilityAnalyzer
 
     // ---------------------------------------------------------------- report assembly
 
-    private TestabilityReport BuildReport(string documentName, IMethodSymbol method, MethodDeclarationSyntax syntax, SemanticModel model,
-        Compilation compilation)
+    private TestabilityReport BuildReport(string documentName, IMethodSymbol method, MethodDeclarationSyntax syntax,
+        SemanticModel model, Compilation compilation)
     {
-        var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Take(_options.MaxDiagnostics)
+        var errors = compilation.GetDiagnostics()
+            .Where(d => d.Severity == DiagnosticSeverity.Error)
+            .Take(_options.MaxDiagnostics)
             .Select(d => d.ToString()).ToList();
 
         var methodFact = BuildMethodFact(method);
-        var typeFacts = CollectReferencedTypes(method, compilation);
-        var verdict = EvaluateTestability(methodFact, typeFacts);
-        var recs = BuildRecommendations(methodFact, typeFacts);
+        var (typeFacts, instanceFieldTypes) = CollectReferencedTypes(method, compilation);
+        var verdict = EvaluateTestability(methodFact, typeFacts, instanceFieldTypes);
+        var recs = BuildRecommendations(methodFact, typeFacts, instanceFieldTypes);
         var callGraph = BuildCallGraph(method, compilation);
 
         return new TestabilityReport
@@ -515,18 +427,12 @@ public sealed class RoslynDllTestabilityAnalyzer
         var thrown = new List<string>();
         foreach (var syntaxRef in method.DeclaringSyntaxReferences)
         {
-            if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax decl)
-            {
-                continue;
-            }
+            if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax decl) continue;
 
             foreach (var throwStmt in decl.DescendantNodes().OfType<ThrowStatementSyntax>())
             {
                 var expr = throwStmt.Expression?.ToString();
-                if (!string.IsNullOrEmpty(expr))
-                {
-                    thrown.Add(expr);
-                }
+                if (!string.IsNullOrEmpty(expr)) thrown.Add(expr);
             }
         }
 
@@ -584,9 +490,9 @@ public sealed class RoslynDllTestabilityAnalyzer
             BaseType = containing.BaseType?.ToDisplayString(FqFormat) ?? "",
             AllBaseTypes = CollectAllBaseTypes(containing),
             Interfaces = containing.AllInterfaces.Select(i => i.ToDisplayString(FqFormat)).ToList(),
-            Constructors =
-                containing.InstanceConstructors.Where(c => c.DeclaredAccessibility == Accessibility.Public)
-                    .Select(c => c.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)).ToList(),
+            Constructors = containing.InstanceConstructors
+                .Where(c => c.DeclaredAccessibility == Accessibility.Public)
+                .Select(c => c.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)).ToList(),
             VirtualMemberCount = containing.GetMembers().Count(m => m.IsVirtual || m.IsAbstract || m.IsOverride),
             MemberCount = containing.GetMembers().Length
         };
@@ -594,12 +500,6 @@ public sealed class RoslynDllTestabilityAnalyzer
 
     // ---------------------------------------------------------------- call graph + dependencies
 
-    /// <summary>
-    ///     Returns all methods reachable from <paramref name="root" /> through invocations
-    ///     on the same containing type, in BFS order. The root is always the first element.
-    ///     The traversal is bounded by <see cref="AnalyzerOptions.MaxCallGraphDepth" /> and
-    ///     skips <see cref="MethodKind.DelegateInvoke" /> targets.
-    /// </summary>
     private IReadOnlyList<IMethodSymbol> EnumerateReachableMethods(IMethodSymbol root, Compilation compilation)
     {
         var visited = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
@@ -610,53 +510,25 @@ public sealed class RoslynDllTestabilityAnalyzer
         while (queue.Count > 0)
         {
             var (method, depth) = queue.Dequeue();
-            if (!visited.Add(method))
-            {
-                continue;
-            }
+            if (!visited.Add(method)) continue;
 
             ordered.Add(method);
-
-            if (depth >= _options.MaxCallGraphDepth)
-            {
-                continue;
-            }
+            if (depth >= _options.MaxCallGraphDepth) continue;
 
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
-                if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax decl)
-                {
-                    continue;
-                }
+                if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax decl) continue;
 
                 var model = compilation.GetSemanticModel(decl.SyntaxTree);
-                if (model.GetOperation(decl) is not IMethodBodyOperation body)
-                {
-                    continue;
-                }
+                if (model.GetOperation(decl) is not IMethodBodyOperation body) continue;
 
                 foreach (var inv in body.Descendants().OfType<IInvocationOperation>())
                 {
                     var target = inv.TargetMethod;
-                    if (target is null)
-                    {
-                        continue;
-                    }
-
-                    if (target.MethodKind == MethodKind.DelegateInvoke)
-                    {
-                        continue;
-                    }
-
-                    if (!SymbolEqualityComparer.Default.Equals(target.ContainingType, method.ContainingType))
-                    {
-                        continue;
-                    }
-
-                    if (!visited.Contains(target))
-                    {
-                        queue.Enqueue((target, depth + 1));
-                    }
+                    if (target is null) continue;
+                    if (target.MethodKind == MethodKind.DelegateInvoke) continue;
+                    if (!SymbolEqualityComparer.Default.Equals(target.ContainingType, method.ContainingType)) continue;
+                    if (!visited.Contains(target)) queue.Enqueue((target, depth + 1));
                 }
             }
         }
@@ -667,71 +539,46 @@ public sealed class RoslynDllTestabilityAnalyzer
     private IReadOnlyList<string> BuildCallGraph(IMethodSymbol root, Compilation compilation)
     {
         if (!_options.IncludeRecursiveCallGraph)
-        {
             return new[] { root.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) };
-        }
 
         return EnumerateReachableMethods(root, compilation)
             .Select(m => m.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))
             .ToList();
     }
 
-    private List<TypeFact> CollectReferencedTypes(IMethodSymbol root, Compilation compilation)
+    /// <summary>
+    ///     Collects referenced types and the set of instance-field types used on the
+    ///     containing type (which is the ground truth for "created internally, not injectable").
+    /// </summary>
+    private (List<TypeFact> Types, HashSet<string> InstanceFieldTypes) CollectReferencedTypes(
+        IMethodSymbol root, Compilation compilation)
     {
         var seen = new Dictionary<string, TypeFact>(StringComparer.Ordinal);
+        var instanceFieldTypes = new HashSet<string>(StringComparer.Ordinal);
 
         void Add(ITypeSymbol? symbol, bool staticUse, UsageKind usage)
         {
-            if (symbol is null)
-            {
-                return;
-            }
-
-            if (symbol is ITypeParameterSymbol)
-            {
-                return;
-            }
-
-            if (symbol.SpecialType != SpecialType.None)
-            {
-                return;
-            }
-
-            if (symbol is not INamedTypeSymbol named)
-            {
-                return;
-            }
+            if (symbol is null) return;
+            if (symbol is ITypeParameterSymbol) return;
+            if (symbol.SpecialType != SpecialType.None) return;
+            if (symbol is not INamedTypeSymbol named) return;
 
             if (named.IsGenericType)
             {
-                foreach (var arg in named.TypeArguments)
-                {
-                    Add(arg, staticUse, usage);
-                }
+                foreach (var arg in named.TypeArguments) Add(arg, staticUse, usage);
             }
 
             var full = named.OriginalDefinition.ToDisplayString(FqFormat);
-            if (string.IsNullOrWhiteSpace(full))
-            {
-                return;
-            }
+            if (string.IsNullOrWhiteSpace(full)) return;
 
             if (full is "System.Threading.Tasks.Task<>" or "System.Threading.Tasks.ValueTask<>" or "System.Threading.Tasks.Task")
-            {
                 return;
-            }
-
-            if (full.StartsWith("System.Nullable", StringComparison.Ordinal))
-            {
-                return;
-            }
+            if (full.StartsWith("System.Nullable", StringComparison.Ordinal)) return;
 
             var isFramework = named.ContainingNamespace?.ToDisplayString().StartsWith("System", StringComparison.Ordinal) == true;
 
-            if (isFramework && !_options.IncludeFrameworkTypes && !staticUse)
-            {
-                return;
-            }
+            // Static-only framework types are only interesting when we actually USE them statically.
+            if (isFramework && !_options.IncludeFrameworkTypes && !staticUse) return;
 
             if (seen.TryGetValue(full, out var existing))
             {
@@ -790,9 +637,9 @@ public sealed class RoslynDllTestabilityAnalyzer
                 RecommendedAbstraction = abstraction.Abstraction,
                 RecommendedAbstractionPackage = abstraction.Package,
                 RecommendationReason = abstraction.Reason,
-                Constructors =
-                    named.InstanceConstructors.Where(c => c.DeclaredAccessibility == Accessibility.Public)
-                        .Select(c => c.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)).ToList(),
+                Constructors = named.InstanceConstructors
+                    .Where(c => c.DeclaredAccessibility == Accessibility.Public)
+                    .Select(c => c.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)).ToList(),
                 Interfaces = named.AllInterfaces.Select(i => i.ToDisplayString(FqFormat)).ToList(),
                 VirtualMemberCount = named.GetMembers().Count(m => m.IsVirtual || m.IsAbstract || m.IsOverride),
                 MemberCount = named.GetMembers().Length
@@ -807,16 +654,10 @@ public sealed class RoslynDllTestabilityAnalyzer
         {
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
-                if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax decl)
-                {
-                    continue;
-                }
+                if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax decl) continue;
 
                 var model = compilation.GetSemanticModel(decl.SyntaxTree);
-                if (model.GetOperation(decl) is not IMethodBodyOperation body)
-                {
-                    continue;
-                }
+                if (model.GetOperation(decl) is not IMethodBodyOperation body) continue;
 
                 foreach (var op in body.Descendants())
                 {
@@ -824,12 +665,10 @@ public sealed class RoslynDllTestabilityAnalyzer
                     {
                         case IInvocationOperation inv:
                             Add(inv.TargetMethod.ContainingType, inv.TargetMethod.IsStatic, UsageKind.Call);
-                            Add(inv.TargetMethod.ReturnType as INamedTypeSymbol, inv.TargetMethod.IsStatic, UsageKind.Call);
+                            // FIX: return type does NOT inherit the static flag of the invoked member.
+                            Add(inv.TargetMethod.ReturnType as INamedTypeSymbol, false, UsageKind.Call);
                             if (inv.Instance?.Type is INamedTypeSymbol instType)
-                            {
                                 Add(instType, false, UsageKind.Call);
-                            }
-
                             break;
 
                         case IObjectCreationOperation oc:
@@ -838,12 +677,23 @@ public sealed class RoslynDllTestabilityAnalyzer
 
                         case IFieldReferenceOperation fr:
                             Add(fr.Field.ContainingType, fr.Field.IsStatic, UsageKind.Read);
-                            Add(fr.Field.Type as INamedTypeSymbol, fr.Field.IsStatic, UsageKind.Read);
+                            // FIX: field type does NOT inherit the static flag.
+                            Add(fr.Field.Type as INamedTypeSymbol, false, UsageKind.Read);
+                            // Track instance fields on the containing type as potential non-injected deps.
+                            if (!fr.Field.IsStatic &&
+                                SymbolEqualityComparer.Default.Equals(fr.Field.ContainingType, root.ContainingType))
+                            {
+                                var fieldTypeName = (fr.Field.Type as INamedTypeSymbol)?
+                                    .OriginalDefinition.ToDisplayString(FqFormat);
+                                if (!string.IsNullOrEmpty(fieldTypeName))
+                                    instanceFieldTypes.Add(fieldTypeName!);
+                            }
                             break;
 
                         case IPropertyReferenceOperation pr:
                             Add(pr.Property.ContainingType, pr.Property.IsStatic, UsageKind.Read);
-                            Add(pr.Property.Type as INamedTypeSymbol, pr.Property.IsStatic, UsageKind.Read);
+                            // FIX: property type does NOT inherit the static flag.
+                            Add(pr.Property.Type as INamedTypeSymbol, false, UsageKind.Read);
                             break;
 
                         case IEventReferenceOperation er:
@@ -868,10 +718,7 @@ public sealed class RoslynDllTestabilityAnalyzer
 
                         case IThrowOperation th:
                             if (th.Exception?.Type is INamedTypeSymbol exType)
-                            {
                                 Add(exType, false, UsageKind.Throw);
-                            }
-
                             break;
 
                         case ITypeOfOperation to:
@@ -882,66 +729,124 @@ public sealed class RoslynDllTestabilityAnalyzer
             }
         }
 
-        return seen.Values.OrderBy(t => t.Namespace.StartsWith("System", StringComparison.Ordinal) ? 1 : 0)
-            .ThenBy(t => t.FullName, StringComparer.Ordinal).ToList();
+        var ordered = seen.Values
+            .OrderBy(t => t.Namespace.StartsWith("System", StringComparison.Ordinal) ? 1 : 0)
+            .ThenBy(t => t.FullName, StringComparer.Ordinal)
+            .ToList();
+
+        return (ordered, instanceFieldTypes);
     }
 
     // ---------------------------------------------------------------- evaluation
 
-    private static (string Text, bool IsDirectlyTestable, List<string> Blockers) EvaluateTestability(MethodFact method,
-        List<TypeFact> types)
+    /// <summary>
+    ///     Evaluates testability aggressively: only genuine blockers remain.
+    ///     - Access modifiers that hide the method (<c>private</c>/<c>protected</c>).
+    ///     - <c>async void</c>.
+    ///     - Well-known static APIs that are non-deterministic / I/O bound (see
+    ///       <see cref="StaticApiAbstractions" />).
+    ///     - Concrete dependencies that are used as instance fields but are neither
+    ///       injected via the constructor nor interfaces/abstract classes.
+    ///
+    ///     Everything else (e.g. <c>List&lt;T&gt;</c>, <c>Regex</c>, <c>StringComparer</c>,
+    ///     static helper methods on the type under test, <c>sealed</c> containing types,
+    ///     missing public constructors, or pure <c>static</c> methods) is NOT treated as
+    ///     a hard blocker.
+    /// </summary>
+    private static (string Text, bool IsDirectlyTestable, List<string> Blockers) EvaluateTestability(
+        MethodFact method, List<TypeFact> types, HashSet<string> instanceFieldTypes)
     {
         var blockers = new List<string>();
 
+        // 1) Access blockers
         if (method.Accessibility is "Private" or "Protected" or "ProtectedAndInternal")
-        {
             blockers.Add($"Method is '{method.Accessibility}' and cannot be called directly.");
-        }
 
         if (method.IsAsyncVoid)
-        {
             blockers.Add("Method is 'async void' and cannot be awaited.");
+
+        // 2) Genuine static blockers only.
+        var containingTypeName = method.ContainingType?.FullName;
+        foreach (var t in types
+                     .Where(t => t.UsedStatically)
+                     .Where(t => !string.Equals(t.FullName, containingTypeName, StringComparison.Ordinal))
+                     .Where(IsRealStaticBlocker))
+        {
+            blockers.Add($"Static dependency on '{t.FullName}' - cannot be substituted without refactoring.");
         }
 
-        if (method.IsStatic)
+        // 3) Concrete instance-field dependencies that are not injected via any public ctor.
+        var ctorSignatures = method.ContainingType?.Constructors ?? new List<string>();
+        foreach (var fullName in instanceFieldTypes)
         {
-            blockers.Add("Method is 'static' and difficult to isolate.");
+            if (string.Equals(fullName, containingTypeName, StringComparison.Ordinal)) continue;
+
+            var t = types.FirstOrDefault(x => x.FullName == fullName);
+            if (t == null) continue;
+            if (t.IsInterface || t.IsAbstract || t.IsStatic) continue;
+            if (t.IsValueType || t.IsEnum || t.IsDelegate) continue;
+            if (t.Namespace.StartsWith("System", StringComparison.Ordinal)) continue;
+
+            // Assume injectable if any ctor parameter is named like this type.
+            var simpleName = ExtractSimpleName(fullName);
+            if (ctorSignatures.Any(c => ContainsWord(c, simpleName))) continue;
+
+            blockers.Add(
+                $"Concrete dependency '{fullName}' is created internally and cannot be substituted without refactoring.");
         }
 
-        foreach (var t in types.Where(t => t.UsedStatically))
-        {
-            blockers.Add($"Static dependency on '{t.FullName}' - cannot be mocked.");
-        }
-
-        if (method.ContainingType is { IsSealed: true })
-        {
-            blockers.Add("Containing type is sealed - cannot be subclassed for test doubles.");
-        }
-
-        if (method.ContainingType is { IsStatic: true })
-        {
-            blockers.Add("Containing type is static - test must rely on public entry points only.");
-        }
-
-        if (method.ContainingType is { Constructors.Count: 0 })
-        {
-            blockers.Add("Containing type has no public constructor - instantiation in test may require reflection or a factory.");
-        }
+        // NOTE: method.IsStatic, method.ContainingType.IsSealed and missing public constructors
+        // are intentionally NOT hard blockers anymore.
 
         var isTestable = blockers.Count == 0;
         var text = isTestable ? "Directly testable." : "NOT directly testable: " + string.Join(" | ", blockers);
-
         return (text, isTestable, blockers);
     }
 
-    private static (List<string> SourceRefactoring, List<string> TestStrategy) BuildRecommendations(MethodFact method, List<TypeFact> types)
+    /// <summary>
+    ///     Only well-known non-deterministic / I/O-bound static APIs are considered real blockers.
+    ///     Pure BCL helpers (List&lt;T&gt;, Regex, StringComparer, Linq, ...) are NOT blockers.
+    /// </summary>
+    private static bool IsRealStaticBlocker(TypeFact type)
+    {
+        return StaticApiAbstractions.ContainsKey(type.FullName);
+    }
+
+    private static string ExtractSimpleName(string fullName)
+    {
+        var noGeneric = fullName.Split('<')[0];
+        var lastDot = noGeneric.LastIndexOf('.');
+        return lastDot >= 0 ? noGeneric.Substring(lastDot + 1) : noGeneric;
+    }
+
+    /// <summary>Checks whether <paramref name="word" /> occurs as a whole identifier inside <paramref name="text" />.</summary>
+    private static bool ContainsWord(string text, string word)
+    {
+        if (string.IsNullOrEmpty(word)) return false;
+
+        var idx = 0;
+        while ((idx = text.IndexOf(word, idx, StringComparison.Ordinal)) >= 0)
+        {
+            var beforeOk = idx == 0 || !char.IsLetterOrDigit(text[idx - 1]);
+            var afterIdx = idx + word.Length;
+            var afterOk = afterIdx == text.Length || !char.IsLetterOrDigit(text[afterIdx]);
+            if (beforeOk && afterOk) return true;
+            idx = afterIdx;
+        }
+
+        return false;
+    }
+
+    private static (List<string> SourceRefactoring, List<string> TestStrategy) BuildRecommendations(
+        MethodFact method, List<TypeFact> types, HashSet<string> instanceFieldTypes)
     {
         var sourceRefactoring = new List<string>();
         var testStrategy = new List<string>();
 
         if (method.Accessibility is "Private" or "Protected")
         {
-            sourceRefactoring.Add("Set accessibility to 'internal' and add InternalsVisibleTo, or move the logic into a separate class.");
+            sourceRefactoring.Add(
+                "Set accessibility to 'internal' and add InternalsVisibleTo, or move the logic into a separate class.");
         }
 
         if (method.IsAsyncVoid)
@@ -949,12 +854,8 @@ public sealed class RoslynDllTestabilityAnalyzer
             sourceRefactoring.Add("Change the event handler to 'async Task'; keep the UI event handler as a thin wrapper.");
         }
 
-        if (method.IsStatic)
-        {
-            sourceRefactoring.Add("Move the method to an instance service and inject its dependencies so the behavior can be isolated.");
-        }
-
-        foreach (var t in types.Where(t => t.UsedStatically))
+        // Static API recommendations only for genuine blockers.
+        foreach (var t in types.Where(t => t.UsedStatically && IsRealStaticBlocker(t)))
         {
             if (!string.IsNullOrEmpty(t.RecommendedAbstraction))
             {
@@ -966,29 +867,36 @@ public sealed class RoslynDllTestabilityAnalyzer
                 }
                 else
                 {
-                    sourceRefactoring.Add($"Wrap '{t.FullName}' behind '{t.RecommendedAbstraction}' and inject that abstraction.");
+                    sourceRefactoring.Add(
+                        $"Wrap '{t.FullName}' behind '{t.RecommendedAbstraction}' and inject that abstraction.");
                 }
-            }
-            else if (!t.IsInterface)
-            {
-                sourceRefactoring.Add($"'{t.FullName}' is used statically. Put it behind an injected interface or service.");
             }
         }
 
-        var concrete = types.Where(t =>
-                !t.IsInterface && !t.IsAbstract && !t.IsStatic && !t.IsSealed &&
-                !t.Namespace.StartsWith("System", StringComparison.Ordinal))
+        // Non-injectable concrete instance-field deps → recommend ctor injection.
+        var nonInjectable = types
+            .Where(t => instanceFieldTypes.Contains(t.FullName))
+            .Where(t => !t.IsInterface && !t.IsAbstract && !t.IsStatic)
+            .Where(t => !t.Namespace.StartsWith("System", StringComparison.Ordinal))
             .ToList();
 
-        if (concrete.Count > 0)
+        if (nonInjectable.Count > 0)
         {
-            sourceRefactoring.Add("Concrete types are created internally; prefer constructor injection: " +
-                                  string.Join(", ", concrete.Select(t => t.FullName)));
+            sourceRefactoring.Add(
+                "Concrete dependencies are created internally; prefer constructor injection for: " +
+                string.Join(", ", nonInjectable.Select(t => t.FullName)));
+        }
+
+        if (!method.IsStatic && method.ContainingType is { Constructors.Count: 0 })
+        {
+            sourceRefactoring.Add(
+                "Containing type has no public constructor; add one (or a test-visible factory) to allow instantiation in tests.");
         }
 
         if (method.HasCancellationToken)
         {
-            testStrategy.Add("Cover cancellation behavior by passing CancellationToken.None and, where relevant, a cancelled token.");
+            testStrategy.Add(
+                "Cover cancellation behavior by passing CancellationToken.None and, where relevant, a cancelled token.");
         }
 
         if (method.ReturnsTask)
@@ -996,9 +904,9 @@ public sealed class RoslynDllTestabilityAnalyzer
             testStrategy.Add("Write the test as async and await the Task/ValueTask result.");
         }
 
-        if (types.Any(t => t.UsedStatically && !string.IsNullOrEmpty(t.RecommendedAbstraction)))
+        if (method.IsStatic && method.Accessibility == "Public")
         {
-            testStrategy.Add("Do not mock static APIs directly; use only abstractions already present in the test project.");
+            testStrategy.Add("Method is a public static entry point; call it directly on the type and assert its observable result.");
         }
 
         return (sourceRefactoring.Distinct().ToList(), testStrategy.Distinct().ToList());
@@ -1006,11 +914,6 @@ public sealed class RoslynDllTestabilityAnalyzer
 
     // ---------------------------------------------------------------- helpers
 
-    /// <summary>
-    ///     Walks the type's inheritance chain, returning every base type as a fully
-    ///     qualified display string, ordered from the immediate base up to (but
-    ///     excluding) <see cref="object" />. Interfaces are not included.
-    /// </summary>
     private static List<string> CollectAllBaseTypes(INamedTypeSymbol type)
     {
         var result = new List<string>();
@@ -1020,11 +923,7 @@ public sealed class RoslynDllTestabilityAnalyzer
         while (current is not null && current.SpecialType != SpecialType.System_Object)
         {
             var name = current.ToDisplayString(FqFormat);
-            if (!seen.Add(name))
-            {
-                // Defensive: Roslyn does not produce cycles, but guard against it anyway.
-                break;
-            }
+            if (!seen.Add(name)) break;
 
             result.Add(name);
             current = current.BaseType;
@@ -1068,131 +967,64 @@ public sealed class RoslynDllTestabilityAnalyzer
 
     private static DependencyKind ClassifyDependencyKind(INamedTypeSymbol type)
     {
-        if (type.TypeKind == TypeKind.Interface)
-        {
-            return DependencyKind.Interface;
-        }
-
-        if (type.TypeKind == TypeKind.Delegate)
-        {
-            return DependencyKind.Delegate;
-        }
-
-        if (type.TypeKind == TypeKind.Enum)
-        {
-            return DependencyKind.Enum;
-        }
-
-        if (type.IsStatic)
-        {
-            return DependencyKind.StaticClass;
-        }
-
-        if (type.IsAbstract)
-        {
-            return DependencyKind.AbstractClass;
-        }
-
-        if (type.IsSealed)
-        {
-            return DependencyKind.SealedClass;
-        }
-
-        if (type.IsValueType)
-        {
-            return DependencyKind.Struct;
-        }
-
-        if (type.SpecialType != SpecialType.None)
-        {
-            return DependencyKind.Primitive;
-        }
-
-        if (type.TypeKind == TypeKind.Class)
-        {
-            return DependencyKind.ConcreteClass;
-        }
-
+        if (type.TypeKind == TypeKind.Interface) return DependencyKind.Interface;
+        if (type.TypeKind == TypeKind.Delegate) return DependencyKind.Delegate;
+        if (type.TypeKind == TypeKind.Enum) return DependencyKind.Enum;
+        if (type.IsStatic) return DependencyKind.StaticClass;
+        if (type.IsAbstract) return DependencyKind.AbstractClass;
+        if (type.IsSealed) return DependencyKind.SealedClass;
+        if (type.IsValueType) return DependencyKind.Struct;
+        if (type.SpecialType != SpecialType.None) return DependencyKind.Primitive;
+        if (type.TypeKind == TypeKind.Class) return DependencyKind.ConcreteClass;
         return DependencyKind.Unknown;
     }
 
     private static string ClassMockability(INamedTypeSymbol type)
     {
-        if (type.TypeKind == TypeKind.Interface)
-        {
-            return "Yes (interface)";
-        }
-
-        if (type.IsStatic)
-        {
-            return "No (static)";
-        }
-
-        if (type.IsSealed)
-        {
-            return "No (sealed)";
-        }
-
-        if (type.IsAbstract)
-        {
-            return "Yes (abstract)";
-        }
+        if (type.TypeKind == TypeKind.Interface) return "Yes (interface)";
+        if (type.IsStatic) return "No (static)";
+        if (type.IsSealed) return "No (sealed)";
+        if (type.IsAbstract) return "Yes (abstract)";
 
         var virtualCount = type.GetMembers().Count(m => m.IsVirtual || m.IsAbstract || m.IsOverride);
-
         return virtualCount == 0 ? "No (no virtual members)" : "Limited (virtual members exist)";
     }
 
     private static string ResolveDocumentName(string? requestedName, SyntaxTree tree)
     {
-        if (!string.IsNullOrWhiteSpace(requestedName))
-        {
-            return requestedName!;
-        }
-
+        if (!string.IsNullOrWhiteSpace(requestedName)) return requestedName!;
         var fromPath = Path.GetFileName(tree.FilePath);
         return string.IsNullOrEmpty(fromPath) ? "(unnamed)" : fromPath;
     }
 
-    /// <summary>
-    ///     Shared document-path matcher used by both <see cref="MatchesDocument" /> (MSBuild)
-    ///     and <see cref="FindMethodAcrossTrees" /> (compilation-only). Matches by file name
-    ///     or by path fragment, case-insensitive.
-    /// </summary>
     private static bool MatchesDocumentPath(string? treePath, string documentName)
     {
-        if (string.IsNullOrEmpty(treePath))
-        {
-            return false;
-        }
+        if (string.IsNullOrEmpty(treePath)) return false;
 
         var file = Path.GetFileName(treePath);
         return string.Equals(file, documentName, StringComparison.OrdinalIgnoreCase) ||
                treePath.Contains(documentName, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static (SyntaxTree Tree, MethodDeclarationSyntax Method)? FindMethodAcrossTrees(Compilation compilation, string methodName,
-        string? documentName, CancellationToken ct)
+    private static (SyntaxTree Tree, MethodDeclarationSyntax Method)? FindMethodAcrossTrees(
+        Compilation compilation, string methodName, string? documentName, CancellationToken ct)
     {
         foreach (var tree in compilation.SyntaxTrees)
         {
             ct.ThrowIfCancellationRequested();
 
             if (!string.IsNullOrWhiteSpace(documentName) && !MatchesDocumentPath(tree.FilePath, documentName!))
-            {
                 continue;
-            }
 
             var root = tree.GetRoot(ct);
-            var candidates = root.DescendantNodes().OfType<MethodDeclarationSyntax>().Where(m => m.Identifier.Text == methodName).ToList();
+            var candidates = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Where(m => m.Identifier.Text == methodName).ToList();
 
-            if (candidates.Count == 0)
-            {
-                continue;
-            }
+            if (candidates.Count == 0) continue;
 
             var preferred = candidates.FirstOrDefault(m =>
-                m.Modifiers.Any(t => t.IsKind(SyntaxKind.PublicKeyword)) && m.TypeParameterList == null) ?? candidates[0];
+                                m.Modifiers.Any(t => t.IsKind(SyntaxKind.PublicKeyword)) && m.TypeParameterList == null)
+                            ?? candidates[0];
 
             return (tree, preferred);
         }

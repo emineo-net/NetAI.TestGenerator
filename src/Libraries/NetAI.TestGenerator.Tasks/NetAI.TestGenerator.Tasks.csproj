@@ -10,9 +10,23 @@
 		<DevelopmentDependency>true</DevelopmentDependency>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
-		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackCustomTasksAndDependencies</TargetsForTfmSpecificContentInPackage>
+		<TargetsForTfmSpecificContentInPackage Condition="'$(TargetFramework)' == 'netstandard2.0'">$(TargetsForTfmSpecificContentInPackage);PackCustomTasksAndDependencies</TargetsForTfmSpecificContentInPackage>
 
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+
+		<!-- Basis-Version Ihres Projekts -->
+		<VersionPrefix>1.0.0</VersionPrefix>
+
+		<!-- Generiert einen Zeitstempel im Format: JjJjMmDd.HhMm (z.B. 20261002.1445) -->
+		<BuildTimestamp>$([System.DateTime]::Now.ToString("yyyyMMdd.HHmm"))</BuildTimestamp>
+
+		<!-- Kombiniert beides zu einer Preview-Version für lokale Builds -->
+		<VersionSuffix>dev.$(BuildTimestamp)</VersionSuffix>
+
+		<!-- Nutzt das Suffix nur im Debug-Modus. Im Release-Modus bleibt es bei der sauberen 1.0.0 -->
+		<Version Condition="'$(Configuration)' == 'Debug'">$(VersionPrefix)-$(VersionSuffix)</Version>
+		<Version Condition="'$(Configuration)' == 'Release'">$(VersionPrefix)</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -74,5 +88,15 @@
 			</TfmSpecificPackageFile>
 		</ItemGroup>
 	</Target>
+
+
+	<Target Name="CopyToLocalFeed" AfterTargets="Pack">
+		<ItemGroup>
+			<GeneratedPackages Include="$(PackageOutputAbsolutePath)\*.nupkg" />
+		</ItemGroup>
+		<!-- Kopiert das Paket nach jedem erfolgreichen 'dotnet pack' automatisch in Ihren Store -->
+		<Copy SourceFiles="@(GeneratedPackages)" DestinationFolder="C:\NuGetLocalSource" SkipUnchangedFiles="false" />
+	</Target>
+
 
 </Project>
