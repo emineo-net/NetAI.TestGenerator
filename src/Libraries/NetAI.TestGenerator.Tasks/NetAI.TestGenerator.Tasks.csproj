@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
@@ -41,18 +41,23 @@
 			<LocalTaskFiles Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.dll" />
 			<LocalTaskFiles Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.pdb" />
 		</ItemGroup>
-		<Copy SourceFiles="@(LocalTaskFiles)" DestinationFolder="$(MSBuildProjectDirectory)\build\" SkipUnchangedFiles="true" Condition="'@(LocalTaskFiles)' != ''" />
+		<Copy SourceFiles="@(LocalTaskFiles)" DestinationFolder="$(MSBuildProjectDirectory)\build\" SkipUnchangedFiles="true"
+		      Condition="'@(LocalTaskFiles)' != ''" />
 	</Target>
 
 	<Target Name="PackCustomTasksAndDependencies">
 		<ItemGroup>
-			<_TasksOutputDependencies Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.dll" Exclude="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.dll" />
+			<_TasksOutputDependencies Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.dll"
+			                          Exclude="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.dll" />
 			<_TasksOutputDependencies Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.xml" />
 
-			<TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.dll">
+			<TfmSpecificPackageFile
+				Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.dll">
 				<PackagePath>tasks\netstandard2.0\</PackagePath>
 			</TfmSpecificPackageFile>
-			<TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.xml" Condition="Exists('$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.xml')">
+			<TfmSpecificPackageFile
+				Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.xml"
+				Condition="Exists('$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\NetAI.TestGenerator.Tasks.xml')">
 				<PackagePath>tasks\netstandard2.0\</PackagePath>
 			</TfmSpecificPackageFile>
 			<TfmSpecificPackageFile Include="@(_TasksOutputDependencies)">

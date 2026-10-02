@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.Build.Framework;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -5,7 +6,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NetAI.TestGenerator.Core;
 using NetAI.TestGenerator.Core.Analysis;
 using NetAI.TestGenerator.Core.Config;
-using System.Text;
 using NetAI.TestGenerator.Core.Models;
 using Task = Microsoft.Build.Utilities.Task;
 
@@ -14,8 +14,8 @@ namespace NetAI.TestGenerator.Tasks;
 /// <summary>Runs testability analysis and AI-assisted test generation as part of an MSBuild build.</summary>
 public class TestGeneratorTask : Task
 {
-    bool testXamlCs = true;
-    bool testDebugger = false;
+    private bool testDebugger = false;
+    private readonly bool testXamlCs = true;
 
     /// <summary>Gets or sets the project directory supplied by MSBuild.</summary>
     [Required]
@@ -51,66 +51,52 @@ public class TestGeneratorTask : Task
     public bool UseWindowsForms { get; set; }
 
     /// <summary>
-    /// Gets or sets whether AI or generation failures should fail the build.
-    /// Default is <see langword="false"/> to keep unrelated builds green.
+    ///     Gets or sets whether AI or generation failures should fail the build.
+    ///     Default is <see langword="false" /> to keep unrelated builds green.
     /// </summary>
     public bool FailOnError { get; set; } = false;
 
     // ------------------------------------------------------------------------
 
     /// <summary>Runs semantic analysis or test generation, depending on the inputs supplied by MSBuild.</summary>
-    /// <returns><see langword="true"/> when the task succeeds; otherwise, <see langword="false"/>.</returns>
+    /// <returns><see langword="true" /> when the task succeeds; otherwise, <see langword="false" />.</returns>
     public override bool Execute()
     {
         // GEÄNDERT: prüft den vollen Pfad (nicht nur den Ordner-Namen) auf "_wpftmp".
         if (ProjectDir.IndexOf("_wpftmp", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
             return true;
+        }
 
-        var hasSemanticInputs =
-            SourceFiles.Length > 0 &&
-            ReferencePaths.Length > 0 &&
-            !string.IsNullOrWhiteSpace(AnalysisOutputDirectory);
+        var hasSemanticInputs = SourceFiles.Length > 0 && ReferencePaths.Length > 0 && !string.IsNullOrWhiteSpace(AnalysisOutputDirectory);
 
-        return hasSemanticInputs
-            ? ExecuteSemanticAnalysis()
-            : ExecuteResxGeneration();
+        return hasSemanticInputs ? ExecuteSemanticAnalysis() : ExecuteResxGeneration();
     }
 
     private bool ExecuteSemanticAnalysis()
     {
         try
         {
-            var sourcePaths = SourceFiles
-                .Select(i => i.ItemSpec)
-                .Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
-                .ToList();
+            var sourcePaths = SourceFiles.Select(i => i.ItemSpec).Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p)).ToList();
 
-            var referencePaths = ReferencePaths
-                .Select(i => i.ItemSpec)
-                .Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
+            var referencePaths = ReferencePaths.Select(i => i.ItemSpec).Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
                 .ToList();
 
             Log.LogMessage(MessageImportance.High,
-                $"[NetAI] Semantic analysis started: " +
-                $"{sourcePaths.Count} source files, {referencePaths.Count} references.");
+                $"[NetAI] Semantic analysis started: " + $"{sourcePaths.Count} source files, {referencePaths.Count} references.");
 
             var assemblyName = Path.GetFileName(ProjectDir.TrimEnd('/', '\\'));
             var parseOptions = BuildParseOptions();
-            var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(
-                sourcePaths,
-                referencePaths,
-                assemblyName: string.IsNullOrEmpty(assemblyName) ? "TestabilityAnalysis" : assemblyName,
-                parseOptions: parseOptions);
+            var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(sourcePaths, referencePaths,
+                string.IsNullOrEmpty(assemblyName) ? "TestabilityAnalysis" : assemblyName, parseOptions);
 
-            var compileErrorCount = compilation.GetDiagnostics()
-                .Count(d => d.Severity == DiagnosticSeverity.Error);
+            var compileErrorCount = compilation.GetDiagnostics().Count(d => d.Severity == DiagnosticSeverity.Error);
 
             if (compileErrorCount > 0)
             {
                 Log.LogMessage(MessageImportance.High,
                     $"[NetAI] Note: Compilation contains {compileErrorCount} errors. " +
-                    "This is normal when source files from other projects are missing; " +
-                    "the analysis uses whatever can be resolved.");
+                    "This is normal when source files from other projects are missing; " + "the analysis uses whatever can be resolved.");
             }
 
             var analyzer = new RoslynDllTestabilityAnalyzer();
@@ -119,20 +105,16 @@ public class TestGeneratorTask : Task
             foreach (var tree in compilation.SyntaxTrees)
             {
                 var root = tree.GetRoot();
-                var methods = root.DescendantNodes()
-                    .OfType<MethodDeclarationSyntax>()
-                    .ToList();
+                var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
 
                 foreach (var method in methods)
                 {
                     try
                     {
                         var report = System.Threading.Tasks.Task.Run(async () =>
-                            await analyzer.AnalyzeFromCompilationAsync(
-                                compilation,
-                                method,
-                                ct: CancellationToken.None).ConfigureAwait(false)
-                        ).GetAwaiter().GetResult();
+                                await analyzer.AnalyzeFromCompilationAsync(compilation, method, CancellationToken.None)
+                                    .ConfigureAwait(false))
+                            .GetAwaiter().GetResult();
 
                         reports.Add(report);
                     }
@@ -146,13 +128,10 @@ public class TestGeneratorTask : Task
             var reportPath = Path.Combine(AnalysisOutputDirectory!, "testability-report.txt");
             WriteAnalysisReport(reports, reportPath);
 
-            var notTestableCount = reports.Count(r =>
-                r.Verdict != null &&
-                r.Verdict.StartsWith("NOT", StringComparison.Ordinal));
+            var notTestableCount = reports.Count(r => r.Verdict != null && r.Verdict.StartsWith("NOT", StringComparison.Ordinal));
 
             Log.LogMessage(MessageImportance.High,
-                $"[NetAI] Analyzed {reports.Count} methods; " +
-                $"{notTestableCount} are not directly testable. Report: {reportPath}");
+                $"[NetAI] Analyzed {reports.Count} methods; " + $"{notTestableCount} are not directly testable. Report: {reportPath}");
 
             return true;
         }
@@ -163,9 +142,7 @@ public class TestGeneratorTask : Task
         }
     }
 
-    private static void WriteAnalysisReport(
-        IReadOnlyList<TestabilityReport> reports,
-        string path)
+    private static void WriteAnalysisReport(IReadOnlyList<TestabilityReport> reports, string path)
     {
         var sb = new StringBuilder();
         sb.AppendLine("NetAI Testability Report");
@@ -174,9 +151,7 @@ public class TestGeneratorTask : Task
         sb.AppendLine($"Method count: {reports.Count}");
         sb.AppendLine();
 
-        foreach (var group in reports
-                     .GroupBy(r => r.DocumentName ?? "(unnamed)")
-                     .OrderBy(g => g.Key, StringComparer.Ordinal))
+        foreach (var group in reports.GroupBy(r => r.DocumentName ?? "(unnamed)").OrderBy(g => g.Key, StringComparer.Ordinal))
         {
             sb.AppendLine($"# {group.Key}");
             sb.AppendLine();
@@ -195,7 +170,9 @@ public class TestGeneratorTask : Task
                 {
                     sb.AppendLine("    Recommendations:");
                     foreach (var rec in report.Recommendations)
+                    {
                         sb.AppendLine($"      - {rec}");
+                    }
                 }
 
                 if (report.ReferencedTypes?.Count > 0)
@@ -203,10 +180,8 @@ public class TestGeneratorTask : Task
                     sb.AppendLine("    Referenced types:");
                     foreach (var t in report.ReferencedTypes)
                     {
-                        sb.AppendLine(
-                            $"      - {t.FullName} " +
-                            $"(Kind: {t.Kind}, Mockable: {t.Mockable}, " +
-                            $"Static: {t.UsedStatically})");
+                        sb.AppendLine($"      - {t.FullName} " + $"(Kind: {t.Kind}, Mockable: {t.Mockable}, " +
+                                      $"Static: {t.UsedStatically})");
                     }
                 }
 
@@ -232,20 +207,17 @@ public class TestGeneratorTask : Task
 
         var config_ = (CurrentConfiguration ?? "Debug").ToLowerInvariant();
 
-        Log.LogMessage(MessageImportance.High,
-            "[NetAI] Mode condition met. Starting test analysis...");
+        Log.LogMessage(MessageImportance.High, "[NetAI] Mode condition met. Starting test analysis...");
 
-        string? solutionDirectory = FindSolutionDirectory(ProjectDir);
+        var solutionDirectory = FindSolutionDirectory(ProjectDir);
         if (solutionDirectory is null)
         {
             Log.LogError($"[NetAI] No .sln or .slnx file found above '{ProjectDir}'.");
             return false;
         }
 
-        string projectName = Path.GetFileName(ProjectDir.TrimEnd(
-            Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-        string testProjectDirectory = Path.Combine(
-            solutionDirectory, "tests", "UnitTests", $"{projectName}.Tests");
+        var projectName = Path.GetFileName(ProjectDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        var testProjectDirectory = Path.Combine(solutionDirectory, "tests", "UnitTests", $"{projectName}.Tests");
 
         var collectedIssues = new List<string>();
         ResxTranslationOrchestrator orchestrator;
@@ -259,47 +231,34 @@ public class TestGeneratorTask : Task
             return false;
         }
 
-        Compilation? compilation = BuildCompilationForOrchestrator();
+        var compilation = BuildCompilationForOrchestrator();
 
         var csharpFiles = new List<string>();
 
         if (testXamlCs)
         {
-            csharpFiles = Directory.GetFiles(ProjectDir, "*.cs", SearchOption.AllDirectories)
-                .Select(file => Path.GetFullPath(file))
-                .Where(file =>
-                    !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
-                    !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
-                    !file.EndsWith("Tests.cs", StringComparison.OrdinalIgnoreCase) &&
-                    !file.Contains("_wpftmp") &&
-                    !file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) &&
-                    !file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase) &&
-                    !file.Contains("Designer.cs") &&
-                    !file.Contains("AiTranslatorRunner") &&
-                    !file.Contains("AssemblyAttributes") &&
-                    !file.Contains("AssemblyInfo")
-                ).ToList();
+            csharpFiles = Directory.GetFiles(ProjectDir, "*.cs", SearchOption.AllDirectories).Select(file => Path.GetFullPath(file))
+                .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
+                               !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
+                               !file.EndsWith("Tests.cs", StringComparison.OrdinalIgnoreCase) && !file.Contains("_wpftmp") &&
+                               !file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) &&
+                               !file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase) && !file.Contains("Designer.cs") &&
+                               !file.Contains("AiTranslatorRunner") && !file.Contains("AssemblyAttributes") &&
+                               !file.Contains("AssemblyInfo")).ToList();
         }
         else
         {
-            csharpFiles = Directory.GetFiles(ProjectDir, "*.cs", SearchOption.AllDirectories)
-                .Select(file => Path.GetFullPath(file))
-                .Where(file =>
-                    !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
-                    !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
-                    !file.EndsWith("Tests.cs", StringComparison.OrdinalIgnoreCase) &&
-                    !file.Contains("_wpftmp") &&
-                    !file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) &&
-                    !file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase) &&
-                    !file.Contains("Designer.cs") &&
-                    !file.EndsWith(".xaml.cs", StringComparison.OrdinalIgnoreCase) &&
-                    !file.Contains("AiTranslatorRunner") &&
-                    !file.Contains("AssemblyAttributes") &&
-                    !file.Contains("AssemblyInfo")
-                ).ToList();
+            csharpFiles = Directory.GetFiles(ProjectDir, "*.cs", SearchOption.AllDirectories).Select(file => Path.GetFullPath(file))
+                .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
+                               !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
+                               !file.EndsWith("Tests.cs", StringComparison.OrdinalIgnoreCase) && !file.Contains("_wpftmp") &&
+                               !file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) &&
+                               !file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase) && !file.Contains("Designer.cs") &&
+                               !file.EndsWith(".xaml.cs", StringComparison.OrdinalIgnoreCase) && !file.Contains("AiTranslatorRunner") &&
+                               !file.Contains("AssemblyAttributes") && !file.Contains("AssemblyInfo")).ToList();
         }
 
-        bool overallSuccess = true;
+        var overallSuccess = true;
 
         Log.LogMessage(MessageImportance.High, $"[NetAI] C# files: {csharpFiles.Count()}");
 
@@ -308,36 +267,37 @@ public class TestGeneratorTask : Task
             try
             {
                 Log.LogMessage(MessageImportance.High, "[NetAI] Starting orchestrator.ProcessProjectAsync...");
-                string result = System.Threading.Tasks.Task.Run(async () =>
-                    await orchestrator.ProcessProjectAsync(sourceFilePath, testProjectDirectory, message =>
+                var result = System.Threading.Tasks.Task.Run(async () => await orchestrator.ProcessProjectAsync(sourceFilePath,
+                    testProjectDirectory, message =>
                     {
-                        if (string.IsNullOrWhiteSpace(message)) return;
+                        if (string.IsNullOrWhiteSpace(message))
+                        {
+                            return;
+                        }
 
                         var isError = message.Contains("[NetAI Error]") || message.Contains("Error:");
                         var isWarning = message.Contains("[NetAI Warning]") || message.Contains("Warning:");
 
                         if (isError)
                         {
-                            var cleanMessage = message
-                                .Replace("[NetAI Error]", "")
-                                .Replace("Error:", "")
-                                .Trim();
+                            var cleanMessage = message.Replace("[NetAI Error]", "").Replace("Error:", "").Trim();
 
                             // GEÄNDERT: LogError nur bei FailOnError=true, sonst Warning,
                             // damit AI-Aussetzer den Build nicht zwangsweise rot machen.
                             if (FailOnError)
+                            {
                                 Log.LogError($"[NetAI] {cleanMessage}");
+                            }
                             else
+                            {
                                 Log.LogWarning($"[NetAI] {cleanMessage}");
+                            }
 
                             collectedIssues.Add($"[ERROR] {cleanMessage}");
                         }
                         else if (isWarning)
                         {
-                            var cleanMessage = message
-                                .Replace("[NetAI Warning]", "")
-                                .Replace("Warning:", "")
-                                .Trim();
+                            var cleanMessage = message.Replace("[NetAI Warning]", "").Replace("Warning:", "").Trim();
                             Log.LogWarning($"[NetAI] {cleanMessage}");
                             collectedIssues.Add($"[WARNING] {cleanMessage}");
                         }
@@ -345,8 +305,7 @@ public class TestGeneratorTask : Task
                         {
                             Log.LogMessage(MessageImportance.High, message);
                         }
-                    }, compilation, promptOnly: PromptOnly)
-                ).GetAwaiter().GetResult();
+                    }, compilation, PromptOnly)).GetAwaiter().GetResult();
 
                 Log.LogMessage(MessageImportance.High, "[NetAI] Finished orchestrator.ProcessProjectAsync.");
 
@@ -354,16 +313,31 @@ public class TestGeneratorTask : Task
                 {
                     // GEÄNDERT: abhängig von FailOnError
                     var msg = $"[NetAI] Failed to process '{Path.GetFileName(sourceFilePath)}': {result}";
-                    if (FailOnError) Log.LogError(msg); else Log.LogWarning(msg);
+                    if (FailOnError)
+                    {
+                        Log.LogError(msg);
+                    }
+                    else
+                    {
+                        Log.LogWarning(msg);
+                    }
+
                     collectedIssues.Add($"[ERROR] {result}");
                     overallSuccess = false;
                 }
             }
             catch (Exception ex)
             {
-                var msg = $"[NetAI] Critical error processing file " +
-                          $"'{Path.GetFileName(sourceFilePath)}': {ex.Message}";
-                if (FailOnError) Log.LogError(msg); else Log.LogWarning(msg);
+                var msg = $"[NetAI] Critical error processing file " + $"'{Path.GetFileName(sourceFilePath)}': {ex.Message}";
+                if (FailOnError)
+                {
+                    Log.LogError(msg);
+                }
+                else
+                {
+                    Log.LogWarning(msg);
+                }
+
                 collectedIssues.Add($"[CRITICAL] {ex.Message}");
                 overallSuccess = false;
             }
@@ -379,8 +353,8 @@ public class TestGeneratorTask : Task
     }
 
     /// <summary>
-    /// Builds <see cref="CSharpParseOptions"/> from MSBuild context.
-    /// Uses <see cref="DefineConstants"/> when provided; falls back to a sane default.
+    ///     Builds <see cref="CSharpParseOptions" /> from MSBuild context.
+    ///     Uses <see cref="DefineConstants" /> when provided; falls back to a sane default.
     /// </summary>
     private CSharpParseOptions BuildParseOptions()
     {
@@ -388,12 +362,13 @@ public class TestGeneratorTask : Task
 
         if (!string.IsNullOrWhiteSpace(DefineConstants))
         {
-            foreach (var raw in DefineConstants.Split(
-                         new[] { ';', ',' },
-                         StringSplitOptions.RemoveEmptyEntries))
+            foreach (var raw in DefineConstants.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 var s = raw.Trim();
-                if (s.Length > 0) symbols.Add(s);
+                if (s.Length > 0)
+                {
+                    symbols.Add(s);
+                }
             }
         }
 
@@ -407,40 +382,33 @@ public class TestGeneratorTask : Task
 
         // UI-Symbole nur setzen, wenn das Projekt sie auch nutzt
         if (UseWpf || UseWindowsForms)
+        {
             symbols.Add("WINDOWS");
+        }
 
         var symbolArray = symbols.ToArray();
 
-        Log.LogMessage(MessageImportance.High,
-            $"[NetAI] Preprocessor symbols: {string.Join(", ", symbolArray)}");
+        Log.LogMessage(MessageImportance.High, $"[NetAI] Preprocessor symbols: {string.Join(", ", symbolArray)}");
 
-        return new CSharpParseOptions(LanguageVersion.Latest)
-            .WithPreprocessorSymbols(symbolArray);
+        return new CSharpParseOptions(LanguageVersion.Latest).WithPreprocessorSymbols(symbolArray);
     }
 
     private Compilation? BuildCompilationForOrchestrator()
     {
-        var sourcePaths = SourceFiles
-            .Select(i => i.ItemSpec)
-            .Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
+        var sourcePaths = SourceFiles.Select(i => i.ItemSpec).Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
             .Where(p => !p.EndsWith("AssemblyInfo.cs", StringComparison.OrdinalIgnoreCase))
-            .Where(p => !p.EndsWith("AssemblyAttributes.cs", StringComparison.OrdinalIgnoreCase))
-            .ToList();
+            .Where(p => !p.EndsWith("AssemblyAttributes.cs", StringComparison.OrdinalIgnoreCase)).ToList();
 
         if (sourcePaths.Count == 0)
         {
-            Log.LogMessage(MessageImportance.High,
-                "[NetAI] No @(Compile) items available; falling back to syntax-only analysis.");
+            Log.LogMessage(MessageImportance.High, "[NetAI] No @(Compile) items available; falling back to syntax-only analysis.");
             return null;
         }
 
-        var referencePaths = ReferencePaths
-            .Select(i => i.ItemSpec)
-            .Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        var referencePaths = ReferencePaths.Select(i => i.ItemSpec).Where(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p))
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
-        bool usedFallback = false;
+        var usedFallback = false;
         if (referencePaths.Count == 0)
         {
             usedFallback = true;
@@ -451,26 +419,22 @@ public class TestGeneratorTask : Task
         {
             var assemblyName = Path.GetFileNameWithoutExtension(ProjectDir.TrimEnd('/', '\\'));
             if (string.IsNullOrEmpty(assemblyName))
+            {
                 assemblyName = "TestabilityAnalysis";
+            }
 
             var parseOptions = BuildParseOptions();
 
-            var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(
-                sourcePaths,
-                referencePaths,
-                assemblyName,
-                parseOptions);
+            var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(sourcePaths, referencePaths, assemblyName, parseOptions);
 
             var hasCorlib = compilation.GetTypeByMetadataName("System.Object") != null;
             var hasWpf = compilation.GetTypeByMetadataName("System.Windows.Window") != null;
 
-            var errorCount = compilation.GetDiagnostics()
-                .Count(d => d.Severity == DiagnosticSeverity.Error);
+            var errorCount = compilation.GetDiagnostics().Count(d => d.Severity == DiagnosticSeverity.Error);
 
             Log.LogMessage(MessageImportance.High,
                 $"[NetAI] Compilation: {sourcePaths.Count} files, {referencePaths.Count} refs" +
-                (usedFallback ? " (fallback)" : " (@(ReferencePath))") +
-                $", corlib={hasCorlib}, WPF={hasWpf}, {errorCount} errors.");
+                (usedFallback ? " (fallback)" : " (@(ReferencePath))") + $", corlib={hasCorlib}, WPF={hasWpf}, {errorCount} errors.");
 
             return compilation;
         }
@@ -482,8 +446,8 @@ public class TestGeneratorTask : Task
     }
 
     /// <summary>
-    /// Builds a reasonable reference set without @(ReferencePath): trusts the
-    /// running TPA list, plus any already-loaded assemblies. Should rarely be needed.
+    ///     Builds a reasonable reference set without @(ReferencePath): trusts the
+    ///     running TPA list, plus any already-loaded assemblies. Should rarely be needed.
     /// </summary>
     private static List<string> BuildFallbackReferenceSet()
     {
@@ -493,16 +457,31 @@ public class TestGeneratorTask : Task
         if (!string.IsNullOrEmpty(tpa))
         {
             foreach (var p in tpa.Split(Path.PathSeparator))
+            {
                 if (!string.IsNullOrWhiteSpace(p) && File.Exists(p))
+                {
                     paths.Add(p);
+                }
+            }
         }
 
         foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
         {
-            if (asm.IsDynamic) continue;
+            if (asm.IsDynamic)
+            {
+                continue;
+            }
+
             var loc = asm.Location;
-            if (string.IsNullOrEmpty(loc)) continue;
-            if (File.Exists(loc)) paths.Add(loc);
+            if (string.IsNullOrEmpty(loc))
+            {
+                continue;
+            }
+
+            if (File.Exists(loc))
+            {
+                paths.Add(loc);
+            }
         }
 
         return paths.ToList();
@@ -517,8 +496,7 @@ public class TestGeneratorTask : Task
         var currentDirectory = new DirectoryInfo(Path.GetFullPath(startDirectory));
         while (currentDirectory is not null)
         {
-            if (currentDirectory.EnumerateFiles("*.sln").Any() ||
-                currentDirectory.EnumerateFiles("*.slnx").Any())
+            if (currentDirectory.EnumerateFiles("*.sln").Any() || currentDirectory.EnumerateFiles("*.slnx").Any())
             {
                 return currentDirectory.FullName;
             }
