@@ -1,49 +1,117 @@
-﻿
-
-
-using System;
+﻿using System;
+using System.Collections;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace NetAI.TestGenerator.Core.Services;
 
 public static class BuildLogger
 {
-    // Hält den Zeitpunkt des letzten Log-Eintrags fest
     private static DateTime _lastLogTime = DateTime.Now;
+    private static bool LogEnabel = true;
 
     public static readonly string LogFilePath = Path.Combine(
         @"C:\Closerpage\__BuildLogTestGenerator",
-        $"BuildLog_{DateTime.Now:yyyyMMdd_HHmmss}.txt"
-    );
+        $"BuildLog_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
 
-    public static void BuildLog(string message)
+    public static void Info<T>(
+        T value,
+        [CallerArgumentExpression(nameof(value))] string varName = "Unknown",
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "")
+    {
+        Log("INFO", value, varName, lineNumber, memberName, filePath);
+    }
+
+    public static void Warning<T>(
+        T value,
+        [CallerArgumentExpression(nameof(value))] string varName = "Unknown",
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "")
+    {
+        Log("WARN", value, varName, lineNumber, memberName, filePath);
+    }
+
+    public static void Error<T>(
+        T value,
+        [CallerArgumentExpression(nameof(value))] string varName = "Unknown",
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "")
+    {
+        Log("ERROR", value, varName, lineNumber, memberName, filePath);
+    }
+
+    private static void Log<T>(
+        string level,
+        T value,
+        string varName,
+        int lineNumber,
+        string memberName,
+        string filePath)
     {
         try
         {
+            if (!LogEnabel)
+            {
+                return;
+            }
+
             DateTime now = DateTime.Now;
-
-            // Berechnet die Differenz in Sekunden (als Fließkommazahl für Millisekunden-Präzision)
             double secondsSinceLastLog = (now - _lastLogTime).TotalSeconds;
-
-            // Aktualisiert den Zeitstempel für den nächsten Aufruf
             _lastLogTime = now;
 
-            // Formatierung: "+0.42s" (F2 rundet auf 2 Nachkommastellen)
             string timeDelta = $"+{secondsSinceLastLog:F2}s";
+            string formattedValue = FormatValue(value);
 
-            // Die finale Logzeile mit Zeitstempel und Differenz
-            string logLine = $"[{now:HH:mm:ss} | {timeDelta}] {message}{Environment.NewLine}";
+            // Caller-Informationen zuerst
+            string callerInfo = $" ├─ Variable : {varName}{Environment.NewLine}" +
+                               $" ├─ Member   : {memberName}{Environment.NewLine}" +
+                               $" ├─ File     : {filePath}{Environment.NewLine}" +
+                               $" ├─ Line     : {lineNumber}";
+
+            // Das Log-Level (INFO, WARN, ERROR) wird links mit ausgegeben
+            string logLine = $"[{now:HH:mm:ss} | {level} | {timeDelta}]{Environment.NewLine}" +
+                             callerInfo + Environment.NewLine +
+                             $" └─ Value    : {formattedValue}{Environment.NewLine}" +
+                             new string('-', 80) + Environment.NewLine;
 
             File.AppendAllText(LogFilePath, logLine);
 
-            if (logLine == "DONE")
+            if (formattedValue == "DONE")
             {
-                File.OpenRead(LogFilePath);
+                using var _ = File.OpenRead(LogFilePath);
             }
         }
         catch (Exception)
         {
             // Verhindert Build-Absturz bei Fehlern im Logging
         }
+    }
+
+    private static string FormatValue<T>(T value)
+    {
+        if (value is null) return "null";
+
+        if (value is string s) return s;
+
+        if (value is IDictionary dict)
+        {
+            var entries = dict.Cast<DictionaryEntry>()
+                .Select(e => $"[{e.Key}] = {e.Value}");
+            return "{" + string.Join(", ", entries) + "}";
+        }
+
+        if (value is IEnumerable enumerable)
+        {
+            var items = enumerable.Cast<object>()
+                .Select(o => o?.ToString() ?? "null");
+            return "[" + string.Join(", ", items) + "]";
+        }
+
+        return value.ToString() ?? "null";
     }
 }

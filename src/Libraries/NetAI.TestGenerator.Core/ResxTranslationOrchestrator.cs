@@ -110,17 +110,17 @@ public class ResxTranslationOrchestrator
             string className = targetClass.Identifier.Text;
             string? hostProjectDir = promptOnly ? FindProjectDirectory(sourceFilePath) : null;
 
-            BuildLogger.BuildLog("\nhostProjectDir: " + hostProjectDir);
+            BuildLogger.Info(hostProjectDir);
 
             string testClassName = $"{className}Tests";
             string testFilePath = Path.Combine(testProjectDirectory, $"{testClassName}.cs");
 
-            BuildLogger.BuildLog("\ntestFilePath: " + testFilePath);
+            BuildLogger.Info(testFilePath);
 
             logInfo?.Invoke($"[NetAI] Starting analysis for class: {className}");
 
             // NOTE: Disabled hard-coded path - uncomment and adapt locally if you need a clean slate.
-            // File.Delete(@"C:\Users\steph\source\repos\NetAI.TestGenerator\tests\UnitTests\WpftranlationTestApp.Tests\MainWindowTests.cs");
+             File.Delete(@"C:\Users\steph\source\repos\NetAI.TestGenerator\tests\UnitTests\WpftranlationTestApp.Tests\MainWindowTests.cs");
 
             var existingTestMethods = _testGeneratorService.GetExistingTestMethods(testFilePath);
             var sourceMethods = targetClass.DescendantNodes().OfType<MethodDeclarationSyntax>();
@@ -223,7 +223,7 @@ public class ResxTranslationOrchestrator
                 logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
 
                 string classSkeleton = BuildClassSkeleton(targetClass, method);
-                BuildLogger.BuildLog("\nclassSkeleton: " + classSkeleton);
+                BuildLogger.Info( classSkeleton);
 
                 string semanticHint = await BuildSemanticHintAsync(
                     semanticAnalyzer,
@@ -231,7 +231,7 @@ public class ResxTranslationOrchestrator
                     method,
                     logInfo).ConfigureAwait(false);
 
-                BuildLogger.BuildLog("\nsemanticHint: " + semanticHint);
+                BuildLogger.Info( semanticHint);
 
                 string basePrompt = BuildBasePrompt(
                     className,
@@ -240,7 +240,7 @@ public class ResxTranslationOrchestrator
                     projectContext,
                     classSkeleton);
 
-                BuildLogger.BuildLog("\nbasePrompt: " + basePrompt);
+                BuildLogger.Info( basePrompt);
 
                 if (promptOnly)
                 {
@@ -258,7 +258,7 @@ public class ResxTranslationOrchestrator
                     "You are a C# testing expert. Respond only with runnable C# code and no explanations.").ConfigureAwait(false);
 
                 string testMethodCode = ExtractTestClass(newTestClassResponse);
-                BuildLogger.BuildLog("\ntestMethodCode: " + testMethodCode);
+                BuildLogger.Info( testMethodCode);
 
                 if (promptOnly)
                 {
@@ -321,8 +321,7 @@ public class ResxTranslationOrchestrator
                         testTemplate: GetTestTemplate(_testFramework),
                         testProjectDirectoryOverride: testProjectDirectory).ConfigureAwait(false);
 
-                    BuildLogger.BuildLog("\nresultErrors: " +
-                        string.Join("\n", result.CompilerErrors ?? Array.Empty<string>()));
+                    BuildLogger.Warning(result.CompilerErrors);
 
                     if (result.IsSuccess)
                     {
@@ -364,7 +363,7 @@ public class ResxTranslationOrchestrator
                     }
 
                     var errorsText = string.Join("\n", result.CompilerErrors ?? Array.Empty<string>());
-                    BuildLogger.BuildLog("\nerrorsText: " + errorsText);
+                    BuildLogger.Info(errorsText);
                     var codeForRepair = result.TestClassCode ?? validationClassStructure;
 
                     if (result.CompilerErrors?.Any() == true)
@@ -374,7 +373,7 @@ public class ResxTranslationOrchestrator
 
                         if (!string.Equals(roslynFixed, codeForRepair, StringComparison.Ordinal))
                         {
-                            BuildLogger.BuildLog("\nroslynFixed: " + roslynFixed);
+                            BuildLogger.Info(roslynFixed);
                             logInfo?.Invoke("[NetAI] Roslyn automatically added missing using directives; " +
                                             "retrying compilation without AI.");
                             testMethodCode = ExtractTestClass(roslynFixed);
@@ -383,7 +382,7 @@ public class ResxTranslationOrchestrator
                     }
 
                     var errorPrompt = aiPromptBuilderSimple.FixUnittestPromptSimple(errorsText, codeForRepair);
-                    BuildLogger.BuildLog("\nerrorPrompt: " + errorPrompt);
+                    BuildLogger.Info( errorPrompt, nameof(errorPrompt));
 
                     var systemPrompt = "You are a precise C# compiler assistant. Your only task is to accurately fix " +
                                        "syntax and compilation errors in the provided C# code " +
@@ -391,10 +390,10 @@ public class ResxTranslationOrchestrator
 
                     var correctedOutput = await localLlmClient.AskAsync(errorPrompt, systemPrompt).ConfigureAwait(false);
                     testMethodCode = ExtractTestClass(correctedOutput);
-                    BuildLogger.BuildLog("\ntestMethodCode: " + testMethodCode);
+                    BuildLogger.Info(testMethodCode);
                 }
 
-                BuildLogger.BuildLog("DONE");
+                BuildLogger.Info("DONE");
 
                 if (isCompiledSuccessfully)
                 {

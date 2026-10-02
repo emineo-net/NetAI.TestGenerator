@@ -22,5 +22,6 @@
   <Folder Name="/tests/" />
   <Folder Name="/tests/UnitTests/">
     <Project Path="tests/UnitTests/NetAI.TestGenerator.Core.Tests/NetAI.TestGenerator.Core.Tests.csproj" />
+    <Project Path="tests/UnitTests/WpftranlationTestApp.Tests/WpftranlationTestApp.Tests.csproj" />
   </Folder>
 </Solution>
