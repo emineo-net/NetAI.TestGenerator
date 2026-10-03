@@ -24,9 +24,17 @@ public record AiTestingConfig
         AiConfiguration = aiConfiguration;
     }
 
+
+    
+
     /// <summary>Gets or sets the configuration format version.</summary>
     [JsonProperty("version")]
     public string Version { get; set; }
+
+
+    [JsonProperty("buildConfigurationFilter")]
+    public string BuildConfigurationFilter { get; set; }
+
 
     /// <summary>Gets or sets target framework and test project settings.</summary>
     [JsonProperty("environment")]

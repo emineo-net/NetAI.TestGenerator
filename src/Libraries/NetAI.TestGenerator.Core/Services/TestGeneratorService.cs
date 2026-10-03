@@ -53,10 +53,13 @@ public class TestGeneratorService
     ///     When <see langword="null" /> or whitespace, no framework using is prepended; the
     ///     snippet's own using directives are used as-is.
     /// </param>
-    public void CreateNewTestClassFile(string filePath, string testClassName, NamespaceDeclarationSyntax? originalNamespace,
+    public void CreateNewTestClassFile(string filePath, string testClassName, string? testNamespaceName,
         string methodCode, string? frameworkUsing = null)
     {
-        var namespaceName = originalNamespace?.Name.ToString() ?? "NetAI.Generated.Tests";
+        var namespaceName = string.IsNullOrWhiteSpace(testNamespaceName)
+            ? "NetAI.Generated.Tests"
+            : testNamespaceName!;
+
         if (!namespaceName.EndsWith(".Tests", StringComparison.Ordinal))
         {
             namespaceName += ".Tests";

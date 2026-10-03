@@ -4,6 +4,7 @@
   "type": "object",
   "required": [
     "version",
+    "buildConfigurationFilter",
     "environment",
     "frameworks",
     "codeStyle",
@@ -18,6 +19,11 @@
       "type": "string",
       "description": "The version of the configuration file.",
       "default": "1.1"
+    },
+    "buildConfigurationFilter": {
+      "type": "string",
+      "description": "Wann Testerstellung wird: 'all' oder kommagetrennt 'debug', 'release', 'publish'.",
+      "default": "all"
     },
     "environment": {
       "type": "object",

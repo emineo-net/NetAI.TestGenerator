@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using Microsoft.Build.Framework;
 using Microsoft.CodeAnalysis;
@@ -194,6 +195,16 @@ public class TestGeneratorTask : Task
 
     private bool ExecuteResxGeneration()
     {
+
+#if DEBUG
+        if (!Debugger.IsAttached)
+        {
+            // Triggers the Windows JIT Debugger selection dialog
+            Debugger.Launch();
+        }
+#endif
+
+
         AiTestingConfig config;
         try
         {
@@ -203,6 +214,11 @@ public class TestGeneratorTask : Task
         {
             Log.LogError($"[NetAI] Could not load aisettings.json: {ex.Message}");
             return false;
+        }
+
+
+        if(config.BuildConfigurationFilter != "hää?")
+        {
         }
 
         var config_ = (CurrentConfiguration ?? "Debug").ToLowerInvariant();

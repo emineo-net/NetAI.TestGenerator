@@ -4,6 +4,7 @@
   "type": "object",
   "required": [
     "version",
+    "buildConfigurationFilter",
     "environment",
     "frameworks",
     "codeStyle",
@@ -16,8 +17,13 @@
     },
     "version": {
       "type": "string",
-      "description": "Die Version der Konfigurationsdatei.",
+      "description": "The version of the configuration file.",
       "default": "1.1"
+    },
+    "buildConfigurationFilter": {
+      "type": "string",
+      "description": "Wann Testerstellung wird: 'all' oder kommagetrennt 'debug', 'release', 'publish'.",
+      "default": "all"
     },
     "environment": {
       "type": "object",
@@ -26,11 +32,11 @@
         "targetDotNetVersion": {
           "type": "string",
           "enum": [ "net6.0", "net7.0", "net8.0", "net9.0", "net10.0" ],
-          "description": "Die Ziel-.NET-Version für den generierten Code."
+          "description": "The target .NET version for generated code."
         },
         "testProjectName": {
           "type": "string",
-          "description": "Name des Testprojekts. Verwende {ProjectName} als Platzhalter."
+          "description": "Test project name. Use {ProjectName} as a placeholder."
         }
       }
     },
@@ -41,20 +47,20 @@
         "testFramework": {
           "type": "string",
           "enum": [ "xunit", "nunit", "mstest" ],
-          "description": "Das zu verwendende Test-Framework."
+          "description": "The test framework to use."
         },
         "mockingFramework": {
           "type": "string",
           "enum": [ "moq", "nsubstitute", "fakeiteasy" ],
-          "description": "Das zu verwendende Mocking-Framework."
+          "description": "The mocking framework to use."
         },
         "useFluentAssertions": {
           "type": "boolean",
-          "description": "Gibt an, ob FluentAssertions für Assertions genutzt werden soll."
+          "description": "Whether to use FluentAssertions for assertions."
         },
         "useAutoFixture": {
           "type": "boolean",
-          "description": "Gibt an, ob AutoFixture für Testdaten-Generierung genutzt werden soll."
+          "description": "Whether to use AutoFixture to generate test data."
         }
       }
     },
@@ -64,17 +70,17 @@
       "properties": {
         "useFileScopedNamespace": {
           "type": "boolean",
-          "description": "Nutzt C# file-scoped namespaces statt traditioneller Blocks."
+          "description": "Use C# file-scoped namespaces instead of traditional blocks."
         },
         "useAsyncSuffix": {
           "type": "boolean",
-          "description": "Erzwingt das Suffix 'Async' bei asynchronen Methoden."
+          "description": "Require the 'Async' suffix for asynchronous methods."
         },
         "maxLineLength": {
           "type": "integer",
           "minimum": 60,
           "maximum": 200,
-          "description": "Maximale Zeilenlänge vor dem Umbruch."
+          "description": "Maximum line length before wrapping."
         }
       }
     },
@@ -85,16 +91,16 @@
         "testStrategy": {
           "type": "string",
           "enum": [ "Both", "Unit", "Integration" ],
-          "description": "Die Strategie bei der Testgenerierung."
+          "description": "The test generation strategy."
         },
         "splitTestsByMethod": {
           "type": "boolean",
-          "description": "Splittet Tests in separate Dateien basierend auf der Methode."
+          "description": "Split tests into separate files based on the method."
         },
         "maxTestsPerClass": {
           "type": "integer",
           "minimum": 1,
-          "description": "Maximale Anzahl an Testmethoden pro generierter Klasse."
+          "description": "Maximum number of test methods per generated class."
         }
       }
     },
@@ -104,17 +110,17 @@
       "properties": {
         "model": {
           "type": "string",
-          "description": "Das zu verwendende KI-Modell (z. B. gpt-4o, claude-3-5-sonnet)."
+          "description": "The AI model to use (e.g. gpt-4o, claude-3-5-sonnet)."
         },
         "temperature": {
           "type": "number",
           "minimum": 0.0,
           "maximum": 2.0,
-          "description": "Kreativität des Modells (0.0 = deterministisch, höher = kreativer)."
+          "description": "Model creativity (0.0 = deterministic; higher values = more creative)."
         },
         "systemPrompt": {
           "type": "string",
-          "description": "Der System-Prompt, der die KI-Rolle und -Regeln definiert."
+          "description": "The system prompt that defines the AI role and rules."
         }
       }
     }
