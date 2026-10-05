@@ -6,12 +6,17 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace NetAI.TestGenerator.Core.Services;
 
-/// <summary>Reads existing test methods and creates or updates generated test class files.</summary>
+/// <summary>
+///     Reads existing test methods and creates or updates generated test class files.
+///     All members of an incoming class snippet are preserved verbatim — fields,
+///     constructors, properties, and methods — so that mock fields and the SUT
+///     constructor survive into the final written file.
+/// </summary>
 public class TestGeneratorService
 {
+    // ------------------------------------------------------------------ read
+
     /// <summary>Reads method names from an existing test file.</summary>
-    /// <param name="testFilePath">Path to the test source file.</param>
-    /// <returns>Names of all method declarations found, or an empty list when the file is missing or unreadable.</returns>
     public List<string> GetExistingTestMethods(string testFilePath)
     {
         var methodNames = new List<string>();
@@ -32,26 +37,30 @@ public class TestGeneratorService
         }
         catch
         {
+            // Unreadable file — treat as no existing tests.
         }
 
         return methodNames;
     }
 
-    /// <summary>Creates a formatted test class file containing the supplied generated method code.</summary>
+    // ------------------------------------------------------------------ create
+
+    /// <summary>
+    ///     Creates a formatted test class file from a class snippet. All members of
+    ///     the snippet's test class (fields, constructor, helper methods, and test
+    ///     methods) are preserved in their original order. Using directives are
+    ///     hoisted to the top of the file and de-duplicated.
+    /// </summary>
     /// <param name="filePath">Destination path for the test file.</param>
     /// <param name="testClassName">Name of the generated test class.</param>
-    /// <param name="originalNamespace">Source namespace used to derive the test namespace, when available.</param>
+    /// <param name="testNamespaceName">Namespace for the generated test class.</param>
     /// <param name="methodCode">
-    ///     Test method code to place in the new class. May contain compilation-unit level
-    ///     using directives (e.g. from <c>ExtractTestClass</c>); these are hoisted to the
-    ///     top of the file, not embedded in the class body.
+    ///     Complete class snippet, typically produced by <c>ExtractTestClass</c>.
+    ///     May contain compilation-unit-level using directives; they are hoisted.
     /// </param>
     /// <param name="frameworkUsing">
-    ///     Fully-qualified test-framework using directive (e.g. <c>using Xunit;</c>,
-    ///     <c>using NUnit.Framework;</c>, <c>using Microsoft.VisualStudio.TestTools.UnitTesting;</c>).
-    ///     Supplied by the caller because the orchestrator owns the selected framework.
-    ///     When <see langword="null" /> or whitespace, no framework using is prepended; the
-    ///     snippet's own using directives are used as-is.
+    ///     Fully-qualified test-framework using directive (e.g. <c>using Xunit;</c>).
+    ///     Prepended to the using block when non-null.
     /// </param>
     public void CreateNewTestClassFile(string filePath, string testClassName, string? testNamespaceName,
         string methodCode, string? frameworkUsing = null)
@@ -65,16 +74,14 @@ public class TestGeneratorService
             namespaceName += ".Tests";
         }
 
-        // usings vom Methodenkörper trennen, sonst landen sie im Klassenkörper (CS1529).
-        var (extractedUsings, methodsText) = SplitUsingsFromMethods(methodCode);
-        if (string.IsNullOrWhiteSpace(methodsText))
+        var (extractedUsings, members) = SplitUsingsAndMembers(methodCode);
+        if (members.Count == 0)
         {
-            throw new ArgumentException("Generated code does not contain a test method.", nameof(methodCode));
+            throw new ArgumentException("Generated code does not contain any class members.", nameof(methodCode));
         }
 
         var usings = new List<string>();
 
-        // Framework-Using nur voranstellen, wenn der Aufrufer eines mitgegeben hat.
         if (frameworkUsing is { } configuredFrameworkUsing && !string.IsNullOrWhiteSpace(configuredFrameworkUsing))
         {
             usings.Add(configuredFrameworkUsing.TrimEnd());
@@ -88,147 +95,105 @@ public class TestGeneratorService
             }
         }
 
-        // Sonderfall: keine usings, dann auch keine leere Zeile vor "namespace".
-        var usingsBlock = usings.Count > 0 ? string.Join(Environment.NewLine, usings) + Environment.NewLine : string.Empty;
-
-        var fullCode = $@"{usingsBlock}namespace {namespaceName}
-{{
-    public class {testClassName}
-    {{
-        {methodsText}
-    }}
-}}";
-        var tree = CSharpSyntaxTree.ParseText(fullCode);
-        var formattedRoot = Formatter.Format(tree.GetCompilationUnitRoot(), new AdhocWorkspace());
+        var compilationUnit = BuildCompilationUnit(namespaceName, testClassName, usings, members);
+        var formattedRoot = Formatter.Format(compilationUnit, new AdhocWorkspace());
 
         Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
         File.WriteAllText(filePath, formattedRoot.ToFullString());
     }
 
-    /// <summary>Appends the first method declaration found in the supplied code to an existing test class.</summary>
+    // ------------------------------------------------------------------ append
+
+    /// <summary>
+    ///     Appends all members of the supplied class snippet to an existing test
+    ///     class. Duplicate members are detected by key: methods by signature,
+    ///     fields by variable names, constructors by parameter list. New using
+    ///     directives from the snippet are merged into the file's using block.
+    /// </summary>
     /// <param name="filePath">Path to the existing test source file.</param>
-    /// <param name="methodCode">
-    ///     Generated code containing the method to append. May contain compilation-unit level
-    ///     using directives (e.g. from <c>ExtractTestClass</c>); new ones are merged into the
-    ///     existing file's using block, duplicates are skipped.
-    /// </param>
+    /// <param name="methodCode">Complete class snippet with the members to append.</param>
     public void AppendMethodToExistingClassFile(string filePath, string methodCode)
     {
         var existingCode = File.ReadAllText(filePath);
         var tree = CSharpSyntaxTree.ParseText(existingCode);
         var root = (CompilationUnitSyntax)tree.GetRoot();
 
-        var classDecl = root.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
+        var classDecl = FindTestClass(root);
         if (classDecl == null)
         {
             return;
         }
 
-        var (extractedUsings, methodsText) = SplitUsingsFromMethods(methodCode);
-        if (string.IsNullOrWhiteSpace(methodsText))
+        var (extractedUsings, incomingMembers) = SplitUsingsAndMembers(methodCode);
+        if (incomingMembers.Count == 0)
         {
-            throw new ArgumentException("Generated code does not contain a test method.", nameof(methodCode));
+            throw new ArgumentException("Generated code does not contain any class members.", nameof(methodCode));
         }
 
-        var methodRoot = CSharpSyntaxTree.ParseText($"class GeneratedTestContainer {{ {methodsText} }}").GetCompilationUnitRoot();
-        var newMethodNode = methodRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault();
+        // Which members does the existing class already have?
+        var existingKeys = new HashSet<string>(
+            classDecl.Members.Select(GetMemberKey),
+            StringComparer.Ordinal);
 
-        if (newMethodNode == null)
+        var newMembers = new List<MemberDeclarationSyntax>();
+        foreach (var member in incomingMembers)
+        {
+            var key = GetMemberKey(member);
+            if (existingKeys.Add(key))
+            {
+                newMembers.Add(member);
+            }
+        }
+
+        if (newMembers.Count == 0)
         {
             return;
         }
 
-        if (classDecl.Members.OfType<MethodDeclarationSyntax>().Any(existingMethod => HasSameSignature(existingMethod, newMethodNode)))
-        {
-            return;
-        }
-
+        // Merge usings.
         var usings = root.Usings.ToList();
-        var existingUsings = new HashSet<string>(usings.Select(GetUsingKey), StringComparer.Ordinal);
+        var existingUsingKeys = new HashSet<string>(usings.Select(GetUsingKey), StringComparer.Ordinal);
 
         foreach (var usingText in extractedUsings)
         {
-            var parsedUsing = CSharpSyntaxTree.ParseText(usingText).GetCompilationUnitRoot().Usings.FirstOrDefault();
-            if (parsedUsing != null && existingUsings.Add(GetUsingKey(parsedUsing)))
+            var parsedUsing = CSharpSyntaxTree.ParseText(usingText)
+                .GetCompilationUnitRoot()
+                .Usings.FirstOrDefault();
+
+            if (parsedUsing != null && existingUsingKeys.Add(GetUsingKey(parsedUsing)))
             {
                 usings.Add(parsedUsing);
             }
         }
 
-        var updatedClass = classDecl.AddMembers(newMethodNode);
+        var updatedClass = classDecl.AddMembers(newMembers.ToArray());
         var newRoot = root.ReplaceNode(classDecl, updatedClass).WithUsings(SyntaxFactory.List(usings));
 
         var formattedRoot = Formatter.Format(newRoot, new AdhocWorkspace());
         File.WriteAllText(filePath, formattedRoot.ToFullString());
     }
 
-    private static string GetUsingKey(UsingDirectiveSyntax usingDirective)
-    {
-        var normalized = usingDirective.WithoutTrivia();
-        return string.Join("|", normalized.GlobalKeyword.RawKind, normalized.StaticKeyword.RawKind, normalized.Alias?.Name.ToString(),
-            normalized.Name?.ToString());
-    }
-
-    private static bool HasSameSignature(MethodDeclarationSyntax first, MethodDeclarationSyntax second)
-    {
-        if (!string.Equals(first.Identifier.ValueText, second.Identifier.ValueText, StringComparison.Ordinal) ||
-            (first.TypeParameterList?.Parameters.Count ?? 0) != (second.TypeParameterList?.Parameters.Count ?? 0) ||
-            first.ParameterList.Parameters.Count != second.ParameterList.Parameters.Count)
-        {
-            return false;
-        }
-
-        for (var i = 0; i < first.ParameterList.Parameters.Count; i++)
-        {
-            var firstParameter = first.ParameterList.Parameters[i];
-            var secondParameter = second.ParameterList.Parameters[i];
-            if (!string.Equals(firstParameter.Type?.WithoutTrivia().ToString(), secondParameter.Type?.WithoutTrivia().ToString(),
-                    StringComparison.Ordinal) ||
-                !string.Equals(GetRefKind(firstParameter), GetRefKind(secondParameter), StringComparison.Ordinal))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static string GetRefKind(ParameterSyntax parameter)
-    {
-        foreach (var modifier in parameter.Modifiers)
-        {
-            if (modifier.IsKind(SyntaxKind.RefKeyword) || modifier.IsKind(SyntaxKind.OutKeyword) || modifier.IsKind(SyntaxKind.InKeyword))
-            {
-                return modifier.ValueText;
-            }
-        }
-
-        return string.Empty;
-    }
+    // ------------------------------------------------------------------ class snippet parsing
 
     /// <summary>
-    ///     Zerlegt einen Code-Snippet in Compilation-Unit-usings und Methodentext.
-    ///     Wird von <see cref="CreateNewTestClassFile" /> verwendet, um die usings aus
-    ///     dem zuvor von <c>ExtractTestClass</c> erzeugten Text wieder an die richtige
-    ///     Stelle zu heben.
+    ///     Splits a class snippet into top-level using directives and the members
+    ///     of its test class. When the snippet contains a full class, all of its
+    ///     members are returned in order (fields, constructor, methods). When it
+    ///     contains only method declarations, those are returned as-is.
     /// </summary>
-    /// <returns>
-    ///     <c>Usings</c>: vollständige using-Zeilen (inkl. Semikolon), dedupliziert.
-    ///     <c>Methods</c>: Methodendeklarationen ohne usings, oder leer wenn keine
-    ///     Methodendeklaration erkannt wird. Vollständige Klassen-/Namespace-Wrapper
-    ///     werden niemals als Methodeninhalt weitergereicht.
-    /// </returns>
-    private static (List<string> Usings, string Methods) SplitUsingsFromMethods(string code)
+    private static (List<string> Usings, List<MemberDeclarationSyntax> Members) SplitUsingsAndMembers(string code)
     {
         var usings = new List<string>();
+        var members = new List<MemberDeclarationSyntax>();
+
         if (string.IsNullOrWhiteSpace(code))
         {
-            return (usings, string.Empty);
+            return (usings, members);
         }
 
-        var tree = CSharpSyntaxTree.ParseText(code);
-        var root = tree.GetCompilationUnitRoot();
+        var root = CSharpSyntaxTree.ParseText(code).GetCompilationUnitRoot();
 
+        // Collect top-level using directives.
         foreach (var u in root.Usings)
         {
             var text = u.ToFullString().TrimEnd();
@@ -238,45 +203,164 @@ public class TestGeneratorService
             }
         }
 
-        var methods = GetDistinctMethods(root);
+        // Preferred path: the snippet contains a full class.
+        var classDecl = FindTestClass(root);
+        if (classDecl is not null)
+        {
+            members.AddRange(classDecl.Members);
+            return (usings, members);
+        }
+
+        // Fallback: methods-only snippet.
+        var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
 
         if (methods.Count == 0)
         {
             var classMembers = code;
-            foreach (var usingDirective in root.Usings.OrderByDescending(directive => directive.SpanStart))
+            foreach (var u in root.Usings.OrderByDescending(x => x.SpanStart))
             {
-                classMembers = classMembers.Remove(usingDirective.SpanStart, usingDirective.Span.Length);
+                classMembers = classMembers.Remove(u.SpanStart, u.Span.Length);
             }
 
-            var wrappedRoot = CSharpSyntaxTree.ParseText($"class GeneratedTestContainer {{ {classMembers} }}").GetCompilationUnitRoot();
-            methods = GetDistinctMethods(wrappedRoot);
+            var wrapped = CSharpSyntaxTree.ParseText($"class GeneratedTestContainer {{ {classMembers} }}")
+                .GetCompilationUnitRoot();
+            methods = wrapped.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
         }
 
-        if (methods.Count == 0)
-        {
-            return (usings, string.Empty);
-        }
-
-        var sb = new StringBuilder();
-        foreach (var m in methods)
-        {
-            sb.AppendLine(m.ToFullString());
-        }
-
-        return (usings, sb.ToString().Trim());
+        members.AddRange(methods);
+        return (usings, members);
     }
 
-    private static List<MethodDeclarationSyntax> GetDistinctMethods(CompilationUnitSyntax root)
+    // ------------------------------------------------------------------ compilation-unit builder
+
+    private static CompilationUnitSyntax BuildCompilationUnit(
+        string namespaceName,
+        string testClassName,
+        IEnumerable<string> usings,
+        IReadOnlyList<MemberDeclarationSyntax> members)
     {
-        var methods = new List<MethodDeclarationSyntax>();
-        foreach (var method in root.DescendantNodes().OfType<MethodDeclarationSyntax>())
+        var classDecl = SyntaxFactory.ClassDeclaration(testClassName)
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+            .AddMembers(members.ToArray());
+
+        var namespaceDecl = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName))
+            .AddMembers(classDecl);
+
+        var usingNodes = usings
+            .Select(u => CSharpSyntaxTree.ParseText(u).GetCompilationUnitRoot().Usings.FirstOrDefault())
+            .Where(u => u is not null)
+            .Cast<UsingDirectiveSyntax>()
+            .ToArray();
+
+        return SyntaxFactory.CompilationUnit()
+            .WithUsings(SyntaxFactory.List(usingNodes))
+            .AddMembers(namespaceDecl);
+    }
+
+    // ------------------------------------------------------------------ class lookup
+
+    /// <summary>
+    ///     Finds the test class in a compilation unit. Prefers the class that
+    ///     carries at least one method with a recognized test attribute; falls back
+    ///     to the first class declaration when no such class exists.
+    /// </summary>
+    private static ClassDeclarationSyntax? FindTestClass(CompilationUnitSyntax root)
+    {
+        var byAttribute = root.DescendantNodes().OfType<ClassDeclarationSyntax>()
+            .FirstOrDefault(c => c.DescendantNodes().OfType<MethodDeclarationSyntax>().Any(HasTestAttribute));
+
+        return byAttribute
+               ?? root.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
+    }
+
+    // ------------------------------------------------------------------ member keys (for dedup)
+
+    private static string GetMemberKey(MemberDeclarationSyntax member)
+    {
+        switch (member)
         {
-            if (!methods.Any(existingMethod => HasSameSignature(existingMethod, method)))
+            case MethodDeclarationSyntax m:
+                return "M:" + GetMethodKey(m);
+
+            case ConstructorDeclarationSyntax c:
+                return "C:" + string.Join(",", c.ParameterList.Parameters.Select(p => p.Type?.ToString() ?? ""));
+
+            case FieldDeclarationSyntax f:
+                return "F:" + string.Join(",", f.Declaration.Variables.Select(v => v.Identifier.Text));
+
+            case PropertyDeclarationSyntax p:
+                return "P:" + p.Identifier.Text;
+
+            case EventFieldDeclarationSyntax e:
+                return "E:" + string.Join(",", e.Declaration.Variables.Select(v => v.Identifier.Text));
+
+            default:
+                return "O:" + member.NormalizeWhitespace().ToFullString();
+        }
+    }
+
+    private static string GetMethodKey(MethodDeclarationSyntax method)
+    {
+        var parts = new List<string>
+        {
+            method.Identifier.Text,
+            (method.TypeParameterList?.Parameters.Count ?? 0).ToString()
+        };
+
+        foreach (var p in method.ParameterList.Parameters)
+        {
+            var refKind = string.Empty;
+            foreach (var modifier in p.Modifiers)
             {
-                methods.Add(method);
+                if (modifier.IsKind(SyntaxKind.RefKeyword)
+                    || modifier.IsKind(SyntaxKind.OutKeyword)
+                    || modifier.IsKind(SyntaxKind.InKeyword))
+                {
+                    refKind = modifier.ValueText;
+                    break;
+                }
+            }
+
+            parts.Add((p.Type?.WithoutTrivia().ToString() ?? string.Empty) + ":" + refKind);
+        }
+
+        return string.Join("|", parts);
+    }
+
+    private static string GetUsingKey(UsingDirectiveSyntax usingDirective)
+    {
+        var normalized = usingDirective.WithoutTrivia();
+        return string.Join("|",
+            normalized.GlobalKeyword.RawKind,
+            normalized.StaticKeyword.RawKind,
+            normalized.Alias?.Name.ToString(),
+            normalized.Name?.ToString());
+    }
+
+    // ------------------------------------------------------------------ test attribute detection
+
+    private static bool HasTestAttribute(MethodDeclarationSyntax method)
+    {
+        foreach (var list in method.AttributeLists)
+        {
+            foreach (var attr in list.Attributes)
+            {
+                var name = attr.Name.ToString();
+
+                if (name.EndsWith("Fact", StringComparison.Ordinal)
+                    || name.EndsWith("Theory", StringComparison.Ordinal)
+                    || name.EndsWith("Test", StringComparison.Ordinal)
+                    || name.EndsWith("TestCase", StringComparison.Ordinal)
+                    || name.EndsWith("TestMethod", StringComparison.Ordinal)
+                    || name.EndsWith("DataTestMethod", StringComparison.Ordinal)
+                    || name.EndsWith("StaFact", StringComparison.Ordinal)
+                    || name.EndsWith("STATestMethod", StringComparison.Ordinal))
+                {
+                    return true;
+                }
             }
         }
 
-        return methods;
+        return false;
     }
 }

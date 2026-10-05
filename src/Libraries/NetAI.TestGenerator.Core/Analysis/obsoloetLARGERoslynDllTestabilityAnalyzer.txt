@@ -285,8 +285,8 @@ public class ResxTranslationOrchestrator
                 var aiAttempts = 0;
                 var envAttempts = 0;
 
-                const int MaxAiRetries = 2;
-                const int MaxEnvRetries = 2;
+                const int MaxAiRetries = 1;
+                const int MaxEnvRetries = 1;
 
                 while (true)
                 {

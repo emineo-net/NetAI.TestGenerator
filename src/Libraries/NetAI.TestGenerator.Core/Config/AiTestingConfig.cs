@@ -35,6 +35,9 @@ public record AiTestingConfig
     [JsonProperty("buildConfigurationFilter")]
     public string BuildConfigurationFilter { get; set; }
 
+    [JsonProperty("maxMethodChars")]
+    public int MaxMethodChars { get; set; } = 25_000;
+
 
     /// <summary>Gets or sets target framework and test project settings.</summary>
     [JsonProperty("environment")]

@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using DotNet10TestGenerator;
+﻿using DotNet10TestGenerator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,12 +8,20 @@ using NetAI.TestGenerator.Core.Config;
 using NetAI.TestGenerator.Core.Models;
 using NetAI.TestGenerator.Core.Models.Enums;
 using NetAI.TestGenerator.Core.Services;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace NetAI.TestGenerator.Core;
 
 /// <summary>Coordinates source analysis, AI-generated unit tests, and optional compile validation.</summary>
 public class ResxTranslationOrchestrator
 {
+    private static readonly Regex AiAreaMarkerLineRegex = new(
+        @"^[ \t]*//[^\r\n]*AI AREA[^\r\n]*\r?\n" +
+        @"|^[ \t]*//[ \t]*=+[ \t]*\r?\n",
+        RegexOptions.Compiled | RegexOptions.Multiline);
+
     private static readonly Regex TestCodeBlockRegex = new(
         @"```(?:csharp|cs)?\s*([\s\S]*?)\s*```", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -123,6 +122,19 @@ public class ResxTranslationOrchestrator
 
             var testCodeProcessor = new TestCodeProcessor(compilerService);
 
+            // ---- Framework profile: single source of truth for skip attributes,
+            //      using directives, and mock syntax. Built once per file, before
+            //      the semantic-analysis branch, so it is available everywhere
+            //      downstream (including the size-limit skip stub in the loop).
+            var packages = TestProjectInfo.ReadPackageIds(testProjectDirectory);
+
+            var profile = new TestFrameworkProfile(
+                _testFramework,
+                _mockFramework,
+                _config?.Frameworks?.UseFluentAssertions ?? true,
+                _config?.Frameworks?.UseAutoFixture ?? false,
+                packages);
+
             // --- Semantic analysis strategy selection -------------------------------
             RoslynDllTestabilityAnalyzer? semanticAnalyzer = null;
             var effectiveCompilation = compilation;
@@ -136,15 +148,6 @@ public class ResxTranslationOrchestrator
 
             if (useMsbuild)
             {
-                var packages = TestProjectInfo.ReadPackageIds(testProjectDirectory);
-
-                var profile = new TestFrameworkProfile(
-                    _testFramework,
-                    _mockFramework,
-                    _config?.Frameworks?.UseFluentAssertions ?? true,
-                    _config?.Frameworks?.UseAutoFixture ?? false,
-                    packages);
-
                 semanticAnalyzer = new RoslynDllTestabilityAnalyzer(
                     new AnalyzerOptions { TestFrameworkProfile = profile });
 
@@ -187,15 +190,6 @@ public class ResxTranslationOrchestrator
             }
             else if (compilation != null)
             {
-                var packages = TestProjectInfo.ReadPackageIds(testProjectDirectory);
-
-                var profile = new TestFrameworkProfile(
-                    _testFramework,
-                    _mockFramework,
-                    _config?.Frameworks?.UseFluentAssertions ?? true,
-                    _config?.Frameworks?.UseAutoFixture ?? false,
-                    packages);
-
                 semanticAnalyzer = new RoslynDllTestabilityAnalyzer(
                     new AnalyzerOptions { TestFrameworkProfile = profile });
 
@@ -222,7 +216,79 @@ public class ResxTranslationOrchestrator
                     continue;
                 }
 
+                // ---- Size gate: skip methods that exceed the configured character limit.
+                var maxChars = _config?.MaxMethodChars ?? 25_000;
+
+                if (!IsWithinSizeLimit(method, maxChars, out var methodChars))
+                {
+                    logInfo?.Invoke(
+                        $"[NetAI] Method '{methodName}' is {methodChars:N0} chars (limit: {maxChars:N0}). " +
+                        $"Generating skip stub instead of a real test.");
+
+                    var model = effectiveCompilation?.GetSemanticModel(method.SyntaxTree);
+                    var methodSymbol = model?.GetDeclaredSymbol(method) as IMethodSymbol;
+
+                    if (methodSymbol is not null)
+                    {
+                        var skipReason =
+                            $"method is {methodChars:N0} chars (limit: {maxChars:N0}). " +
+                            $"Refactor into smaller, focused methods.";
+
+                        var skipResult = UnitTestSkeletonGenerator.GenerateFromMethod(
+                            methodSymbol,
+                            profile,
+                            requiresSta: false,
+                            strategy: UnitTestSkeletonGenerator.TestStrategy.Skip,
+                            refactoringLines: null,
+                            skipReason: skipReason);
+
+                        collectedMethodCodes.Add(StripAiAreaMarkers(skipResult.TestSkeleton));
+                        existingTestMethods.Add(methodName);
+                    }
+                    else
+                    {
+                        logInfo?.Invoke($"[NetAI] Could not resolve '{methodName}' to build a skip stub; skipping entirely.");
+                    }
+
+                    continue;
+                }
+
+                // ---- Complexity hint (informational, does not skip).
+                var complexity = EstimateCyclomaticComplexity(method);
+                if (complexity > 20)
+                {
+                    logInfo?.Invoke(
+                        $"[NetAI] Method '{methodName}' has cyclomatic complexity {complexity}. " +
+                        $"The generated test will likely cover only the happy path — review manually.");
+                }
+
                 logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
+
+                
+                var trivialModel = effectiveCompilation?.GetSemanticModel(method.SyntaxTree);
+                var trivialSymbol = trivialModel?.GetDeclaredSymbol(method) as IMethodSymbol;
+
+                if (trivialModel is not null && trivialSymbol is not null)
+                {
+                    var trivial = TrivialTestGenerator.TryGenerate(
+                        method, trivialSymbol, trivialModel, profile, requiresSta: false);
+
+                    if (trivial.ShouldSkipEntirely)
+                    {
+                        logInfo?.Invoke($"[NetAI] Method '{methodName}' is marked as not-implemented; skipping entirely.");
+                        existingTestMethods.Add(methodName);
+                        continue;
+                    }
+
+                    if (trivial.TestSnippet is not null)
+                    {
+                        logInfo?.Invoke($"[NetAI] Method '{methodName}' is trivial; generated template test without LLM.");
+                        collectedMethodCodes.Add(trivial.TestSnippet);
+                        existingTestMethods.Add(methodName);
+                        continue;
+                    }
+                }
+
 
                 var classSkeleton = BuildClassSkeleton(targetClass, method);
                 BuildLogger.Info(classSkeleton);
@@ -248,7 +314,7 @@ public class ResxTranslationOrchestrator
                     logInfo?.Invoke($"[NetAI] Prompt with semantic context saved: {promptPath}");
                 }
 
-                // ---- System prompt now instructs the model to respect the binding skeleton.
+                // ---- System prompt: instruct the model to respect the binding skeleton.
                 const string systemPrompt =
                     "You are a C# testing expert. Respond only with runnable C# code and no explanations. " +
                     "If a <BindingSkeleton> block is present, preserve its structure verbatim " +
@@ -262,7 +328,7 @@ public class ResxTranslationOrchestrator
 
                 if (promptOnly)
                 {
-                    collectedMethodCodes.Add(testMethodCode);
+                    collectedMethodCodes.Add(StripAiAreaMarkers(testMethodCode));
                     existingTestMethods.Add(methodName);
                     logInfo?.Invoke($"[NetAI] Test draft for '{methodName}' collected; compile validation skipped.");
                     continue;
@@ -274,8 +340,8 @@ public class ResxTranslationOrchestrator
                 var aiAttempts = 0;
                 var envAttempts = 0;
 
-                const int MaxAiRetries = 2;
-                const int MaxEnvRetries = 2;
+                const int MaxAiRetries = 1;
+                const int MaxEnvRetries = 1;
 
                 while (true)
                 {
@@ -380,7 +446,7 @@ public class ResxTranslationOrchestrator
 
                 if (isCompiledSuccessfully)
                 {
-                    collectedMethodCodes.Add(testMethodCode);
+                    collectedMethodCodes.Add(StripAiAreaMarkers(testMethodCode));
                     existingTestMethods.Add(methodName);
                 }
                 else
@@ -396,14 +462,8 @@ public class ResxTranslationOrchestrator
 
             if (collectedMethodCodes.Count > 0)
             {
-                _testGeneratorService.CreateNewTestClassFile(testFilePath, testClassName, effectiveTestNamespace,
-                    collectedMethodCodes[0], $"using {GetTestFrameworkNamespace(_testFramework)};");
-
-                for (var i = 1; i < collectedMethodCodes.Count; i++)
-                {
-                    _testGeneratorService.AppendMethodToExistingClassFile(testFilePath, collectedMethodCodes[i]);
-                }
-
+                var merged = MergeCollectedTestClasses(testClassName, effectiveTestNamespace, collectedMethodCodes);
+                File.WriteAllText(testFilePath, merged, Encoding.UTF8);
                 logInfo?.Invoke($"[NetAI] Wrote {collectedMethodCodes.Count} test method(s) to {testFilePath}.");
             }
 
@@ -424,6 +484,185 @@ public class ResxTranslationOrchestrator
                 /* ignore */
             }
         }
+    }
+
+    /// <summary>
+    ///     Merges multiple complete test-class snippets into a single test class.
+    ///     Uses Roslyn's Formatter to reindent everything cleanly; comments and
+    ///     doc-comments are preserved, only whitespace is normalized.
+    /// </summary>
+    private string MergeCollectedTestClasses(
+        string testClassName,
+        string testNamespace,
+        IReadOnlyList<string> classSnippets)
+    {
+        var usings = new SortedSet<string>(StringComparer.Ordinal);
+        var members = new List<MemberDeclarationSyntax>();
+        var seenMemberTexts = new HashSet<string>(StringComparer.Ordinal);
+
+        // Ensure the test framework using is always present.
+        usings.Add($"using {GetTestFrameworkNamespace(_testFramework)};");
+
+        foreach (var snippet in classSnippets)
+        {
+            if (string.IsNullOrWhiteSpace(snippet))
+            {
+                continue;
+            }
+
+            var tree = CSharpSyntaxTree.ParseText(snippet);
+            var root = tree.GetCompilationUnitRoot();
+
+            foreach (var u in root.Usings)
+            {
+                var text = u.ToFullString().TrimEnd();
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    usings.Add(text);
+                }
+            }
+
+            var classDecl = root.DescendantNodes().OfType<ClassDeclarationSyntax>()
+                .FirstOrDefault(c => c.DescendantNodes().OfType<MethodDeclarationSyntax>().Any());
+
+            if (classDecl is null)
+            {
+                continue;
+            }
+
+            foreach (var member in classDecl.Members)
+            {
+                var key = GetMemberKey(member);
+                if (string.IsNullOrWhiteSpace(key))
+                {
+                    continue;
+                }
+
+                if (seenMemberTexts.Add(key))
+                {
+                    members.Add(CleanTrivia(member));
+                }
+            }
+        }
+
+        // Parse the framework usings back into syntax nodes.
+        var usingNodes = usings
+            .Select(u => CSharpSyntaxTree.ParseText(u).GetCompilationUnitRoot().Usings.FirstOrDefault())
+            .Where(u => u is not null)
+            .Cast<UsingDirectiveSyntax>()
+            .ToArray();
+
+        var classDeclNew = SyntaxFactory.ClassDeclaration(testClassName)
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+            .AddMembers(members.ToArray());
+
+        var namespaceDecl = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(testNamespace))
+            .AddMembers(classDeclNew);
+
+        var compilationUnit = SyntaxFactory.CompilationUnit()
+            .WithUsings(SyntaxFactory.List(usingNodes))
+            .AddMembers(namespaceDecl);
+
+        var formatted = Formatter.Format(compilationUnit, new AdhocWorkspace());
+        return formatted.ToFullString();
+    }
+
+
+    private static string GetMemberKey(MemberDeclarationSyntax member)
+    {
+        switch (member)
+        {
+            case MethodDeclarationSyntax m:
+                return "M:" + GetMethodKey(m);
+
+            case ConstructorDeclarationSyntax c:
+                return "C:" + string.Join(",", c.ParameterList.Parameters.Select(p => p.Type?.ToString() ?? ""));
+
+            case FieldDeclarationSyntax f:
+                return "F:" + string.Join(",", f.Declaration.Variables.Select(v => v.Identifier.Text));
+
+            case PropertyDeclarationSyntax p:
+                return "P:" + p.Identifier.Text;
+
+            case EventFieldDeclarationSyntax e:
+                return "E:" + string.Join(",", e.Declaration.Variables.Select(v => v.Identifier.Text));
+
+            default:
+                return "O:" + member.NormalizeWhitespace().ToFullString();
+        }
+    }
+
+    private static string GetMethodKey(MethodDeclarationSyntax method)
+    {
+        var parts = new List<string>
+        {
+            method.Identifier.Text,
+            (method.TypeParameterList?.Parameters.Count ?? 0).ToString()
+        };
+
+        foreach (var p in method.ParameterList.Parameters)
+        {
+            var refKind = string.Empty;
+            foreach (var modifier in p.Modifiers)
+            {
+                if (modifier.IsKind(SyntaxKind.RefKeyword)
+                    || modifier.IsKind(SyntaxKind.OutKeyword)
+                    || modifier.IsKind(SyntaxKind.InKeyword))
+                {
+                    refKind = modifier.ValueText;
+                    break;
+                }
+            }
+
+            parts.Add((p.Type?.WithoutTrivia().ToString() ?? string.Empty) + ":" + refKind);
+        }
+
+        return string.Join("|", parts);
+    }
+
+    /// <summary>
+    ///     Removes whitespace-only leading and trailing trivia from a member so
+    ///     that Roslyn's Formatter can reindent it cleanly. Comments and doc
+    ///     comments are preserved; a single-line comment always gets an explicit
+    ///     end-of-line inserted after it, otherwise consecutive comments would
+    ///     collapse onto one line.
+    /// </summary>
+    private static MemberDeclarationSyntax CleanTrivia(MemberDeclarationSyntax member)
+    {
+        var originalLeading = member.GetLeadingTrivia();
+
+        var preserved = new List<SyntaxTrivia>();
+        foreach (var trivia in originalLeading)
+        {
+            if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)
+                || trivia.IsKind(SyntaxKind.MultiLineCommentTrivia)
+                || trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)
+                || trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
+            {
+                preserved.Add(trivia);
+
+                // Single-line comments do not carry their own newline in Roslyn;
+                // we must re-add it so the next comment or member starts on a new line.
+                if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)
+                    || trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia))
+                {
+                    preserved.Add(SyntaxFactory.EndOfLine("\n"));
+                }
+            }
+            else if (trivia.IsKind(SyntaxKind.EndOfLineTrivia))
+            {
+                // Preserve explicit blank lines between comments so that
+                // intentional spacing survives the merge.
+                if (preserved.Count > 0 && preserved[^1].IsKind(SyntaxKind.EndOfLineTrivia))
+                {
+                    preserved.Add(trivia);
+                }
+            }
+        }
+
+        return member
+            .WithLeadingTrivia(SyntaxFactory.TriviaList(preserved))
+            .WithTrailingTrivia();
     }
 
     // ---------------------------------------------------------------- prompt building
@@ -515,7 +754,7 @@ public class ResxTranslationOrchestrator
         sb.AppendLine($"- Include {testAttribute} (or the framework-specific attribute, including STA variants) exactly once.");
         sb.AppendLine();
 
-        // --- Binding Skeleton (NEW) -----------------------------------------
+        // --- Binding Skeleton ---
         if (skeleton is { } sk && sk.Mode != UnitTestSkeletonGenerator.SkeletonMode.Fallback)
         {
             sb.AppendLine("=== BINDING TEST SKELETON ===");
@@ -548,6 +787,20 @@ public class ResxTranslationOrchestrator
                         sb.AppendLine($"- `{sk.SutTypeName}` cannot be instantiated. Call `{sk.SutTypeName}.{sk.TargetMethodName}(...)` directly.");
                         sb.AppendLine("- Do NOT use `new` or `_sut`.");
                         break;
+
+                    case UnitTestSkeletonGenerator.SkeletonMode.RefactorFirst:
+                        sb.AppendLine("Mode: RefactorFirst.");
+                        sb.AppendLine("- The method cannot be tested as-is. The skeleton already contains a Skip attribute.");
+                        sb.AppendLine("- Keep the Skip attribute verbatim.");
+                        sb.AppendLine("- Inside the AI AREA, list the required source refactorings as comments (no real test body).");
+                        break;
+
+                    case UnitTestSkeletonGenerator.SkeletonMode.Skip:
+                        sb.AppendLine("Mode: Skip.");
+                        sb.AppendLine("- The method must be skipped. The skeleton already contains a Skip attribute.");
+                        sb.AppendLine("- Keep the Skip attribute verbatim.");
+                        sb.AppendLine("- Inside the AI AREA, explain briefly why the test is skipped (no real test body).");
+                        break;
                 }
 
                 if (requiresSta)
@@ -563,7 +816,6 @@ public class ResxTranslationOrchestrator
             sb.AppendLine("</BindingSkeleton>");
             sb.AppendLine();
         }
-        // ---------------------------------------------------------------------
 
         if (!string.IsNullOrWhiteSpace(projectContext))
         {
@@ -790,21 +1042,8 @@ public class ResxTranslationOrchestrator
 
         AppendSuggestedTestStrategy(sb, report);
 
-        if (report.CompilationErrors.Count > 0)
-        {
-            sb.AppendLine("  <SourceCompilationErrors " +
-                          "note=\"NOT real source errors. These are analyzer-host artifacts " +
-                          "(missing WPF/host references in the analyzer process). " +
-                          "The source project compiles in its own build; treat it as compiling. " +
-                          "Do NOT fix them, do NOT work around them, do NOT invent types to satisfy them, " +
-                          "and do NOT let them change the test design; SuggestedTestStrategy is authoritative.\">");
-
-            foreach (var e in report.CompilationErrors)
-            {
-                sb.AppendLine($"    <!-- {X(e)} -->");
-            }
-            sb.AppendLine("  </SourceCompilationErrors>");
-        }
+        // Source compilation errors are intentionally NOT emitted to the prompt —
+        // they are analyzer-host artifacts and only confuse small models.
 
         sb.AppendLine("</SemanticAnalysis>");
         return sb.ToString();
@@ -819,10 +1058,6 @@ public class ResxTranslationOrchestrator
         {
             case UnitTestSkeletonGenerator.TestStrategy.RefactorFirst:
                 {
-                    // The Skip attribute is already emitted verbatim by the binding
-                    // skeleton. The Fallback must NOT repeat a competing skip text —
-                    // that would confuse the model about which attribute to use.
-
                     if (method.IsAsyncVoid)
                     {
                         sb.AppendLine($"  <SuggestedTestStrategy action=\"RefactorFirst\" testFramework=\"{frameworkName}\">");
@@ -1055,8 +1290,6 @@ public class ResxTranslationOrchestrator
 
         List<MemberDeclarationSyntax> members;
 
-        // Case 1: The AI returned a full class with a test method.
-        //         Preserve fields, ctor, and all methods verbatim.
         var incomingClass = generatedRoot.DescendantNodes().OfType<ClassDeclarationSyntax>()
             .FirstOrDefault(c => c.DescendantNodes().OfType<MethodDeclarationSyntax>().Any(HasTestAttribute));
 
@@ -1066,7 +1299,6 @@ public class ResxTranslationOrchestrator
         }
         else
         {
-            // Case 2: The AI returned only method(s) -> legacy fallback.
             var methods = generatedRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().ToArray();
 
             if (methods.Length == 0)
@@ -1089,7 +1321,6 @@ public class ResxTranslationOrchestrator
             members = methods.Cast<MemberDeclarationSyntax>().ToList();
         }
 
-        // Merge usings: test framework namespace is always present.
         var usings = new List<UsingDirectiveSyntax>
         {
             SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(GetTestFrameworkNamespace(_testFramework)))
@@ -1249,7 +1480,6 @@ public class ResxTranslationOrchestrator
         var tree = CSharpSyntaxTree.ParseText(rawCode);
         var root = tree.GetCompilationUnitRoot();
 
-        // --- Case 1: full class with a test method inside -------------------
         var classWithTest = root.DescendantNodes().OfType<ClassDeclarationSyntax>()
             .FirstOrDefault(c => c.DescendantNodes().OfType<MethodDeclarationSyntax>().Any(HasTestAttribute));
 
@@ -1290,7 +1520,6 @@ public class ResxTranslationOrchestrator
             return sbClass.ToString().Trim();
         }
 
-        // --- Case 2: legacy fallback - only method(s) -----------------------
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
         if (methods.Count == 0)
         {
@@ -1580,5 +1809,41 @@ public class ResxTranslationOrchestrator
             TestFramework.xUnit => "Xunit",
             _ => throw new ArgumentOutOfRangeException(nameof(testFramework), testFramework, "Unsupported test framework.")
         };
+    }
+
+    private static string StripAiAreaMarkers(string code)
+        => string.IsNullOrEmpty(code) ? code : AiAreaMarkerLineRegex.Replace(code, string.Empty);
+
+    private static int EstimateCyclomaticComplexity(MethodDeclarationSyntax method)
+    {
+        var complexity = 1;
+
+        foreach (var node in method.DescendantNodes())
+        {
+            complexity += node switch
+            {
+                IfStatementSyntax => 1,
+                SwitchSectionSyntax => 1,
+                ForStatementSyntax => 1,
+                ForEachStatementSyntax => 1,
+                WhileStatementSyntax => 1,
+                DoStatementSyntax => 1,
+                CatchClauseSyntax => 1,
+                ConditionalExpressionSyntax => 1,
+                BinaryExpressionSyntax b
+                    when b.IsKind(SyntaxKind.LogicalAndExpression)
+                         || b.IsKind(SyntaxKind.LogicalOrExpression)
+                         || b.IsKind(SyntaxKind.CoalesceExpression) => 1,
+                _ => 0
+            };
+        }
+
+        return complexity;
+    }
+
+    private static bool IsWithinSizeLimit(MethodDeclarationSyntax method, int maxChars, out int actualChars)
+    {
+        actualChars = method.ToFullString().Length;
+        return actualChars <= maxChars;
     }
 }

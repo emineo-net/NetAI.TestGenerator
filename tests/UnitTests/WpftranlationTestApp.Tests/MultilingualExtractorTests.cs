@@ -1,41 +1,59 @@
-using Xunit;
+﻿using FluentAssertions;
 using Moq;
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Reflection;
-namespace WpftranlationTestApp.Tests
+using System.Threading.Tasks;
+using System;
+using Xunit;
+
+namespace WpftranlationTestApp.Tests;
+
+public class MultilingualExtractorTests
 {
-    public class MultilingualExtractorTests
-    {
-        [Fact]
-        public async Task ExtractEntitiesAsync_ValidText_ReturnsCorrectCount()
-        {
-            // Arrange
-            var extractor = new MultilingualExtractor();
-            var text = "Some valid text with prices, addresses, dates, and headings.";
+    private readonly MultilingualExtractor _sut;
 
-            // Act
-            int result = await extractor.ExtractEntitiesAsync(text);
+    public MultilingualExtractorTests()
+            {
+                _sut = new MultilingualExtractor();
+            }
 
-            // Assert
-            Assert.Equal(2, result);
-        }
-        [Fact]
-        public void ExtractEmails_ShouldExtractEmailsFromText()
-        {
-            // Arrange
-            var text = "Please contact us at support@example.com or sales@example.org.";
-            var extractorType = typeof(MultilingualExtractor);
-            var method = extractorType.GetMethod("ExtractEmails", BindingFlags.NonPublic | BindingFlags.Static);
+    [Fact]
+            public async Task ExtractEntitiesAsync_WhenCalled_ShouldReturnTwo()
+            {
+                // =========================================================================
+                // AI AREA: Only the content between the markers is filled in by the AI.
+                // =========================================================================
+    
+                // Arrange
+                var text = "Sample text for extraction";
+    
+                // Act
+                var result = await _sut.ExtractEntitiesAsync(text);
+    
+                // Assert
+                result.Should().Be(2);
+    
+                // =========================================================================
+            }
 
-            // Act
-            var result = (List<string>)method.Invoke(null, new object[] { text });
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Contains("support@example.com", result);
-            Assert.Contains("sales@example.org", result);
-        }
-    }
+    [Fact]
+            public void ExtractEmails_WhenCalled_ShouldBehavior()
+            {
+                // =========================================================================
+                // AI AREA: Only the content between the markers is filled in by the AI.
+                // =========================================================================
+    
+                // Arrange
+                var text = "Please contact us at support@example.com or sales@example.org.";
+                var expectedEmails = new List<string> { "support@example.com", "sales@example.org" };
+    
+                // Act
+                var emails = (List<string>)typeof(MultilingualExtractor)
+                    .GetMethod("ExtractEmails", BindingFlags.Static | BindingFlags.NonPublic)
+                    ?.Invoke(null, new object[] { text });
+    
+                // Assert
+                emails.Should().BeEquivalentTo(expectedEmails);
+    
+                // =========================================================================
+            }
 }
