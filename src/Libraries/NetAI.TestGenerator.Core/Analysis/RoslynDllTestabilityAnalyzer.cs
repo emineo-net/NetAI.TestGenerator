@@ -12,26 +12,20 @@ using NetAI.TestGenerator.Core.Config;
 using NetAI.TestGenerator.Core.Models;
 using NetAI.TestGenerator.Core.Models.Enums;
 
+
 #if !NETSTANDARD2_0
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
 #endif
-
 namespace NetAI.TestGenerator.Core.Analysis;
 
-/// <summary>
-///     Roslyn testability analyzer, tuned for small local LLMs (Qwen 2.5 14B etc.).
-///     Precision intentionally sacrificed: the report only carries the facts that the
-///     prompt-builder actually needs to emit a correct [Fact]/[StaFact]/Skip test.
-/// </summary>
+/// <summary>Roslyn testability analyzer, tuned for small local LLMs (Qwen 2.5 14B etc.).</summary>
 public sealed class RoslynDllTestabilityAnalyzer
 {
+
     private static readonly SymbolDisplayFormat FqFormat =
         SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
 
-    /// <summary>
-    ///     Only these static APIs are treated as genuine blockers.
-    /// </summary>
     private static readonly IReadOnlyDictionary<string, (string Abstraction, string? Package)> StaticApiAbstractions =
         new Dictionary<string, (string, string?)>(StringComparer.Ordinal)
         {
@@ -52,10 +46,6 @@ public sealed class RoslynDllTestabilityAnalyzer
             ["System.AppDomain"] = ("IAppEnvironment", null)
         };
 
-    /// <summary>
-    ///     Bekannte WPF-Basistypen. Wenn einer davon in der Vererbungskette
-    ///     der Klasse unter Test auftaucht, braucht der Test einen STA-Thread.
-    /// </summary>
     private static readonly HashSet<string> WpfBaseTypes = new(StringComparer.Ordinal)
     {
         "System.Windows.Window",
@@ -73,10 +63,6 @@ public sealed class RoslynDllTestabilityAnalyzer
         "System.Windows.Application"
     };
 
-    /// <summary>
-    ///     Default-Profil, falls <see cref="AnalyzerOptions.TestFrameworkProfile" />
-    ///     nicht gesetzt ist. Spiegelt das Verhalten vor der Profil-Einführung.
-    /// </summary>
     private static readonly TestFrameworkProfile DefaultProfile =
         TestFrameworkProfile.Create(
             TestFramework.xUnit,
@@ -86,13 +72,13 @@ public sealed class RoslynDllTestabilityAnalyzer
 
     private readonly AnalyzerOptions _options;
 
+    /// <summary>Initializes a roslyn dll testability analyzer instance.</summary>
     public RoslynDllTestabilityAnalyzer(AnalyzerOptions? options = null)
     {
         _options = options ?? new AnalyzerOptions();
     }
 
-    // ---------------------------------------------------------------- public API
-
+    /// <summary>Analyzes the specified source.</summary>
     public Task<TestabilityReport> AnalyzeFromSourceFilesAsync(IEnumerable<string> sourceFilePaths, IEnumerable<string> referenceDllPaths,
         string methodName, string? documentName = null, CancellationToken ct = default)
     {
@@ -100,6 +86,7 @@ public sealed class RoslynDllTestabilityAnalyzer
         return AnalyzeFromCompilationAsync(compilation, methodName, documentName, ct);
     }
 
+    /// <summary>Analyzes the specified source.</summary>
     public Task<TestabilityReport> AnalyzeFromDirectoryAsync(string directory, IEnumerable<string> referenceDllPaths, string methodName,
         string? documentName = null, string searchPattern = "*.cs", bool recursive = true, CancellationToken ct = default)
     {
@@ -116,6 +103,7 @@ public sealed class RoslynDllTestabilityAnalyzer
         return AnalyzeFromSourceFilesAsync(files, referenceDllPaths, methodName, documentName, ct);
     }
 
+    /// <summary>Analyzes the specified source.</summary>
     public Task<TestabilityReport> AnalyzeFromCompilationAsync(Compilation compilation, string methodName, string? documentName = null,
         CancellationToken ct = default)
     {
@@ -151,6 +139,7 @@ public sealed class RoslynDllTestabilityAnalyzer
         return Task.FromResult(report);
     }
 
+    /// <summary>Analyzes the specified source.</summary>
     public Task<TestabilityReport> AnalyzeFromCompilationAsync(Compilation compilation, MethodDeclarationSyntax methodDeclaration,
         CancellationToken ct = default)
     {
@@ -169,9 +158,9 @@ public sealed class RoslynDllTestabilityAnalyzer
         return Task.FromResult(report);
     }
 
-    // ---------------------------------------------------------------- MSBuild loading
 
 #if !NETSTANDARD2_0
+    /// <summary>Analyzes a method in the specified solution.</summary>
     public async Task<TestabilityReport> AnalyzeFromSolutionAsync(
         string solutionPath, string documentName, string methodName, CancellationToken ct = default)
     {
@@ -179,22 +168,21 @@ public sealed class RoslynDllTestabilityAnalyzer
         if (!File.Exists(solutionPath)) throw new FileNotFoundException("Solution file not found.", solutionPath);
 
         EnsureMSBuildRegistered();
-
-       var workspace = CreateMsBuildWorkspace();
-
+        var workspace = CreateMsBuildWorkspace();
         workspace.SkipUnrecognizedProjects = true;
         workspace.WorkspaceFailed += (_, e) =>
             System.Diagnostics.Debug.WriteLine($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
 
         var solution = await workspace.OpenSolutionAsync(solutionPath, cancellationToken: ct).ConfigureAwait(false);
-
-        var document = solution.Projects.SelectMany(p => p.Documents).FirstOrDefault(d => MatchesDocument(d, documentName))
+        var document = solution.Projects.SelectMany(project => project.Documents)
+            .FirstOrDefault(candidate => MatchesDocument(candidate, documentName))
             ?? throw new InvalidOperationException(
                 $"Document '{documentName}' was not found in solution '{Path.GetFileName(solutionPath)}'.");
 
         return await AnalyzeDocumentAsync(document, methodName, ct).ConfigureAwait(false);
     }
 
+    /// <summary>Analyzes a method in the specified project.</summary>
     public async Task<TestabilityReport> AnalyzeFromProjectAsync(
         string projectPath, string documentName, string methodName, CancellationToken ct = default)
     {
@@ -202,23 +190,22 @@ public sealed class RoslynDllTestabilityAnalyzer
         if (!File.Exists(projectPath)) throw new FileNotFoundException("Project file not found.", projectPath);
 
         EnsureMSBuildRegistered();
-
-var workspace = CreateMsBuildWorkspace();
-
+        var workspace = CreateMsBuildWorkspace();
         workspace.SkipUnrecognizedProjects = true;
         workspace.WorkspaceFailed += (_, e) =>
             System.Diagnostics.Debug.WriteLine($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
 
         var project = await workspace.OpenProjectAsync(projectPath, cancellationToken: ct).ConfigureAwait(false);
-
-        var document = project.Documents.FirstOrDefault(d => MatchesDocument(d, documentName))
+        var document = project.Documents.FirstOrDefault(candidate => MatchesDocument(candidate, documentName))
             ?? throw new InvalidOperationException(
                 $"Document '{documentName}' was not found in project '{Path.GetFileName(projectPath)}'.");
 
         return await AnalyzeDocumentAsync(document, methodName, ct).ConfigureAwait(false);
     }
 
-    public async Task<TestabilityReport> AnalyzeDocumentAsync(Document document, string methodName, CancellationToken ct = default)
+    /// <summary>Analyzes a method in the specified document.</summary>
+    public async Task<TestabilityReport> AnalyzeDocumentAsync(
+        Document document, string methodName, CancellationToken ct = default)
     {
         if (document is null) throw new ArgumentNullException(nameof(document));
         if (string.IsNullOrWhiteSpace(methodName)) throw new ArgumentException("Method name must not be empty.", nameof(methodName));
@@ -227,45 +214,41 @@ var workspace = CreateMsBuildWorkspace();
             ?? throw new InvalidOperationException("Compilation could not be created for the document's project.");
         var tree = await document.GetSyntaxTreeAsync(ct).ConfigureAwait(false)
             ?? throw new InvalidOperationException("Syntax tree is missing for the document.");
-
         var model = compilation.GetSemanticModel(tree);
-
         var methodDecl = tree.GetRoot(ct).DescendantNodes().OfType<MethodDeclarationSyntax>()
-                             .FirstOrDefault(m => m.Identifier.Text == methodName)
+            .FirstOrDefault(method => method.Identifier.Text == methodName)
             ?? throw new InvalidOperationException($"Method '{methodName}' was not found in document '{document.Name}'.");
-
         var methodSymbol = model.GetDeclaredSymbol(methodDecl, ct) as IMethodSymbol
             ?? throw new InvalidOperationException("No method symbol was found.");
 
         return BuildReport(document.Name, methodSymbol, methodDecl, model, compilation);
     }
 
+    /// <summary>Loads a compilation for a document through MSBuild.</summary>
     public async Task<(IDisposable Workspace, Compilation? Compilation)> LoadCompilationFromMsbuildAsync(
         string? solutionPath, string? projectPath, string documentName,
         Action<string>? logInfo = null, CancellationToken ct = default)
     {
         EnsureMSBuildRegistered();
-
-       var workspace = CreateMsBuildWorkspace();
-
+        var workspace = CreateMsBuildWorkspace();
         workspace.SkipUnrecognizedProjects = true;
         workspace.WorkspaceFailed += (_, e) =>
             logInfo?.Invoke($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
 
         Document? document = null;
-
         if (!string.IsNullOrWhiteSpace(solutionPath))
         {
             var solution = await workspace.OpenSolutionAsync(solutionPath, cancellationToken: ct).ConfigureAwait(false);
-            document = solution.Projects.SelectMany(p => p.Documents).FirstOrDefault(d => MatchesDocument(d, documentName));
+            document = solution.Projects.SelectMany(project => project.Documents)
+                .FirstOrDefault(candidate => MatchesDocument(candidate, documentName));
         }
         else if (!string.IsNullOrWhiteSpace(projectPath))
         {
             var project = await workspace.OpenProjectAsync(projectPath, cancellationToken: ct).ConfigureAwait(false);
-            document = project.Documents.FirstOrDefault(d => MatchesDocument(d, documentName));
+            document = project.Documents.FirstOrDefault(candidate => MatchesDocument(candidate, documentName));
         }
 
-        if (document == null)
+        if (document is null)
         {
             workspace.Dispose();
             return (new NoopDisposable(), null);
@@ -292,9 +275,6 @@ var workspace = CreateMsBuildWorkspace();
         public void Dispose() { }
     }
 #endif
-
-    // ---------------------------------------------------------------- lookup helpers
-
     private static (SyntaxTree Tree, MethodDeclarationSyntax Method)? FindEquivalentDeclaration(Compilation compilation,
         MethodDeclarationSyntax external, CancellationToken ct)
     {
@@ -340,8 +320,7 @@ var workspace = CreateMsBuildWorkspace();
             .FirstOrDefault(m => m.Identifier.Text == methodName && m.ParameterList.Parameters.Count == paramCount);
     }
 
-    // ---------------------------------------------------------------- compilation
-
+    /// <summary>Builds a Roslyn compilation from source files and assembly references.</summary>
     public static CSharpCompilation BuildCompilation(IEnumerable<string> sourceFilePaths, IEnumerable<string> referenceDllPaths,
         string assemblyName = "TestabilityAnalysis", CSharpParseOptions? parseOptions = null,
         CSharpCompilationOptions? compilationOptions = null)
@@ -359,7 +338,7 @@ var workspace = CreateMsBuildWorkspace();
                 var text = File.ReadAllText(path);
                 trees.Add(CSharpSyntaxTree.ParseText(text, parseOptions, path));
             }
-            catch { /* ignore */ }
+            catch {  }
         }
 
         var references = new List<MetadataReference>();
@@ -368,7 +347,7 @@ var workspace = CreateMsBuildWorkspace();
             foreach (var dll in referenceDllPaths)
             {
                 if (string.IsNullOrWhiteSpace(dll) || !File.Exists(dll)) continue;
-                try { references.Add(MetadataReference.CreateFromFile(dll)); } catch { /* ignore */ }
+                try { references.Add(MetadataReference.CreateFromFile(dll)); } catch {  }
             }
         }
 
@@ -377,12 +356,11 @@ var workspace = CreateMsBuildWorkspace();
                 OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Debug));
     }
 
-    // ---------------------------------------------------------------- report assembly
 
     private TestabilityReport BuildReport(string documentName, IMethodSymbol method, MethodDeclarationSyntax syntax,
     SemanticModel model, Compilation compilation)
     {
-        // Compiler-Diagnosen
+
         var errors = compilation.GetDiagnostics()
             .Where(d => d.Severity == DiagnosticSeverity.Error)
             .Take(_options.MaxDiagnostics)
@@ -396,19 +374,19 @@ var workspace = CreateMsBuildWorkspace();
 
         var callGraph = new List<string> { methodFact.Signature };
 
-        // STA-Bedarf
+
         var requiresSta = DetectStaRequirement(method.ContainingType);
 
-        // NEU: Strategie bestimmen - dieselbe Logik, die auch der Orchestrator
-        // im XML verwendet, damit Skelett und <SuggestedTestStrategy> konsistent sind.
+
+
         var strategy = DetermineStrategy(methodFact, verdict.IsDirectlyTestable, verdict.Blockers);
 
-        // NEU: Skip-Grund und Refactoring-Zeilen für Skip-/RefactorFirst-Skelette
+
         var skipReason = strategy == UnitTestSkeletonGenerator.TestStrategy.RefactorFirst
             ? BuildRefactorFirstReason(methodFact)
             : null;
 
-        // Test-Skelett erzeugen
+
         var profile = _options.TestFrameworkProfile ?? DefaultProfile;
 
         UnitTestSkeletonGenerator.GeneratorResult? skeleton = null;
@@ -444,18 +422,14 @@ var workspace = CreateMsBuildWorkspace();
         };
     }
 
-    /// <summary>
-    ///     Spiegelt exakt die Logik, die der Orchestrator in <c>AppendSuggestedTestStrategy</c>
-    ///     verwendet, damit Skeleton-Mode und SuggestedTestStrategy-XML konsistent bleiben.
-    /// </summary>
     private static UnitTestSkeletonGenerator.TestStrategy DetermineStrategy(
         MethodFact method, bool isDirectlyTestable, List<string> blockers)
     {
-        //// Beispiel: NotSupportedException/Obsolete als Skip-Kandidaten
-        //if (method.Attributes.Any(a => a.Contains("Obsolete", StringComparison.OrdinalIgnoreCase)))
-        //{
-        //    return UnitTestSkeletonGenerator.TestStrategy.Skip;
-        //}
+
+
+
+
+
 
         if (method.IsAsyncVoid)
         {
@@ -480,10 +454,6 @@ var workspace = CreateMsBuildWorkspace();
         return UnitTestSkeletonGenerator.TestStrategy.RefactorFirst;
     }
 
-    /// <summary>
-    ///     Liefert einen kurzen, LLM-freundlichen Skip-Grund für RefactorFirst.
-    ///     Der vollständige Text steht weiterhin in <c>&lt;SuggestedRefactoringPattern&gt;</c>.
-    /// </summary>
     private static string BuildRefactorFirstReason(MethodFact method)
     {
         if (method.IsAsyncVoid)
@@ -494,11 +464,6 @@ var workspace = CreateMsBuildWorkspace();
         return "requires production-code refactoring before a test can be written";
     }
 
-    /// <summary>
-    ///     Läuft die komplette Vererbungskette hoch und prüft, ob ein bekannter
-    ///     WPF-Basistyp enthalten ist. Solche Klassen dürfen nur auf einem
-    ///     STA-Thread konstruiert/benutzt werden.
-    /// </summary>
     private static bool DetectStaRequirement(INamedTypeSymbol? type)
     {
         if (type is null) return false;
@@ -509,11 +474,11 @@ var workspace = CreateMsBuildWorkspace();
                 .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
                 .Replace("global::", string.Empty);
 
-            // Exact match against the known WPF base types
+
             if (WpfBaseTypes.Contains(fullName)) return true;
 
-            // Fallback: unqualified name match. Happens when the compilation
-            // cannot resolve WPF references (in-memory parse without references).
+
+
             var simpleName = current.Name;
             if (simpleName is "Window" or "UserControl" or "Page" or "Application"
                 or "DependencyObject" or "DispatcherObject" or "FrameworkElement"
@@ -526,7 +491,6 @@ var workspace = CreateMsBuildWorkspace();
         return false;
     }
 
-    // ---------------------------------------------------------------- method fact
 
     private static MethodFact BuildMethodFact(IMethodSymbol method)
     {
@@ -572,7 +536,6 @@ var workspace = CreateMsBuildWorkspace();
         };
     }
 
-    // ---------------------------------------------------------------- containing type
 
     private static TypeFact BuildContainingTypeFact(INamedTypeSymbol containing)
     {
@@ -602,7 +565,6 @@ var workspace = CreateMsBuildWorkspace();
         };
     }
 
-    // ---------------------------------------------------------------- dependencies
 
     private (List<TypeFact> Types, HashSet<string> InstanceFieldTypes) CollectReferencedTypes(
         IMethodSymbol root, Compilation compilation)
@@ -764,7 +726,6 @@ var workspace = CreateMsBuildWorkspace();
         return (ordered, instanceFieldTypes);
     }
 
-    // ---------------------------------------------------------------- evaluation
 
     private static (string Text, bool IsDirectlyTestable, List<string> Blockers) EvaluateTestability(
         MethodFact method, List<TypeFact> types, HashSet<string> instanceFieldTypes)
@@ -807,7 +768,6 @@ var workspace = CreateMsBuildWorkspace();
     private static bool IsRealStaticBlocker(TypeFact type) =>
         StaticApiAbstractions.ContainsKey(type.FullName);
 
-    // ---------------------------------------------------------------- recommendations
 
     private static (List<string> SourceRefactoring, List<string> TestStrategy) BuildRecommendations(
         MethodFact method, List<TypeFact> types, HashSet<string> instanceFieldTypes)
@@ -853,7 +813,6 @@ var workspace = CreateMsBuildWorkspace();
         return (sourceRefactoring.Distinct().ToList(), testStrategy.Distinct().ToList());
     }
 
-    // ---------------------------------------------------------------- helpers
 
     private static (string Abstraction, string? Package, string Reason) ResolveAbstraction(INamedTypeSymbol type)
     {
@@ -940,24 +899,14 @@ var workspace = CreateMsBuildWorkspace();
     }
 
 #if !NETSTANDARD2_0
-/// <summary>
-///     MSBuild properties required in the analyzer host so that WPF references
-///     (System.Windows.*) resolve correctly. Without CheckForSystemRuntimeDependency
-///     the WPF assemblies are not loaded into the compilation.
-/// </summary>
-private static IReadOnlyDictionary<string, string> MsBuildProperties { get; } =
+    private static IReadOnlyDictionary<string, string> MsBuildProperties { get; } =
     new Dictionary<string, string>
     {
         ["DesignTimeBuild"] = "true",
         ["CheckForSystemRuntimeDependency"] = "true"
     };
 
-/// <summary>
-///     Creates an <see cref="MSBuildWorkspace" /> configured for design-time builds
-///     with system runtime dependencies. Returns a fresh dictionary on each call
-///     because MSBuildWorkspace.Create mutates the dictionary it receives.
-/// </summary>
-private static MSBuildWorkspace CreateMsBuildWorkspace()
+    private static MSBuildWorkspace CreateMsBuildWorkspace()
 {
     var properties = new Dictionary<string, string>(MsBuildProperties);
     return MSBuildWorkspace.Create(properties);

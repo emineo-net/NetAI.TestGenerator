@@ -10,14 +10,16 @@ namespace NetAI.TestGenerator.Core.Services;
 /// <summary>Prepares generated test classes and retries compilation after safe missing-using fixes.</summary>
 public class TestCodeProcessor
 {
+
     private const int MaxFixIterations = 5;
+
     private readonly TestCodeBeautifier _beautifier;
 
     private readonly ICompilerService _compilerService;
+
     private readonly AdhocWorkspace _workspace;
 
     /// <summary>Creates a processor that uses the supplied compiler for validation.</summary>
-    /// <param name="compilerService">Compiler implementation used to validate generated code.</param>
     public TestCodeProcessor(ICompilerService compilerService)
     {
         _compilerService = compilerService ?? throw new ArgumentNullException(nameof(compilerService));
@@ -27,13 +29,6 @@ public class TestCodeProcessor
     }
 
     /// <summary>Formats a test class, adds required usings, and applies safe fixes for missing namespaces.</summary>
-    /// <param name="sourceCode">Complete test class source code.</param>
-    /// <param name="testFramework">Test framework used by the test class.</param>
-    /// <param name="mockFramework">Mocking framework used by the test class.</param>
-    /// <param name="cancellationToken">Token used to cancel processing.</param>
-    /// <returns>The processed source code after formatting and fix attempts.</returns>
-    /// <exception cref="ArgumentNullException">The compiler service is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException">The source code is empty.</exception>
     public async Task<string> ProcessTestClassAsync(string sourceCode, TestFramework testFramework, MockFramework mockFramework,
         CancellationToken cancellationToken = default)
     {

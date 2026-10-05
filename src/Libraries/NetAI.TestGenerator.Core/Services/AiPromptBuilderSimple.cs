@@ -6,12 +6,8 @@ namespace NetAI.TestGenerator.Core.Services;
 /// <summary>Renders focused prompts for repairing generated test code after compilation errors.</summary>
 public class AiPromptBuilderSimple
 {
+
     /// <summary>Builds a repair prompt that includes the generated code and compiler errors.</summary>
-    /// <param name="generierter_code">The generated C# code that failed to compile.</param>
-    /// <param name="compiler_fehler">Compiler diagnostics describing the failure.</param>
-    /// <param name="testFramework">Selected test framework, used to steer the repair prompt.</param>
-    /// <param name="mockFramework">Selected mocking framework, used to steer the repair prompt.</param>
-    /// <returns>A rendered prompt for repairing the code.</returns>
     public string FixUnittestPrompt(string generierter_code, string compiler_fehler, TestFramework testFramework = TestFramework.xUnit,
         MockFramework mockFramework = MockFramework.Unknown)
     {
@@ -32,11 +28,6 @@ public class AiPromptBuilderSimple
     }
 
     /// <summary>Builds a concise repair prompt from the current code and compiler errors.</summary>
-    /// <param name="compiler_fehler">Compiler diagnostics describing the failure.</param>
-    /// <param name="aktuellerCode">The current C# code to repair.</param>
-    /// <param name="testFramework">Selected test framework, used to steer the repair prompt.</param>
-    /// <param name="mockFramework">Selected mocking framework, used to steer the repair prompt.</param>
-    /// <returns>A rendered prompt that requests the complete corrected code.</returns>
     public string FixUnittestPromptSimple(string compiler_fehler, string aktuellerCode, TestFramework testFramework = TestFramework.xUnit,
         MockFramework mockFramework = MockFramework.Unknown)
     {
@@ -56,7 +47,6 @@ public class AiPromptBuilderSimple
         return template.Render(kontext);
     }
 
-    // --- Framework-Mapping (bewusst lokal, um die Kopplung an andere Services zu vermeiden) ---
 
     private static string GetTestFrameworkName(TestFramework testFramework)
     {

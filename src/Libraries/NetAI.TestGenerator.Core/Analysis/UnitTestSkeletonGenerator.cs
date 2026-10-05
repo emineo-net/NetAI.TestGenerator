@@ -8,29 +8,37 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NetAI.TestGenerator.Core.Analysis;
 
-/// <summary>
-///     Generates a robust test skeleton for xUnit/NUnit/MSTest with
-///     Moq/NSubstitute/FakeItEasy or entirely without a mock framework.
-///     Works exclusively on Roslyn symbols.
-/// </summary>
+/// <summary>Generates test skeletons and prompt context from Roslyn method symbols.</summary>
 public static class UnitTestSkeletonGenerator
 {
+
+    /// <summary>Specifies how a test skeleton is constructed.</summary>
     public enum SkeletonMode
     {
+
+        /// <summary>Constructs the subject using its dependencies.</summary>
         ConstructorInjection,
+
+        /// <summary>Constructs the subject without dependencies.</summary>
         Parameterless,
+
+        /// <summary>Skips construction for static or abstract types.</summary>
         StaticOrAbstract,
+
+        /// <summary>Requires refactoring before a test can be generated.</summary>
         RefactorFirst,
+
+        /// <summary>Generates a skipped test.</summary>
         Skip,
+
+        /// <summary>Uses a fallback skeleton.</summary>
         Fallback
     }
 
-    /// <summary>
-    ///     What the test is supposed to do. Determined by the analyzer and used
-    ///     to steer the skeleton shape (test vs. skip-test) and the prompt.
-    /// </summary>
+    /// <summary>Specifies how the generated test exercises or skips a method.</summary>
     public enum TestStrategy
     {
+
         /// <summary>Method is testable; a normal test is generated.</summary>
         Direct,
 
@@ -44,6 +52,7 @@ public static class UnitTestSkeletonGenerator
         Skip
     }
 
+    /// <summary>Contains a generated test skeleton and its prompt context.</summary>
     public sealed record GeneratorResult(
         string TestSkeleton,
         string AiPromptContext,
@@ -55,10 +64,7 @@ public static class UnitTestSkeletonGenerator
         string TargetMethodName,
         bool RequiresSta);
 
-    // ==================================================================
-    //  Public API
-    // ==================================================================
-
+    /// <summary>Generates the requested output.</summary>
     public static GeneratorResult GenerateFromMethod(
         IMethodSymbol method,
         TestFrameworkProfile profile,
@@ -122,6 +128,7 @@ public static class UnitTestSkeletonGenerator
         }
     }
 
+    /// <summary>Generates the requested output.</summary>
     public static GeneratorResult Generate(string sourceCode, Compilation compilation)
     {
         try
@@ -172,9 +179,6 @@ public static class UnitTestSkeletonGenerator
         }
     }
 
-    // ==================================================================
-    //  Constructor resolution
-    // ==================================================================
 
     private static List<IParameterSymbol> GetConstructorParameters(INamedTypeSymbol type)
     {
@@ -192,9 +196,6 @@ public static class UnitTestSkeletonGenerator
         return best.Parameters.ToList();
     }
 
-    // ==================================================================
-    //  Skip / RefactorFirst
-    // ==================================================================
 
     private static GeneratorResult CreateSkipStyleSkeleton(
         string ns, string className, string sutTypeName, string testClassName,
@@ -213,7 +214,7 @@ public static class UnitTestSkeletonGenerator
                 ? "requires production-code refactoring"
                 : "method is not directly testable");
 
-        // STA-aware: [StaFact(Skip=...)] for xUnit + Xunit.StaFact, [Ignore] + [Apartment] for NUnit, etc.
+
         var skipAttr = profile.SkipAttributeFor(reason, requiresSta);
 
         var prompt = new StringBuilder();
@@ -242,7 +243,7 @@ public static class UnitTestSkeletonGenerator
         }
         prompt.AppendLine();
 
-        // Skip tests only need the test framework namespace.
+
         var usings = new List<string>(
             profile.RequiredNamespaces(SkeletonPurpose.SkipTest));
         var usingsBlock = string.Join(Environment.NewLine, usings.Select(u => $"using {u};"));
@@ -293,9 +294,6 @@ namespace {ns}.UnitTests;
             testClassName, ns, sutTypeName, methodName, requiresSta);
     }
 
-    // ==================================================================
-    //  Direct / Reflection: normal skeletons
-    // ==================================================================
 
     private static GeneratorResult CreateWithConstructorInjection(
         INamedTypeSymbol containingType,
@@ -507,9 +505,6 @@ public class AutomatedTests
             "AutomatedTests", "YourProject", "object", "Execute", false);
     }
 
-    // ==================================================================
-    //  Template builder (Direct / Reflection)
-    // ==================================================================
 
     private static string BuildSkeletonStructure(
         string ns, string testClassName, string sutTypeName,
@@ -588,9 +583,6 @@ namespace {ns}.UnitTests;
 }}";
     }
 
-    // ==================================================================
-    //  Prompt context: available mock methods
-    // ==================================================================
 
     private static void AppendMockMethodsForPrompt(
         ITypeSymbol typeSymbol, string fieldName, TestFrameworkProfile profile, StringBuilder sb)

@@ -3,7 +3,7 @@
 /// <summary>Provides the shared prompt templates used for test generation and compiler-error repair.</summary>
 public static class PromptTemplates
 {
-    /// <summary>Template for generating a unit test from a method and its containing class.</summary>
+
     /// <summary>Template for generating a unit test from a method and its containing class.</summary>
     public const string UnitTestGenerator = """
                                             You are an expert in software quality and C# .NET 10 unit testing.
@@ -53,7 +53,6 @@ public static class PromptTemplates
                                             Structure your test methods perfectly using the AAA pattern:
                                             """;
 
-    /// <summary>Template for repairing a generated test while retaining the original generation rules.</summary>
     /// <summary>Template for repairing a generated test while retaining the original generation rules.</summary>
     public const string UnitTestFixer = """
                                         The C# unit test you generated produced an error during compilation (dotnet build).

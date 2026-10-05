@@ -3,6 +3,7 @@
 /// <summary>Identifies the mocking library used when preparing generated tests.</summary>
 public enum MockFramework
 {
+
     /// <summary>No mocking library has been selected.</summary>
     Unknown,
 

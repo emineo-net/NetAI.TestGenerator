@@ -5,9 +5,9 @@ using Newtonsoft.Json.Linq;
 namespace NetAI.TestGenerator.Core;
 
 /// <summary>Sends chat-completion requests to a local OpenAI-compatible model endpoint.</summary>
-/// <remarks>The endpoint is currently fixed at <c>http://localhost:8080/v1/chat/completions</c>.</remarks>
 public class LocalLlmClient
 {
+
     private static readonly HttpClient SharedHttp = new()
     {
         BaseAddress = new Uri("http://localhost:8080/"), Timeout = TimeSpan.FromMinutes(5)
@@ -19,12 +19,6 @@ public class LocalLlmClient
     }
 
     /// <summary>Submits a user message and returns the model's response text.</summary>
-    /// <param name="userMessage">The message to send as the user role.</param>
-    /// <param name="systemMessage">Optional system instructions for the model.</param>
-    /// <param name="ct">Token used to cancel the HTTP request.</param>
-    /// <returns>The content of the first chat-completion choice.</returns>
-    /// <exception cref="HttpRequestException">The endpoint returns an unsuccessful status code.</exception>
-    /// <exception cref="TaskCanceledException">The request times out or is canceled.</exception>
     public async Task<string> AskAsync(string userMessage, string? systemMessage = null, CancellationToken ct = default)
     {
         var messages = new List<object>();

@@ -11,9 +11,13 @@ namespace DotNet10TestGenerator;
 /// <summary>Creates test projects, manages source references, and validates generated tests with the .NET CLI.</summary>
 public class TestProjectManager
 {
+
     private const string DefaultSampleFileName = "UnitTest1.cs";
+
     private const string DefaultWindowsFramework = "net10.0-windows";
+
     private const int MaxPackageResolutionIterations = 5;
+
     private const string StaFactPackageId = "Xunit.StaFact";
 
     private static readonly Regex InternalsVisibleToMemberRegex = new(
@@ -42,27 +46,19 @@ public class TestProjectManager
     };
 
     private readonly TimeSpan _defaultProcessTimeout;
+
     private readonly string _dotnetExecutable;
+
     private readonly MockFramework _mockFramework;
 
     private readonly ConcurrentDictionary<string, Task<Dictionary<string, List<TypeLocation>>>> _scanCache =
         new(StringComparer.OrdinalIgnoreCase);
 
     private readonly TestFramework _testFramework;
+
     private readonly IReadOnlyDictionary<string, string> _wellKnownTypeToNamespace;
 
     /// <summary>Creates a manager for test project setup and compilation.</summary>
-    /// <param name="defaultProcessTimeout">Default timeout for .NET CLI processes.</param>
-    /// <param name="dotnetExecutable">Path or command name of the .NET CLI executable.</param>
-    /// <param name="testFramework">
-    ///     Selected test framework. Controls which well-known test types (e.g. <c>Assert</c>,
-    ///     <c>[Test]</c>) are resolved to which namespace. Prevents adding <c>using Xunit;</c> to
-    ///     an NUnit/MSTest project.
-    /// </param>
-    /// <param name="mockFramework">
-    ///     Selected mocking framework. Only types of this framework are auto-resolved; a stray
-    ///     <c>Mock&lt;T&gt;</c> in an NSubstitute project will NOT silently pull in the Moq package.
-    /// </param>
     public TestProjectManager(TimeSpan? defaultProcessTimeout = null, string dotnetExecutable = "dotnet",
         TestFramework testFramework = TestFramework.xUnit, MockFramework mockFramework = MockFramework.Unknown)
     {
@@ -102,20 +98,6 @@ public class TestProjectManager
     };
 
     /// <summary>Creates or updates a test project, writes the supplied class, and builds the project.</summary>
-    /// <param name="sourceFilePath">Source file whose project should be referenced by the test project.</param>
-    /// <param name="testClassCode">Complete test class source code to compile.</param>
-    /// <param name="testProjectName">Name of the generated project when no directory override is supplied.</param>
-    /// <param name="testsRelativeSubPath">Test project parent directory relative to the solution root.</param>
-    /// <param name="testTemplate">Template passed to <c>dotnet new</c> when creating the project.</param>
-    /// <param name="targetFramework">Optional target framework for the generated project.</param>
-    /// <param name="generatedClassNamePrefix">Prefix used when a class name cannot be extracted from the code.</param>
-    /// <param name="cancellationToken">Token used to cancel project creation and validation.</param>
-    /// <param name="testProjectDirectoryOverride">
-    ///     Optional absolute directory that overrides the default solution-relative
-    ///     location.
-    /// </param>
-    /// <returns>Generation status, build diagnostics, and the generated test source.</returns>
-    /// <remarks>The source project is discovered from <paramref name="sourceFilePath" /> and referenced automatically.</remarks>
     public async Task<TestGenerationResult> SetupAndValidateTestAsync(string sourceFilePath, string testClassCode,
         string testProjectName = "UnitTestProject", string testsRelativeSubPath = "tests/UnitTests", string testTemplate = "xunit",
         string? targetFramework = null, string generatedClassNamePrefix = "GeneratedTest_", CancellationToken cancellationToken = default,
@@ -1330,18 +1312,12 @@ public class TestProjectManager
         return candidates;
     }
 
-    /// <summary>
-    ///     Builds the well-known-type-to-namespace map for the selected frameworks. BCL, WPF and
-    ///     DI types are always present. Test-framework types (Assert, [Fact], [Test], [TestClass] …)
-    ///     are added only for the configured test framework. Mock types are added only for the
-    ///     configured mocking framework.
-    /// </summary>
     private static IReadOnlyDictionary<string, string> BuildWellKnownTypeToNamespace(TestFramework testFramework,
         MockFramework mockFramework)
     {
         var map = new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            // --- Framework-agnostisch: BCL / DI ---
+
             ["IServiceProvider"] = "System",
             ["Task"] = "System.Threading.Tasks",
             ["ServiceProvider"] = "Microsoft.Extensions.DependencyInjection",
@@ -1353,7 +1329,7 @@ public class TestProjectManager
             ["AddScoped"] = "Microsoft.Extensions.DependencyInjection",
             ["AddTransient"] = "Microsoft.Extensions.DependencyInjection",
 
-            // --- Framework-agnostisch: WPF ---
+
             ["Application"] = "System.Windows",
             ["Window"] = "System.Windows",
             ["RoutedEventArgs"] = "System.Windows",
@@ -1378,7 +1354,7 @@ public class TestProjectManager
             ["Dispatcher"] = "System.Windows.Threading"
         };
 
-        // Test-Framework-spezifische Typen — nur fuer das ausgewaehlte Framework.
+
         switch (testFramework)
         {
             case TestFramework.xUnit:
@@ -1418,7 +1394,7 @@ public class TestProjectManager
                 break;
         }
 
-        // Mock-Framework-spezifische Typen — nur fuer das ausgewaehlte Framework.
+
         switch (mockFramework)
         {
             case MockFramework.Moq:
@@ -2284,8 +2260,11 @@ public class TestProjectManager
 
     private enum XUnitFlavor
     {
+
         Unknown,
+
         V2,
+
         V3
     }
 }

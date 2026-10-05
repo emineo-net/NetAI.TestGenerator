@@ -1,21 +1,12 @@
 ﻿namespace NetAI.TestGenerator.Core.Analysis;
 
-/// <summary>
-///     Describes what a test skeleton is meant to do. Used by
-///     <see cref="TestFrameworkProfile" /> to decide which using directives
-///     and attributes a skeleton actually needs.
-/// </summary>
+/// <summary>Specifies the purpose of a generated test skeleton.</summary>
 public enum SkeletonPurpose
 {
-    /// <summary>
-    ///     A real test method: instantiates the SUT, sets up mocks (if any),
-    ///     calls the method, and asserts.
-    /// </summary>
+
+    /// <summary>Generates an executable test with setup, method call, and assertions.</summary>
     FullTest,
 
-    /// <summary>
-    ///     A skip or refactor-first placeholder: declares a skip attribute and
-    ///     describes required refactorings in comments. No mocks, no assertions.
-    /// </summary>
+    /// <summary>Generates a skipped test without setup or assertions.</summary>
     SkipTest
 }

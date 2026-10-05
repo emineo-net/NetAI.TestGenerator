@@ -15,7 +15,9 @@ namespace NetAI.TestGenerator.Tasks;
 /// <summary>Runs testability analysis and AI-assisted test generation as part of an MSBuild build.</summary>
 public class TestGeneratorTask : Task
 {
+
     private bool testDebugger = false;
+
     private readonly bool testXamlCs = true;
 
     /// <summary>Gets or sets the project directory supplied by MSBuild.</summary>
@@ -40,8 +42,6 @@ public class TestGeneratorTask : Task
     /// <summary>Gets or sets the directory where semantic analysis reports are written.</summary>
     public string? AnalysisOutputDirectory { get; set; }
 
-    // --- NEU: Kontext-Properties -------------------------------------------
-
     /// <summary>Gets or sets the MSBuild <c>$(DefineConstants)</c> value, e.g. <c>DEBUG;TRACE;NET10_0</c>.</summary>
     public string? DefineConstants { get; set; }
 
@@ -51,19 +51,13 @@ public class TestGeneratorTask : Task
     /// <summary>Gets or sets whether the analyzed project uses Windows Forms (<c>$(UseWindowsForms)</c>).</summary>
     public bool UseWindowsForms { get; set; }
 
-    /// <summary>
-    ///     Gets or sets whether AI or generation failures should fail the build.
-    ///     Default is <see langword="false" /> to keep unrelated builds green.
-    /// </summary>
+    /// <summary>Gets or sets whether task errors fail the build.</summary>
     public bool FailOnError { get; set; } = false;
 
-    // ------------------------------------------------------------------------
-
     /// <summary>Runs semantic analysis or test generation, depending on the inputs supplied by MSBuild.</summary>
-    /// <returns><see langword="true" /> when the task succeeds; otherwise, <see langword="false" />.</returns>
     public override bool Execute()
     {
-        // GEÄNDERT: prüft den vollen Pfad (nicht nur den Ordner-Namen) auf "_wpftmp".
+
         if (ProjectDir.IndexOf("_wpftmp", StringComparison.OrdinalIgnoreCase) >= 0)
         {
             return true;
@@ -198,7 +192,7 @@ public class TestGeneratorTask : Task
 #if DEBUG
         if (!Debugger.IsAttached)
         {
-            // Triggers the Windows JIT Debugger selection dialog
+
             Debugger.Launch();
         }
 #endif
@@ -214,12 +208,12 @@ public class TestGeneratorTask : Task
             return false;
         }
 
-        // --- Build-Konfigurationsfilter --------------------------------------
-        // config.BuildConfigurationFilter kann "Debug", "Release" oder "All" sein.
-        //   "All" (oder null/leer) => immer ausführen.
-        //   "Debug"/"Release"       => nur ausführen, wenn CurrentConfiguration passt.
-        // Bei Nichtübereinstimmung wird die Task erfolgreich übersprungen,
-        // damit der Build grün bleibt.
+
+
+
+
+
+
         var currentConfiguration = (CurrentConfiguration ?? "Debug").Trim();
         var mode = (config.BuildConfigurationFilter ?? "All").Trim();
 
@@ -239,7 +233,7 @@ public class TestGeneratorTask : Task
             MessageImportance.High,
             $"[NetAI] Mode condition met (filter='{mode}', current='{currentConfiguration}'). " +
             "Starting test analysis...");
-        // ---------------------------------------------------------------------
+
 
         var solutionDirectory = FindSolutionDirectory(ProjectDir);
         if (solutionDirectory is null)
@@ -314,8 +308,8 @@ public class TestGeneratorTask : Task
                         {
                             var cleanMessage = message.Replace("[NetAI Error]", "").Replace("Error:", "").Trim();
 
-                            // GEÄNDERT: LogError nur bei FailOnError=true, sonst Warning,
-                            // damit AI-Aussetzer den Build nicht zwangsweise rot machen.
+
+
                             if (FailOnError)
                             {
                                 Log.LogError($"[NetAI] {cleanMessage}");
@@ -343,7 +337,7 @@ public class TestGeneratorTask : Task
 
                 if (result != "ok")
                 {
-                    // GEÄNDERT: abhängig von FailOnError
+
                     var msg = $"[NetAI] Failed to process '{Path.GetFileName(sourceFilePath)}': {result}";
                     if (FailOnError)
                     {
@@ -384,10 +378,6 @@ public class TestGeneratorTask : Task
         return FailOnError ? overallSuccess : true;
     }
 
-    /// <summary>
-    ///     Builds <see cref="CSharpParseOptions" /> from MSBuild context.
-    ///     Uses <see cref="DefineConstants" /> when provided; falls back to a sane default.
-    /// </summary>
     private CSharpParseOptions BuildParseOptions()
     {
         var symbols = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -404,7 +394,7 @@ public class TestGeneratorTask : Task
             }
         }
 
-        // Basissymbole, falls MSBuild nichts mitgegeben hat
+
         if (symbols.Count == 0)
         {
             symbols.Add("DEBUG");
@@ -412,7 +402,7 @@ public class TestGeneratorTask : Task
             symbols.Add("NET");
         }
 
-        // UI-Symbole nur setzen, wenn das Projekt sie auch nutzt
+
         if (UseWpf || UseWindowsForms)
         {
             symbols.Add("WINDOWS");
@@ -477,10 +467,6 @@ public class TestGeneratorTask : Task
         }
     }
 
-    /// <summary>
-    ///     Builds a reasonable reference set without @(ReferencePath): trusts the
-    ///     running TPA list, plus any already-loaded assemblies. Should rarely be needed.
-    /// </summary>
     private static List<string> BuildFallbackReferenceSet()
     {
         var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

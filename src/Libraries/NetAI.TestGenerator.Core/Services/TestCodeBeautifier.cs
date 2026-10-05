@@ -10,14 +10,10 @@ namespace NetAI.TestGenerator.Core.Services;
 /// <summary>Formats generated C# test code and adds framework-specific using directives.</summary>
 public class TestCodeBeautifier
 {
+
     private readonly AdhocWorkspace _workspace = new();
 
     /// <summary>Adds required test and mocking namespaces, sorts usings, and formats valid source code.</summary>
-    /// <param name="sourceCode">Generated C# source code.</param>
-    /// <param name="testFramework">Test framework referenced by the generated code.</param>
-    /// <param name="mockFramework">Mocking framework referenced by the generated code.</param>
-    /// <param name="cancellationToken">Token used to cancel formatting.</param>
-    /// <returns>Formatted source code, or the original input when it is empty or syntactically invalid.</returns>
     public async Task<string> BeautifyAndAddUsingsAsync(string sourceCode, TestFramework testFramework = TestFramework.xUnit,
         MockFramework mockFramework = MockFramework.Unknown, CancellationToken cancellationToken = default)
     {
@@ -46,19 +42,6 @@ public class TestCodeBeautifier
     }
 
     /// <summary>Applies safe automatic fixes for compiler errors that can be resolved by adding a using directive.</summary>
-    /// <param name="sourceCode">Source code to inspect and potentially update.</param>
-    /// <param name="compilerErrors">Compiler error messages to analyze.</param>
-    /// <param name="testFramework">
-    ///     Selected test framework. Controls which test-framework types (e.g. <c>Assert</c>, <c>[Test]</c>)
-    ///     are mapped to which namespace. Prevents adding <c>using Xunit;</c> to an NUnit/MSTest file.
-    /// </param>
-    /// <param name="mockFramework">
-    ///     Selected mocking framework. Only types belonging to this framework are resolved; if an unknown
-    ///     or unconfigured mock type is encountered, no using is added (the compile error remains, which
-    ///     is the intended feedback to the repair loop).
-    /// </param>
-    /// <param name="cancellationToken">Token used to cancel formatting.</param>
-    /// <returns>Updated source code when a fix was applied; otherwise the original source.</returns>
     public async Task<string> TryFixCompilerErrorsAsync(string sourceCode, IEnumerable<string> compilerErrors,
         TestFramework testFramework = TestFramework.xUnit, MockFramework mockFramework = MockFramework.Unknown,
         CancellationToken cancellationToken = default)
@@ -198,19 +181,12 @@ public class TestCodeBeautifier
         return false;
     }
 
-    /// <summary>
-    ///     Maps a missing type name to a namespace, taking the selected frameworks into account.
-    ///     Test-framework types are only resolved for the configured test framework; mock types
-    ///     only for the configured mock framework. This prevents injecting a using for a
-    ///     framework the user did not choose. Returns <see langword="null" /> when the type is
-    ///     unknown or belongs to an unconfigured framework.
-    /// </summary>
     private static string? MapTypeToNamespace(string typeName, TestFramework testFramework, MockFramework mockFramework)
     {
-        // --- Test-Framework-Typen ---------------------------------------------
-        // Nur Typen des konfigurierten Frameworks mappen. Wenn z. B. xUnit ausgewaehlt
-        // ist und der LLM faelschlich [Test] schreibt, wird KEIN NUnit.Framework
-        // hinzugefuegt - der Fehler bleibt und der Repair-Loop bekommt das Signal.
+
+
+
+
         switch (testFramework)
         {
             case TestFramework.xUnit:
@@ -240,7 +216,7 @@ public class TestCodeBeautifier
                 break;
         }
 
-        // --- Mock-Framework-Typen ---------------------------------------------
+
         switch (mockFramework)
         {
             case MockFramework.Moq:
@@ -268,7 +244,7 @@ public class TestCodeBeautifier
                 break;
         }
 
-        // --- Framework-agnostische BCL-Typen ----------------------------------
+
         return typeName switch
         {
             "Task" or "ValueTask" => "System.Threading.Tasks",

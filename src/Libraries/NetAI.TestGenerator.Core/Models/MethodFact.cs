@@ -3,6 +3,7 @@
 /// <summary>Describes the signature, modifiers, parameters, and containing type of an analyzed method.</summary>
 public sealed class MethodFact
 {
+
     /// <summary>Gets the method's name.</summary>
     public string Name { get; init; } = "";
 
@@ -33,15 +34,33 @@ public sealed class MethodFact
     /// <summary>Gets the method's parameters in declaration order.</summary>
     public List<ParameterFact> Parameters { get; init; } = new();
 
-    // NEW:
+    /// <summary>Gets whether the method is virtual.</summary>
     public bool IsVirtual { get; init; }
+
+    /// <summary>Gets whether the method overrides a base member.</summary>
     public bool IsOverride { get; init; }
+
+    /// <summary>Gets whether the method is abstract.</summary>
     public bool IsAbstract { get; init; }
+
+    /// <summary>Gets whether the method is an iterator.</summary>
     public bool IsIterator { get; init; }
+
+    /// <summary>Gets whether the method is an extension method.</summary>
     public bool IsExtension { get; init; }
+
+    /// <summary>Gets or sets the returns task.</summary>
     public bool ReturnsTask { get; init; }
+
+    /// <summary>Gets or sets the has cancellation token.</summary>
     public bool HasCancellationToken { get; init; }
+
+    /// <summary>Gets or sets the generic parameters.</summary>
     public IReadOnlyList<string> GenericParameters { get; init; } = new List<string>();
+
+    /// <summary>Gets or sets the attributes.</summary>
     public IReadOnlyList<string> Attributes { get; init; } = new List<string>();
+
+    /// <summary>Gets or sets the thrown exceptions.</summary>
     public IReadOnlyList<string> ThrownExceptions { get; init; } = new List<string>();
 }

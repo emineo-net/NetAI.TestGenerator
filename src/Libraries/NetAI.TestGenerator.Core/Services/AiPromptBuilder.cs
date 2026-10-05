@@ -8,19 +8,16 @@ namespace NetAI.TestGenerator.Core.Services;
 /// <summary>Builds test-generation prompts from project settings and source code.</summary>
 public class AiPromptBuilder
 {
+
     private readonly string _configFilePath;
 
     /// <summary>Creates a prompt builder using the specified settings file.</summary>
-    /// <param name="configFilePath">Path to <c>aisettings.json</c>; defaults to the current directory.</param>
     public AiPromptBuilder(string configFilePath = "aisettings.json")
     {
         _configFilePath = configFilePath;
     }
 
     /// <summary>Builds system instructions from the configured framework, style, and generation strategy.</summary>
-    /// <returns>A task whose result is the generated system prompt.</returns>
-    /// <exception cref="FileNotFoundException">The settings file does not exist.</exception>
-    /// <exception cref="InvalidOperationException">The settings file cannot be parsed.</exception>
     public Task<string> BuildSystemPromptAsync()
     {
         var config = AiSettingsLoader.Load(Path.GetDirectoryName(Path.GetFullPath(_configFilePath))!);
@@ -101,12 +98,6 @@ public class AiPromptBuilder
     }
 
     /// <summary>Builds a prompt that generates a unit test for the supplied method.</summary>
-    /// <param name="klassenCode">Full source of the containing class.</param>
-    /// <param name="methodenName">Name of the method under test.</param>
-    /// <param name="methodenSignatur">Signature of the method under test.</param>
-    /// <param name="testFramework">Selected test framework; drives framework name, namespace and attribute.</param>
-    /// <param name="mockFramework">Selected mocking framework; drives mocking library and namespace.</param>
-    /// <returns>A rendered prompt for generating the test.</returns>
     public string GeneratePrompt(string klassenCode, string methodenName, string methodenSignatur,
         TestFramework testFramework = TestFramework.xUnit, MockFramework mockFramework = MockFramework.Unknown)
     {
@@ -127,7 +118,6 @@ public class AiPromptBuilder
         return template.Render(kontext);
     }
 
-    // --- Framework-Mapping (bewusst lokal, um keine Kopplung an andere Services aufzubauen) ---
 
     private static string GetTestFrameworkName(TestFramework testFramework)
     {

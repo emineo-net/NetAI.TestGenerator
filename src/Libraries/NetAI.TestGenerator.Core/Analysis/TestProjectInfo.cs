@@ -6,12 +6,11 @@ using System.Xml.Linq;
 
 namespace NetAI.TestGenerator.Core.Analysis;
 
-/// <summary>
-///     Liest Paket-IDs aus dem Testprojekt (bzw. aus mehreren .csproj im Verzeichnis),
-///     damit Profile und Prompt nur referenzieren, was tatsächlich installiert ist.
-/// </summary>
+/// <summary>Reads package IDs from test project files in a directory.</summary>
 public static class TestProjectInfo
 {
+
+    /// <summary>Reads package IDs from project files in the specified directory.</summary>
     public static IReadOnlyList<string> ReadPackageIds(string? testProjectDirectory)
     {
         if (string.IsNullOrWhiteSpace(testProjectDirectory) || !Directory.Exists(testProjectDirectory))
@@ -37,7 +36,7 @@ public static class TestProjectInfo
             }
             catch
             {
-                // .csproj defekt oder gesperrt – ignorieren, ist nur Best-Effort
+
             }
         }
 

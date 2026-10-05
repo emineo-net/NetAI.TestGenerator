@@ -8,24 +8,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NetAI.TestGenerator.Core.Analysis;
 
-/// <summary>
-///     Generates a complete test-class snippet for a method whose behavior can
-///     be inferred statically, without calling the LLM. Handles:
-///     - parameterless methods returning a compile-time constant
-///     - parameterless methods that throw unconditionally
-///     - parameterless void methods with an empty body
-///     Methods marked with NotImplementedException are signalled as "do not test".
-/// </summary>
 internal static class TrivialTestGenerator
 {
-    /// <summary>
-    ///     <c>TestSnippet</c>: a full class snippet ready for merging, or null when
-    ///     the method is not trivial and should fall through to the LLM.
-    ///     <c>ShouldSkipEntirely</c>: true when the method should not be tested at all
-    ///     (currently only for <c>NotImplementedException</c> throw-only methods).
-    /// </summary>
+
+    /// <summary>Contains a trivial test snippet and whether generation should be skipped.</summary>
     public sealed record Result(string? TestSnippet, bool ShouldSkipEntirely);
 
+    /// <summary>Generates a test snippet when method behavior is statically known.</summary>
     public static Result TryGenerate(
         MethodDeclarationSyntax method,
         IMethodSymbol symbol,
@@ -33,8 +22,8 @@ internal static class TrivialTestGenerator
         TestFrameworkProfile profile,
         bool requiresSta)
     {
-        // Only handle parameterless methods. Parameters would need valid argument
-        // values, which we cannot infer statically — fall through to the LLM.
+
+
         if (method.ParameterList.Parameters.Count > 0)
         {
             return new Result(null, false);
@@ -43,7 +32,7 @@ internal static class TrivialTestGenerator
         var expressionBody = method.ExpressionBody;
         var body = method.Body;
 
-        // Expression-bodied method: `Type M() => <expr>;`
+
         if (expressionBody is not null)
         {
             if (expressionBody.Expression is ThrowExpressionSyntax throwExpr)
@@ -67,7 +56,7 @@ internal static class TrivialTestGenerator
             return new Result(null, false);
         }
 
-        // Empty void method → smoke test.
+
         if (body.Statements.Count == 0 && symbol.ReturnsVoid)
         {
             return new Result(BuildEmptyVoidTest(symbol, profile, requiresSta), false);
@@ -99,7 +88,6 @@ internal static class TrivialTestGenerator
         return new Result(null, false);
     }
 
-    // ------------------------------------------------------------------ throw handling
 
     private static Result HandleThrow(
         IMethodSymbol symbol,
@@ -107,7 +95,7 @@ internal static class TrivialTestGenerator
         TestFrameworkProfile profile,
         bool requiresSta)
     {
-        // NotImplementedException / NotSupportedException → not a test target.
+
         if (throwExpression is ObjectCreationExpressionSyntax creation)
         {
             var typeName = creation.Type.ToString();
@@ -118,7 +106,7 @@ internal static class TrivialTestGenerator
             }
         }
 
-        // Try to extract the thrown exception type for the assertion.
+
         string? exceptionTypeName = null;
         if (throwExpression is ObjectCreationExpressionSyntax objCreation)
         {
@@ -126,8 +114,8 @@ internal static class TrivialTestGenerator
         }
         else if (throwExpression is IdentifierNameSyntax identifier)
         {
-            // `throw someException;` — we cannot statically know the type without
-            // resolving the identifier; fall through with a generic assertion.
+
+
             exceptionTypeName = null;
         }
 
@@ -136,7 +124,6 @@ internal static class TrivialTestGenerator
             false);
     }
 
-    // ------------------------------------------------------------------ builders
 
     private static string BuildConstantReturnTest(
         IMethodSymbol symbol,
@@ -190,7 +177,7 @@ internal static class TrivialTestGenerator
             $"        Action act = () => {sutCall}();\n" +
             $"        {assertion}";
 
-        // Ensure `using System;` for Action.
+
         var usingsOverride = new[] { "System" };
 
         return BuildClassSnippet(
@@ -238,7 +225,6 @@ internal static class TrivialTestGenerator
             additionalUsingNamespaces: usingsOverride);
     }
 
-    // ------------------------------------------------------------------ snippet assembly
 
     private static string BuildClassSnippet(
         string sutClassName,
@@ -275,7 +261,7 @@ internal static class TrivialTestGenerator
 
         var classAttribute = profile.ClassAttribute is { } ca ? ca + Environment.NewLine : string.Empty;
 
-        // For static methods we do not need the _sut field/ctor.
+
         var sutBlock = isStaticSut
             ? string.Empty
             : $@"    private readonly {sutClassName} _sut;
@@ -303,7 +289,6 @@ namespace {ns};
 }}";
     }
 
-    // ------------------------------------------------------------------ literal formatting
 
     private static string FormatConstant(object? value, ITypeSymbol returnType)
     {
@@ -312,8 +297,8 @@ namespace {ns};
             return "null";
         }
 
-        // Enum: `model.GetConstantValue` gives the underlying integral value; we
-        // prefer the named member for readability.
+
+
         if (returnType.TypeKind == TypeKind.Enum && returnType is INamedTypeSymbol enumType)
         {
             foreach (var member in enumType.GetMembers().OfType<IFieldSymbol>())

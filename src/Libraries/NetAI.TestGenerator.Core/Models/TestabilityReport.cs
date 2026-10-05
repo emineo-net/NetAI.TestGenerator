@@ -6,14 +6,9 @@ using NetAI.TestGenerator.Core.Config;
 
 namespace NetAI.TestGenerator.Core.Models;
 
-/// <summary>
-///     Summarizes a method's testability, referenced types, and relevant compilation diagnostics.
-///     Immutable after construction; add any new fact as an init-only property so that
-///     downstream consumers (prompt builders, orchestrators) can rely on stable values.
-/// </summary>
+/// <summary>Summarizes a method's testability, referenced types, and relevant compilation diagnostics.</summary>
 public sealed class TestabilityReport
 {
-    // ---------------------------------------------------------------- basic facts
 
     /// <summary>Gets the UTC time at which the report was generated.</summary>
     public DateTimeOffset GeneratedAt { get; init; }
@@ -27,8 +22,6 @@ public sealed class TestabilityReport
     /// <summary>Gets the non-framework and framework types referenced by the method.</summary>
     public List<TypeFact> ReferencedTypes { get; init; } = new();
 
-    // ---------------------------------------------------------------- verdict
-
     /// <summary>Gets the analyzer's concise testability verdict (human-readable).</summary>
     public string Verdict { get; init; } = "";
 
@@ -37,8 +30,6 @@ public sealed class TestabilityReport
 
     /// <summary>Individual reasons why the method is not directly testable (empty when testable).</summary>
     public IReadOnlyList<string> Blockers { get; init; } = new List<string>();
-
-    // ---------------------------------------------------------------- recommendations
 
     /// <summary>Gets recommendations for improving the method's testability (combined list).</summary>
     public List<string> Recommendations { get; init; } = new();
@@ -49,21 +40,13 @@ public sealed class TestabilityReport
     /// <summary>Gets recommendations for testing the method in its current state.</summary>
     public List<string> TestStrategyRecommendations { get; init; } = new();
 
-    // ---------------------------------------------------------------- diagnostics
-
     /// <summary>Gets compilation errors captured as context for the analysis.</summary>
     public List<string> CompilationErrors { get; init; } = new();
 
     /// <summary>Flattened call chain (currently just the method itself).</summary>
     public IReadOnlyList<string> AnalyzedCallGraph { get; init; } = new List<string>();
 
-    // ---------------------------------------------------------------- skeleton / STA
-
-    /// <summary>
-    ///     Complete test skeleton and AI prompt context. Null when skeleton generation failed.
-    ///     Consumers should check <see cref="UnitTestSkeletonGenerator.GeneratorResult.Mode" />
-    ///     to decide which prompt variant to use.
-    /// </summary>
+    /// <summary>Complete test skeleton and AI prompt context.</summary>
     public UnitTestSkeletonGenerator.GeneratorResult? TestSkeleton { get; init; }
 
     /// <summary>Strategie, die der Analyzer für diese Methode bestimmt hat.</summary>
@@ -72,12 +55,7 @@ public sealed class TestabilityReport
     /// <summary>True when the test must run on an STA thread (WPF UI types).</summary>
     public bool RequiresSta { get; init; }
 
-    // ---------------------------------------------------------------- prompt rendering
-
-    /// <summary>
-    ///     Formats the report as prompt-ready text, including rules that prevent invented code facts.
-    ///     Used as a fallback when the XML representation is not desired.
-    /// </summary>
+    /// <summary>Formats the report as prompt-ready text, including rules that prevent invented code facts.</summary>
     public string ToPromptText()
     {
         var sb = new StringBuilder();

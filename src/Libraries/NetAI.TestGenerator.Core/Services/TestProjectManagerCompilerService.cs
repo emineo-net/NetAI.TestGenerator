@@ -6,15 +6,18 @@ namespace NetAI.TestGenerator.Core.Services;
 
 internal sealed class TestProjectManagerCompilerService : ICompilerService
 {
+
     private static readonly Regex ErrorLineRegex = new(@"(?<id>CS\d{4})\s*:\s*(?<msg>.+)$", RegexOptions.Compiled);
 
     private readonly Func<string, Task<TestGenerationResult>> _compile;
 
+    /// <summary>Initializes a test project manager compiler service instance.</summary>
     public TestProjectManagerCompilerService(Func<string, Task<TestGenerationResult>> compile)
     {
         _compile = compile ?? throw new ArgumentNullException(nameof(compile));
     }
 
+    /// <summary>Compiles the source and converts errors into diagnostics.</summary>
     public async Task<IReadOnlyList<Diagnostic>> CompileAndGetDiagnosticsAsync(string source, CancellationToken cancellationToken = default)
     {
         var result = await _compile(source);

@@ -17,6 +17,7 @@ namespace NetAI.TestGenerator.Core;
 /// <summary>Coordinates source analysis, AI-generated unit tests, and optional compile validation.</summary>
 public class ResxTranslationOrchestrator
 {
+
     private static readonly Regex AiAreaMarkerLineRegex = new(
         @"^[ \t]*//[^\r\n]*AI AREA[^\r\n]*\r?\n" +
         @"|^[ \t]*//[ \t]*=+[ \t]*\r?\n",
@@ -26,8 +27,11 @@ public class ResxTranslationOrchestrator
         @"```(?:csharp|cs)?\s*([\s\S]*?)\s*```", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private readonly MockFramework _mockFramework;
+
     private readonly TestCodeBeautifier _testCodeBeautifier = new();
+
     private readonly TestFramework _testFramework;
+
     private readonly AiTestingConfig? _config;
 
     private readonly TestGeneratorService _testGeneratorService;
@@ -56,7 +60,6 @@ public class ResxTranslationOrchestrator
         _config = config;
     }
 
-    /// <summary>Internal helper: return value of BuildSemanticHintAsync.</summary>
     private sealed record SemanticHint(
         string Xml,
         UnitTestSkeletonGenerator.GeneratorResult? Skeleton,
@@ -122,10 +125,10 @@ public class ResxTranslationOrchestrator
 
             var testCodeProcessor = new TestCodeProcessor(compilerService);
 
-            // ---- Framework profile: single source of truth for skip attributes,
-            //      using directives, and mock syntax. Built once per file, before
-            //      the semantic-analysis branch, so it is available everywhere
-            //      downstream (including the size-limit skip stub in the loop).
+
+
+
+
             var packages = TestProjectInfo.ReadPackageIds(testProjectDirectory);
 
             var profile = new TestFrameworkProfile(
@@ -135,7 +138,7 @@ public class ResxTranslationOrchestrator
                 _config?.Frameworks?.UseAutoFixture ?? false,
                 packages);
 
-            // --- Semantic analysis strategy selection -------------------------------
+
             RoslynDllTestabilityAnalyzer? semanticAnalyzer = null;
             var effectiveCompilation = compilation;
 
@@ -216,7 +219,7 @@ public class ResxTranslationOrchestrator
                     continue;
                 }
 
-                // ---- Size gate: skip methods that exceed the configured character limit.
+
                 var maxChars = _config?.MaxMethodChars ?? 25_000;
 
                 if (!IsWithinSizeLimit(method, maxChars, out var methodChars))
@@ -253,7 +256,7 @@ public class ResxTranslationOrchestrator
                     continue;
                 }
 
-                // ---- Complexity hint (informational, does not skip).
+
                 var complexity = EstimateCyclomaticComplexity(method);
                 if (complexity > 20)
                 {
@@ -264,7 +267,7 @@ public class ResxTranslationOrchestrator
 
                 logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
 
-                
+
                 var trivialModel = effectiveCompilation?.GetSemanticModel(method.SyntaxTree);
                 var trivialSymbol = trivialModel?.GetDeclaredSymbol(method) as IMethodSymbol;
 
@@ -314,7 +317,7 @@ public class ResxTranslationOrchestrator
                     logInfo?.Invoke($"[NetAI] Prompt with semantic context saved: {promptPath}");
                 }
 
-                // ---- System prompt: instruct the model to respect the binding skeleton.
+
                 const string systemPrompt =
                     "You are a C# testing expert. Respond only with runnable C# code and no explanations. " +
                     "If a <BindingSkeleton> block is present, preserve its structure verbatim " +
@@ -481,16 +484,11 @@ public class ResxTranslationOrchestrator
             }
             catch
             {
-                /* ignore */
+
             }
         }
     }
 
-    /// <summary>
-    ///     Merges multiple complete test-class snippets into a single test class.
-    ///     Uses Roslyn's Formatter to reindent everything cleanly; comments and
-    ///     doc-comments are preserved, only whitespace is normalized.
-    /// </summary>
     private string MergeCollectedTestClasses(
         string testClassName,
         string testNamespace,
@@ -500,7 +498,7 @@ public class ResxTranslationOrchestrator
         var members = new List<MemberDeclarationSyntax>();
         var seenMemberTexts = new HashSet<string>(StringComparer.Ordinal);
 
-        // Ensure the test framework using is always present.
+
         usings.Add($"using {GetTestFrameworkNamespace(_testFramework)};");
 
         foreach (var snippet in classSnippets)
@@ -545,7 +543,7 @@ public class ResxTranslationOrchestrator
             }
         }
 
-        // Parse the framework usings back into syntax nodes.
+
         var usingNodes = usings
             .Select(u => CSharpSyntaxTree.ParseText(u).GetCompilationUnitRoot().Usings.FirstOrDefault())
             .Where(u => u is not null)
@@ -620,13 +618,6 @@ public class ResxTranslationOrchestrator
         return string.Join("|", parts);
     }
 
-    /// <summary>
-    ///     Removes whitespace-only leading and trailing trivia from a member so
-    ///     that Roslyn's Formatter can reindent it cleanly. Comments and doc
-    ///     comments are preserved; a single-line comment always gets an explicit
-    ///     end-of-line inserted after it, otherwise consecutive comments would
-    ///     collapse onto one line.
-    /// </summary>
     private static MemberDeclarationSyntax CleanTrivia(MemberDeclarationSyntax member)
     {
         var originalLeading = member.GetLeadingTrivia();
@@ -641,8 +632,8 @@ public class ResxTranslationOrchestrator
             {
                 preserved.Add(trivia);
 
-                // Single-line comments do not carry their own newline in Roslyn;
-                // we must re-add it so the next comment or member starts on a new line.
+
+
                 if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)
                     || trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia))
                 {
@@ -651,8 +642,8 @@ public class ResxTranslationOrchestrator
             }
             else if (trivia.IsKind(SyntaxKind.EndOfLineTrivia))
             {
-                // Preserve explicit blank lines between comments so that
-                // intentional spacing survives the merge.
+
+
                 if (preserved.Count > 0 && preserved[^1].IsKind(SyntaxKind.EndOfLineTrivia))
                 {
                     preserved.Add(trivia);
@@ -665,7 +656,6 @@ public class ResxTranslationOrchestrator
             .WithTrailingTrivia();
     }
 
-    // ---------------------------------------------------------------- prompt building
 
     private string BuildBasePrompt(
         string className,
@@ -687,7 +677,7 @@ public class ResxTranslationOrchestrator
 
         var sb = new StringBuilder();
 
-        // --- Role & goal ---
+
         sb.AppendLine($"You are a .NET testing expert working with {frameworkName}.");
         sb.AppendLine($"Generate the test for method '{methodName}' in class '{className}' according to <SuggestedTestStrategy>.");
         sb.AppendLine($"- If the strategy is 'Generate' or 'Direct', produce one test method using {testAttribute}.");
@@ -702,7 +692,7 @@ public class ResxTranslationOrchestrator
             "This strategy explicitly overrides the 'no reflection' rule below and applies only when the strategy says so.");
         sb.AppendLine();
 
-        // --- Source of truth ---
+
         sb.AppendLine(
             "Use <SemanticAnalysis> as the source of truth for method and dependency facts, and follow <SuggestedTestStrategy> exactly.");
         sb.AppendLine(
@@ -710,7 +700,7 @@ public class ResxTranslationOrchestrator
             "unless <SuggestedTestStrategy> explicitly instructs it (see 'Reflection' strategy).");
         sb.AppendLine();
 
-        // --- Test project rules ---
+
         sb.AppendLine("Rules for the test project:");
         sb.AppendLine("- You MAY create a new test class in the test project (naming: <ClassUnderTest>Tests).");
         sb.AppendLine("- Do NOT invent source types, members, project references, or NuGet packages.");
@@ -741,7 +731,7 @@ public class ResxTranslationOrchestrator
             "and no null-forgiving `!` operator unless the source already uses it in the same member.");
         sb.AppendLine();
 
-        // --- Output format ---
+
         sb.AppendLine("Output format:");
         sb.AppendLine("- Return ONLY compilable C# code (no explanations, no prose, no TODO markers outside comments).");
         sb.AppendLine("- \"Compilable C# code\" refers to the generated TEST code, assuming the source project\r\n  compiles as-is. Source compilation errors reported by the analyzer are host artifacts\r\n  and do not affect this assumption.");
@@ -754,7 +744,7 @@ public class ResxTranslationOrchestrator
         sb.AppendLine($"- Include {testAttribute} (or the framework-specific attribute, including STA variants) exactly once.");
         sb.AppendLine();
 
-        // --- Binding Skeleton ---
+
         if (skeleton is { } sk && sk.Mode != UnitTestSkeletonGenerator.SkeletonMode.Fallback)
         {
             sb.AppendLine("=== BINDING TEST SKELETON ===");
@@ -951,9 +941,9 @@ public class ResxTranslationOrchestrator
             }
         }
 
-        // NOTE: <TestSkeleton> block removed intentionally. The skeleton is
-        // injected into the prompt as <BindingSkeleton> by BuildBasePrompt.
-        // Only the STA fact remains here, because it is a constraint, not a template.
+
+
+
         if (report.RequiresSta)
         {
             sb.AppendLine("  <StaRequirement required=\"true\" framework=\"WPF\" " +
@@ -1042,8 +1032,8 @@ public class ResxTranslationOrchestrator
 
         AppendSuggestedTestStrategy(sb, report);
 
-        // Source compilation errors are intentionally NOT emitted to the prompt —
-        // they are analyzer-host artifacts and only confuse small models.
+
+
 
         sb.AppendLine("</SemanticAnalysis>");
         return sb.ToString();
@@ -1094,7 +1084,7 @@ public class ResxTranslationOrchestrator
                 sb.AppendLine("  </SuggestedTestStrategy>");
                 return;
 
-            default: // Direct
+            default:
                 sb.AppendLine($"  <SuggestedTestStrategy action=\"Direct\" testFramework=\"{frameworkName}\">");
                 sb.AppendLine("    <Instruction>Call the method through its declared accessible API and assert observable behavior.</Instruction>");
                 sb.AppendLine("  </SuggestedTestStrategy>");
@@ -1261,15 +1251,7 @@ public class ResxTranslationOrchestrator
             : s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("'", "&apos;");
     }
 
-    // ---------------------------------------------------------------- validation structure
 
-    /// <summary>
-    ///     Wraps the AI response in a fully-formed test class ready for compilation.
-    ///     If the response already contains a complete class (with fields, constructor
-    ///     and a test method), that class's members are preserved verbatim; only the
-    ///     class name and namespace are rewritten. Otherwise the legacy behavior applies
-    ///     (extract the test method and wrap it in a fresh class).
-    /// </summary>
     private string PrepareValidationStructure(string testClassName, string? testNamespaceName, string methodCode)
     {
         var namespaceName = string.IsNullOrWhiteSpace(testNamespaceName)
@@ -1357,7 +1339,6 @@ public class ResxTranslationOrchestrator
             normalized.Name?.ToString());
     }
 
-    // ---------------------------------------------------------------- source skeleton
 
     private static string BuildClassSkeleton(ClassDeclarationSyntax targetClass, MethodDeclarationSyntax targetMethod,
         bool includeProperties = true, bool includeConstructors = true, bool includeRecursiveHelpers = true)
@@ -1457,16 +1438,7 @@ public class ResxTranslationOrchestrator
         }
     }
 
-    // ---------------------------------------------------------------- response extraction
-
-    /// <summary>
-    ///     Extracts the meaningful part of an AI response.
-    ///     If the response contains a full test class (with fields, ctor, and a test
-    ///     method), the complete class is returned — this preserves mock fields and
-    ///     the constructor so they survive into the final written file.
-    ///     If only method(s) are returned, the legacy behavior applies: usings + the
-    ///     first method carrying a recognized test attribute.
-    /// </summary>
+    /// <summary>Extracts the meaningful part of an AI response.</summary>
     public static string ExtractTestClass(string aiResponse)
     {
         if (string.IsNullOrWhiteSpace(aiResponse))
@@ -1545,10 +1517,6 @@ public class ResxTranslationOrchestrator
         return sb.ToString().Trim();
     }
 
-    /// <summary>
-    ///     True when the method carries a test attribute recognized across the
-    ///     supported frameworks (xUnit, NUnit, MSTest) and their STA variants.
-    /// </summary>
     private static bool HasTestAttribute(MethodDeclarationSyntax method)
     {
         foreach (var attributeList in method.AttributeLists)
@@ -1574,7 +1542,6 @@ public class ResxTranslationOrchestrator
         return false;
     }
 
-    // ---------------------------------------------------------------- file / namespace helpers
 
     private static string? FindProjectDirectory(string filePath)
     {
@@ -1729,7 +1696,6 @@ public class ResxTranslationOrchestrator
         return sanitized;
     }
 
-    // ---------------------------------------------------------------- framework helpers
 
     private static TestFramework ParseTestFramework(AiTestingConfig config)
     {

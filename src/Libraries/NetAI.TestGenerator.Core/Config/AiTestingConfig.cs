@@ -5,13 +5,8 @@ namespace NetAI.TestGenerator.Core.Config;
 /// <summary>Contains the settings used to configure test generation.</summary>
 public record AiTestingConfig
 {
+
     /// <summary>Creates a configuration from its versioned settings sections.</summary>
-    /// <param name="version">Configuration format version.</param>
-    /// <param name="environment">Target framework and test project naming settings.</param>
-    /// <param name="frameworks">Test, mocking, and assertion framework settings.</param>
-    /// <param name="codeStyle">Formatting preferences for generated tests.</param>
-    /// <param name="generationBehavior">Scope and organization of generated tests.</param>
-    /// <param name="aiConfiguration">Model and system prompt settings.</param>
     [JsonConstructor]
     public AiTestingConfig(string version, EnvironmentConfig environment, FrameworksConfig frameworks, CodeStyleConfig codeStyle,
         GenerationBehaviorConfig generationBehavior, AiConfigurationConfig aiConfiguration)
@@ -24,20 +19,17 @@ public record AiTestingConfig
         AiConfiguration = aiConfiguration;
     }
 
-
-    
-
     /// <summary>Gets or sets the configuration format version.</summary>
     [JsonProperty("version")]
     public string Version { get; set; }
 
-
+    /// <summary>Gets or sets the build configuration filter.</summary>
     [JsonProperty("buildConfigurationFilter")]
     public string BuildConfigurationFilter { get; set; }
 
+    /// <summary>Gets or sets the maximum source length analyzed per method.</summary>
     [JsonProperty("maxMethodChars")]
     public int MaxMethodChars { get; set; } = 25_000;
-
 
     /// <summary>Gets or sets target framework and test project settings.</summary>
     [JsonProperty("environment")]
@@ -63,9 +55,8 @@ public record AiTestingConfig
 /// <summary>Defines the target .NET framework and generated test project name.</summary>
 public record EnvironmentConfig
 {
+
     /// <summary>Creates environment settings.</summary>
-    /// <param name="targetDotNetVersion">Target framework moniker for the generated test project.</param>
-    /// <param name="testProjectName">Test project name; <c>{ProjectName}</c> is replaced with the source project name.</param>
     [JsonConstructor]
     public EnvironmentConfig(string targetDotNetVersion, string testProjectName)
     {
@@ -81,16 +72,17 @@ public record EnvironmentConfig
 }
 
 /// <summary>Defines the test framework, mocking framework, and optional test-data helpers.</summary>
-/// <summary>Defines the test framework, mocking framework, and optional test-data helpers.</summary>
 public record FrameworksConfig
 {
+
+    /// <summary>Initializes a frameworks config instance.</summary>
     [JsonConstructor]
     public FrameworksConfig(
         string testFramework,
         string mockingFramework,
         bool useFluentAssertions,
         bool useAutoFixture,
-        bool verbosePrompt = true)          // <-- NEU (mit Default für Rückwärtskompatibilität)
+        bool verbosePrompt = true)
     {
         TestFramework = testFramework;
         MockingFramework = mockingFramework;
@@ -99,26 +91,27 @@ public record FrameworksConfig
         VerbosePrompt = verbosePrompt;
     }
 
+    /// <summary>Gets or sets the test framework.</summary>
     public string TestFramework { get; set; }
+
+    /// <summary>Gets or sets the mocking framework.</summary>
     public string MockingFramework { get; set; }
+
+    /// <summary>Gets or sets whether to use Fluent Assertions.</summary>
     public bool UseFluentAssertions { get; set; }
+
+    /// <summary>Gets or sets whether to use AutoFixture.</summary>
     public bool UseAutoFixture { get; set; }
 
-    /// <summary>
-    ///     When true, extended explanations (mode-specific rules, setup/assertion
-    ///     examples) are added to the AI prompt. Set to false for small local models
-    ///     that get overwhelmed by long prompts.
-    /// </summary>
-    public bool VerbosePrompt { get; set; } = true;   // <-- NEU
+    /// <summary>When true, extended explanations (mode-specific rules, setup/assertion examples) are added to the AI prompt.</summary>
+    public bool VerbosePrompt { get; set; } = true;
 }
 
 /// <summary>Defines formatting preferences for generated test code.</summary>
 public record CodeStyleConfig
 {
+
     /// <summary>Creates code-style settings.</summary>
-    /// <param name="useFileScopedNamespace">Whether to use file-scoped namespaces.</param>
-    /// <param name="useAsyncSuffix">Whether asynchronous test methods should use the <c>Async</c> suffix.</param>
-    /// <param name="maxLineLength">Preferred maximum line length.</param>
     [JsonConstructor]
     public CodeStyleConfig(bool useFileScopedNamespace, bool useAsyncSuffix, int maxLineLength)
     {
@@ -140,10 +133,8 @@ public record CodeStyleConfig
 /// <summary>Defines which kinds of tests to generate and how to organize them.</summary>
 public record GenerationBehaviorConfig
 {
+
     /// <summary>Creates test generation behavior settings.</summary>
-    /// <param name="testStrategy">Generation scope: <c>Unit</c>, <c>Integration</c>, or <c>Both</c>.</param>
-    /// <param name="splitTestsByMethod">Whether to place tests for separate methods in separate files.</param>
-    /// <param name="maxTestsPerClass">Maximum number of generated test methods per class.</param>
     [JsonConstructor]
     public GenerationBehaviorConfig(string testStrategy, bool splitTestsByMethod, int maxTestsPerClass)
     {
@@ -165,10 +156,8 @@ public record GenerationBehaviorConfig
 /// <summary>Defines the AI model, sampling temperature, and system prompt for generation.</summary>
 public record AiConfigurationConfig
 {
+
     /// <summary>Creates AI generation settings.</summary>
-    /// <param name="model">Model identifier understood by the configured AI service.</param>
-    /// <param name="temperature">Sampling temperature used to control response variability.</param>
-    /// <param name="systemPrompt">System instructions supplied to the model.</param>
     [JsonConstructor]
     public AiConfigurationConfig(string model, double temperature, string systemPrompt)
     {

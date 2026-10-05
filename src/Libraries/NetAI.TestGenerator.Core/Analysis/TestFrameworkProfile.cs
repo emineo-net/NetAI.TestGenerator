@@ -5,14 +5,13 @@ using NetAI.TestGenerator.Core.Models.Enums;
 
 namespace NetAI.TestGenerator.Core.Analysis;
 
-/// <summary>
-///     Encapsulates all framework-specific decisions for the test skeleton and
-///     the AI prompt: using directives, attributes, mock syntax, assertion style.
-/// </summary>
+/// <summary>Stores framework settings used to generate test skeletons and prompts.</summary>
 public sealed class TestFrameworkProfile
 {
+
     private readonly HashSet<string> _packages;
 
+    /// <summary>Initializes a test framework profile instance.</summary>
     public TestFrameworkProfile(
         TestFramework test,
         MockFramework mock,
@@ -29,15 +28,22 @@ public sealed class TestFrameworkProfile
             System.StringComparer.OrdinalIgnoreCase);
     }
 
+    /// <summary>Gets the selected test framework.</summary>
     public TestFramework Test { get; }
+
+    /// <summary>Gets the selected mocking framework.</summary>
     public MockFramework Mock { get; }
+
+    /// <summary>Gets whether Fluent Assertions is enabled.</summary>
     public bool UseFluentAssertions { get; }
+
+    /// <summary>Gets whether AutoFixture is enabled.</summary>
     public bool UseAutoFixture { get; }
 
+    /// <summary>Checks whether package is available.</summary>
     public bool HasPackage(string id) => _packages.Contains(id);
 
-    // ------------------------------------------------------------------ factories
-
+    /// <summary>Creates a profile from the test configuration.</summary>
     public static TestFrameworkProfile FromConfig(AiTestingConfig config, IEnumerable<string>? availablePackages = null)
     {
         var test = System.Enum.TryParse<TestFramework>(config.Frameworks?.TestFramework, true, out var t)
@@ -55,6 +61,7 @@ public sealed class TestFrameworkProfile
             availablePackages);
     }
 
+    /// <summary>Creates a profile from explicit framework settings.</summary>
     public static TestFrameworkProfile Create(
         TestFramework test,
         MockFramework mock,
@@ -63,8 +70,7 @@ public sealed class TestFrameworkProfile
         IEnumerable<string>? availablePackages = null)
         => new(test, mock, useFluent, useAutoFixture, availablePackages);
 
-    // ------------------------------------------------------------------ test framework
-
+    /// <summary>Gets the test namespace.</summary>
     public string TestNamespace => Test switch
     {
         TestFramework.xUnit => "Xunit",
@@ -73,6 +79,7 @@ public sealed class TestFrameworkProfile
         _ => ""
     };
 
+    /// <summary>Gets the class attribute.</summary>
     public string? ClassAttribute => Test switch
     {
         TestFramework.NUnit => "[TestFixture]",
@@ -80,8 +87,10 @@ public sealed class TestFrameworkProfile
         _ => null
     };
 
+    /// <summary>Gets whether the framework uses a constructor for setup.</summary>
     public bool UsesConstructorForSetup => Test == TestFramework.xUnit;
 
+    /// <summary>Gets the setup attribute.</summary>
     public string? SetupAttribute => Test switch
     {
         TestFramework.NUnit => "[SetUp]",
@@ -89,11 +98,7 @@ public sealed class TestFrameworkProfile
         _ => null
     };
 
-    /// <summary>
-    ///     Returns the fact attribute. When STA is required, the best available
-    ///     variant is chosen automatically (StaFact when xUnit + package,
-    ///     [Apartment(ApartmentState.STA)] for NUnit, [STATestMethod] for MSTest).
-    /// </summary>
+    /// <summary>Returns the fact attribute.</summary>
     public string FactAttribute(bool requiresSta)
     {
         if (!requiresSta)
@@ -118,9 +123,7 @@ public sealed class TestFrameworkProfile
         };
     }
 
-    /// <summary>
-    ///     Plain skip attribute (no STA awareness). Used when STA is not required.
-    /// </summary>
+    /// <summary>Plain skip attribute (no STA awareness). Used when STA is not required.</summary>
     public string SkipAttribute(string reason) => Test switch
     {
         TestFramework.xUnit => $"[Fact(Skip = \"{reason}\")]",
@@ -129,14 +132,7 @@ public sealed class TestFrameworkProfile
         _ => "[Fact(Skip = \"unsupported framework\")]"
     };
 
-    /// <summary>
-    ///     STA-aware skip attribute. For xUnit the StaFact variant is emitted when
-    ///     the 'Xunit.StaFact' package is installed; otherwise a TODO comment is
-    ///     appended so the reader knows how to make it STA-safe. For NUnit the
-    ///     regular Ignore attribute is combined with [Apartment(ApartmentState.STA)]
-    ///     (both come from the framework itself, no extra package needed). For MSTest
-    ///     the plain Ignore attribute suffices because ignored tests never run.
-    /// </summary>
+    /// <summary>STA-aware skip attribute.</summary>
     public string StaSkipAttribute(string reason) => Test switch
     {
         TestFramework.xUnit => HasPackage("Xunit.StaFact")
@@ -147,17 +143,14 @@ public sealed class TestFrameworkProfile
         _ => SkipAttribute(reason)
     };
 
-    /// <summary>
-    ///     Returns the appropriate skip attribute based on whether the test is
-    ///     STA-bound. Single dispatch point for callers that only know the flag.
-    /// </summary>
+    /// <summary>Returns the appropriate skip attribute based on whether the test is STA-bound.</summary>
     public string SkipAttributeFor(string reason, bool requiresSta)
         => requiresSta ? StaSkipAttribute(reason) : SkipAttribute(reason);
 
-    // ------------------------------------------------------------------ mock framework
-
+    /// <summary>Gets whether a mocking framework is configured.</summary>
     public bool HasMockFramework => Mock != MockFramework.Unknown;
 
+    /// <summary>Gets the mock namespace.</summary>
     public string MockNamespace => Mock switch
     {
         MockFramework.Moq => "Moq",
@@ -175,6 +168,7 @@ public sealed class TestFrameworkProfile
         _ => ""
     };
 
+    /// <summary>Formats initialization code for the configured mock framework.</summary>
     public string FieldInitialization(string typeName, string fieldName) => Mock switch
     {
         MockFramework.Moq => $"        {fieldName} = new Mock<{typeName}>();",
@@ -201,8 +195,7 @@ public sealed class TestFrameworkProfile
         _ => "// No mock framework configured – provide a concrete instance manually."
     };
 
-    // ------------------------------------------------------------------ assertions
-
+    /// <summary>Gets the assertion example.</summary>
     public string AssertionExample => UseFluentAssertions
         ? "result.Should().Be(expected);"
         : Test switch
@@ -213,13 +206,7 @@ public sealed class TestFrameworkProfile
             _ => "// assert result"
         };
 
-    // ------------------------------------------------------------------ usings
-
-    /// <summary>
-    ///     Namespaces the skeleton actually needs for the given purpose.
-    ///     Skip-tests only declare a skip attribute, so they must not pull in
-    ///     mock or assertion namespaces even when those are configured globally.
-    /// </summary>
+    /// <summary>Namespaces the skeleton actually needs for the given purpose.</summary>
     public IReadOnlyList<string> RequiredNamespaces(SkeletonPurpose purpose)
     {
         var list = new List<string>();
@@ -245,14 +232,9 @@ public sealed class TestFrameworkProfile
         return list;
     }
 
-    /// <summary>
-    ///     Convenience overload for full tests. Preserves the previous behavior
-    ///     so existing call sites keep working unchanged.
-    /// </summary>
+    /// <summary>Gets the namespaces required for the selected skeleton purpose.</summary>
     public IReadOnlyList<string> RequiredNamespaces()
         => RequiredNamespaces(SkeletonPurpose.FullTest);
-
-    // ------------------------------------------------------------------ prompt summary
 
     /// <summary>Short text fragment used at the top of the AI prompt.</summary>
     public string ToPromptHeader()

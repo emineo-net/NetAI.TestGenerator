@@ -3,6 +3,7 @@
 /// <summary>Identifies the test framework used to format or validate generated tests.</summary>
 public enum TestFramework
 {
+
     /// <summary>No test framework has been selected.</summary>
     Unknown,
 

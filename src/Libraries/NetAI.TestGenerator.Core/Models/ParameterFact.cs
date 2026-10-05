@@ -3,6 +3,7 @@
 /// <summary>Describes a parameter on an analyzed method.</summary>
 public sealed class ParameterFact
 {
+
     /// <summary>Gets the parameter's name.</summary>
     public string Name { get; init; } = "";
 
@@ -18,9 +19,15 @@ public sealed class ParameterFact
     /// <summary>Gets the default value's display text, or <see langword="null" /> when none is declared.</summary>
     public string? DefaultValue { get; init; }
 
-    // NEW:
-    public string RefKind { get; init; } = "None"; // None, Ref, Out, In
+    /// <summary>Gets or sets the ref kind.</summary>
+    public string RefKind { get; init; } = "None";
+
+    /// <summary>Gets whether the parameter uses the <c>params</c> modifier.</summary>
     public bool IsParams { get; init; }
+
+    /// <summary>Gets whether the parameter type is nullable.</summary>
     public bool IsNullable { get; init; }
+
+    /// <summary>Gets whether the parameter is a cancellation token.</summary>
     public bool IsCancellationToken { get; init; }
 }

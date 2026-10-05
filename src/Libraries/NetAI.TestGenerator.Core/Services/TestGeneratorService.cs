@@ -6,15 +6,9 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace NetAI.TestGenerator.Core.Services;
 
-/// <summary>
-///     Reads existing test methods and creates or updates generated test class files.
-///     All members of an incoming class snippet are preserved verbatim — fields,
-///     constructors, properties, and methods — so that mock fields and the SUT
-///     constructor survive into the final written file.
-/// </summary>
+/// <summary>Reads existing test methods and creates or updates generated test class files.</summary>
 public class TestGeneratorService
 {
-    // ------------------------------------------------------------------ read
 
     /// <summary>Reads method names from an existing test file.</summary>
     public List<string> GetExistingTestMethods(string testFilePath)
@@ -37,31 +31,13 @@ public class TestGeneratorService
         }
         catch
         {
-            // Unreadable file — treat as no existing tests.
+
         }
 
         return methodNames;
     }
 
-    // ------------------------------------------------------------------ create
-
-    /// <summary>
-    ///     Creates a formatted test class file from a class snippet. All members of
-    ///     the snippet's test class (fields, constructor, helper methods, and test
-    ///     methods) are preserved in their original order. Using directives are
-    ///     hoisted to the top of the file and de-duplicated.
-    /// </summary>
-    /// <param name="filePath">Destination path for the test file.</param>
-    /// <param name="testClassName">Name of the generated test class.</param>
-    /// <param name="testNamespaceName">Namespace for the generated test class.</param>
-    /// <param name="methodCode">
-    ///     Complete class snippet, typically produced by <c>ExtractTestClass</c>.
-    ///     May contain compilation-unit-level using directives; they are hoisted.
-    /// </param>
-    /// <param name="frameworkUsing">
-    ///     Fully-qualified test-framework using directive (e.g. <c>using Xunit;</c>).
-    ///     Prepended to the using block when non-null.
-    /// </param>
+    /// <summary>Creates a formatted test class file from a class snippet.</summary>
     public void CreateNewTestClassFile(string filePath, string testClassName, string? testNamespaceName,
         string methodCode, string? frameworkUsing = null)
     {
@@ -102,16 +78,7 @@ public class TestGeneratorService
         File.WriteAllText(filePath, formattedRoot.ToFullString());
     }
 
-    // ------------------------------------------------------------------ append
-
-    /// <summary>
-    ///     Appends all members of the supplied class snippet to an existing test
-    ///     class. Duplicate members are detected by key: methods by signature,
-    ///     fields by variable names, constructors by parameter list. New using
-    ///     directives from the snippet are merged into the file's using block.
-    /// </summary>
-    /// <param name="filePath">Path to the existing test source file.</param>
-    /// <param name="methodCode">Complete class snippet with the members to append.</param>
+    /// <summary>Appends all members of the supplied class snippet to an existing test class.</summary>
     public void AppendMethodToExistingClassFile(string filePath, string methodCode)
     {
         var existingCode = File.ReadAllText(filePath);
@@ -130,7 +97,7 @@ public class TestGeneratorService
             throw new ArgumentException("Generated code does not contain any class members.", nameof(methodCode));
         }
 
-        // Which members does the existing class already have?
+
         var existingKeys = new HashSet<string>(
             classDecl.Members.Select(GetMemberKey),
             StringComparer.Ordinal);
@@ -150,7 +117,7 @@ public class TestGeneratorService
             return;
         }
 
-        // Merge usings.
+
         var usings = root.Usings.ToList();
         var existingUsingKeys = new HashSet<string>(usings.Select(GetUsingKey), StringComparer.Ordinal);
 
@@ -173,14 +140,7 @@ public class TestGeneratorService
         File.WriteAllText(filePath, formattedRoot.ToFullString());
     }
 
-    // ------------------------------------------------------------------ class snippet parsing
 
-    /// <summary>
-    ///     Splits a class snippet into top-level using directives and the members
-    ///     of its test class. When the snippet contains a full class, all of its
-    ///     members are returned in order (fields, constructor, methods). When it
-    ///     contains only method declarations, those are returned as-is.
-    /// </summary>
     private static (List<string> Usings, List<MemberDeclarationSyntax> Members) SplitUsingsAndMembers(string code)
     {
         var usings = new List<string>();
@@ -193,7 +153,7 @@ public class TestGeneratorService
 
         var root = CSharpSyntaxTree.ParseText(code).GetCompilationUnitRoot();
 
-        // Collect top-level using directives.
+
         foreach (var u in root.Usings)
         {
             var text = u.ToFullString().TrimEnd();
@@ -203,7 +163,7 @@ public class TestGeneratorService
             }
         }
 
-        // Preferred path: the snippet contains a full class.
+
         var classDecl = FindTestClass(root);
         if (classDecl is not null)
         {
@@ -211,7 +171,7 @@ public class TestGeneratorService
             return (usings, members);
         }
 
-        // Fallback: methods-only snippet.
+
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
 
         if (methods.Count == 0)
@@ -231,7 +191,6 @@ public class TestGeneratorService
         return (usings, members);
     }
 
-    // ------------------------------------------------------------------ compilation-unit builder
 
     private static CompilationUnitSyntax BuildCompilationUnit(
         string namespaceName,
@@ -257,13 +216,7 @@ public class TestGeneratorService
             .AddMembers(namespaceDecl);
     }
 
-    // ------------------------------------------------------------------ class lookup
 
-    /// <summary>
-    ///     Finds the test class in a compilation unit. Prefers the class that
-    ///     carries at least one method with a recognized test attribute; falls back
-    ///     to the first class declaration when no such class exists.
-    /// </summary>
     private static ClassDeclarationSyntax? FindTestClass(CompilationUnitSyntax root)
     {
         var byAttribute = root.DescendantNodes().OfType<ClassDeclarationSyntax>()
@@ -273,7 +226,6 @@ public class TestGeneratorService
                ?? root.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
     }
 
-    // ------------------------------------------------------------------ member keys (for dedup)
 
     private static string GetMemberKey(MemberDeclarationSyntax member)
     {
@@ -337,7 +289,6 @@ public class TestGeneratorService
             normalized.Name?.ToString());
     }
 
-    // ------------------------------------------------------------------ test attribute detection
 
     private static bool HasTestAttribute(MethodDeclarationSyntax method)
     {
