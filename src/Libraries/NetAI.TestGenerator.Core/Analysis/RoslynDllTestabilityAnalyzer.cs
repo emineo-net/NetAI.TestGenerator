@@ -1,9 +1,17 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
+using NetAI.TestGenerator.Core.Config;
 using NetAI.TestGenerator.Core.Models;
 using NetAI.TestGenerator.Core.Models.Enums;
+
 #if !NETSTANDARD2_0
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis.MSBuild;
@@ -15,8 +23,6 @@ namespace NetAI.TestGenerator.Core.Analysis;
 ///     Roslyn testability analyzer, tuned for small local LLMs (Qwen 2.5 14B etc.).
 ///     Precision intentionally sacrificed: the report only carries the facts that the
 ///     prompt-builder actually needs to emit a correct [Fact]/[StaFact]/Skip test.
-///     Everything else (inheritance chains, interface lists, member counts, BCL type
-///     dependencies, recursive call graphs, verbose recommendations) is dropped.
 /// </summary>
 public sealed class RoslynDllTestabilityAnalyzer
 {
@@ -25,7 +31,6 @@ public sealed class RoslynDllTestabilityAnalyzer
 
     /// <summary>
     ///     Only these static APIs are treated as genuine blockers.
-    ///     Everything else that happens to be static is ignored so the report stays small.
     /// </summary>
     private static readonly IReadOnlyDictionary<string, (string Abstraction, string? Package)> StaticApiAbstractions =
         new Dictionary<string, (string, string?)>(StringComparer.Ordinal)
@@ -47,6 +52,38 @@ public sealed class RoslynDllTestabilityAnalyzer
             ["System.AppDomain"] = ("IAppEnvironment", null)
         };
 
+    /// <summary>
+    ///     Bekannte WPF-Basistypen. Wenn einer davon in der Vererbungskette
+    ///     der Klasse unter Test auftaucht, braucht der Test einen STA-Thread.
+    /// </summary>
+    private static readonly HashSet<string> WpfBaseTypes = new(StringComparer.Ordinal)
+    {
+        "System.Windows.Window",
+        "System.Windows.Controls.UserControl",
+        "System.Windows.Controls.Page",
+        "System.Windows.Controls.Control",
+        "System.Windows.Controls.ContentControl",
+        "System.Windows.Controls.ItemsControl",
+        "System.Windows.FrameworkElement",
+        "System.Windows.UIElement",
+        "System.Windows.Media.Visual",
+        "System.Windows.Media.Media3D.Visual3D",
+        "System.Windows.DependencyObject",
+        "System.Windows.Threading.DispatcherObject",
+        "System.Windows.Application"
+    };
+
+    /// <summary>
+    ///     Default-Profil, falls <see cref="AnalyzerOptions.TestFrameworkProfile" />
+    ///     nicht gesetzt ist. Spiegelt das Verhalten vor der Profil-Einführung.
+    /// </summary>
+    private static readonly TestFrameworkProfile DefaultProfile =
+        TestFrameworkProfile.Create(
+            TestFramework.xUnit,
+            MockFramework.Moq,
+            useFluent: true,
+            useAutoFixture: false);
+
     private readonly AnalyzerOptions _options;
 
     public RoslynDllTestabilityAnalyzer(AnalyzerOptions? options = null)
@@ -54,7 +91,7 @@ public sealed class RoslynDllTestabilityAnalyzer
         _options = options ?? new AnalyzerOptions();
     }
 
-    // ---------------------------------------------------------------- public API (unchanged)
+    // ---------------------------------------------------------------- public API
 
     public Task<TestabilityReport> AnalyzeFromSourceFilesAsync(IEnumerable<string> sourceFilePaths, IEnumerable<string> referenceDllPaths,
         string methodName, string? documentName = null, CancellationToken ct = default)
@@ -132,7 +169,7 @@ public sealed class RoslynDllTestabilityAnalyzer
         return Task.FromResult(report);
     }
 
-    // ---------------------------------------------------------------- MSBuild loading (unchanged)
+    // ---------------------------------------------------------------- MSBuild loading
 
 #if !NETSTANDARD2_0
     public async Task<TestabilityReport> AnalyzeFromSolutionAsync(
@@ -143,7 +180,8 @@ public sealed class RoslynDllTestabilityAnalyzer
 
         EnsureMSBuildRegistered();
 
-        using var workspace = MSBuildWorkspace.Create();
+       var workspace = CreateMsBuildWorkspace();
+
         workspace.SkipUnrecognizedProjects = true;
         workspace.WorkspaceFailed += (_, e) =>
             System.Diagnostics.Debug.WriteLine($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
@@ -165,7 +203,8 @@ public sealed class RoslynDllTestabilityAnalyzer
 
         EnsureMSBuildRegistered();
 
-        using var workspace = MSBuildWorkspace.Create();
+var workspace = CreateMsBuildWorkspace();
+
         workspace.SkipUnrecognizedProjects = true;
         workspace.WorkspaceFailed += (_, e) =>
             System.Diagnostics.Debug.WriteLine($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
@@ -207,7 +246,8 @@ public sealed class RoslynDllTestabilityAnalyzer
     {
         EnsureMSBuildRegistered();
 
-        var workspace = MSBuildWorkspace.Create();
+       var workspace = CreateMsBuildWorkspace();
+
         workspace.SkipUnrecognizedProjects = true;
         workspace.WorkspaceFailed += (_, e) =>
             logInfo?.Invoke($"[MSBuildWorkspace] {e.Diagnostic.Kind}: {e.Diagnostic.Message}");
@@ -253,7 +293,7 @@ public sealed class RoslynDllTestabilityAnalyzer
     }
 #endif
 
-    // ---------------------------------------------------------------- lookup helpers (unchanged)
+    // ---------------------------------------------------------------- lookup helpers
 
     private static (SyntaxTree Tree, MethodDeclarationSyntax Method)? FindEquivalentDeclaration(Compilation compilation,
         MethodDeclarationSyntax external, CancellationToken ct)
@@ -300,7 +340,7 @@ public sealed class RoslynDllTestabilityAnalyzer
             .FirstOrDefault(m => m.Identifier.Text == methodName && m.ParameterList.Parameters.Count == paramCount);
     }
 
-    // ---------------------------------------------------------------- compilation (unchanged)
+    // ---------------------------------------------------------------- compilation
 
     public static CSharpCompilation BuildCompilation(IEnumerable<string> sourceFilePaths, IEnumerable<string> referenceDllPaths,
         string assemblyName = "TestabilityAnalysis", CSharpParseOptions? parseOptions = null,
@@ -337,23 +377,51 @@ public sealed class RoslynDllTestabilityAnalyzer
                 OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Debug));
     }
 
-    // ---------------------------------------------------------------- report assembly (SIMPLIFIED)
+    // ---------------------------------------------------------------- report assembly
 
     private TestabilityReport BuildReport(string documentName, IMethodSymbol method, MethodDeclarationSyntax syntax,
-        SemanticModel model, Compilation compilation)
+    SemanticModel model, Compilation compilation)
     {
+        // Compiler-Diagnosen
         var errors = compilation.GetDiagnostics()
             .Where(d => d.Severity == DiagnosticSeverity.Error)
             .Take(_options.MaxDiagnostics)
-            .Select(d => d.ToString()).ToList();
+            .Select(d => d.ToString())
+            .ToList();
 
         var methodFact = BuildMethodFact(method);
         var (typeFacts, instanceFieldTypes) = CollectReferencedTypes(method, compilation);
         var verdict = EvaluateTestability(methodFact, typeFacts, instanceFieldTypes);
         var recs = BuildRecommendations(methodFact, typeFacts, instanceFieldTypes);
 
-        // Entschärft: kein rekursiver Call-Graph mehr. Nur die Methode selbst.
         var callGraph = new List<string> { methodFact.Signature };
+
+        // STA-Bedarf
+        var requiresSta = DetectStaRequirement(method.ContainingType);
+
+        // NEU: Strategie bestimmen - dieselbe Logik, die auch der Orchestrator
+        // im XML verwendet, damit Skelett und <SuggestedTestStrategy> konsistent sind.
+        var strategy = DetermineStrategy(methodFact, verdict.IsDirectlyTestable, verdict.Blockers);
+
+        // NEU: Skip-Grund und Refactoring-Zeilen für Skip-/RefactorFirst-Skelette
+        var skipReason = strategy == UnitTestSkeletonGenerator.TestStrategy.RefactorFirst
+            ? BuildRefactorFirstReason(methodFact)
+            : null;
+
+        // Test-Skelett erzeugen
+        var profile = _options.TestFrameworkProfile ?? DefaultProfile;
+
+        UnitTestSkeletonGenerator.GeneratorResult? skeleton = null;
+        try
+        {
+            skeleton = UnitTestSkeletonGenerator.GenerateFromMethod(
+                method, profile, requiresSta, strategy,
+                recs.SourceRefactoring, skipReason);
+        }
+        catch (Exception ex)
+        {
+            errors.Add($"// Skeleton generation failed: {ex.Message}");
+        }
 
         return new TestabilityReport
         {
@@ -368,18 +436,100 @@ public sealed class RoslynDllTestabilityAnalyzer
             SourceRefactoringRecommendations = recs.SourceRefactoring,
             TestStrategyRecommendations = recs.TestStrategy,
             CompilationErrors = errors,
-            AnalyzedCallGraph = callGraph
+            AnalyzedCallGraph = callGraph,
+
+            TestSkeleton = skeleton,
+            RequiresSta = requiresSta,
+            Strategy = strategy
         };
     }
 
-    // ---------------------------------------------------------------- method fact (TRIMMED)
+    /// <summary>
+    ///     Spiegelt exakt die Logik, die der Orchestrator in <c>AppendSuggestedTestStrategy</c>
+    ///     verwendet, damit Skeleton-Mode und SuggestedTestStrategy-XML konsistent bleiben.
+    /// </summary>
+    private static UnitTestSkeletonGenerator.TestStrategy DetermineStrategy(
+        MethodFact method, bool isDirectlyTestable, List<string> blockers)
+    {
+        //// Beispiel: NotSupportedException/Obsolete als Skip-Kandidaten
+        //if (method.Attributes.Any(a => a.Contains("Obsolete", StringComparison.OrdinalIgnoreCase)))
+        //{
+        //    return UnitTestSkeletonGenerator.TestStrategy.Skip;
+        //}
+
+        if (method.IsAsyncVoid)
+        {
+            return UnitTestSkeletonGenerator.TestStrategy.RefactorFirst;
+        }
+
+        if (isDirectlyTestable)
+        {
+            return UnitTestSkeletonGenerator.TestStrategy.Direct;
+        }
+
+        var onlyPrivateAccessBlocker =
+            method.Accessibility == "Private"
+            && blockers.Count == 1
+            && blockers[0].StartsWith("Method is 'Private'", StringComparison.Ordinal);
+
+        if (onlyPrivateAccessBlocker)
+        {
+            return UnitTestSkeletonGenerator.TestStrategy.Reflection;
+        }
+
+        return UnitTestSkeletonGenerator.TestStrategy.RefactorFirst;
+    }
+
+    /// <summary>
+    ///     Liefert einen kurzen, LLM-freundlichen Skip-Grund für RefactorFirst.
+    ///     Der vollständige Text steht weiterhin in <c>&lt;SuggestedRefactoringPattern&gt;</c>.
+    /// </summary>
+    private static string BuildRefactorFirstReason(MethodFact method)
+    {
+        if (method.IsAsyncVoid)
+        {
+            return "requires refactoring: async void method must become an awaitable async Task";
+        }
+
+        return "requires production-code refactoring before a test can be written";
+    }
+
+    /// <summary>
+    ///     Läuft die komplette Vererbungskette hoch und prüft, ob ein bekannter
+    ///     WPF-Basistyp enthalten ist. Solche Klassen dürfen nur auf einem
+    ///     STA-Thread konstruiert/benutzt werden.
+    /// </summary>
+    private static bool DetectStaRequirement(INamedTypeSymbol? type)
+    {
+        if (type is null) return false;
+
+        for (var current = type; current is not null; current = current.BaseType)
+        {
+            var fullName = current
+                .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                .Replace("global::", string.Empty);
+
+            // Exact match against the known WPF base types
+            if (WpfBaseTypes.Contains(fullName)) return true;
+
+            // Fallback: unqualified name match. Happens when the compilation
+            // cannot resolve WPF references (in-memory parse without references).
+            var simpleName = current.Name;
+            if (simpleName is "Window" or "UserControl" or "Page" or "Application"
+                or "DependencyObject" or "DispatcherObject" or "FrameworkElement"
+                or "UIElement" or "ContentControl" or "ItemsControl")
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // ---------------------------------------------------------------- method fact
 
     private static MethodFact BuildMethodFact(IMethodSymbol method)
     {
-        // Entschärft: nur noch die Felder, die für die Test-Generierung wirklich nötig sind.
-        // Attributes, ThrownExceptions, GenericParameters, RefKind, IsParams werden NICHT
-        // mehr gefüllt (leere Listen), weil sie das LLM nur ablenken.
-
         var parameters = method.Parameters.Select(p => new ParameterFact
         {
             Name = p.Name,
@@ -422,12 +572,10 @@ public sealed class RoslynDllTestabilityAnalyzer
         };
     }
 
-    // ---------------------------------------------------------------- containing type (TRIMMED)
+    // ---------------------------------------------------------------- containing type
 
     private static TypeFact BuildContainingTypeFact(INamedTypeSymbol containing)
     {
-        // Entschärft: keine Vererbungsketten, keine Interface-Listen, keine Member-Counts.
-        // Qwen hat sonst versucht, WPF-Basisklassen oder Interfaces zu mocken.
         return new TypeFact
         {
             FullName = containing.ToDisplayString(FqFormat),
@@ -454,13 +602,8 @@ public sealed class RoslynDllTestabilityAnalyzer
         };
     }
 
-    // ---------------------------------------------------------------- dependencies (AGGRESSIVELY FILTERED)
+    // ---------------------------------------------------------------- dependencies
 
-    /// <summary>
-    ///     Entschärft: liefert nur noch Typen, die für die Test-Generierung relevant sind.
-    ///     BCL-Typen (System.*) werden grundsätzlich verworfen, es sei denn sie sind
-    ///     bekannte Static-Blocker. Dadurch bleibt &lt;Dependencies&gt; im Prompt klein.
-    /// </summary>
     private (List<TypeFact> Types, HashSet<string> InstanceFieldTypes) CollectReferencedTypes(
         IMethodSymbol root, Compilation compilation)
     {
@@ -488,7 +631,6 @@ public sealed class RoslynDllTestabilityAnalyzer
 
             var isFramework = named.ContainingNamespace?.ToDisplayString().StartsWith("System", StringComparison.Ordinal) == true;
 
-            // Entschärft: BCL-Typen komplett raus, außer es ist ein echter Static-Blocker.
             if (isFramework && !StaticApiAbstractions.ContainsKey(full))
                 return;
 
@@ -556,7 +698,6 @@ public sealed class RoslynDllTestabilityAnalyzer
             };
         }
 
-        // Entschärft: kein rekursiver Walk mehr. Nur die Methode selbst wird inspiziert.
         foreach (var syntaxRef in root.DeclaringSyntaxReferences)
         {
             if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax decl) continue;
@@ -623,7 +764,7 @@ public sealed class RoslynDllTestabilityAnalyzer
         return (ordered, instanceFieldTypes);
     }
 
-    // ---------------------------------------------------------------- evaluation (unchanged)
+    // ---------------------------------------------------------------- evaluation
 
     private static (string Text, bool IsDirectlyTestable, List<string> Blockers) EvaluateTestability(
         MethodFact method, List<TypeFact> types, HashSet<string> instanceFieldTypes)
@@ -666,7 +807,7 @@ public sealed class RoslynDllTestabilityAnalyzer
     private static bool IsRealStaticBlocker(TypeFact type) =>
         StaticApiAbstractions.ContainsKey(type.FullName);
 
-    // ---------------------------------------------------------------- recommendations (SHORTENED)
+    // ---------------------------------------------------------------- recommendations
 
     private static (List<string> SourceRefactoring, List<string> TestStrategy) BuildRecommendations(
         MethodFact method, List<TypeFact> types, HashSet<string> instanceFieldTypes)
@@ -712,7 +853,7 @@ public sealed class RoslynDllTestabilityAnalyzer
         return (sourceRefactoring.Distinct().ToList(), testStrategy.Distinct().ToList());
     }
 
-    // ---------------------------------------------------------------- helpers (unchanged)
+    // ---------------------------------------------------------------- helpers
 
     private static (string Abstraction, string? Package, string Reason) ResolveAbstraction(INamedTypeSymbol type)
     {
@@ -797,4 +938,30 @@ public sealed class RoslynDllTestabilityAnalyzer
         }
         return null;
     }
+
+#if !NETSTANDARD2_0
+/// <summary>
+///     MSBuild properties required in the analyzer host so that WPF references
+///     (System.Windows.*) resolve correctly. Without CheckForSystemRuntimeDependency
+///     the WPF assemblies are not loaded into the compilation.
+/// </summary>
+private static IReadOnlyDictionary<string, string> MsBuildProperties { get; } =
+    new Dictionary<string, string>
+    {
+        ["DesignTimeBuild"] = "true",
+        ["CheckForSystemRuntimeDependency"] = "true"
+    };
+
+/// <summary>
+///     Creates an <see cref="MSBuildWorkspace" /> configured for design-time builds
+///     with system runtime dependencies. Returns a fresh dictionary on each call
+///     because MSBuildWorkspace.Create mutates the dictionary it receives.
+/// </summary>
+private static MSBuildWorkspace CreateMsBuildWorkspace()
+{
+    var properties = new Dictionary<string, string>(MsBuildProperties);
+    return MSBuildWorkspace.Create(properties);
+}
+#endif
+
 }

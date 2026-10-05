@@ -78,33 +78,35 @@ public record EnvironmentConfig
 }
 
 /// <summary>Defines the test framework, mocking framework, and optional test-data helpers.</summary>
+/// <summary>Defines the test framework, mocking framework, and optional test-data helpers.</summary>
 public record FrameworksConfig
 {
-    /// <summary>Creates framework settings.</summary>
-    /// <param name="testFramework">Test framework identifier, such as <c>xunit</c> or <c>nunit</c>.</param>
-    /// <param name="mockingFramework">Mocking framework identifier, such as <c>moq</c> or <c>nsubstitute</c>.</param>
-    /// <param name="useFluentAssertions">Whether generated assertions should use FluentAssertions.</param>
-    /// <param name="useAutoFixture">Whether generated tests should use AutoFixture for test data.</param>
     [JsonConstructor]
-    public FrameworksConfig(string testFramework, string mockingFramework, bool useFluentAssertions, bool useAutoFixture)
+    public FrameworksConfig(
+        string testFramework,
+        string mockingFramework,
+        bool useFluentAssertions,
+        bool useAutoFixture,
+        bool verbosePrompt = true)          // <-- NEU (mit Default für Rückwärtskompatibilität)
     {
         TestFramework = testFramework;
         MockingFramework = mockingFramework;
         UseFluentAssertions = useFluentAssertions;
         UseAutoFixture = useAutoFixture;
+        VerbosePrompt = verbosePrompt;
     }
 
-    /// <summary>Gets or sets the test framework identifier.</summary>
     public string TestFramework { get; set; }
-
-    /// <summary>Gets or sets the mocking framework identifier.</summary>
     public string MockingFramework { get; set; }
-
-    /// <summary>Gets or sets whether generated tests use FluentAssertions.</summary>
     public bool UseFluentAssertions { get; set; }
-
-    /// <summary>Gets or sets whether generated tests use AutoFixture.</summary>
     public bool UseAutoFixture { get; set; }
+
+    /// <summary>
+    ///     When true, extended explanations (mode-specific rules, setup/assertion
+    ///     examples) are added to the AI prompt. Set to false for small local models
+    ///     that get overwhelmed by long prompts.
+    /// </summary>
+    public bool VerbosePrompt { get; set; } = true;   // <-- NEU
 }
 
 /// <summary>Defines formatting preferences for generated test code.</summary>

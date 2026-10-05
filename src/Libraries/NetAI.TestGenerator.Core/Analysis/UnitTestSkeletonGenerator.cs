@@ -1,233 +1,489 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Text;
 
 namespace NetAI.TestGenerator.Core.Analysis;
 
-public class UnitTestSkeletonGenerator
+/// <summary>
+///     Generates a robust test skeleton for xUnit/NUnit/MSTest with
+///     Moq/NSubstitute/FakeItEasy or entirely without a mock framework.
+///     Works exclusively on Roslyn symbols.
+/// </summary>
+public static class UnitTestSkeletonGenerator
 {
-    public record GeneratorResult(string TestSkeleton, string AiPromptContext);
+    public enum SkeletonMode
+    {
+        ConstructorInjection,
+        Parameterless,
+        StaticOrAbstract,
+        RefactorFirst,
+        Skip,
+        Fallback
+    }
 
     /// <summary>
-    /// Generiert ein robustes xUnit+Moq-Test-Skelett und den passenden AI-Prompt-Kontext
-    /// für eine beliebige C#-Klasse (inkl. .NET 6+, Primary Constructors und XAML Code-Behind).
+    ///     What the test is supposed to do. Determined by the analyzer and used
+    ///     to steer the skeleton shape (test vs. skip-test) and the prompt.
     /// </summary>
+    public enum TestStrategy
+    {
+        /// <summary>Method is testable; a normal test is generated.</summary>
+        Direct,
+
+        /// <summary>Private (but otherwise testable) method; accessed via reflection.</summary>
+        Reflection,
+
+        /// <summary>Method must be refactored first; skip test plus comment block.</summary>
+        RefactorFirst,
+
+        /// <summary>Method should be skipped; pure skip test.</summary>
+        Skip
+    }
+
+    public sealed record GeneratorResult(
+        string TestSkeleton,
+        string AiPromptContext,
+        SkeletonMode Mode,
+        TestStrategy Strategy,
+        string TestClassName,
+        string Namespace,
+        string SutTypeName,
+        string TargetMethodName,
+        bool RequiresSta);
+
+    // ==================================================================
+    //  Public API
+    // ==================================================================
+
+    public static GeneratorResult GenerateFromMethod(
+        IMethodSymbol method,
+        TestFrameworkProfile profile,
+        bool requiresSta = false,
+        TestStrategy strategy = TestStrategy.Direct,
+        IReadOnlyList<string>? refactoringLines = null,
+        string? skipReason = null)
+    {
+        try
+        {
+            var containingType = method.ContainingType;
+            if (containingType is null)
+            {
+                return CreateTotalFallback("No containing type found.", strategy);
+            }
+
+            var ns = containingType.ContainingNamespace?.IsGlobalNamespace == false
+                ? containingType.ContainingNamespace.ToDisplayString()
+                : "YourProject";
+
+            var className = containingType.Name;
+            var sutTypeName = containingType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+            var testClassName = className + "Tests";
+            var targetMethodName = method.Name;
+
+            if (strategy is TestStrategy.RefactorFirst or TestStrategy.Skip)
+            {
+                return CreateSkipStyleSkeleton(
+                    ns, className, sutTypeName, testClassName,
+                    targetMethodName, method.IsAsync,
+                    profile, requiresSta, strategy,
+                    refactoringLines ?? Array.Empty<string>(),
+                    skipReason);
+            }
+
+            if (containingType.IsStatic || containingType.IsAbstract)
+            {
+                return CreateStaticOrAbstract(
+                    ns, className, sutTypeName, testClassName,
+                    targetMethodName, method.IsAsync, method.ReturnsVoid,
+                    profile, requiresSta, strategy);
+            }
+
+            var ctorParams = GetConstructorParameters(containingType);
+            if (ctorParams.Count == 0)
+            {
+                return CreateParameterless(
+                    ns, className, sutTypeName, testClassName,
+                    targetMethodName, method.IsAsync, method.ReturnsVoid,
+                    profile, requiresSta, strategy);
+            }
+
+            return CreateWithConstructorInjection(
+                containingType, ctorParams, ns, sutTypeName, testClassName,
+                targetMethodName, method.IsAsync, method.ReturnsVoid,
+                profile, requiresSta, strategy);
+        }
+        catch (Exception ex)
+        {
+            return CreateTotalFallback($"Critical error during skeleton generation: {ex.Message}", strategy);
+        }
+    }
+
     public static GeneratorResult Generate(string sourceCode, Compilation compilation)
     {
         try
         {
-            // 1. Quellcode parsen und semantisches Modell vorbereiten
-            SyntaxTree tree = CSharpSyntaxTree.ParseText(sourceCode);
-            var updatedCompilation = compilation.AddSyntaxTrees(tree);
-            SemanticModel semanticModel = updatedCompilation.GetSemanticModel(tree);
+            var tree = CSharpSyntaxTree.ParseText(sourceCode);
+            var updated = compilation.AddSyntaxTrees(tree);
+            var model = updated.GetSemanticModel(tree);
 
-            var classDeclaration = tree.GetCompilationUnitRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
-            if (classDeclaration == null)
-                return CreateTotalFallback("Keine Klasse im bereitgestellten Quellcode gefunden.");
+            var classDecl = tree.GetCompilationUnitRoot()
+                .DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
 
-            // FALLBACK 1: Statische oder abstrakte Klassen abfangen (Können nicht per 'new' instanziiert werden)
-            if (classDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword) || m.IsKind(SyntaxKind.AbstractKeyword)))
+            if (classDecl is null)
             {
-                return CreateStaticOrAbstractFallback(classDeclaration);
+                return CreateTotalFallback("No class found in the provided source code.", TestStrategy.Direct);
             }
 
-            string className = classDeclaration.Identifier.Text;
-
-            // 2. Konstruktor-Parameter ermitteln (.NET 8+ Primary Constructor vs. klassischer Konstruktor)
-            var hasPrimaryConstructor = classDeclaration.ParameterList != null;
-            var constructors = classDeclaration.DescendantNodes().OfType<ConstructorDeclarationSyntax>().ToList();
-
-            List<ParameterSyntax> parameters = new();
-            if (hasPrimaryConstructor)
+            var symbol = model.GetDeclaredSymbol(classDecl);
+            if (symbol is null)
             {
-                // C# 12+: Parameter hängen direkt an der Klassendefinition
-                parameters = classDeclaration.ParameterList!.Parameters.ToList();
-            }
-            else if (constructors.Any())
-            {
-                // Traditionell: Nimm den public Konstruktor mit den meisten Parametern (bestes DI-Target)
-                var bestConstructor = constructors
-                    .Where(c => c.Modifiers.Any(SyntaxKind.PublicKeyword))
-                    .OrderByDescending(c => c.ParameterList.Parameters.Count)
-                    .FirstOrDefault();
-
-                parameters = bestConstructor?.ParameterList.Parameters.ToList() ?? new List<ParameterSyntax>();
+                return CreateTotalFallback("No class symbol found.", TestStrategy.Direct);
             }
 
-            // FALLBACK 2: Keine Konstruktoren oder parameterlos (z.B. XAML Views, reine DTOs)
-            if (!parameters.Any())
-            {
-                return CreateParameterlessSkeleton(classDeclaration);
-            }
-
-            // 3. Mocks, Initialisierungen und Prompt-Kontext aufbauen
-            var mockFields = new List<string>();
-            var mockInitializations = new List<string>();
-            var sutConstructorArgs = new List<string>();
-            var interfaceContextBuilder = new StringBuilder();
-
-            foreach (var param in parameters)
-            {
-                string paramName = param.Identifier.Text;
-                string fieldName = $"_{paramName}Mock";
-
-                // Textueller Standardtyp aus dem Quellcode (Fallback falls Semantik fehlschlägt)
-                string typeName = param.Type?.ToString() ?? "object";
-
-                // Semantische Analyse: Versuche den exakten Typen über das Projekt aufzulösen
-                if (semanticModel.GetDeclaredSymbol(param) is IParameterSymbol parameterSymbol)
-                {
-                    typeName = parameterSymbol.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-                    ExtractMethodsForPrompt(parameterSymbol.Type, fieldName, interfaceContextBuilder);
-                }
-                else
-                {
-                    // FALLBACK 3: Typ im Projekt nicht auflösbar (z.B. fehlende NuGet-Referenz in Compilation)
-                    interfaceContextBuilder.AppendLine($"\nMock-Objekt: `{fieldName}` (Typ: {typeName}) - [Hinweis: Methoden konnten nicht semantisch ausgelesen werden]");
-                }
-
-                mockFields.Add($"    private readonly Mock<{typeName}> {fieldName};");
-                mockInitializations.Add($"        {fieldName} = new Mock<{typeName}>();");
-                sutConstructorArgs.Add($"{fieldName}.Object");
-            }
-
-            // Erste öffentliche Methode als Platzhalter-Name für das LLM finden
-            var firstMethod = classDeclaration.DescendantNodes().OfType<MethodDeclarationSyntax>()
+            var firstMethod = classDecl.DescendantNodes().OfType<MethodDeclarationSyntax>()
                 .FirstOrDefault(m => m.Modifiers.Any(SyntaxKind.PublicKeyword));
-            string targetMethodName = firstMethod?.Identifier.Text ?? "Execute";
 
-            string sutArgsJoined = string.Join(", ", sutConstructorArgs);
-            string skeleton = BuildSkeletonStructure(classDeclaration, className, mockFields, mockInitializations, sutArgsJoined, targetMethodName);
+            var methodSymbol = firstMethod is null
+                ? null
+                : model.GetDeclaredSymbol(firstMethod) as IMethodSymbol;
 
-            return new GeneratorResult(skeleton, interfaceContextBuilder.ToString());
+            methodSymbol ??= symbol.GetMembers().OfType<IMethodSymbol>()
+                .FirstOrDefault(m => m.MethodKind == MethodKind.Ordinary
+                                     && m.DeclaredAccessibility == Accessibility.Public);
+
+            if (methodSymbol is null)
+            {
+                return CreateTotalFallback("No public method found.", TestStrategy.Direct);
+            }
+
+            var profile = TestFrameworkProfile.Create(
+                Models.Enums.TestFramework.xUnit,
+                Models.Enums.MockFramework.Moq);
+
+            return GenerateFromMethod(methodSymbol, profile);
         }
         catch (Exception ex)
         {
-            // CRITICAL FALLBACK: Totalschaden verhindern. Ein leeres Skelett ausgeben, damit die Pipeline nicht crasht
-            return CreateTotalFallback($"Kritischer Fehler bei der Roslyn-Analyse: {ex.Message}");
+            return CreateTotalFallback($"Critical error during Roslyn analysis: {ex.Message}", TestStrategy.Direct);
         }
     }
 
-    private static void ExtractMethodsForPrompt(ITypeSymbol typeSymbol, string fieldName, StringBuilder contextBuilder)
+    // ==================================================================
+    //  Constructor resolution
+    // ==================================================================
+
+    private static List<IParameterSymbol> GetConstructorParameters(INamedTypeSymbol type)
     {
-        contextBuilder.AppendLine($"\nVerfügbares Mock-Objekt im Test: `{fieldName}` (Typ: {typeSymbol.Name})");
-        contextBuilder.AppendLine("Verfügbare Methoden für dein `.Setup(...)`:");
+        var best = type.InstanceConstructors
+            .Where(c => c.DeclaredAccessibility == Accessibility.Public)
+            .Where(c => !c.IsStatic)
+            .OrderByDescending(c => c.Parameters.Length)
+            .FirstOrDefault();
 
-        // Holt alle Members, inklusive geerbter Methoden von Basis-Interfaces
-        var allMembers = typeSymbol.GetMembers().Concat(typeSymbol.AllInterfaces.SelectMany(i => i.GetMembers()));
-        var methods = allMembers.OfType<IMethodSymbol>()
-            .Where(m => m.MethodKind == MethodKind.Ordinary && m.DeclaredAccessibility == Accessibility.Public);
-
-        if (!methods.Any())
+        if (best is null || best.Parameters.Length == 0)
         {
-            contextBuilder.AppendLine("- (Keine öffentlichen Methoden gefunden)");
-            return;
+            return new List<IParameterSymbol>();
         }
 
-        foreach (var method in methods)
-        {
-            string signature = method.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-            contextBuilder.AppendLine($"- `{signature}`");
-        }
+        return best.Parameters.ToList();
     }
 
-    private static string BuildSkeletonStructure(ClassDeclarationSyntax classDecl, string className, List<string> fields, List<string> inits, string args, string methodName)
-    {
-        var namespaceDecl = classDecl.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault();
-        string ns = namespaceDecl?.Name.ToString() ?? "YourProject";
+    // ==================================================================
+    //  Skip / RefactorFirst
+    // ==================================================================
 
-        return $@"using Moq;
-using FluentAssertions;
-using Xunit;
+    private static GeneratorResult CreateSkipStyleSkeleton(
+        string ns, string className, string sutTypeName, string testClassName,
+        string methodName, bool isAsync,
+        TestFrameworkProfile profile, bool requiresSta,
+        TestStrategy strategy,
+        IReadOnlyList<string> refactoringLines,
+        string? skipReason)
+    {
+        var mode = strategy == TestStrategy.RefactorFirst
+            ? SkeletonMode.RefactorFirst
+            : SkeletonMode.Skip;
+
+        var reason = skipReason
+            ?? (strategy == TestStrategy.RefactorFirst
+                ? "requires production-code refactoring"
+                : "method is not directly testable");
+
+        // STA-aware: [StaFact(Skip=...)] for xUnit + Xunit.StaFact, [Ignore] + [Apartment] for NUnit, etc.
+        var skipAttr = profile.SkipAttributeFor(reason, requiresSta);
+
+        var prompt = new StringBuilder();
+        prompt.AppendLine("=== Test Setup ===");
+        prompt.AppendLine(profile.ToPromptHeader());
+        prompt.AppendLine($"Requires STA thread: {(requiresSta ? "yes" : "no")}");
+        prompt.AppendLine($"Strategy: {strategy}");
+        prompt.AppendLine();
+        prompt.AppendLine($"SUT: `{sutTypeName}`");
+        prompt.AppendLine($"Method: `{methodName}`");
+        prompt.AppendLine($"Skip reason: {reason}");
+        prompt.AppendLine();
+
+        if (strategy == TestStrategy.RefactorFirst)
+        {
+            prompt.AppendLine("You MUST NOT write a real test body.");
+            prompt.AppendLine("Inside the AI AREA, list the required source refactorings as comments,");
+            prompt.AppendLine("based on <SuggestedRefactoringPattern> and <Recommendations> from <SemanticAnalysis>.");
+            prompt.AppendLine("Keep the Skip attribute EXACTLY as shown in the skeleton.");
+        }
+        else
+        {
+            prompt.AppendLine("You MUST NOT write a real test body.");
+            prompt.AppendLine("Inside the AI AREA, only explain WHY the test is skipped.");
+            prompt.AppendLine("Keep the Skip attribute EXACTLY as shown in the skeleton.");
+        }
+        prompt.AppendLine();
+
+        // Skip tests only need the test framework namespace.
+        var usings = new List<string>(
+            profile.RequiredNamespaces(SkeletonPurpose.SkipTest));
+        var usingsBlock = string.Join(Environment.NewLine, usings.Select(u => $"using {u};"));
+
+        var classAttr = profile.ClassAttribute is { } ca ? ca + Environment.NewLine : string.Empty;
+
+        var refactoringBlock = string.Empty;
+        if (strategy == TestStrategy.RefactorFirst && refactoringLines.Count > 0)
+        {
+            var rb = new StringBuilder();
+            rb.AppendLine("    // =========================================================================");
+            rb.AppendLine("    // REQUIRED SOURCE REFACTORING (do not implement the test yet):");
+            rb.AppendLine("    // =========================================================================");
+            for (int i = 0; i < refactoringLines.Count; i++)
+            {
+                rb.AppendLine($"    // {i + 1}) {refactoringLines[i]}");
+            }
+            rb.AppendLine("    // =========================================================================");
+            rb.AppendLine();
+            refactoringBlock = rb.ToString();
+        }
+
+        var testMethodName = strategy == TestStrategy.RefactorFirst
+            ? $"{methodName}_RequiresRefactoring"
+            : $"{methodName}_IsNotDirectlyTestable";
+
+        var aiAreaHint = strategy == TestStrategy.RefactorFirst
+            ? "// AI AREA: Describe the required refactoring below (comments only, no real test)."
+            : "// AI AREA: Explain below why this method is skipped.";
+
+        var skeleton =
+$@"{usingsBlock}
 
 namespace {ns}.UnitTests;
 
-public class {className}Tests
+{classAttr}public class {testClassName}
 {{
-{string.Join(Environment.NewLine, fields)}
-    private readonly {className} _sut;
-
-    public {className}Tests()
+{refactoringBlock}    {skipAttr}
+    public void {testMethodName}()
     {{
-{string.Join(Environment.NewLine, inits)}
-
-        _sut = new {className}({args});
+        {aiAreaHint}
     }}
+}}";
 
-    [Fact]
-    public async Task {methodName}_WhenCalled_ShouldBehavior()
+        return new GeneratorResult(
+            skeleton, prompt.ToString().TrimEnd(),
+            mode, strategy,
+            testClassName, ns, sutTypeName, methodName, requiresSta);
+    }
+
+    // ==================================================================
+    //  Direct / Reflection: normal skeletons
+    // ==================================================================
+
+    private static GeneratorResult CreateWithConstructorInjection(
+        INamedTypeSymbol containingType,
+        List<IParameterSymbol> ctorParams,
+        string ns,
+        string sutTypeName,
+        string testClassName,
+        string methodName,
+        bool isAsync,
+        bool returnsVoid,
+        TestFrameworkProfile profile,
+        bool requiresSta,
+        TestStrategy strategy)
+    {
+        var mockFields = new List<string>();
+        var mockInits = new List<string>();
+        var sutArgs = new List<string>();
+        var prompt = new StringBuilder();
+
+        prompt.AppendLine("=== Test Setup ===");
+        prompt.AppendLine(profile.ToPromptHeader());
+        prompt.AppendLine($"Requires STA thread: {(requiresSta ? "yes" : "no")}");
+        prompt.AppendLine($"Strategy: {strategy}");
+        prompt.AppendLine();
+
+        prompt.AppendLine("=== SUT ===");
+        prompt.AppendLine($"Type:   `{sutTypeName}`");
+        prompt.AppendLine($"Method: `{methodName}`");
+        prompt.AppendLine($"Async:  {(isAsync ? "yes" : "no")} (returns void: {returnsVoid})");
+        prompt.AppendLine($"Namespace for test: `{ns}.UnitTests`");
+        if (strategy == TestStrategy.Reflection)
+        {
+            prompt.AppendLine("Access: private -> use reflection to invoke the method.");
+        }
+        prompt.AppendLine();
+
+        if (profile.HasMockFramework)
+        {
+            foreach (var p in ctorParams)
+            {
+                var pName = p.Name;
+                var fieldName = $"_{pName}";
+                var typeName = p.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+
+                mockFields.Add(profile.FieldDeclaration(typeName, fieldName));
+                mockInits.Add(profile.FieldInitialization(typeName, fieldName));
+                sutArgs.Add(profile.ConstructorArgument(fieldName));
+
+                AppendMockMethodsForPrompt(p.Type, fieldName, profile, prompt);
+            }
+        }
+        else
+        {
+            prompt.AppendLine("=== Dependencies (no mocking framework configured) ===");
+            prompt.AppendLine("You must provide a real value or null for every constructor parameter.");
+
+            foreach (var p in ctorParams)
+            {
+                var pName = p.Name;
+                var typeName = p.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+                var fieldName = $"_{pName}";
+
+                mockFields.Add($"    private readonly {typeName} {fieldName}; // TODO: provide value");
+                mockInits.Add($"        {fieldName} = default!; // TODO: provide value");
+                sutArgs.Add(fieldName);
+
+                prompt.AppendLine($"- `{fieldName}` (type `{typeName}`)");
+            }
+            prompt.AppendLine();
+        }
+
+        prompt.AppendLine("=== Assertion example ===");
+        prompt.AppendLine($"  {profile.AssertionExample}");
+        prompt.AppendLine();
+
+        if (profile.HasMockFramework && ctorParams.Count > 0)
+        {
+            var firstName = $"_{ctorParams[0].Name}";
+            prompt.AppendLine("=== Setup example (fill placeholders) ===");
+            prompt.AppendLine($"  {profile.SetupExample(firstName, "MethodName(...)")}");
+            prompt.AppendLine();
+        }
+
+        var code = BuildSkeletonStructure(
+            ns, testClassName, sutTypeName,
+            profile,
+            mockFields, mockInits,
+            string.Join(", ", sutArgs),
+            methodName, isAsync, returnsVoid,
+            requiresSta);
+
+        return new GeneratorResult(
+            code, prompt.ToString().TrimEnd(),
+            SkeletonMode.ConstructorInjection, strategy,
+            testClassName, ns, sutTypeName, methodName, requiresSta);
+    }
+
+    private static GeneratorResult CreateParameterless(
+        string ns, string className, string sutTypeName, string testClassName,
+        string methodName, bool isAsync, bool returnsVoid,
+        TestFrameworkProfile profile, bool requiresSta, TestStrategy strategy)
+    {
+        var prompt = new StringBuilder();
+        prompt.AppendLine("=== Test Setup ===");
+        prompt.AppendLine(profile.ToPromptHeader());
+        prompt.AppendLine($"Requires STA thread: {(requiresSta ? "yes" : "no")}");
+        prompt.AppendLine($"Strategy: {strategy}");
+        prompt.AppendLine();
+        prompt.AppendLine($"SUT `{className}` has no constructor with parameters; no mocks are needed.");
+        prompt.AppendLine($"Assertion example: {profile.AssertionExample}");
+
+        var code = BuildSkeletonStructure(
+            ns, testClassName, sutTypeName,
+            profile,
+            new List<string>(), new List<string>(),
+            string.Empty,
+            methodName, isAsync, returnsVoid,
+            requiresSta);
+
+        return new GeneratorResult(
+            code, prompt.ToString().TrimEnd(),
+            SkeletonMode.Parameterless, strategy,
+            testClassName, ns, sutTypeName, methodName, requiresSta);
+    }
+
+    private static GeneratorResult CreateStaticOrAbstract(
+        string ns, string className, string sutTypeName, string testClassName,
+        string methodName, bool isAsync, bool returnsVoid,
+        TestFrameworkProfile profile, bool requiresSta, TestStrategy strategy)
+    {
+        var prompt = new StringBuilder();
+        prompt.AppendLine("=== Test Setup ===");
+        prompt.AppendLine(profile.ToPromptHeader());
+        prompt.AppendLine($"Requires STA thread: {(requiresSta ? "yes" : "no")}");
+        prompt.AppendLine($"Strategy: {strategy}");
+        prompt.AppendLine();
+        prompt.AppendLine($"Class `{className}` is static or abstract.");
+        prompt.AppendLine($"Call `{sutTypeName}.{methodName}(...)` directly.");
+        prompt.AppendLine($"Assertion example: {profile.AssertionExample}");
+
+        var usings = string.Join(Environment.NewLine,
+            profile.RequiredNamespaces().Select(u => $"using {u};"));
+
+        var asyncTest = isAsync && !returnsVoid;
+        var methodSig = asyncTest
+            ? $"public async Task {methodName}_WhenCalled_ShouldBehavior()"
+            : $"public void {methodName}_WhenCalled_ShouldBehavior()";
+
+        var classAttr = profile.ClassAttribute is { } ca
+            ? ca + Environment.NewLine
+            : string.Empty;
+
+        var skeleton = $@"{usings}
+
+namespace {ns}.UnitTests;
+
+{classAttr}public class {testClassName}
+{{
+    // Class `{className}` is static or abstract; no instance can be created.
+    // Call the method directly via `{sutTypeName}.{methodName}(...)`.
+
+    {profile.FactAttribute(requiresSta)}
+    {methodSig}
     {{
         // =========================================================================
-        // AI BEREICH: Nur diesen Inhalt lässt du von der AI generieren!
+        // AI AREA
         // =========================================================================
-        
+
         // Arrange
-        
+
         // Act
-        
+        // var result = {sutTypeName}.{methodName}(...);
+
         // Assert
-        
+
         // =========================================================================
     }}
 }}";
+
+        return new GeneratorResult(
+            skeleton, prompt.ToString().TrimEnd(),
+            SkeletonMode.StaticOrAbstract, strategy,
+            testClassName, ns, sutTypeName, methodName, requiresSta);
     }
 
-    private static GeneratorResult CreateParameterlessSkeleton(ClassDeclarationSyntax classDecl)
+    private static GeneratorResult CreateTotalFallback(string errorMessage, TestStrategy strategy)
     {
-        string className = classDecl.Identifier.Text;
-        string ns = classDecl.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString() ?? "YourProject";
-
-        string skeleton = $@"using FluentAssertions;
-using Xunit;
-
-namespace {ns}.UnitTests;
-
-public class {className}Tests
-{{
-    private readonly {className} _sut;
-
-    public {className}Tests()
-    {{
-        _sut = new {className}();
-    }}
-
-    [Fact]
-    public void Test_Placeholder()
-    {{
-        // AI BEREICH
-    }}
-}}";
-        return new GeneratorResult(skeleton, "Klasse besitzt keine Konstruktor-Parameter. Keine Mock-Objekte verfügbar.");
-    }
-
-    private static GeneratorResult CreateStaticOrAbstractFallback(ClassDeclarationSyntax classDecl)
-    {
-        string className = classDecl.Identifier.Text;
-        string ns = classDecl.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString() ?? "YourProject";
-
-        string skeleton = $@"using FluentAssertions;
-using Xunit;
-
-namespace {ns}.UnitTests;
-
-public class {className}Tests
-{{
-    // Hinweis: Klasse ist statisch oder abstrakt. Kann nicht instanziiert werden.
-    // Rufe Methoden im Test direkt über '{className}.MethodenName()' auf.
-
-    [Fact]
-    public void Test_Placeholder()
-    {{
-        // AI BEREICH
-    }}
-}}";
-        return new GeneratorResult(skeleton, $"Klasse ist statisch oder abstrakt. Rufe die Methoden im Test direkt statisch über {className} auf.");
-    }
-
-    private static GeneratorResult CreateTotalFallback(string errorMessage)
-    {
-        string skeleton = $@"using FluentAssertions;
+        var skeleton = $@"using FluentAssertions;
 using Xunit;
 
 namespace YourProject.UnitTests;
@@ -235,14 +491,136 @@ namespace YourProject.UnitTests;
 public class AutomatedTests
 {{
     // {errorMessage}
-    // Fallback aktiviert: Bitte erstelle die Instanziierung und Mocks vollständig selbst.
+    // Fallback activated: please create the instantiation and mocks entirely yourself.
 
     [Fact]
-public void Test_Placeholder()
-{{
-// AI BEREICH
-}}
+    public void Test_Placeholder()
+    {{
+        // AI AREA
+    }}
 }}";
-        return new GeneratorResult(skeleton, $"WARNUNG: {errorMessage}. Du musst den gesamten Test von Grund auf selbst schreiben.");
+
+        return new GeneratorResult(
+            skeleton,
+            $"WARNING: {errorMessage}. You have to write the entire test yourself from scratch.",
+            SkeletonMode.Fallback, strategy,
+            "AutomatedTests", "YourProject", "object", "Execute", false);
+    }
+
+    // ==================================================================
+    //  Template builder (Direct / Reflection)
+    // ==================================================================
+
+    private static string BuildSkeletonStructure(
+        string ns, string testClassName, string sutTypeName,
+        TestFrameworkProfile profile,
+        List<string> fields, List<string> inits, string args,
+        string methodName, bool isAsync, bool returnsVoid, bool requiresSta)
+    {
+        var usings = string.Join(Environment.NewLine,
+            profile.RequiredNamespaces().Select(u => $"using {u};"));
+
+        var classAttr = profile.ClassAttribute is { } ca
+            ? ca + Environment.NewLine
+            : string.Empty;
+
+        string setupBlock;
+        if (profile.UsesConstructorForSetup)
+        {
+            var initsJoined = inits.Count > 0
+                ? string.Join(Environment.NewLine, inits) + Environment.NewLine
+                : string.Empty;
+
+            setupBlock =
+$@"    public {testClassName}()
+    {{
+{initsJoined}        _sut = new {sutTypeName}({args});
+    }}";
+        }
+        else
+        {
+            var initsJoined = inits.Count > 0
+                ? string.Join(Environment.NewLine, inits) + Environment.NewLine
+                : string.Empty;
+
+            setupBlock =
+$@"    {profile.SetupAttribute}
+    public void SetUp()
+    {{
+{initsJoined}        _sut = new {sutTypeName}({args});
+    }}";
+        }
+
+        var fieldsBlock = fields.Count > 0
+            ? string.Join(Environment.NewLine, fields) + Environment.NewLine
+            : string.Empty;
+
+        var asyncTest = isAsync && !returnsVoid;
+        var methodSig = asyncTest
+            ? $"public async Task {methodName}_WhenCalled_ShouldBehavior()"
+            : $"public void {methodName}_WhenCalled_ShouldBehavior()";
+
+        return $@"{usings}
+
+namespace {ns}.UnitTests;
+
+{classAttr}public class {testClassName}
+{{
+{fieldsBlock}    private readonly {sutTypeName} _sut;
+
+{setupBlock}
+
+    {profile.FactAttribute(requiresSta)}
+    {methodSig}
+    {{
+        // =========================================================================
+        // AI AREA: Only the content between the markers is filled in by the AI.
+        // =========================================================================
+
+        // Arrange
+
+        // Act
+
+        // Assert
+
+        // =========================================================================
+    }}
+}}";
+    }
+
+    // ==================================================================
+    //  Prompt context: available mock methods
+    // ==================================================================
+
+    private static void AppendMockMethodsForPrompt(
+        ITypeSymbol typeSymbol, string fieldName, TestFrameworkProfile profile, StringBuilder sb)
+    {
+        sb.AppendLine($"=== Mock `{fieldName}` ===");
+        sb.AppendLine($"Type: `{typeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)}`");
+        sb.AppendLine("Setup example:");
+        sb.AppendLine($"  {profile.SetupExample(fieldName, "MethodName(...)")}");
+        sb.AppendLine("Available methods:");
+
+        var allMembers = typeSymbol.GetMembers()
+            .Concat(typeSymbol.AllInterfaces.SelectMany(i => i.GetMembers()));
+
+        var methods = allMembers.OfType<IMethodSymbol>()
+            .Where(m => m.MethodKind == MethodKind.Ordinary)
+            .Where(m => m.DeclaredAccessibility == Accessibility.Public)
+            .ToList();
+
+        if (methods.Count == 0)
+        {
+            sb.AppendLine("- (no public methods found)");
+            sb.AppendLine();
+            return;
+        }
+
+        foreach (var method in methods)
+        {
+            var sig = method.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+            sb.AppendLine($"  - {sig}");
+        }
+        sb.AppendLine();
     }
 }

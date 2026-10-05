@@ -18,6 +18,7 @@
     <PackageReference Include="System.IO.Abstractions" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
     <PackageReference Include="System.IO" />
+    <PackageReference Include="FluentAssertions" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

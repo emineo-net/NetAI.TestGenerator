@@ -42,7 +42,7 @@
     },
     "frameworks": {
       "type": "object",
-      "required": [ "testFramework", "mockingFramework", "useFluentAssertions", "useAutoFixture" ],
+      "required": [ "testFramework", "mockingFramework", "useFluentAssertions", "useAutoFixture", "verbosePrompt" ],
       "properties": {
         "testFramework": {
           "type": "string",
@@ -61,6 +61,11 @@
         "useAutoFixture": {
           "type": "boolean",
           "description": "Whether to use AutoFixture to generate test data."
+        },
+        "verbosePrompt": {
+          "type": "boolean",
+          "default": true,
+          "description": "Adds extended mode-specific explanations and examples to the AI prompt. Disable for small local models."
         }
       }
     },

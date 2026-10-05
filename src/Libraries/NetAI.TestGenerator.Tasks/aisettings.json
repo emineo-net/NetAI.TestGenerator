@@ -10,7 +10,8 @@
     "testFramework": "xunit",
     "mockingFramework": "moq",
     "useFluentAssertions": true,
-    "useAutoFixture": true
+    "useAutoFixture": true,
+    "verbosePrompt": true
   },
   "codeStyle": {
     "useFileScopedNamespace": true,
