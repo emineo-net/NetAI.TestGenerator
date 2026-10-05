@@ -195,7 +195,6 @@ public class TestGeneratorTask : Task
 
     private bool ExecuteResxGeneration()
     {
-
 #if DEBUG
         if (!Debugger.IsAttached)
         {
@@ -203,7 +202,6 @@ public class TestGeneratorTask : Task
             Debugger.Launch();
         }
 #endif
-
 
         AiTestingConfig config;
         try
@@ -216,14 +214,32 @@ public class TestGeneratorTask : Task
             return false;
         }
 
+        // --- Build-Konfigurationsfilter --------------------------------------
+        // config.BuildConfigurationFilter kann "Debug", "Release" oder "All" sein.
+        //   "All" (oder null/leer) => immer ausführen.
+        //   "Debug"/"Release"       => nur ausführen, wenn CurrentConfiguration passt.
+        // Bei Nichtübereinstimmung wird die Task erfolgreich übersprungen,
+        // damit der Build grün bleibt.
+        var currentConfiguration = (CurrentConfiguration ?? "Debug").Trim();
+        var mode = (config.BuildConfigurationFilter ?? "All").Trim();
 
-        if(config.BuildConfigurationFilter != "hää?")
+        var isAll = mode.Equals("All", StringComparison.OrdinalIgnoreCase);
+        var matches = mode.Equals(currentConfiguration, StringComparison.OrdinalIgnoreCase);
+
+        if (!isAll && !matches)
         {
+            Log.LogMessage(
+                MessageImportance.High,
+                $"[NetAI] Skipped: BuildConfigurationFilter='{mode}', " +
+                $"CurrentConfiguration='{currentConfiguration}'.");
+            return true;
         }
 
-        var config_ = (CurrentConfiguration ?? "Debug").ToLowerInvariant();
-
-        Log.LogMessage(MessageImportance.High, "[NetAI] Mode condition met. Starting test analysis...");
+        Log.LogMessage(
+            MessageImportance.High,
+            $"[NetAI] Mode condition met (filter='{mode}', current='{currentConfiguration}'). " +
+            "Starting test analysis...");
+        // ---------------------------------------------------------------------
 
         var solutionDirectory = FindSolutionDirectory(ProjectDir);
         if (solutionDirectory is null)
