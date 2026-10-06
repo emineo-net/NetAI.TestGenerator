@@ -4,7 +4,6 @@
 [Flags]
 public enum UsageKind
 {
-
     /// <summary>The type is not used by the method.</summary>
     None = 0,
 

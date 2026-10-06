@@ -11,7 +11,6 @@ namespace DotNet10TestGenerator;
 /// <summary>Creates test projects, manages source references, and validates generated tests with the .NET CLI.</summary>
 public class TestProjectManager
 {
-
     private const string DefaultSampleFileName = "UnitTest1.cs";
 
     private const string DefaultWindowsFramework = "net10.0-windows";
@@ -1317,7 +1316,6 @@ public class TestProjectManager
     {
         var map = new Dictionary<string, string>(StringComparer.Ordinal)
         {
-
             ["IServiceProvider"] = "System",
             ["Task"] = "System.Threading.Tasks",
             ["ServiceProvider"] = "Microsoft.Extensions.DependencyInjection",
@@ -1328,8 +1326,6 @@ public class TestProjectManager
             ["AddSingleton"] = "Microsoft.Extensions.DependencyInjection",
             ["AddScoped"] = "Microsoft.Extensions.DependencyInjection",
             ["AddTransient"] = "Microsoft.Extensions.DependencyInjection",
-
-
             ["Application"] = "System.Windows",
             ["Window"] = "System.Windows",
             ["RoutedEventArgs"] = "System.Windows",
@@ -1353,7 +1349,6 @@ public class TestProjectManager
             ["Panel"] = "System.Windows.Controls",
             ["Dispatcher"] = "System.Windows.Threading"
         };
-
 
         switch (testFramework)
         {
@@ -1393,7 +1388,6 @@ public class TestProjectManager
                 map["Ignore"] = "Microsoft.VisualStudio.TestTools.UnitTesting";
                 break;
         }
-
 
         switch (mockFramework)
         {
@@ -2260,7 +2254,6 @@ public class TestProjectManager
 
     private enum XUnitFlavor
     {
-
         Unknown,
 
         V2,

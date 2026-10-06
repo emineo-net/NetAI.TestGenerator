@@ -3,7 +3,6 @@
 /// <summary>Describes the signature, modifiers, parameters, and containing type of an analyzed method.</summary>
 public sealed class MethodFact
 {
-
     /// <summary>Gets the method's name.</summary>
     public string Name { get; init; } = "";
 

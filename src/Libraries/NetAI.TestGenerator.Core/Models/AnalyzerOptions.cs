@@ -5,7 +5,6 @@ namespace NetAI.TestGenerator.Core.Models;
 /// <summary>Configures testability analysis and test skeleton generation.</summary>
 public sealed class AnalyzerOptions
 {
-
     /// <summary>Legacy flag: whether framework types such as System.String are included in the analysis result.</summary>
     public bool IncludeFrameworkTypes { get; init; } = true;
 

@@ -6,7 +6,6 @@ namespace NetAI.TestGenerator.Core;
 /// <summary>Builds domain-analysis and structured batch prompts for resource-file localization.</summary>
 public class TranslationPromptBuilder
 {
-
     private const int BatchSize = 20;
 
     /// <summary>Creates a prompt that asks the model to identify the domain of a translation request.</summary>

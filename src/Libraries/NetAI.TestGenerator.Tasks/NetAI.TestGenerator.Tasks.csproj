@@ -36,7 +36,8 @@
 	<!-- 1. Die JSON-Dateien strukturiert im Paket ablegen -->
 	<ItemGroup>
 		<None Include="aisettings.json" Pack="true" PackagePath="content/" Condition="Exists('aisettings.json')" />
-		<None Include="aisettings-schema.json" Pack="true" PackagePath="content/" Condition="Exists('aisettings-schema.json')" />
+		<None Include="aisettings-schema.json" Pack="true" PackagePath="content/"
+		      Condition="Exists('aisettings-schema.json')" />
 	</ItemGroup>
 
 	<!-- 2. WICHTIG: Die .targets-Datei muss mit ins Paket! -->
@@ -44,7 +45,6 @@
 		<!-- Zeigt jetzt korrekt in Ihren 'build'-Unterordner auf der Festplatte -->
 		<None Include="build\NetAI.TestGenerator.Tasks.targets" Pack="true" PackagePath="build\$(PackageId).targets" />
 	</ItemGroup>
-
 
 
 	<ItemGroup>

@@ -3,7 +3,6 @@
 /// <summary>Specifies the purpose of a generated test skeleton.</summary>
 public enum SkeletonPurpose
 {
-
     /// <summary>Generates an executable test with setup, method call, and assertions.</summary>
     FullTest,
 

@@ -10,7 +10,6 @@ namespace NetAI.TestGenerator.Core.Services;
 /// <summary>Prepares generated test classes and retries compilation after safe missing-using fixes.</summary>
 public class TestCodeProcessor
 {
-
     private const int MaxFixIterations = 5;
 
     private readonly TestCodeBeautifier _beautifier;

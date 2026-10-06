@@ -7,7 +7,6 @@ namespace NetAI.TestGenerator.Core;
 /// <summary>Sends chat-completion requests to a local OpenAI-compatible model endpoint.</summary>
 public class LocalLlmClient
 {
-
     private static readonly HttpClient SharedHttp = new()
     {
         BaseAddress = new Uri("http://localhost:8080/"), Timeout = TimeSpan.FromMinutes(5)

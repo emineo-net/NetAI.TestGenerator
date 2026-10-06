@@ -6,7 +6,6 @@ namespace NetAI.TestGenerator.Core.Services;
 
 internal sealed class TestProjectManagerCompilerService : ICompilerService
 {
-
     private static readonly Regex ErrorLineRegex = new(@"(?<id>CS\d{4})\s*:\s*(?<msg>.+)$", RegexOptions.Compiled);
 
     private readonly Func<string, Task<TestGenerationResult>> _compile;

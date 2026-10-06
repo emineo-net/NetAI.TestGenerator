@@ -3,7 +3,6 @@
 /// <summary>Reports the outcome, diagnostics, and generated source from test project validation.</summary>
 public sealed class TestGenerationResult
 {
-
     /// <summary>Initializes a test generation result instance.</summary>
     public TestGenerationResult(bool isSuccess, string message, string[]? compilerErrors = null, string[]? exceptionDetails = null,
         bool requiresRegeneration = false, bool isEnvironmentIssue = false, string? testClassPath = null, string? testClassCode = null)

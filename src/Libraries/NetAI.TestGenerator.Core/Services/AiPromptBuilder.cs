@@ -8,7 +8,6 @@ namespace NetAI.TestGenerator.Core.Services;
 /// <summary>Builds test-generation prompts from project settings and source code.</summary>
 public class AiPromptBuilder
 {
-
     private readonly string _configFilePath;
 
     /// <summary>Creates a prompt builder using the specified settings file.</summary>
@@ -117,7 +116,6 @@ public class AiPromptBuilder
 
         return template.Render(kontext);
     }
-
 
     private static string GetTestFrameworkName(TestFramework testFramework)
     {

@@ -5,7 +5,6 @@ namespace NetAI.TestGenerator.Core.Models;
 /// <summary>Describes a type referenced by a method and the analyzer's basic mockability facts.</summary>
 public sealed class TypeFact
 {
-
     /// <summary>Gets the type's fully qualified display name.</summary>
     public string FullName { get; init; } = "";
 

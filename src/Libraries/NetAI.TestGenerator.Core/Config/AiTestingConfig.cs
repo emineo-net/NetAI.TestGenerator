@@ -5,7 +5,6 @@ namespace NetAI.TestGenerator.Core.Config;
 /// <summary>Contains the settings used to configure test generation.</summary>
 public record AiTestingConfig
 {
-
     /// <summary>Creates a configuration from its versioned settings sections.</summary>
     [JsonConstructor]
     public AiTestingConfig(string version, EnvironmentConfig environment, FrameworksConfig frameworks, CodeStyleConfig codeStyle,
@@ -55,7 +54,6 @@ public record AiTestingConfig
 /// <summary>Defines the target .NET framework and generated test project name.</summary>
 public record EnvironmentConfig
 {
-
     /// <summary>Creates environment settings.</summary>
     [JsonConstructor]
     public EnvironmentConfig(string targetDotNetVersion, string testProjectName)
@@ -74,14 +72,9 @@ public record EnvironmentConfig
 /// <summary>Defines the test framework, mocking framework, and optional test-data helpers.</summary>
 public record FrameworksConfig
 {
-
     /// <summary>Initializes a frameworks config instance.</summary>
     [JsonConstructor]
-    public FrameworksConfig(
-        string testFramework,
-        string mockingFramework,
-        bool useFluentAssertions,
-        bool useAutoFixture,
+    public FrameworksConfig(string testFramework, string mockingFramework, bool useFluentAssertions, bool useAutoFixture,
         bool verbosePrompt = true)
     {
         TestFramework = testFramework;
@@ -110,7 +103,6 @@ public record FrameworksConfig
 /// <summary>Defines formatting preferences for generated test code.</summary>
 public record CodeStyleConfig
 {
-
     /// <summary>Creates code-style settings.</summary>
     [JsonConstructor]
     public CodeStyleConfig(bool useFileScopedNamespace, bool useAsyncSuffix, int maxLineLength)
@@ -133,7 +125,6 @@ public record CodeStyleConfig
 /// <summary>Defines which kinds of tests to generate and how to organize them.</summary>
 public record GenerationBehaviorConfig
 {
-
     /// <summary>Creates test generation behavior settings.</summary>
     [JsonConstructor]
     public GenerationBehaviorConfig(string testStrategy, bool splitTestsByMethod, int maxTestsPerClass)
@@ -156,7 +147,6 @@ public record GenerationBehaviorConfig
 /// <summary>Defines the AI model, sampling temperature, and system prompt for generation.</summary>
 public record AiConfigurationConfig
 {
-
     /// <summary>Creates AI generation settings.</summary>
     [JsonConstructor]
     public AiConfigurationConfig(string model, double temperature, string systemPrompt)

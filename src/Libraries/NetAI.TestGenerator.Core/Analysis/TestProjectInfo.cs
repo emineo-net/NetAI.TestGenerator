@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
 namespace NetAI.TestGenerator.Core.Analysis;
 
 /// <summary>Reads package IDs from test project files in a directory.</summary>
 public static class TestProjectInfo
 {
-
     /// <summary>Reads package IDs from project files in the specified directory.</summary>
     public static IReadOnlyList<string> ReadPackageIds(string? testProjectDirectory)
     {
@@ -36,7 +31,6 @@ public static class TestProjectInfo
             }
             catch
             {
-
             }
         }
 

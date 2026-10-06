@@ -6,7 +6,6 @@ namespace NetAI.TestGenerator.Core.Services;
 /// <summary>Renders focused prompts for repairing generated test code after compilation errors.</summary>
 public class AiPromptBuilderSimple
 {
-
     /// <summary>Builds a repair prompt that includes the generated code and compiler errors.</summary>
     public string FixUnittestPrompt(string generierter_code, string compiler_fehler, TestFramework testFramework = TestFramework.xUnit,
         MockFramework mockFramework = MockFramework.Unknown)
@@ -46,7 +45,6 @@ public class AiPromptBuilderSimple
 
         return template.Render(kontext);
     }
-
 
     private static string GetTestFrameworkName(TestFramework testFramework)
     {

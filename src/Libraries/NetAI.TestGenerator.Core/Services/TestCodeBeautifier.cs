@@ -10,7 +10,6 @@ namespace NetAI.TestGenerator.Core.Services;
 /// <summary>Formats generated C# test code and adds framework-specific using directives.</summary>
 public class TestCodeBeautifier
 {
-
     private readonly AdhocWorkspace _workspace = new();
 
     /// <summary>Adds required test and mocking namespaces, sorts usings, and formats valid source code.</summary>
@@ -183,10 +182,6 @@ public class TestCodeBeautifier
 
     private static string? MapTypeToNamespace(string typeName, TestFramework testFramework, MockFramework mockFramework)
     {
-
-
-
-
         switch (testFramework)
         {
             case TestFramework.xUnit:
@@ -216,7 +211,6 @@ public class TestCodeBeautifier
                 break;
         }
 
-
         switch (mockFramework)
         {
             case MockFramework.Moq:
@@ -243,7 +237,6 @@ public class TestCodeBeautifier
 
                 break;
         }
-
 
         return typeName switch
         {

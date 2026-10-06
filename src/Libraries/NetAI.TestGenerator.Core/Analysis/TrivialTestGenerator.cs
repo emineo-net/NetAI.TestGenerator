@@ -1,29 +1,15 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Text;
+﻿using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NetAI.TestGenerator.Core.Analysis;
 
 internal static class TrivialTestGenerator
 {
-
-    /// <summary>Contains a trivial test snippet and whether generation should be skipped.</summary>
-    public sealed record Result(string? TestSnippet, bool ShouldSkipEntirely);
-
     /// <summary>Generates a test snippet when method behavior is statically known.</summary>
-    public static Result TryGenerate(
-        MethodDeclarationSyntax method,
-        IMethodSymbol symbol,
-        SemanticModel model,
-        TestFrameworkProfile profile,
-        bool requiresSta)
+    public static Result TryGenerate(MethodDeclarationSyntax method, IMethodSymbol symbol, SemanticModel model,
+        TestFrameworkProfile profile, bool requiresSta)
     {
-
-
         if (method.ParameterList.Parameters.Count > 0)
         {
             return new Result(null, false);
@@ -31,7 +17,6 @@ internal static class TrivialTestGenerator
 
         var expressionBody = method.ExpressionBody;
         var body = method.Body;
-
 
         if (expressionBody is not null)
         {
@@ -43,9 +28,7 @@ internal static class TrivialTestGenerator
             var constant = model.GetConstantValue(expressionBody.Expression);
             if (constant.HasValue)
             {
-                return new Result(
-                    BuildConstantReturnTest(symbol, constant.Value, profile, requiresSta),
-                    false);
+                return new Result(BuildConstantReturnTest(symbol, constant.Value, profile, requiresSta), false);
             }
 
             return new Result(null, false);
@@ -55,7 +38,6 @@ internal static class TrivialTestGenerator
         {
             return new Result(null, false);
         }
-
 
         if (body.Statements.Count == 0 && symbol.ReturnsVoid)
         {
@@ -79,33 +61,25 @@ internal static class TrivialTestGenerator
             var constant = model.GetConstantValue(returnStmt.Expression);
             if (constant.HasValue)
             {
-                return new Result(
-                    BuildConstantReturnTest(symbol, constant.Value, profile, requiresSta),
-                    false);
+                return new Result(BuildConstantReturnTest(symbol, constant.Value, profile, requiresSta), false);
             }
         }
 
         return new Result(null, false);
     }
 
-
-    private static Result HandleThrow(
-        IMethodSymbol symbol,
-        ExpressionSyntax throwExpression,
-        TestFrameworkProfile profile,
+    private static Result HandleThrow(IMethodSymbol symbol, ExpressionSyntax throwExpression, TestFrameworkProfile profile,
         bool requiresSta)
     {
-
         if (throwExpression is ObjectCreationExpressionSyntax creation)
         {
             var typeName = creation.Type.ToString();
-            if (typeName.EndsWith("NotImplementedException", StringComparison.Ordinal)
-                || typeName.EndsWith("NotSupportedException", StringComparison.Ordinal))
+            if (typeName.EndsWith("NotImplementedException", StringComparison.Ordinal) ||
+                typeName.EndsWith("NotSupportedException", StringComparison.Ordinal))
             {
                 return new Result(null, true);
             }
         }
-
 
         string? exceptionTypeName = null;
         if (throwExpression is ObjectCreationExpressionSyntax objCreation)
@@ -114,21 +88,13 @@ internal static class TrivialTestGenerator
         }
         else if (throwExpression is IdentifierNameSyntax identifier)
         {
-
-
             exceptionTypeName = null;
         }
 
-        return new Result(
-            BuildThrowTest(symbol, exceptionTypeName, profile, requiresSta),
-            false);
+        return new Result(BuildThrowTest(symbol, exceptionTypeName, profile, requiresSta), false);
     }
 
-
-    private static string BuildConstantReturnTest(
-        IMethodSymbol symbol,
-        object? constantValue,
-        TestFrameworkProfile profile,
+    private static string BuildConstantReturnTest(IMethodSymbol symbol, object? constantValue, TestFrameworkProfile profile,
         bool requiresSta)
     {
         var className = symbol.ContainingType.Name;
@@ -136,115 +102,61 @@ internal static class TrivialTestGenerator
         var testMethodName = $"{symbol.Name}_WhenCalled_ShouldReturnExpected";
         var literal = FormatConstant(constantValue, symbol.ReturnType);
 
-        var sutCall = symbol.IsStatic
-            ? $"{className}.{symbol.Name}()"
-            : $"_sut.{symbol.Name}()";
+        var sutCall = symbol.IsStatic ? $"{className}.{symbol.Name}()" : $"_sut.{symbol.Name}()";
 
-        var assertion = profile.UseFluentAssertions
-            ? $"result.Should().Be({literal});"
-            : $"Assert.Equal({literal}, result);";
+        var assertion = profile.UseFluentAssertions ? $"result.Should().Be({literal});" : $"Assert.Equal({literal}, result);";
 
-        return BuildClassSnippet(
-            className, testClassName, symbol.ContainingNamespace, profile, requiresSta,
-            extraMembers: null,
-            methodAttributes: profile.FactAttribute(requiresSta),
-            methodName: testMethodName,
-            methodSignature: "public void " + testMethodName + "()",
-            methodBody: $"        var result = {sutCall};\n        {assertion}",
-            isStaticSut: symbol.IsStatic);
+        return BuildClassSnippet(className, testClassName, symbol.ContainingNamespace, profile, requiresSta, null,
+            profile.FactAttribute(requiresSta), testMethodName, "public void " + testMethodName + "()",
+            $"        var result = {sutCall};\n        {assertion}", symbol.IsStatic);
     }
 
-    private static string BuildThrowTest(
-        IMethodSymbol symbol,
-        string? exceptionTypeName,
-        TestFrameworkProfile profile,
-        bool requiresSta)
+    private static string BuildThrowTest(IMethodSymbol symbol, string? exceptionTypeName, TestFrameworkProfile profile, bool requiresSta)
     {
         var className = symbol.ContainingType.Name;
         var testClassName = className + "Tests";
         var testMethodName = $"{symbol.Name}_WhenCalled_ShouldThrow";
         var target = exceptionTypeName ?? "Exception";
 
-        var sutCall = symbol.IsStatic
-            ? $"{className}.{symbol.Name}"
-            : $"_sut.{symbol.Name}";
+        var sutCall = symbol.IsStatic ? $"{className}.{symbol.Name}" : $"_sut.{symbol.Name}";
 
-        var assertion = profile.UseFluentAssertions
-            ? $"act.Should().Throw<{target}>();"
-            : $"Assert.Throws<{target}>(act);";
+        var assertion = profile.UseFluentAssertions ? $"act.Should().Throw<{target}>();" : $"Assert.Throws<{target}>(act);";
 
-        var body =
-            $"        Action act = () => {sutCall}();\n" +
-            $"        {assertion}";
-
+        var body = $"        Action act = () => {sutCall}();\n" + $"        {assertion}";
 
         var usingsOverride = new[] { "System" };
 
-        return BuildClassSnippet(
-            className, testClassName, symbol.ContainingNamespace, profile, requiresSta,
-            extraMembers: null,
-            methodAttributes: profile.FactAttribute(requiresSta),
-            methodName: testMethodName,
-            methodSignature: "public void " + testMethodName + "()",
-            methodBody: body,
-            isStaticSut: symbol.IsStatic,
-            additionalUsingNamespaces: usingsOverride);
+        return BuildClassSnippet(className, testClassName, symbol.ContainingNamespace, profile, requiresSta, null,
+            profile.FactAttribute(requiresSta), testMethodName, "public void " + testMethodName + "()", body, symbol.IsStatic,
+            usingsOverride);
     }
 
-    private static string BuildEmptyVoidTest(
-        IMethodSymbol symbol,
-        TestFrameworkProfile profile,
-        bool requiresSta)
+    private static string BuildEmptyVoidTest(IMethodSymbol symbol, TestFrameworkProfile profile, bool requiresSta)
     {
         var className = symbol.ContainingType.Name;
         var testClassName = className + "Tests";
         var testMethodName = $"{symbol.Name}_WhenCalled_ShouldNotThrow";
 
-        var sutCall = symbol.IsStatic
-            ? $"{className}.{symbol.Name}"
-            : $"_sut.{symbol.Name}";
+        var sutCall = symbol.IsStatic ? $"{className}.{symbol.Name}" : $"_sut.{symbol.Name}";
 
-        var assertion = profile.UseFluentAssertions
-            ? "act.Should().NotThrow();"
-            : "Assert.Null(Record.Exception(act));";
+        var assertion = profile.UseFluentAssertions ? "act.Should().NotThrow();" : "Assert.Null(Record.Exception(act));";
 
-        var body =
-            $"        Action act = () => {sutCall}();\n" +
-            $"        {assertion}";
+        var body = $"        Action act = () => {sutCall}();\n" + $"        {assertion}";
 
         var usingsOverride = new[] { "System" };
 
-        return BuildClassSnippet(
-            className, testClassName, symbol.ContainingNamespace, profile, requiresSta,
-            extraMembers: null,
-            methodAttributes: profile.FactAttribute(requiresSta),
-            methodName: testMethodName,
-            methodSignature: "public void " + testMethodName + "()",
-            methodBody: body,
-            isStaticSut: symbol.IsStatic,
-            additionalUsingNamespaces: usingsOverride);
+        return BuildClassSnippet(className, testClassName, symbol.ContainingNamespace, profile, requiresSta, null,
+            profile.FactAttribute(requiresSta), testMethodName, "public void " + testMethodName + "()", body, symbol.IsStatic,
+            usingsOverride);
     }
 
-
-    private static string BuildClassSnippet(
-        string sutClassName,
-        string testClassName,
-        INamespaceSymbol containingNamespace,
-        TestFrameworkProfile profile,
-        bool requiresSta,
-        string? extraMembers,
-        string methodAttributes,
-        string methodName,
-        string methodSignature,
-        string methodBody,
-        bool isStaticSut,
-        string[]? additionalUsingNamespaces = null)
+    private static string BuildClassSnippet(string sutClassName, string testClassName, INamespaceSymbol containingNamespace,
+        TestFrameworkProfile profile, bool requiresSta, string? extraMembers, string methodAttributes, string methodName,
+        string methodSignature, string methodBody, bool isStaticSut, string[]? additionalUsingNamespaces = null)
     {
-        var ns = containingNamespace.IsGlobalNamespace
-            ? "YourProject.UnitTests"
-            : containingNamespace.ToDisplayString() + ".UnitTests";
+        var ns = containingNamespace.IsGlobalNamespace ? "YourProject.UnitTests" : containingNamespace.ToDisplayString() + ".UnitTests";
 
-        var usingNamespaces = new System.Collections.Generic.List<string>(profile.RequiredNamespaces());
+        var usingNamespaces = new List<string>(profile.RequiredNamespaces());
         if (additionalUsingNamespaces is not null)
         {
             foreach (var extrnsa in additionalUsingNamespaces)
@@ -256,11 +168,9 @@ internal static class TrivialTestGenerator
             }
         }
 
-        var usings = string.Join(Environment.NewLine,
-            usingNamespaces.Select(u => $"using {u};"));
+        var usings = string.Join(Environment.NewLine, usingNamespaces.Select(u => $"using {u};"));
 
         var classAttribute = profile.ClassAttribute is { } ca ? ca + Environment.NewLine : string.Empty;
-
 
         var sutBlock = isStaticSut
             ? string.Empty
@@ -289,15 +199,12 @@ namespace {ns};
 }}";
     }
 
-
     private static string FormatConstant(object? value, ITypeSymbol returnType)
     {
         if (value is null)
         {
             return "null";
         }
-
-
 
         if (returnType.TypeKind == TypeKind.Enum && returnType is INamedTypeSymbol enumType)
         {
@@ -315,12 +222,8 @@ namespace {ns};
         return value switch
         {
             bool b => b ? "true" : "false",
-            string s => "\"" + s
-                .Replace("\\", "\\\\")
-                .Replace("\"", "\\\"")
-                .Replace("\r", "\\r")
-                .Replace("\n", "\\n")
-                .Replace("\t", "\\t") + "\"",
+            string s => "\"" +
+                        s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t") + "\"",
             char c => "'" + (c == '\'' ? "\\'" : c == '\\' ? "\\\\" : c.ToString()) + "'",
             double d => d.ToString("R", CultureInfo.InvariantCulture) + "d",
             float f => f.ToString("R", CultureInfo.InvariantCulture) + "f",
@@ -334,4 +237,7 @@ namespace {ns};
             _ => value.ToString() ?? "default"
         };
     }
+
+    /// <summary>Contains a trivial test snippet and whether generation should be skipped.</summary>
+    public sealed record Result(string? TestSnippet, bool ShouldSkipEntirely);
 }

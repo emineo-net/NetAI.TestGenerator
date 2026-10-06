@@ -3,7 +3,6 @@
 /// <summary>Classifies a referenced type by how it can be substituted in a test.</summary>
 public enum DependencyKind
 {
-
     /// <summary>The dependency is an interface.</summary>
     Interface,
 

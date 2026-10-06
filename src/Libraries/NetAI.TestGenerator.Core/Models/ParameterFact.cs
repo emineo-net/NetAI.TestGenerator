@@ -3,7 +3,6 @@
 /// <summary>Describes a parameter on an analyzed method.</summary>
 public sealed class ParameterFact
 {
-
     /// <summary>Gets the parameter's name.</summary>
     public string Name { get; init; } = "";
 

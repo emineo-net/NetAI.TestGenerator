@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using NetAI.TestGenerator.Core.Analysis;
-using NetAI.TestGenerator.Core.Config;
 
 namespace NetAI.TestGenerator.Core.Models;
 
 /// <summary>Summarizes a method's testability, referenced types, and relevant compilation diagnostics.</summary>
 public sealed class TestabilityReport
 {
-
     /// <summary>Gets the UTC time at which the report was generated.</summary>
     public DateTimeOffset GeneratedAt { get; init; }
 
@@ -85,6 +81,7 @@ public sealed class TestabilityReport
                 var def = p.IsOptional ? $" (optional = {p.DefaultValue ?? "null"})" : "";
                 sb.AppendLine($"  - {p.Type} {p.Name}{def}");
             }
+
             sb.AppendLine();
         }
 
@@ -99,6 +96,7 @@ public sealed class TestabilityReport
             {
                 sb.AppendLine($"  - Interfaces:    {string.Join(", ", ct.Interfaces)}");
             }
+
             sb.AppendLine();
         }
 
@@ -118,12 +116,14 @@ public sealed class TestabilityReport
                 {
                     sb.AppendLine($"    Interfaces: {string.Join(", ", t.Interfaces)}");
                 }
+
                 if (t.Constructors.Count > 0)
                 {
                     sb.AppendLine($"    Ctor: {string.Join(" | ", t.Constructors)}");
                 }
             }
         }
+
         sb.AppendLine();
 
         sb.AppendLine("## Testability");
@@ -144,6 +144,7 @@ public sealed class TestabilityReport
             {
                 sb.AppendLine($"- {r}");
             }
+
             sb.AppendLine();
         }
 

@@ -15,10 +15,9 @@ namespace NetAI.TestGenerator.Tasks;
 /// <summary>Runs testability analysis and AI-assisted test generation as part of an MSBuild build.</summary>
 public class TestGeneratorTask : Task
 {
+    private readonly bool testXamlCs = true;
 
     private bool testDebugger = false;
-
-    private readonly bool testXamlCs = true;
 
     /// <summary>Gets or sets the project directory supplied by MSBuild.</summary>
     [Required]
@@ -57,7 +56,6 @@ public class TestGeneratorTask : Task
     /// <summary>Runs semantic analysis or test generation, depending on the inputs supplied by MSBuild.</summary>
     public override bool Execute()
     {
-
         if (ProjectDir.IndexOf("_wpftmp", StringComparison.OrdinalIgnoreCase) >= 0)
         {
             return true;
@@ -189,13 +187,12 @@ public class TestGeneratorTask : Task
 
     private bool ExecuteResxGeneration()
     {
-#if DEBUG
-        if (!Debugger.IsAttached)
-        {
-
-            Debugger.Launch();
-        }
-#endif
+//#if DEBUG
+//        if (!Debugger.IsAttached)
+//        {
+//            Debugger.Launch();
+//        }
+//#endif
 
         AiTestingConfig config;
         try
@@ -208,12 +205,6 @@ public class TestGeneratorTask : Task
             return false;
         }
 
-
-
-
-
-
-
         var currentConfiguration = (CurrentConfiguration ?? "Debug").Trim();
         var mode = (config.BuildConfigurationFilter ?? "All").Trim();
 
@@ -222,18 +213,13 @@ public class TestGeneratorTask : Task
 
         if (!isAll && !matches)
         {
-            Log.LogMessage(
-                MessageImportance.High,
-                $"[NetAI] Skipped: BuildConfigurationFilter='{mode}', " +
-                $"CurrentConfiguration='{currentConfiguration}'.");
+            Log.LogMessage(MessageImportance.High,
+                $"[NetAI] Skipped: BuildConfigurationFilter='{mode}', " + $"CurrentConfiguration='{currentConfiguration}'.");
             return true;
         }
 
-        Log.LogMessage(
-            MessageImportance.High,
-            $"[NetAI] Mode condition met (filter='{mode}', current='{currentConfiguration}'). " +
-            "Starting test analysis...");
-
+        Log.LogMessage(MessageImportance.High,
+            $"[NetAI] Mode condition met (filter='{mode}', current='{currentConfiguration}'). " + "Starting test analysis...");
 
         var solutionDirectory = FindSolutionDirectory(ProjectDir);
         if (solutionDirectory is null)
@@ -308,8 +294,6 @@ public class TestGeneratorTask : Task
                         {
                             var cleanMessage = message.Replace("[NetAI Error]", "").Replace("Error:", "").Trim();
 
-
-
                             if (FailOnError)
                             {
                                 Log.LogError($"[NetAI] {cleanMessage}");
@@ -337,7 +321,6 @@ public class TestGeneratorTask : Task
 
                 if (result != "ok")
                 {
-
                     var msg = $"[NetAI] Failed to process '{Path.GetFileName(sourceFilePath)}': {result}";
                     if (FailOnError)
                     {
@@ -394,14 +377,12 @@ public class TestGeneratorTask : Task
             }
         }
 
-
         if (symbols.Count == 0)
         {
             symbols.Add("DEBUG");
             symbols.Add("TRACE");
             symbols.Add("NET");
         }
-
 
         if (UseWpf || UseWindowsForms)
         {

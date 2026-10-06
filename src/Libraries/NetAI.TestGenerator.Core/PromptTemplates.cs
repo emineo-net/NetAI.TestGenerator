@@ -3,7 +3,6 @@
 /// <summary>Provides the shared prompt templates used for test generation and compiler-error repair.</summary>
 public static class PromptTemplates
 {
-
     /// <summary>Template for generating a unit test from a method and its containing class.</summary>
     public const string UnitTestGenerator = """
                                             You are an expert in software quality and C# .NET 10 unit testing.

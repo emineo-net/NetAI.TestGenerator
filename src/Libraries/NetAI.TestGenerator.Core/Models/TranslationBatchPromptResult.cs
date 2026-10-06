@@ -3,7 +3,6 @@
 /// <summary>Contains the prompts prepared for one translation batch.</summary>
 public class TranslationBatchPromptResult
 {
-
     /// <summary>Gets or sets the system instructions for the translation model.</summary>
     public string SystemPrompt { get; set; } = string.Empty;
 

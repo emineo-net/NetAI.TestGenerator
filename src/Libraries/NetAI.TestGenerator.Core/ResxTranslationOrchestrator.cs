@@ -1,4 +1,7 @@
-﻿using DotNet10TestGenerator;
+﻿using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
+using DotNet10TestGenerator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -8,23 +11,19 @@ using NetAI.TestGenerator.Core.Config;
 using NetAI.TestGenerator.Core.Models;
 using NetAI.TestGenerator.Core.Models.Enums;
 using NetAI.TestGenerator.Core.Services;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace NetAI.TestGenerator.Core;
 
 /// <summary>Coordinates source analysis, AI-generated unit tests, and optional compile validation.</summary>
 public class ResxTranslationOrchestrator
 {
-
-    private static readonly Regex AiAreaMarkerLineRegex = new(
-        @"^[ \t]*//[^\r\n]*AI AREA[^\r\n]*\r?\n" +
-        @"|^[ \t]*//[ \t]*=+[ \t]*\r?\n",
+    private static readonly Regex AiAreaMarkerLineRegex = new(@"^[ \t]*//[^\r\n]*AI AREA[^\r\n]*\r?\n" + @"|^[ \t]*//[ \t]*=+[ \t]*\r?\n",
         RegexOptions.Compiled | RegexOptions.Multiline);
 
     private static readonly Regex TestCodeBlockRegex = new(
         @"```(?:csharp|cs)?\s*([\s\S]*?)\s*```", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private readonly AiTestingConfig? _config;
 
     private readonly MockFramework _mockFramework;
 
@@ -32,26 +31,20 @@ public class ResxTranslationOrchestrator
 
     private readonly TestFramework _testFramework;
 
-    private readonly AiTestingConfig? _config;
-
     private readonly TestGeneratorService _testGeneratorService;
 
     /// <summary>Creates an orchestrator for generating tests from source files.</summary>
-    public ResxTranslationOrchestrator(HttpClient? httpClient = null)
-        : this(TestFramework.xUnit, MockFramework.Unknown, null, httpClient)
+    public ResxTranslationOrchestrator(HttpClient? httpClient = null) : this(TestFramework.xUnit, MockFramework.Unknown, null, httpClient)
     {
     }
 
     /// <summary>Creates an orchestrator using the configured test and mocking frameworks.</summary>
-    public ResxTranslationOrchestrator(AiTestingConfig config, HttpClient? httpClient = null)
-        : this(ParseTestFramework(config), ParseMockFramework(config), config, httpClient)
+    public ResxTranslationOrchestrator(AiTestingConfig config, HttpClient? httpClient = null) : this(ParseTestFramework(config),
+        ParseMockFramework(config), config, httpClient)
     {
     }
 
-    private ResxTranslationOrchestrator(
-        TestFramework testFramework,
-        MockFramework mockFramework,
-        AiTestingConfig? config,
+    private ResxTranslationOrchestrator(TestFramework testFramework, MockFramework mockFramework, AiTestingConfig? config,
         HttpClient? httpClient)
     {
         _testGeneratorService = new TestGeneratorService();
@@ -59,11 +52,6 @@ public class ResxTranslationOrchestrator
         _mockFramework = mockFramework;
         _config = config;
     }
-
-    private sealed record SemanticHint(
-        string Xml,
-        UnitTestSkeletonGenerator.GeneratorResult? Skeleton,
-        bool RequiresSta);
 
     /// <summary>Generates tests for uncovered methods in the first class found in a source file.</summary>
     public async Task<string> ProcessProjectAsync(string sourceFilePath, string testProjectDirectory, Action<string>? logInfo = null,
@@ -125,19 +113,10 @@ public class ResxTranslationOrchestrator
 
             var testCodeProcessor = new TestCodeProcessor(compilerService);
 
-
-
-
-
             var packages = TestProjectInfo.ReadPackageIds(testProjectDirectory);
 
-            var profile = new TestFrameworkProfile(
-                _testFramework,
-                _mockFramework,
-                _config?.Frameworks?.UseFluentAssertions ?? true,
-                _config?.Frameworks?.UseAutoFixture ?? false,
-                packages);
-
+            var profile = new TestFrameworkProfile(_testFramework, _mockFramework, _config?.Frameworks?.UseFluentAssertions ?? true,
+                _config?.Frameworks?.UseAutoFixture ?? false, packages);
 
             RoslynDllTestabilityAnalyzer? semanticAnalyzer = null;
             var effectiveCompilation = compilation;
@@ -151,8 +130,7 @@ public class ResxTranslationOrchestrator
 
             if (useMsbuild)
             {
-                semanticAnalyzer = new RoslynDllTestabilityAnalyzer(
-                    new AnalyzerOptions { TestFrameworkProfile = profile });
+                semanticAnalyzer = new RoslynDllTestabilityAnalyzer(new AnalyzerOptions { TestFrameworkProfile = profile });
 
                 var target = !string.IsNullOrWhiteSpace(solutionPath)
                     ? $"solution '{Path.GetFileName(solutionPath)}'"
@@ -193,8 +171,7 @@ public class ResxTranslationOrchestrator
             }
             else if (compilation != null)
             {
-                semanticAnalyzer = new RoslynDllTestabilityAnalyzer(
-                    new AnalyzerOptions { TestFrameworkProfile = profile });
+                semanticAnalyzer = new RoslynDllTestabilityAnalyzer(new AnalyzerOptions { TestFrameworkProfile = profile });
 
                 logInfo?.Invoke(
                     "[NetAI] Semantic analysis is available via in-memory compilation; AI prompts will include semantic context.");
@@ -219,31 +196,23 @@ public class ResxTranslationOrchestrator
                     continue;
                 }
 
-
                 var maxChars = _config?.MaxMethodChars ?? 25_000;
 
                 if (!IsWithinSizeLimit(method, maxChars, out var methodChars))
                 {
-                    logInfo?.Invoke(
-                        $"[NetAI] Method '{methodName}' is {methodChars:N0} chars (limit: {maxChars:N0}). " +
-                        $"Generating skip stub instead of a real test.");
+                    logInfo?.Invoke($"[NetAI] Method '{methodName}' is {methodChars:N0} chars (limit: {maxChars:N0}). " +
+                                    $"Generating skip stub instead of a real test.");
 
                     var model = effectiveCompilation?.GetSemanticModel(method.SyntaxTree);
-                    var methodSymbol = model?.GetDeclaredSymbol(method) as IMethodSymbol;
+                    var methodSymbol = model?.GetDeclaredSymbol(method);
 
                     if (methodSymbol is not null)
                     {
-                        var skipReason =
-                            $"method is {methodChars:N0} chars (limit: {maxChars:N0}). " +
-                            $"Refactor into smaller, focused methods.";
+                        var skipReason = $"method is {methodChars:N0} chars (limit: {maxChars:N0}). " +
+                                         $"Refactor into smaller, focused methods.";
 
-                        var skipResult = UnitTestSkeletonGenerator.GenerateFromMethod(
-                            methodSymbol,
-                            profile,
-                            requiresSta: false,
-                            strategy: UnitTestSkeletonGenerator.TestStrategy.Skip,
-                            refactoringLines: null,
-                            skipReason: skipReason);
+                        var skipResult = UnitTestSkeletonGenerator.GenerateFromMethod(methodSymbol, profile, false,
+                            UnitTestSkeletonGenerator.TestStrategy.Skip, null, skipReason);
 
                         collectedMethodCodes.Add(StripAiAreaMarkers(skipResult.TestSkeleton));
                         existingTestMethods.Add(methodName);
@@ -256,25 +225,21 @@ public class ResxTranslationOrchestrator
                     continue;
                 }
 
-
                 var complexity = EstimateCyclomaticComplexity(method);
                 if (complexity > 20)
                 {
-                    logInfo?.Invoke(
-                        $"[NetAI] Method '{methodName}' has cyclomatic complexity {complexity}. " +
-                        $"The generated test will likely cover only the happy path — review manually.");
+                    logInfo?.Invoke($"[NetAI] Method '{methodName}' has cyclomatic complexity {complexity}. " +
+                                    $"The generated test will likely cover only the happy path — review manually.");
                 }
 
                 logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
 
-
                 var trivialModel = effectiveCompilation?.GetSemanticModel(method.SyntaxTree);
-                var trivialSymbol = trivialModel?.GetDeclaredSymbol(method) as IMethodSymbol;
+                var trivialSymbol = trivialModel?.GetDeclaredSymbol(method);
 
                 if (trivialModel is not null && trivialSymbol is not null)
                 {
-                    var trivial = TrivialTestGenerator.TryGenerate(
-                        method, trivialSymbol, trivialModel, profile, requiresSta: false);
+                    var trivial = TrivialTestGenerator.TryGenerate(method, trivialSymbol, trivialModel, profile, false);
 
                     if (trivial.ShouldSkipEntirely)
                     {
@@ -292,7 +257,6 @@ public class ResxTranslationOrchestrator
                     }
                 }
 
-
                 var classSkeleton = BuildClassSkeleton(targetClass, method);
                 BuildLogger.Info(classSkeleton);
 
@@ -301,9 +265,7 @@ public class ResxTranslationOrchestrator
 
                 BuildLogger.Info(semanticHint.Xml);
 
-                var basePrompt = BuildBasePrompt(
-                    className, methodName,
-                    semanticHint.Xml, projectContext, classSkeleton,
+                var basePrompt = BuildBasePrompt(className, methodName, semanticHint.Xml, projectContext, classSkeleton,
                     semanticHint.Skeleton, semanticHint.RequiresSta);
 
                 BuildLogger.Info(basePrompt);
@@ -317,14 +279,11 @@ public class ResxTranslationOrchestrator
                     logInfo?.Invoke($"[NetAI] Prompt with semantic context saved: {promptPath}");
                 }
 
+                const string systemPrompt = "You are a C# testing expert. Respond only with runnable C# code and no explanations. " +
+                                            "If a <BindingSkeleton> block is present, preserve its structure verbatim " +
+                                            "(usings, namespace, class name, fields, constructor, test attribute) and only fill in the test body.";
 
-                const string systemPrompt =
-                    "You are a C# testing expert. Respond only with runnable C# code and no explanations. " +
-                    "If a <BindingSkeleton> block is present, preserve its structure verbatim " +
-                    "(usings, namespace, class name, fields, constructor, test attribute) and only fill in the test body.";
-
-                var newTestClassResponse = await localLlmClient.AskAsync(basePrompt, systemPrompt)
-                    .ConfigureAwait(false);
+                var newTestClassResponse = await localLlmClient.AskAsync(basePrompt, systemPrompt).ConfigureAwait(false);
 
                 var testMethodCode = ExtractTestClass(newTestClassResponse);
                 BuildLogger.Info(testMethodCode);
@@ -362,8 +321,7 @@ public class ResxTranslationOrchestrator
                         break;
                     }
 
-                    var validationClassStructure = PrepareValidationStructure(testClassName,
-                        effectiveTestNamespace, testMethodCode);
+                    var validationClassStructure = PrepareValidationStructure(testClassName, effectiveTestNamespace, testMethodCode);
 
                     validationClassStructure = await testCodeProcessor
                         .ProcessTestClassAsync(validationClassStructure, _testFramework, _mockFramework).ConfigureAwait(false);
@@ -484,20 +442,15 @@ public class ResxTranslationOrchestrator
             }
             catch
             {
-
             }
         }
     }
 
-    private string MergeCollectedTestClasses(
-        string testClassName,
-        string testNamespace,
-        IReadOnlyList<string> classSnippets)
+    private string MergeCollectedTestClasses(string testClassName, string testNamespace, IReadOnlyList<string> classSnippets)
     {
         var usings = new SortedSet<string>(StringComparer.Ordinal);
         var members = new List<MemberDeclarationSyntax>();
         var seenMemberTexts = new HashSet<string>(StringComparer.Ordinal);
-
 
         usings.Add($"using {GetTestFrameworkNamespace(_testFramework)};");
 
@@ -543,28 +496,19 @@ public class ResxTranslationOrchestrator
             }
         }
 
+        var usingNodes = usings.Select(u => CSharpSyntaxTree.ParseText(u).GetCompilationUnitRoot().Usings.FirstOrDefault())
+            .Where(u => u is not null).Cast<UsingDirectiveSyntax>().ToArray();
 
-        var usingNodes = usings
-            .Select(u => CSharpSyntaxTree.ParseText(u).GetCompilationUnitRoot().Usings.FirstOrDefault())
-            .Where(u => u is not null)
-            .Cast<UsingDirectiveSyntax>()
-            .ToArray();
-
-        var classDeclNew = SyntaxFactory.ClassDeclaration(testClassName)
-            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+        var classDeclNew = SyntaxFactory.ClassDeclaration(testClassName).AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
             .AddMembers(members.ToArray());
 
-        var namespaceDecl = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(testNamespace))
-            .AddMembers(classDeclNew);
+        var namespaceDecl = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(testNamespace)).AddMembers(classDeclNew);
 
-        var compilationUnit = SyntaxFactory.CompilationUnit()
-            .WithUsings(SyntaxFactory.List(usingNodes))
-            .AddMembers(namespaceDecl);
+        var compilationUnit = SyntaxFactory.CompilationUnit().WithUsings(SyntaxFactory.List(usingNodes)).AddMembers(namespaceDecl);
 
         var formatted = Formatter.Format(compilationUnit, new AdhocWorkspace());
         return formatted.ToFullString();
     }
-
 
     private static string GetMemberKey(MemberDeclarationSyntax member)
     {
@@ -592,20 +536,15 @@ public class ResxTranslationOrchestrator
 
     private static string GetMethodKey(MethodDeclarationSyntax method)
     {
-        var parts = new List<string>
-        {
-            method.Identifier.Text,
-            (method.TypeParameterList?.Parameters.Count ?? 0).ToString()
-        };
+        var parts = new List<string> { method.Identifier.Text, (method.TypeParameterList?.Parameters.Count ?? 0).ToString() };
 
         foreach (var p in method.ParameterList.Parameters)
         {
             var refKind = string.Empty;
             foreach (var modifier in p.Modifiers)
             {
-                if (modifier.IsKind(SyntaxKind.RefKeyword)
-                    || modifier.IsKind(SyntaxKind.OutKeyword)
-                    || modifier.IsKind(SyntaxKind.InKeyword))
+                if (modifier.IsKind(SyntaxKind.RefKeyword) || modifier.IsKind(SyntaxKind.OutKeyword) ||
+                    modifier.IsKind(SyntaxKind.InKeyword))
                 {
                     refKind = modifier.ValueText;
                     break;
@@ -625,25 +564,19 @@ public class ResxTranslationOrchestrator
         var preserved = new List<SyntaxTrivia>();
         foreach (var trivia in originalLeading)
         {
-            if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)
-                || trivia.IsKind(SyntaxKind.MultiLineCommentTrivia)
-                || trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)
-                || trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
+            if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) || trivia.IsKind(SyntaxKind.MultiLineCommentTrivia) ||
+                trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) ||
+                trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
             {
                 preserved.Add(trivia);
 
-
-
-                if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)
-                    || trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia))
+                if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) || trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia))
                 {
                     preserved.Add(SyntaxFactory.EndOfLine("\n"));
                 }
             }
             else if (trivia.IsKind(SyntaxKind.EndOfLineTrivia))
             {
-
-
                 if (preserved.Count > 0 && preserved[^1].IsKind(SyntaxKind.EndOfLineTrivia))
                 {
                     preserved.Add(trivia);
@@ -651,20 +584,11 @@ public class ResxTranslationOrchestrator
             }
         }
 
-        return member
-            .WithLeadingTrivia(SyntaxFactory.TriviaList(preserved))
-            .WithTrailingTrivia();
+        return member.WithLeadingTrivia(SyntaxFactory.TriviaList(preserved)).WithTrailingTrivia();
     }
 
-
-    private string BuildBasePrompt(
-        string className,
-        string methodName,
-        string semanticHintXml,
-        string projectContext,
-        string classSkeleton,
-        UnitTestSkeletonGenerator.GeneratorResult? skeleton,
-        bool requiresSta)
+    private string BuildBasePrompt(string className, string methodName, string semanticHintXml, string projectContext, string classSkeleton,
+        UnitTestSkeletonGenerator.GeneratorResult? skeleton, bool requiresSta)
     {
         var frameworkName = GetTestFrameworkName(_testFramework);
         var testAttribute = GetTestAttribute(_testFramework);
@@ -677,64 +601,52 @@ public class ResxTranslationOrchestrator
 
         var sb = new StringBuilder();
 
-
         sb.AppendLine($"You are a .NET testing expert working with {frameworkName}.");
         sb.AppendLine($"Generate the test for method '{methodName}' in class '{className}' according to <SuggestedTestStrategy>.");
         sb.AppendLine($"- If the strategy is 'Generate' or 'Direct', produce one test method using {testAttribute}.");
-        sb.AppendLine(
-            "- If the strategy is 'Skip', produce one test method with the framework's skip/ignore attribute " +
-            $"(e.g. {skipAttributeTemplate}); put the body in a comment only.");
-        sb.AppendLine(
-            "- If the strategy is 'RefactorFirst', produce a Skip test AND list the required source refactorings as comments " +
-            "above the test. When the strategy includes a <SuggestedRefactoringPattern>, mirror it in the comments.");
-        sb.AppendLine(
-            "- If the strategy is 'Reflection', produce one test method that invokes the private method via reflection. " +
-            "This strategy explicitly overrides the 'no reflection' rule below and applies only when the strategy says so.");
+        sb.AppendLine("- If the strategy is 'Skip', produce one test method with the framework's skip/ignore attribute " +
+                      $"(e.g. {skipAttributeTemplate}); put the body in a comment only.");
+        sb.AppendLine("- If the strategy is 'RefactorFirst', produce a Skip test AND list the required source refactorings as comments " +
+                      "above the test. When the strategy includes a <SuggestedRefactoringPattern>, mirror it in the comments.");
+        sb.AppendLine("- If the strategy is 'Reflection', produce one test method that invokes the private method via reflection. " +
+                      "This strategy explicitly overrides the 'no reflection' rule below and applies only when the strategy says so.");
         sb.AppendLine();
-
 
         sb.AppendLine(
             "Use <SemanticAnalysis> as the source of truth for method and dependency facts, and follow <SuggestedTestStrategy> exactly.");
-        sb.AppendLine(
-            "Do not use reflection, dynamic invocation, or workaround code for private/static/async-void members, " +
-            "unless <SuggestedTestStrategy> explicitly instructs it (see 'Reflection' strategy).");
+        sb.AppendLine("Do not use reflection, dynamic invocation, or workaround code for private/static/async-void members, " +
+                      "unless <SuggestedTestStrategy> explicitly instructs it (see 'Reflection' strategy).");
         sb.AppendLine();
-
 
         sb.AppendLine("Rules for the test project:");
         sb.AppendLine("- You MAY create a new test class in the test project (naming: <ClassUnderTest>Tests).");
         sb.AppendLine("- Do NOT invent source types, members, project references, or NuGet packages.");
-        sb.AppendLine(
-            "- You MAY use namespaces from referenced assemblies, from packages listed in <ProjectContext>, " +
-            "and from `using` directives shown in <SourceCode>. Do NOT invent new namespaces that are not derivable from these sources.");
+        sb.AppendLine("- You MAY use namespaces from referenced assemblies, from packages listed in <ProjectContext>, " +
+                      "and from `using` directives shown in <SourceCode>. Do NOT invent new namespaces that are not derivable from these sources.");
         sb.AppendLine("- Do NOT invent types that are not present in <ProjectContext> or <SemanticAnalysis>.");
         sb.AppendLine($"- {mockFrameworkInstruction}");
         sb.AppendLine("- Use the selected test framework from <SelectedFrameworks>; the test project uses that framework's template.");
         sb.AppendLine("- Use a mocking library or helper only if it is listed in <TestProject>.");
         sb.AppendLine(
             "- Keep source-code refactoring advice separate from the generated test; do not modify or assume changes to the source project.");
-        sb.AppendLine(
-            "- If the method under test returns Task or Task<T>, make the test method async Task. " +
-            "Do NOT make the test method async for 'async void' methods; those are covered by <SuggestedTestStrategy> (Skip/RefactorFirst).");
-        sb.AppendLine(
-            "- If <SemanticAnalysis> contains <StaRequirement required=\"true\" />, the test must run on an STA thread. " +
-            $"If the test project lists a compatible STA helper package (e.g. \"Xunit.StaFact\" for xUnit) under <PackageReferences>, " +
-            $"use its attribute (e.g. [StaFact]) instead of {testAttribute}. " +
-            $"Otherwise keep {testAttribute} and add a comment noting the STA requirement.");
-        sb.AppendLine(
-            "- Name the test method following the pattern `MethodName_Scenario_ExpectedBehavior` " +
-            "(e.g. `ProcessOrder_EmptyCart_ThrowsInvalidOperationException`). " +
-            "For a Skip/RefactorFirst strategy, prefer a name like `MethodName_IsNotDirectlyTestable` or a similarly descriptive name.");
-        sb.AppendLine(
-            "- The test project has <Nullable>enable</Nullable>. The generated test code must be nullable-correct: " +
-            "no non-nullable fields left uninitialized, no `null` assigned to non-nullable references, " +
-            "and no null-forgiving `!` operator unless the source already uses it in the same member.");
+        sb.AppendLine("- If the method under test returns Task or Task<T>, make the test method async Task. " +
+                      "Do NOT make the test method async for 'async void' methods; those are covered by <SuggestedTestStrategy> (Skip/RefactorFirst).");
+        sb.AppendLine("- If <SemanticAnalysis> contains <StaRequirement required=\"true\" />, the test must run on an STA thread. " +
+                      "If the test project lists a compatible STA helper package (e.g. \"Xunit.StaFact\" for xUnit) under <PackageReferences>, " +
+                      $"use its attribute (e.g. [StaFact]) instead of {testAttribute}. " +
+                      $"Otherwise keep {testAttribute} and add a comment noting the STA requirement.");
+        sb.AppendLine("- Name the test method following the pattern `MethodName_Scenario_ExpectedBehavior` " +
+                      "(e.g. `ProcessOrder_EmptyCart_ThrowsInvalidOperationException`). " +
+                      "For a Skip/RefactorFirst strategy, prefer a name like `MethodName_IsNotDirectlyTestable` or a similarly descriptive name.");
+        sb.AppendLine("- The test project has <Nullable>enable</Nullable>. The generated test code must be nullable-correct: " +
+                      "no non-nullable fields left uninitialized, no `null` assigned to non-nullable references, " +
+                      "and no null-forgiving `!` operator unless the source already uses it in the same member.");
         sb.AppendLine();
-
 
         sb.AppendLine("Output format:");
         sb.AppendLine("- Return ONLY compilable C# code (no explanations, no prose, no TODO markers outside comments).");
-        sb.AppendLine("- \"Compilable C# code\" refers to the generated TEST code, assuming the source project\r\n  compiles as-is. Source compilation errors reported by the analyzer are host artifacts\r\n  and do not affect this assumption.");
+        sb.AppendLine(
+            "- \"Compilable C# code\" refers to the generated TEST code, assuming the source project\r\n  compiles as-is. Source compilation errors reported by the analyzer are host artifacts\r\n  and do not affect this assumption.");
         sb.AppendLine(
             $"- Include \"using {GetTestFrameworkNamespace(_testFramework)};\" at the top of the generated code UNLESS the test project's <ProjectContext> already lists that namespace under <GlobalUsings>.");
         sb.AppendLine("- Use top-level usings consistent with ImplicitUsings/Nullable settings from <ProjectContext>.");
@@ -744,12 +656,12 @@ public class ResxTranslationOrchestrator
         sb.AppendLine($"- Include {testAttribute} (or the framework-specific attribute, including STA variants) exactly once.");
         sb.AppendLine();
 
-
         if (skeleton is { } sk && sk.Mode != UnitTestSkeletonGenerator.SkeletonMode.Fallback)
         {
             sb.AppendLine("=== BINDING TEST SKELETON ===");
             sb.AppendLine("The skeleton below is the authoritative structure. You MUST:");
-            sb.AppendLine("- Preserve the using directives, namespace, class name, field names, constructor and test attribute EXACTLY as shown.");
+            sb.AppendLine(
+                "- Preserve the using directives, namespace, class name, field names, constructor and test attribute EXACTLY as shown.");
             sb.AppendLine("- Fill in ONLY the content between the 'AI AREA' markers.");
             sb.AppendLine("- Do NOT add new fields, mocks, or helper methods unless the strategy explicitly requires it.");
             sb.AppendLine("- Do NOT replace the test attribute with a different one.");
@@ -774,7 +686,8 @@ public class ResxTranslationOrchestrator
 
                     case UnitTestSkeletonGenerator.SkeletonMode.StaticOrAbstract:
                         sb.AppendLine("Mode: StaticOrAbstract.");
-                        sb.AppendLine($"- `{sk.SutTypeName}` cannot be instantiated. Call `{sk.SutTypeName}.{sk.TargetMethodName}(...)` directly.");
+                        sb.AppendLine(
+                            $"- `{sk.SutTypeName}` cannot be instantiated. Call `{sk.SutTypeName}.{sk.TargetMethodName}(...)` directly.");
                         sb.AppendLine("- Do NOT use `new` or `_sut`.");
                         break;
 
@@ -826,11 +739,8 @@ public class ResxTranslationOrchestrator
         return sb.ToString();
     }
 
-    private async Task<SemanticHint> BuildSemanticHintAsync(
-        RoslynDllTestabilityAnalyzer? analyzer,
-        Compilation? compilation,
-        MethodDeclarationSyntax methodDeclaration,
-        Action<string>? logInfo)
+    private async Task<SemanticHint> BuildSemanticHintAsync(RoslynDllTestabilityAnalyzer? analyzer, Compilation? compilation,
+        MethodDeclarationSyntax methodDeclaration, Action<string>? logInfo)
     {
         if (analyzer == null || compilation == null)
         {
@@ -845,9 +755,8 @@ public class ResxTranslationOrchestrator
 
             if (report.TestSkeleton is { } skel)
             {
-                logInfo?.Invoke(
-                    $"[NetAI] Skeleton mode for '{methodName}': {skel.Mode}, " +
-                    $"STA={skel.RequiresSta}, class={skel.TestClassName}");
+                logInfo?.Invoke($"[NetAI] Skeleton mode for '{methodName}': {skel.Mode}, " +
+                                $"STA={skel.RequiresSta}, class={skel.TestClassName}");
             }
 
             if (!report.IsDirectlyTestable)
@@ -900,6 +809,7 @@ public class ResxTranslationOrchestrator
                 {
                     sb.AppendLine($"      <Attribute>{X(a)}</Attribute>");
                 }
+
                 sb.AppendLine("    </Attributes>");
             }
 
@@ -910,6 +820,7 @@ public class ResxTranslationOrchestrator
                 {
                     sb.AppendLine($"      <Exception>{X(t)}</Exception>");
                 }
+
                 sb.AppendLine("    </ThrownExceptions>");
             }
 
@@ -922,14 +833,17 @@ public class ResxTranslationOrchestrator
                 {
                     sb.AppendLine($"    <BaseType>{X(ct.BaseType)}</BaseType>");
                 }
+
                 if (ct.Interfaces.Count > 0)
                 {
                     sb.AppendLine($"    <Interfaces>{X(string.Join(", ", ct.Interfaces))}</Interfaces>");
                 }
+
                 if (ct.AllBaseTypes is { Count: > 0 })
                 {
                     sb.AppendLine($"    <BaseTypes>{X(string.Join(" -> ", ct.AllBaseTypes))}</BaseTypes>");
                 }
+
                 if (ct.Constructors.Count > 0)
                 {
                     sb.AppendLine($"    <PublicCtors>{X(string.Join(" | ", ct.Constructors))}</PublicCtors>");
@@ -940,9 +854,6 @@ public class ResxTranslationOrchestrator
                 }
             }
         }
-
-
-
 
         if (report.RequiresSta)
         {
@@ -959,6 +870,7 @@ public class ResxTranslationOrchestrator
             {
                 sb.AppendLine($"    <Blocker>{X(b)}</Blocker>");
             }
+
             sb.AppendLine("  </Blockers>");
         }
 
@@ -972,8 +884,7 @@ public class ResxTranslationOrchestrator
             foreach (var t in relevant)
             {
                 sb.AppendLine($"    <Dependency type=\"{X(t.FullName)}\" kind=\"{t.DependencyKind}\" " +
-                              $"mockable=\"{X(t.Mockable)}\" usedStatically=\"{t.UsedStatically}\" " +
-                              $"usages=\"{t.Usages}\" />");
+                              $"mockable=\"{X(t.Mockable)}\" usedStatically=\"{t.UsedStatically}\" " + $"usages=\"{t.Usages}\" />");
 
                 if (t.Constructors.Count > 0)
                 {
@@ -994,7 +905,8 @@ public class ResxTranslationOrchestrator
 
                 if (!string.IsNullOrEmpty(t.RecommendedAbstractionPackage))
                 {
-                    sb.AppendLine($"      <RecommendedAbstractionPackage>{X(t.RecommendedAbstractionPackage)}</RecommendedAbstractionPackage>");
+                    sb.AppendLine(
+                        $"      <RecommendedAbstractionPackage>{X(t.RecommendedAbstractionPackage)}</RecommendedAbstractionPackage>");
                 }
 
                 if (!string.IsNullOrEmpty(t.RecommendationReason))
@@ -1002,6 +914,7 @@ public class ResxTranslationOrchestrator
                     sb.AppendLine($"      <Reason>{X(t.RecommendationReason)}</Reason>");
                 }
             }
+
             sb.AppendLine("  </Dependencies>");
         }
 
@@ -1012,6 +925,7 @@ public class ResxTranslationOrchestrator
             {
                 sb.AppendLine($"    <Call>{X(c)}</Call>");
             }
+
             sb.AppendLine("  </CallGraph>");
         }
 
@@ -1021,19 +935,18 @@ public class ResxTranslationOrchestrator
         {
             sb.AppendLine($"      <Recommendation>{X(recommendation)}</Recommendation>");
         }
+
         sb.AppendLine("    </SourceRefactoring>");
         sb.AppendLine("    <TestStrategy>");
         foreach (var recommendation in report.TestStrategyRecommendations)
         {
             sb.AppendLine($"      <Recommendation>{X(recommendation)}</Recommendation>");
         }
+
         sb.AppendLine("    </TestStrategy>");
         sb.AppendLine("  </Recommendations>");
 
         AppendSuggestedTestStrategy(sb, report);
-
-
-
 
         sb.AppendLine("</SemanticAnalysis>");
         return sb.ToString();
@@ -1047,34 +960,42 @@ public class ResxTranslationOrchestrator
         switch (report.Strategy)
         {
             case UnitTestSkeletonGenerator.TestStrategy.RefactorFirst:
+            {
+                if (method.IsAsyncVoid)
                 {
-                    if (method.IsAsyncVoid)
+                    sb.AppendLine($"  <SuggestedTestStrategy action=\"RefactorFirst\" testFramework=\"{frameworkName}\">");
+                    sb.AppendLine(
+                        "    <Instruction>Split the async void handler into a thin UI shim and a testable async Task, then write the test against the Task.</Instruction>");
+                    sb.AppendLine(
+                        "    <Fallback>Do not change production code. Keep the Skip attribute from the binding skeleton verbatim and describe the required refactoring only in a comment.</Fallback>");
+                    sb.AppendLine("    <SuggestedRefactoringPattern>");
+                    foreach (var line in BuildAsyncVoidRefactoringPattern(method))
                     {
-                        sb.AppendLine($"  <SuggestedTestStrategy action=\"RefactorFirst\" testFramework=\"{frameworkName}\">");
-                        sb.AppendLine("    <Instruction>Split the async void handler into a thin UI shim and a testable async Task, then write the test against the Task.</Instruction>");
-                        sb.AppendLine("    <Fallback>Do not change production code. Keep the Skip attribute from the binding skeleton verbatim and describe the required refactoring only in a comment.</Fallback>");
-                        sb.AppendLine("    <SuggestedRefactoringPattern>");
-                        foreach (var line in BuildAsyncVoidRefactoringPattern(method))
-                        {
-                            sb.AppendLine($"      {X(line)}");
-                        }
-                        sb.AppendLine("    </SuggestedRefactoringPattern>");
-                        sb.AppendLine("    <Constraint>Do not use reflection. Do not invoke the handler directly. Do not perform real static I/O.</Constraint>");
-                        sb.AppendLine("  </SuggestedTestStrategy>");
+                        sb.AppendLine($"      {X(line)}");
                     }
-                    else
-                    {
-                        sb.AppendLine($"  <SuggestedTestStrategy action=\"RefactorFirst\" testFramework=\"{frameworkName}\">");
-                        sb.AppendLine($"    <Instruction>The method has blockers that cannot be safely worked around in a test: {X(string.Join(" | ", report.Blockers))}.</Instruction>");
-                        sb.AppendLine("    <Fallback>Do not change production code. Keep the Skip attribute from the binding skeleton verbatim and describe the required refactoring only in a comment.</Fallback>");
-                        sb.AppendLine("  </SuggestedTestStrategy>");
-                    }
-                    return;
+
+                    sb.AppendLine("    </SuggestedRefactoringPattern>");
+                    sb.AppendLine(
+                        "    <Constraint>Do not use reflection. Do not invoke the handler directly. Do not perform real static I/O.</Constraint>");
+                    sb.AppendLine("  </SuggestedTestStrategy>");
                 }
+                else
+                {
+                    sb.AppendLine($"  <SuggestedTestStrategy action=\"RefactorFirst\" testFramework=\"{frameworkName}\">");
+                    sb.AppendLine(
+                        $"    <Instruction>The method has blockers that cannot be safely worked around in a test: {X(string.Join(" | ", report.Blockers))}.</Instruction>");
+                    sb.AppendLine(
+                        "    <Fallback>Do not change production code. Keep the Skip attribute from the binding skeleton verbatim and describe the required refactoring only in a comment.</Fallback>");
+                    sb.AppendLine("  </SuggestedTestStrategy>");
+                }
+
+                return;
+            }
 
             case UnitTestSkeletonGenerator.TestStrategy.Reflection:
                 sb.AppendLine($"  <SuggestedTestStrategy action=\"Reflection\" testFramework=\"{frameworkName}\">");
-                sb.AppendLine("    <Instruction>Use reflection only to invoke this synchronous private method; use no invented dependencies.</Instruction>");
+                sb.AppendLine(
+                    "    <Instruction>Use reflection only to invoke this synchronous private method; use no invented dependencies.</Instruction>");
                 sb.AppendLine("  </SuggestedTestStrategy>");
                 return;
 
@@ -1086,7 +1007,8 @@ public class ResxTranslationOrchestrator
 
             default:
                 sb.AppendLine($"  <SuggestedTestStrategy action=\"Direct\" testFramework=\"{frameworkName}\">");
-                sb.AppendLine("    <Instruction>Call the method through its declared accessible API and assert observable behavior.</Instruction>");
+                sb.AppendLine(
+                    "    <Instruction>Call the method through its declared accessible API and assert observable behavior.</Instruction>");
                 sb.AppendLine("  </SuggestedTestStrategy>");
                 return;
         }
@@ -1094,23 +1016,14 @@ public class ResxTranslationOrchestrator
 
     private static IReadOnlyList<string> BuildAsyncVoidRefactoringPattern(MethodFact method)
     {
-        var asyncName = method.Name.EndsWith("Async", StringComparison.Ordinal)
-            ? method.Name + "Core"
-            : method.Name + "Async";
+        var asyncName = method.Name.EndsWith("Async", StringComparison.Ordinal) ? method.Name + "Core" : method.Name + "Async";
 
         return new[]
         {
-            "// BEFORE:",
-            $"//   private async void {method.Name}(object sender, RoutedEventArgs e)",
-            "//   { /* original async body */ }",
-            "//",
-            "// AFTER:",
-            $"//   private async void {method.Name}(object sender, RoutedEventArgs e)",
-            $"//       => await {asyncName}();",
-            "//",
-            $"//   private async Task {asyncName}()",
-            "//   { /* original async body, now awaitable & testable */ }",
-            "//",
+            "// BEFORE:", $"//   private async void {method.Name}(object sender, RoutedEventArgs e)",
+            "//   { /* original async body */ }", "//", "// AFTER:",
+            $"//   private async void {method.Name}(object sender, RoutedEventArgs e)", $"//       => await {asyncName}();", "//",
+            $"//   private async Task {asyncName}()", "//   { /* original async body, now awaitable & testable */ }", "//",
             "// Rationale: the shim stays UI-bound by design and is excluded from unit tests;",
             $"// the {asyncName} method carries all logic and is fully unit-testable."
         };
@@ -1204,6 +1117,7 @@ public class ResxTranslationOrchestrator
             var version = string.IsNullOrWhiteSpace(package.Version) ? "centrally managed or unspecified" : package.Version;
             sb.AppendLine($"      <Package id=\"{X(package.Name)}\" version=\"{X(version)}\" />");
         }
+
         sb.AppendLine("    </PackageReferences>");
 
         var globalUsings = doc.Descendants().Where(e => e.Name.LocalName == "Using").Select(e => e.Attribute("Include")?.Value)
@@ -1216,6 +1130,7 @@ public class ResxTranslationOrchestrator
             {
                 sb.AppendLine($"      <Using>{X(u)}</Using>");
             }
+
             sb.AppendLine("    </GlobalUsings>");
         }
 
@@ -1230,6 +1145,7 @@ public class ResxTranslationOrchestrator
                 var normalizedPath = reference.Replace('\\', Path.DirectorySeparatorChar);
                 sb.AppendLine($"      <ProjectReference>{X(Path.GetFileName(normalizedPath))}</ProjectReference>");
             }
+
             sb.AppendLine("    </ProjectReferences>");
         }
 
@@ -1251,12 +1167,9 @@ public class ResxTranslationOrchestrator
             : s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("'", "&apos;");
     }
 
-
     private string PrepareValidationStructure(string testClassName, string? testNamespaceName, string methodCode)
     {
-        var namespaceName = string.IsNullOrWhiteSpace(testNamespaceName)
-            ? "NetAI.Generated.Tests"
-            : testNamespaceName!;
+        var namespaceName = string.IsNullOrWhiteSpace(testNamespaceName) ? "NetAI.Generated.Tests" : testNamespaceName!;
 
         if (!namespaceName.EndsWith(".Tests", StringComparison.Ordinal))
         {
@@ -1277,7 +1190,7 @@ public class ResxTranslationOrchestrator
 
         if (incomingClass is not null)
         {
-            members = incomingClass.Members.Cast<MemberDeclarationSyntax>().ToList();
+            members = incomingClass.Members.ToList();
         }
         else
         {
@@ -1318,16 +1231,12 @@ public class ResxTranslationOrchestrator
             }
         }
 
-        var generatedClass = SyntaxFactory.ClassDeclaration(testClassName)
-            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+        var generatedClass = SyntaxFactory.ClassDeclaration(testClassName).AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
             .AddMembers(members.ToArray());
 
-        var generatedNamespace = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName))
-            .AddMembers(generatedClass);
+        var generatedNamespace = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).AddMembers(generatedClass);
 
-        var compilationUnit = SyntaxFactory.CompilationUnit()
-            .WithUsings(SyntaxFactory.List(usings))
-            .AddMembers(generatedNamespace);
+        var compilationUnit = SyntaxFactory.CompilationUnit().WithUsings(SyntaxFactory.List(usings)).AddMembers(generatedNamespace);
 
         return Formatter.Format(compilationUnit, new AdhocWorkspace()).ToFullString();
     }
@@ -1338,7 +1247,6 @@ public class ResxTranslationOrchestrator
         return string.Join("|", normalized.GlobalKeyword.RawKind, normalized.StaticKeyword.RawKind, normalized.Alias?.Name.ToString(),
             normalized.Name?.ToString());
     }
-
 
     private static string BuildClassSkeleton(ClassDeclarationSyntax targetClass, MethodDeclarationSyntax targetMethod,
         bool includeProperties = true, bool includeConstructors = true, bool includeRecursiveHelpers = true)
@@ -1352,6 +1260,7 @@ public class ResxTranslationOrchestrator
             {
                 sb.AppendLine(u.ToFullString().TrimEnd());
             }
+
             sb.AppendLine();
         }
 
@@ -1525,14 +1434,10 @@ public class ResxTranslationOrchestrator
             {
                 var name = attribute.Name.ToString();
 
-                if (name.EndsWith("Fact", StringComparison.Ordinal) ||
-                    name.EndsWith("Theory", StringComparison.Ordinal) ||
-                    name.EndsWith("Test", StringComparison.Ordinal) ||
-                    name.EndsWith("TestCase", StringComparison.Ordinal) ||
-                    name.EndsWith("TestMethod", StringComparison.Ordinal) ||
-                    name.EndsWith("DataTestMethod", StringComparison.Ordinal) ||
-                    name.EndsWith("StaFact", StringComparison.Ordinal) ||
-                    name.EndsWith("STATestMethod", StringComparison.Ordinal))
+                if (name.EndsWith("Fact", StringComparison.Ordinal) || name.EndsWith("Theory", StringComparison.Ordinal) ||
+                    name.EndsWith("Test", StringComparison.Ordinal) || name.EndsWith("TestCase", StringComparison.Ordinal) ||
+                    name.EndsWith("TestMethod", StringComparison.Ordinal) || name.EndsWith("DataTestMethod", StringComparison.Ordinal) ||
+                    name.EndsWith("StaFact", StringComparison.Ordinal) || name.EndsWith("STATestMethod", StringComparison.Ordinal))
                 {
                     return true;
                 }
@@ -1541,7 +1446,6 @@ public class ResxTranslationOrchestrator
 
         return false;
     }
-
 
     private static string? FindProjectDirectory(string filePath)
     {
@@ -1590,7 +1494,7 @@ public class ResxTranslationOrchestrator
 
     private static string? GetSourceNamespace(ClassDeclarationSyntax targetClass)
     {
-        for (SyntaxNode? current = targetClass.Parent; current is not null; current = current.Parent)
+        for (var current = targetClass.Parent; current is not null; current = current.Parent)
         {
             switch (current)
             {
@@ -1614,17 +1518,14 @@ public class ResxTranslationOrchestrator
         try
         {
             var csproj = Directory.GetFiles(testProjectDirectory, "*.csproj", SearchOption.TopDirectoryOnly)
-                .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
-                .FirstOrDefault();
+                .OrderBy(p => p, StringComparer.OrdinalIgnoreCase).FirstOrDefault();
             if (csproj is null)
             {
                 return null;
             }
 
             var doc = XDocument.Load(csproj);
-            var value = doc.Descendants()
-                .FirstOrDefault(e => e.Name.LocalName == "RootNamespace")?
-                .Value?.Trim();
+            var value = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "RootNamespace")?.Value?.Trim();
 
             return string.IsNullOrWhiteSpace(value) ? null : value;
         }
@@ -1645,9 +1546,7 @@ public class ResxTranslationOrchestrator
         var fromSource = GetSourceNamespace(targetClass);
         if (!string.IsNullOrWhiteSpace(fromSource))
         {
-            return fromSource!.EndsWith(".Tests", StringComparison.Ordinal)
-                ? fromSource!
-                : fromSource + ".Tests";
+            return fromSource!.EndsWith(".Tests", StringComparison.Ordinal) ? fromSource! : fromSource + ".Tests";
         }
 
         return "NetAI.Generated.Tests";
@@ -1695,7 +1594,6 @@ public class ResxTranslationOrchestrator
 
         return sanitized;
     }
-
 
     private static TestFramework ParseTestFramework(AiTestingConfig config)
     {
@@ -1778,7 +1676,9 @@ public class ResxTranslationOrchestrator
     }
 
     private static string StripAiAreaMarkers(string code)
-        => string.IsNullOrEmpty(code) ? code : AiAreaMarkerLineRegex.Replace(code, string.Empty);
+    {
+        return string.IsNullOrEmpty(code) ? code : AiAreaMarkerLineRegex.Replace(code, string.Empty);
+    }
 
     private static int EstimateCyclomaticComplexity(MethodDeclarationSyntax method)
     {
@@ -1796,10 +1696,8 @@ public class ResxTranslationOrchestrator
                 DoStatementSyntax => 1,
                 CatchClauseSyntax => 1,
                 ConditionalExpressionSyntax => 1,
-                BinaryExpressionSyntax b
-                    when b.IsKind(SyntaxKind.LogicalAndExpression)
-                         || b.IsKind(SyntaxKind.LogicalOrExpression)
-                         || b.IsKind(SyntaxKind.CoalesceExpression) => 1,
+                BinaryExpressionSyntax b when b.IsKind(SyntaxKind.LogicalAndExpression) || b.IsKind(SyntaxKind.LogicalOrExpression) ||
+                                              b.IsKind(SyntaxKind.CoalesceExpression) => 1,
                 _ => 0
             };
         }
@@ -1812,4 +1710,6 @@ public class ResxTranslationOrchestrator
         actualChars = method.ToFullString().Length;
         return actualChars <= maxChars;
     }
+
+    private sealed record SemanticHint(string Xml, UnitTestSkeletonGenerator.GeneratorResult? Skeleton, bool RequiresSta);
 }
