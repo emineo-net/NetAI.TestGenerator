@@ -8,7 +8,7 @@ public record AiTestingConfig
     /// <summary>Creates a configuration from its versioned settings sections.</summary>
     [JsonConstructor]
     public AiTestingConfig(string version, EnvironmentConfig environment, FrameworksConfig frameworks, CodeStyleConfig codeStyle,
-        GenerationBehaviorConfig generationBehavior, AiConfigurationConfig aiConfiguration)
+        GenerationBehaviorConfig generationBehavior, LlmConnectionSettings aiConfiguration)
     {
         Version = version;
         Environment = environment;
@@ -46,9 +46,9 @@ public record AiTestingConfig
     [JsonProperty("generationBehavior")]
     public GenerationBehaviorConfig GenerationBehavior { get; set; }
 
-    /// <summary>Gets or sets the AI model and system prompt settings.</summary>
+    /// <summary>Gets or sets the LLM connection, model, and system prompt settings.</summary>
     [JsonProperty("aiConfiguration")]
-    public AiConfigurationConfig AiConfiguration { get; set; }
+    public LlmConnectionSettings AiConfiguration { get; set; }
 }
 
 /// <summary>Defines the target .NET framework and generated test project name.</summary>
@@ -142,26 +142,4 @@ public record GenerationBehaviorConfig
 
     /// <summary>Gets or sets the maximum number of test methods per generated class.</summary>
     public int MaxTestsPerClass { get; set; }
-}
-
-/// <summary>Defines the AI model, sampling temperature, and system prompt for generation.</summary>
-public record AiConfigurationConfig
-{
-    /// <summary>Creates AI generation settings.</summary>
-    [JsonConstructor]
-    public AiConfigurationConfig(string model, double temperature, string systemPrompt)
-    {
-        Model = model;
-        Temperature = temperature;
-        SystemPrompt = systemPrompt;
-    }
-
-    /// <summary>Gets or sets the AI model identifier.</summary>
-    public string Model { get; set; }
-
-    /// <summary>Gets or sets the model sampling temperature.</summary>
-    public double Temperature { get; set; }
-
-    /// <summary>Gets or sets the system instructions supplied to the model.</summary>
-    public string SystemPrompt { get; set; }
 }

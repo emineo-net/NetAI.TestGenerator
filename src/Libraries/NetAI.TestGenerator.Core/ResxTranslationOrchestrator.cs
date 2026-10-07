@@ -301,18 +301,13 @@ public class ResxTranslationOrchestrator
 
                 var aiAttempts = 0;
                 var envAttempts = 0;
+                var roslynFixApplied = false;
 
                 const int MaxAiRetries = 1;
                 const int MaxEnvRetries = 1;
 
                 while (true)
                 {
-                    if (aiAttempts >= MaxAiRetries)
-                    {
-                        logInfo?.Invoke($"[NetAI] Reached {MaxAiRetries} AI repair attempts for '{methodName}'. Giving up.");
-                        break;
-                    }
-
                     if (envAttempts >= MaxEnvRetries)
                     {
                         logInfo?.Invoke($"[NetAI] Reached {MaxEnvRetries} environment retries for '{methodName}'. " +
@@ -321,7 +316,8 @@ public class ResxTranslationOrchestrator
                         break;
                     }
 
-                    var validationClassStructure = PrepareValidationStructure(testClassName, effectiveTestNamespace, testMethodCode);
+                    var validationClassStructure = PrepareValidationStructure(testClassName, effectiveTestNamespace, testMethodCode,
+                        semanticHint.Skeleton);
 
                     validationClassStructure = await testCodeProcessor
                         .ProcessTestClassAsync(validationClassStructure, _testFramework, _mockFramework).ConfigureAwait(false);
@@ -354,6 +350,29 @@ public class ResxTranslationOrchestrator
                         continue;
                     }
 
+                    if (!roslynFixApplied && result.CompilerErrors?.Any() == true)
+                    {
+                        var codeForRoslyn = result.TestClassCode ?? validationClassStructure;
+                        var roslynFixed = await _testCodeBeautifier.TryFixCompilerErrorsAsync(
+                            codeForRoslyn, result.CompilerErrors, _testFramework, _mockFramework).ConfigureAwait(false);
+
+                        if (!string.Equals(roslynFixed, codeForRoslyn, StringComparison.Ordinal))
+                        {
+                            BuildLogger.Info(roslynFixed);
+                            logInfo?.Invoke("[NetAI] Roslyn automatically added missing using directives; " +
+                                            "retrying compilation without AI.");
+                            testMethodCode = ExtractTestClass(roslynFixed);
+                            roslynFixApplied = true;
+                            continue;
+                        }
+                    }
+
+                    if (aiAttempts >= MaxAiRetries)
+                    {
+                        logInfo?.Invoke($"[NetAI] Reached {MaxAiRetries} AI repair attempts for '{methodName}'. Giving up.");
+                        break;
+                    }
+
                     aiAttempts++;
                     logInfo?.Invoke($"[NetAI] Test for '{methodName}' failed compilation " +
                                     $"(AI attempt {aiAttempts}/{MaxAiRetries}). Running AI repair loop...");
@@ -375,21 +394,6 @@ public class ResxTranslationOrchestrator
                     var errorsText = string.Join("\n", result.CompilerErrors ?? Array.Empty<string>());
                     BuildLogger.Info(errorsText);
                     var codeForRepair = result.TestClassCode ?? validationClassStructure;
-
-                    if (result.CompilerErrors?.Any() == true)
-                    {
-                        var roslynFixed = await _testCodeBeautifier.TryFixCompilerErrorsAsync(
-                            codeForRepair, result.CompilerErrors, _testFramework, _mockFramework).ConfigureAwait(false);
-
-                        if (!string.Equals(roslynFixed, codeForRepair, StringComparison.Ordinal))
-                        {
-                            BuildLogger.Info(roslynFixed);
-                            logInfo?.Invoke("[NetAI] Roslyn automatically added missing using directives; " +
-                                            "retrying compilation without AI.");
-                            testMethodCode = ExtractTestClass(roslynFixed);
-                            continue;
-                        }
-                    }
 
                     var errorPrompt = aiPromptBuilderSimple.FixUnittestPromptSimple(errorsText, codeForRepair);
                     BuildLogger.Info(errorPrompt);
@@ -960,37 +964,37 @@ public class ResxTranslationOrchestrator
         switch (report.Strategy)
         {
             case UnitTestSkeletonGenerator.TestStrategy.RefactorFirst:
-            {
-                if (method.IsAsyncVoid)
                 {
-                    sb.AppendLine($"  <SuggestedTestStrategy action=\"RefactorFirst\" testFramework=\"{frameworkName}\">");
-                    sb.AppendLine(
-                        "    <Instruction>Split the async void handler into a thin UI shim and a testable async Task, then write the test against the Task.</Instruction>");
-                    sb.AppendLine(
-                        "    <Fallback>Do not change production code. Keep the Skip attribute from the binding skeleton verbatim and describe the required refactoring only in a comment.</Fallback>");
-                    sb.AppendLine("    <SuggestedRefactoringPattern>");
-                    foreach (var line in BuildAsyncVoidRefactoringPattern(method))
+                    if (method.IsAsyncVoid)
                     {
-                        sb.AppendLine($"      {X(line)}");
+                        sb.AppendLine($"  <SuggestedTestStrategy action=\"RefactorFirst\" testFramework=\"{frameworkName}\">");
+                        sb.AppendLine(
+                            "    <Instruction>Split the async void handler into a thin UI shim and a testable async Task, then write the test against the Task.</Instruction>");
+                        sb.AppendLine(
+                            "    <Fallback>Do not change production code. Keep the Skip attribute from the binding skeleton verbatim and describe the required refactoring only in a comment.</Fallback>");
+                        sb.AppendLine("    <SuggestedRefactoringPattern>");
+                        foreach (var line in BuildAsyncVoidRefactoringPattern(method))
+                        {
+                            sb.AppendLine($"      {X(line)}");
+                        }
+
+                        sb.AppendLine("    </SuggestedRefactoringPattern>");
+                        sb.AppendLine(
+                            "    <Constraint>Do not use reflection. Do not invoke the handler directly. Do not perform real static I/O.</Constraint>");
+                        sb.AppendLine("  </SuggestedTestStrategy>");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"  <SuggestedTestStrategy action=\"RefactorFirst\" testFramework=\"{frameworkName}\">");
+                        sb.AppendLine(
+                            $"    <Instruction>The method has blockers that cannot be safely worked around in a test: {X(string.Join(" | ", report.Blockers))}.</Instruction>");
+                        sb.AppendLine(
+                            "    <Fallback>Do not change production code. Keep the Skip attribute from the binding skeleton verbatim and describe the required refactoring only in a comment.</Fallback>");
+                        sb.AppendLine("  </SuggestedTestStrategy>");
                     }
 
-                    sb.AppendLine("    </SuggestedRefactoringPattern>");
-                    sb.AppendLine(
-                        "    <Constraint>Do not use reflection. Do not invoke the handler directly. Do not perform real static I/O.</Constraint>");
-                    sb.AppendLine("  </SuggestedTestStrategy>");
+                    return;
                 }
-                else
-                {
-                    sb.AppendLine($"  <SuggestedTestStrategy action=\"RefactorFirst\" testFramework=\"{frameworkName}\">");
-                    sb.AppendLine(
-                        $"    <Instruction>The method has blockers that cannot be safely worked around in a test: {X(string.Join(" | ", report.Blockers))}.</Instruction>");
-                    sb.AppendLine(
-                        "    <Fallback>Do not change production code. Keep the Skip attribute from the binding skeleton verbatim and describe the required refactoring only in a comment.</Fallback>");
-                    sb.AppendLine("  </SuggestedTestStrategy>");
-                }
-
-                return;
-            }
 
             case UnitTestSkeletonGenerator.TestStrategy.Reflection:
                 sb.AppendLine($"  <SuggestedTestStrategy action=\"Reflection\" testFramework=\"{frameworkName}\">");
@@ -1167,7 +1171,8 @@ public class ResxTranslationOrchestrator
             : s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("'", "&apos;");
     }
 
-    private string PrepareValidationStructure(string testClassName, string? testNamespaceName, string methodCode)
+    private string PrepareValidationStructure(string testClassName, string? testNamespaceName, string methodCode,
+        UnitTestSkeletonGenerator.GeneratorResult? skeleton = null)
     {
         var namespaceName = string.IsNullOrWhiteSpace(testNamespaceName) ? "NetAI.Generated.Tests" : testNamespaceName!;
 
@@ -1204,7 +1209,8 @@ public class ResxTranslationOrchestrator
                     classMembers = classMembers.Remove(usingDirective.SpanStart, usingDirective.Span.Length);
                 }
 
-                var wrappedRoot = CSharpSyntaxTree.ParseText($"class GeneratedTestContainer {{ {classMembers} }}").GetCompilationUnitRoot();
+                var wrappedRoot = CSharpSyntaxTree.ParseText($"class GeneratedTestContainer {{ {classMembers} }}")
+                    .GetCompilationUnitRoot();
                 methods = wrappedRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().ToArray();
             }
 
@@ -1222,6 +1228,31 @@ public class ResxTranslationOrchestrator
         };
 
         var usingKeys = new HashSet<string>(usings.Select(GetUsingKey), StringComparer.Ordinal);
+
+        void AddUsingIfMissing(string name)
+        {
+            var directive = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(name));
+            if (usingKeys.Add(GetUsingKey(directive)))
+            {
+                usings.Add(directive);
+            }
+        }
+
+        // 1) Skeleton-Usings (autoritativ – das Modell soll sie 1:1 übernehmen)
+        if (skeleton?.TestSkeleton is { } skeletonCode)
+        {
+            var skeletonRoot = CSharpSyntaxTree.ParseText(skeletonCode).GetCompilationUnitRoot();
+            foreach (var u in skeletonRoot.Usings)
+            {
+                var normalized = u.WithoutTrivia();
+                if (usingKeys.Add(GetUsingKey(normalized)))
+                {
+                    usings.Add(normalized);
+                }
+            }
+        }
+
+        // 2) Vom Modell mitgelieferte Usings
         foreach (var usingDirective in generatedRoot.Usings)
         {
             var normalizedUsing = usingDirective.WithoutTrivia();
@@ -1231,12 +1262,53 @@ public class ResxTranslationOrchestrator
             }
         }
 
-        var generatedClass = SyntaxFactory.ClassDeclaration(testClassName).AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+        // 3) Defensive: bekannte Usings anhand tatsächlicher Code-Muster injizieren
+        if (methodCode.Contains(".Should()", StringComparison.Ordinal)
+            || methodCode.Contains(".Should(", StringComparison.Ordinal))
+        {
+            if (_config?.Frameworks?.UseFluentAssertions != false)
+            {
+                AddUsingIfMissing("FluentAssertions");
+            }
+        }
+
+        if (_mockFramework == MockFramework.Moq
+            && (methodCode.Contains("Mock<", StringComparison.Ordinal)
+                || methodCode.Contains("Mock.", StringComparison.Ordinal)
+                || methodCode.Contains("It.Is", StringComparison.Ordinal)))
+        {
+            AddUsingIfMissing("Moq");
+        }
+
+        if (_mockFramework == MockFramework.NSubstitute
+            && methodCode.Contains("Substitute.", StringComparison.Ordinal))
+        {
+            AddUsingIfMissing("NSubstitute");
+        }
+
+        if (_mockFramework == MockFramework.FakeItEasy
+            && methodCode.Contains("A.Fake", StringComparison.Ordinal))
+        {
+            AddUsingIfMissing("FakeItEasy");
+        }
+
+        if (_config?.Frameworks?.UseAutoFixture == true
+            && (methodCode.Contains("new Fixture(", StringComparison.Ordinal)
+                || methodCode.Contains("IFixture", StringComparison.Ordinal)))
+        {
+            AddUsingIfMissing("AutoFixture");
+        }
+
+        var generatedClass = SyntaxFactory.ClassDeclaration(testClassName)
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
             .AddMembers(members.ToArray());
 
-        var generatedNamespace = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).AddMembers(generatedClass);
+        var generatedNamespace = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName))
+            .AddMembers(generatedClass);
 
-        var compilationUnit = SyntaxFactory.CompilationUnit().WithUsings(SyntaxFactory.List(usings)).AddMembers(generatedNamespace);
+        var compilationUnit = SyntaxFactory.CompilationUnit()
+            .WithUsings(SyntaxFactory.List(usings))
+            .AddMembers(generatedNamespace);
 
         return Formatter.Format(compilationUnit, new AdhocWorkspace()).ToFullString();
     }
@@ -1425,6 +1497,7 @@ public class ResxTranslationOrchestrator
 
         return sb.ToString().Trim();
     }
+
 
     private static bool HasTestAttribute(MethodDeclarationSyntax method)
     {

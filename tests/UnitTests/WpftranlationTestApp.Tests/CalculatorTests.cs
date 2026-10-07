@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Moq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System;
 using Xunit;
@@ -19,7 +20,7 @@ namespace WpftranlationTestApp.Tests
             act.Should().Throw<InvalidOperationException>();
         }
         [Fact]
-        public void Add_WhenCalled_ShouldReturnCorrectSum()
+        public void Add_WhenCalled_ShouldReturnSumOfTwoIntegers()
         {
 
             // Arrange
@@ -34,7 +35,7 @@ namespace WpftranlationTestApp.Tests
 
         }
         [Fact]
-        public void Subtract_WhenCalled_ShouldReturnCorrectResult()
+        public void Subtract_WhenCalled_ShouldReturnDifferenceOfTwoIntegers()
         {
 
             // Arrange
@@ -42,7 +43,7 @@ namespace WpftranlationTestApp.Tests
             int b = 5;
 
             // Act
-            int result = _sut.Subtract(a, b);
+            var result = _sut.Subtract(a, b);
 
             // Assert
             result.Should().Be(5);
@@ -53,18 +54,19 @@ namespace WpftranlationTestApp.Tests
         {
 
             // Arrange
-            double a = 10;
-            double b = 2;
+            double a = 10.0;
+            double b = 2.0;
+            double expected = 5.0;
 
             // Act
             double result = _sut.Divide(a, b);
 
             // Assert
-            result.Should().Be(5);
+            result.Should().Be(expected);
 
         }
         [Fact]
-        public void Reverse_WhenCalled_ShouldBehavior()
+        public void Reverse_WhenCalled_ShouldReturnReversedString()
         {
 
             // Arrange
@@ -82,27 +84,29 @@ namespace WpftranlationTestApp.Tests
         {
 
             // Arrange
-            string input = "radar";
+            var input = "racecar";
 
             // Act
-            bool result = _sut.IsPalindrome(input);
+            var result = _sut.IsPalindrome(input);
 
             // Assert
             result.Should().BeTrue();
 
         }
         [Fact]
-        public void GetEvenNumbers_WhenCalled_ShouldReturnCorrectEvenNumbers()
+        public void GetEvenNumbers_WhenCalled_ShouldReturnEvenNumbersOnly()
         {
 
             // Arrange
-            var numbers = new List<int> { 1, 2, 3, 4, 5, 6 };
+            var inputNumbers = new List<int> { 1, 2, 3, 4, 5, 6 };
+            var expectedEvenNumbers = new List<int> { 2, 4, 6 };
 
             // Act
-            var result = _sut.GetEvenNumbers(numbers);
+            var result = _sut.GetEvenNumbers(inputNumbers);
 
             // Assert
-            result.Should().BeEquivalentTo(new List<int> { 2, 4, 6 });
+            result.Should().ContainInOrder(expectedEvenNumbers);
+            result.Count.Should().Be(3);
 
         }
         [Fact]
@@ -110,64 +114,79 @@ namespace WpftranlationTestApp.Tests
         {
 
             // Arrange
-            int number = 5;
-            int expectedFactorial = 120;
+            int input = 5;
+            int expected = 120;
 
             // Act
-            int result = _sut.Factorial(number);
+            int result = _sut.Factorial(input);
 
             // Assert
-            result.Should().Be(expectedFactorial);
+            result.Should().Be(expected);
 
         }
         [Fact]
-        public async Task FetchGreetingAsync_WhenCalled_ShouldReturnGreeting()
+        public async Task FetchGreetingAsync_WhenCalled_ShouldReturnExpectedGreeting()
         {
+
             // Arrange
-            string name = "Alice";
+            var name = "TestUser";
 
             // Act
-            string result = await _sut.FetchGreetingAsync(name);
+            var result = await _sut.FetchGreetingAsync(name);
 
             // Assert
-            result.Should().Be("Hallo, Alice!");
+            result.Should().Be("Hallo, TestUser!");
+
         }// REQUIRED SOURCE REFACTORING (do not implement the test yet):
 
         // 1) Change 'async void' to 'async Task'.
+
+        // 
+
+        // BEFORE:
+
+        //   private async void FireAndForgetLog(object sender, RoutedEventArgs e)
+
+        //   { /* original async body */ }
+
+        //
+
+        // AFTER:
+
+        //   private async void FireAndForgetLog(object sender, RoutedEventArgs e)
+
+        //       => await FireAndForgetLogAsync();
+
+        //
+
+        //   private async Task FireAndForgetLogAsync()
+
+        //   { /* original async body, now awaitable & testable */ }
+
+        //
+
+        // Rationale: the shim stays UI-bound by design and is excluded from unit tests;
+
+        // the FireAndForgetLogAsync method carries all logic and is fully unit-testable.
 
 
         [Fact(Skip = "requires refactoring: async void method must become an awaitable async Task")]
         public void FireAndForgetLog_RequiresRefactoring()
         {
-            // BEFORE:
-            //   public async void FireAndForgetLog(string message)
-            //   { /* original async body */ }
-            //
-            // AFTER:
-            //   public async Task FireAndForgetLogAsync(string message)
-            //   { /* original async body, now awaitable &amp; testable */ }
-            //
-            // Rationale: the method becomes fully unit-testable.
         }
         [Fact]
-        public void Multiply_WhenCalled_ShouldBehavior()
+        public void Multiply_IsNotDirectlyTestable_RequiresReflection()
         {
 
             // Arrange
-            int a = 3;
-            int b = 4;
-            int expected = 12;
+            var methodInfo = typeof(Calculator).GetMethod("Multiply", BindingFlags.NonPublic | BindingFlags.Instance);
+            var args = new object[] { 3, 4 };
 
             // Act
-            var methodInfo = typeof(Calculator).GetMethod("Multiply", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (methodInfo == null)
-            {
-                throw new Exception("Method 'Multiply' not found.");
-            }
-            int result = (int)methodInfo.Invoke(_sut, new object[] { a, b });
+            var result = methodInfo.Invoke(_sut, args);
 
             // Assert
-            result.Should().Be(expected);
+            result.Should().Be(12);
 
         }
     }

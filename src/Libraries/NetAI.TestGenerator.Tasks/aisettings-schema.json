@@ -109,25 +109,87 @@
         }
       }
     },
+
     "aiConfiguration": {
       "type": "object",
-      "required": [ "model", "temperature", "systemPrompt" ],
+      "description": "Connection settings for the OpenAI-compatible LLM endpoint (local server or hosted API).",
+      "additionalProperties": false,
+      "required": [ "model", "temperature" ],
       "properties": {
+        "baseUrl": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "/$",
+          "default": "http://localhost:8080/",
+          "description": "Absolute URL of the OpenAI-compatible endpoint. Must end with '/'. Defaults to a local server on port 8080. Examples: 'http://localhost:11434/' (Ollama), 'https://api.openai.com/'."
+        },
         "model": {
           "type": "string",
-          "description": "The AI model to use (e.g. gpt-4o, claude-3-5-sonnet)."
+          "default": "gpt-4o",
+          "description": "The AI model to use (e.g. gpt-4o, claude-3-5-sonnet, llama3.1). Ignored by some local servers."
         },
         "temperature": {
           "type": "number",
           "minimum": 0.0,
           "maximum": 2.0,
+          "default": 0.2,
           "description": "Model creativity (0.0 = deterministic; higher values = more creative)."
         },
+        "timeoutMinutes": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 5,
+          "description": "HTTP request timeout in minutes. Defaults to 5."
+        },
         "systemPrompt": {
-          "type": "string",
-          "description": "The system prompt that defines the AI role and rules."
+          "type": [ "string", "null" ],
+          "description": "The system prompt that defines the AI role and rules. Optional."
+        },
+        "apiKey": {
+          "type": [ "string", "null" ],
+          "description": "Inline API key. Mutually exclusive with apiKeyEnvVar. Do not commit secrets to version control."
+        },
+        "apiKeyEnvVar": {
+          "type": [ "string", "null" ],
+          "description": "Name of the environment variable holding the API key. Mutually exclusive with apiKey. Recommended for cloud endpoints."
         }
-      }
+      },
+      "oneOf": [
+        {
+          "title": "Inline API key",
+          "description": "API key provided directly in the file (e.g. for local servers requiring a token).",
+          "properties": {
+            "apiKey": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [ "apiKey" ],
+          "not": { "required": [ "apiKeyEnvVar" ] }
+        },
+        {
+          "title": "API key from environment variable",
+          "description": "API key is read from the named environment variable (recommended for hosted APIs).",
+          "properties": {
+            "apiKeyEnvVar": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [ "apiKeyEnvVar" ],
+          "not": { "required": [ "apiKey" ] }
+        },
+        {
+          "title": "No API key",
+          "description": "Anonymous access – omit both apiKey and apiKeyEnvVar (typical for local endpoints without authentication).",
+          "not": {
+            "anyOf": [
+              { "required": [ "apiKey" ] },
+              { "required": [ "apiKeyEnvVar" ] }
+            ]
+          }
+        }
+      ]
     }
   }
 }
