@@ -19,7 +19,7 @@
 		<VersionPrefix>1.0.0</VersionPrefix>
 
 		<!-- Generiert einen Zeitstempel im Format: JjJjMmDd.HhMm (z.B. 20261002.1445) -->
-		<BuildTimestamp>$([System.DateTime]::Now.ToString("yyyyMMdd.HHmm"))</BuildTimestamp>
+		<BuildTimestamp>$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</BuildTimestamp>
 
 		<!-- Kombiniert beides zu einer Preview-Version für lokale Builds -->
 		<VersionSuffix>dev.$(BuildTimestamp)</VersionSuffix>
