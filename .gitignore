@@ -399,3 +399,4 @@ Logs/
 /src/Libraries/NetAI.TestGenerator.Tasks/build/System.Numerics.Vectors.dll
 /src/Libraries/NetAI.TestGenerator.Tasks/build/System.Runtime.CompilerServices.Unsafe.dll
 /src/UI/WpftranlationTestApp/netai/testability-report.txt
+/.kilo
