@@ -5,46 +5,67 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![NuGet](https://img.shields.io/nuget/v/NetAI.TestGenerator.Tasks.svg)](https://www.nuget.org/packages/NetAI.TestGenerator.Tasks)
 
-> **AI-gestützte Unit-Test-Generierung für .NET** – mit Roslyn-Semantikanalyse, Compile-Validierung und einem LLM, das lediglich das vorbereitete Test-Skeleton ausfüllt.
+> **AI-powered unit test generation for .NET** – with Roslyn semantic analysis, compile validation, and an LLM that only fills the prepared test skeleton.
 
 ---
 
-## Überblick
+## Table of Contents
 
-**NetAI.TestGenerator** automatisiert die Erstellung von Unit-Tests in .NET-Projekten.  
-Der MSBuild-Task wird als NuGet-Paket in ein Host-Projekt injiziert und analysiert den Quellcode während des Builds. Anschließend werden fehlende Tests erkannt, ein semantisch korrektes Test-Skeleton erzeugt und per KI vervollständigt.
+- [Overview](#overview)
+- [Why NetAI.TestGenerator?](#why-netaitestgenerator)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Supported Frameworks](#supported-frameworks)
+- [Technical Highlights](#technical-highlights)
+- [Examples](#examples)
+- [API Overview](#api-overview)
+- [Roadmap](#roadmap)
+- [Troubleshooting](#troubleshooting)
+- [Known Limitations](#known-limitations)
+- [License](#license)
+- [Contributing](#contributing)
+- [Contact](#contact)
 
-Der zentrale Ansatz: **Die KI muss nicht den gesamten Test erfinden.**  
-Roslyn analysiert Typen, Abhängigkeiten, Zugriffsmodifizierer, Async-Muster, WPF/STA-Anforderungen und Testbarkeit. Daraus entsteht ein verbindliches Skeleton. Das LLM füllt nur noch den eigentlichen Testkörper aus – das reduziert Halluzinationen, spart Tokens und erhöht die Kompilierbarkeit erheblich.
+---
 
-Das Projekt besteht aus zwei Bibliotheken:
+## Overview
 
-| Projekt | Aufgabe |
+**NetAI.TestGenerator** automates the creation of unit tests in .NET projects.  
+The MSBuild task is injected into a host project as a NuGet package and analyzes the source code during the build. It then detects missing tests, generates a semantically correct test skeleton, and completes it using AI.
+
+The central approach: **The AI does not have to invent the entire test.**  
+Roslyn analyzes types, dependencies, access modifiers, async patterns, WPF/STA requirements, and testability. This produces a binding skeleton. The LLM only fills in the actual test body – which reduces hallucinations, saves tokens, and significantly improves compilability.
+
+The project consists of two libraries:
+
+| Project | Responsibility |
 |---|---|
-| **NetAI.TestGenerator.Core** | Roslyn-Analyse, Prompt-Erzeugung, LLM-Kommunikation, Testprojekt-Verwaltung, Compile-Validierung und Reparaturlogik. |
-| **NetAI.TestGenerator.Tasks** | MSBuild-Task und NuGet-Paket, das in das Host-Projekt injiziert wird und die Generierung im Build-Prozess startet. |
+| **NetAI.TestGenerator.Core** | Roslyn analysis, prompt generation, LLM communication, test project management, compile validation, and repair logic. |
+| **NetAI.TestGenerator.Tasks** | MSBuild task and NuGet package that is injected into the host project and starts generation during the build process. |
 
 ---
 
-## Warum NetAI.TestGenerator?
+## Why NetAI.TestGenerator?
 
-- **Semantische Analyse statt Textraten:** Roslyn liefert präzise Informationen über Methoden, Parameter, Rückgabetypen, Abhängigkeiten und Blocker.
-- **KI nur für den Testkörper:** Das Binding-Skeleton bleibt verbindlich. Usings, Namespace, Klassenname, Felder, Konstruktor und Test-Attribute werden nicht vom Modell verändert.
-- **Compile-Validierung inklusive:** Generierte Tests werden gegen das echte Testprojekt kompiliert. Fehlende Usings, NuGet-Pakete oder falsche Typen werden automatisch behandelt.
-- **Mehrere Frameworks:** xUnit, NUnit, MSTest sowie Moq, NSubstitute und FakeItEasy.
-- **WPF/STA-Unterstützung:** WPF-Typen werden erkannt; STA-Attribute und passende Testattribute werden berücksichtigt.
-- **MSBuild-Integration:** Läuft automatisch während des Builds – ohne separaten CLI-Aufruf.
-- **Konfigurierbar:** Über `aisettings.json` lassen sich Framework, Mocking, Code-Stil, KI-Endpunkt und Generierungsverhalten steuern.
+- **Semantic analysis instead of guessing from text:** Roslyn provides precise information about methods, parameters, return types, dependencies, and blockers.
+- **AI only for the test body:** The binding skeleton remains authoritative. Usings, namespace, class name, fields, constructor, and test attributes are not changed by the model.
+- **Compile validation included:** Generated tests are compiled against the real test project. Missing usings, NuGet packages, or incorrect types are handled automatically.
+- **Multiple frameworks:** xUnit, NUnit, MSTest, as well as Moq, NSubstitute, and FakeItEasy.
+- **WPF/STA support:** WPF types are detected; STA attributes and matching test attributes are taken into account.
+- **MSBuild integration:** Runs automatically during the build – no separate CLI call required.
+- **Configurable:** Framework, mocking, code style, AI endpoint, and generation behavior can be controlled via `aisettings.json`.
 
 ---
 
-## Architektur
+## Architecture
 
 ```text
-Host-Projekt
+Host Project
    │
-   ├─ NetAI.TestGenerator.Tasks (MSBuild-Task, NuGet)
-   │     └─ ruft Core auf
+   ├─ NetAI.TestGenerator.Tasks (MSBuild task, NuGet)
+   │     └─ calls Core
    │
    └─ NetAI.TestGenerator.Core
          ├─ RoslynDllTestabilityAnalyzer
@@ -56,53 +77,53 @@ Host-Projekt
          └─ AiPromptBuilder / PromptTemplates
 ```
 
-**Ablauf:**
+**Flow:**
 
-1. Der MSBuild-Task wird über `NetAI.TestGenerator.Tasks.targets` eingebunden.
-2. `NetAI.TestGenerator.Core` lädt die Quellcodedateien und Referenzen.
-3. Roslyn erstellt eine Compilation – wahlweise über MSBuild-Workspace, Solution/Project oder In-Memory.
-4. Der `RoslynDllTestabilityAnalyzer` analysiert jede Methode:
-   - Zugriffsmodifizierer
-   - Async/Async-Void
-   - statische Abhängigkeiten
-   - konkrete vs. abstrakte Abhängigkeiten
-   - Mockbarkeit
-   - WPF/STA-Relevanz
-   - Teststrategie: `Direct`, `Reflection`, `RefactorFirst`, `Skip`
-5. Der `UnitTestSkeletonGenerator` erzeugt ein verbindliches Test-Skeleton.
-6. Das LLM erhält das Skeleton und füllt nur den markierten `AI AREA`-Bereich.
-7. Der `TestProjectManager` schreibt die Testklasse, referenziert das Quellprojekt, löst NuGet-Pakete und kompiliert.
-8. Bei Fehlern folgen automatische Roslyn-Fixes und optional ein KI-Reparaturlauf.
+1. The MSBuild task is included via `NetAI.TestGenerator.Tasks.targets`.
+2. `NetAI.TestGenerator.Core` loads the source code files and references.
+3. Roslyn creates a compilation – either via MSBuild workspace, solution/project, or in-memory.
+4. The `RoslynDllTestabilityAnalyzer` analyzes each method:
+   - access modifiers
+   - async/async void
+   - static dependencies
+   - concrete vs. abstract dependencies
+   - mockability
+   - WPF/STA relevance
+   - test strategy: `Direct`, `Reflection`, `RefactorFirst`, `Skip`
+5. The `UnitTestSkeletonGenerator` creates a binding test skeleton.
+6. The LLM receives the skeleton and fills only the marked `AI AREA` section.
+7. The `TestProjectManager` writes the test class, references the source project, resolves NuGet packages, and compiles.
+8. If errors occur, automatic Roslyn fixes and optionally an AI repair run follow.
 
 ---
 
 ## Installation
 
-### Voraussetzungen
+### Prerequisites
 
-- .NET SDK (getestet mit .NET 10; die Task-Assembly ist `netstandard2.0`-kompatibel)
-- Ein Solution-/Projektverzeichnis mit `.sln` oder `.slnx`
-- Optional: laufender OpenAI-kompatibler LLM-Endpunkt (lokal oder gehostet)
+- .NET SDK (tested with .NET 10; the task assembly is `netstandard2.0`-compatible)
+- A solution/project directory with `.sln` or `.slnx`
+- Optional: a running OpenAI-compatible LLM endpoint (local or hosted)
 
-### NuGet-Paket installieren
+### Install the NuGet package
 
 ```bash
 dotnet add package NetAI.TestGenerator.Tasks
 ```
 
-Oder direkt in der `.csproj`:
+Or directly in the `.csproj`:
 
 ```xml
 <PackageReference Include="NetAI.TestGenerator.Tasks" Version="1.0.0" PrivateAssets="all" />
 ```
 
-Das Paket bringt die Targets mit und kopiert beim ersten Build automatisch `aisettings.json` sowie `aisettings-schema.json` ins Projektverzeichnis, sofern sie noch nicht existieren.
+The package brings the targets with it and automatically copies `aisettings.json` and `aisettings-schema.json` into the project directory on the first build, if they do not already exist.
 
 ---
 
-## Konfiguration
+## Configuration
 
-Lege im Host-Projekt eine `aisettings.json` an:
+Create an `aisettings.json` in the host project:
 
 ```json
 {
@@ -142,35 +163,35 @@ Lege im Host-Projekt eine `aisettings.json` an:
 }
 ```
 
-### Wichtige Optionen
+### Important Options
 
-| Eigenschaft | Beschreibung |
+| Property | Description |
 |---|---|
-| `buildConfigurationFilter` | `all`, `Debug` oder `Release` – steuert, wann der Task läuft. |
-| `environment.targetDotNetVersion` | Ziel-Framework für das Testprojekt. |
-| `environment.testProjectName` | Name des generierten Testprojekts. |
-| `frameworks.testFramework` | `xunit`, `nunit` oder `mstest`. |
-| `frameworks.mockingFramework` | `moq`, `nsubstitute` oder `fakeiteasy`. |
-| `frameworks.useFluentAssertions` | Aktiviert FluentAssertions in generierten Tests. |
-| `frameworks.useAutoFixture` | Aktiviert AutoFixture für Testdaten. |
-| `frameworks.verbosePrompt` | Erweiterte Prompt-Erklärungen für das Modell. |
-| `codeStyle.useFileScopedNamespace` | File-scoped Namespaces im generierten Code. |
-| `codeStyle.useAsyncSuffix` | Async-Methoden mit `Async`-Suffix. |
-| `generationBehavior.testStrategy` | `unit`, `integration` oder `both`. |
-| `generationBehavior.maxTestsPerClass` | Maximale Anzahl Tests pro Testklasse. |
-| `aiConfiguration.baseUrl` | OpenAI-kompatibler Endpunkt. Muss mit `/` enden. |
-| `aiConfiguration.model` | Modellname, z. B. `gpt-4o` oder ein lokales Modell. |
-| `aiConfiguration.apiKey` / `apiKeyEnvVar` | API-Key direkt oder über Umgebungsvariable. |
+| `buildConfigurationFilter` | `all`, `Debug`, or `Release` – controls when the task runs. |
+| `environment.targetDotNetVersion` | Target framework for the test project. |
+| `environment.testProjectName` | Name of the generated test project. |
+| `frameworks.testFramework` | `xunit`, `nunit`, or `mstest`. |
+| `frameworks.mockingFramework` | `moq`, `nsubstitute`, or `fakeiteasy`. |
+| `frameworks.useFluentAssertions` | Enables FluentAssertions in generated tests. |
+| `frameworks.useAutoFixture` | Enables AutoFixture for test data. |
+| `frameworks.verbosePrompt` | Extended prompt explanations for the model. |
+| `codeStyle.useFileScopedNamespace` | File-scoped namespaces in generated code. |
+| `codeStyle.useAsyncSuffix` | Async methods with `Async` suffix. |
+| `generationBehavior.testStrategy` | `unit`, `integration`, or `both`. |
+| `generationBehavior.maxTestsPerClass` | Maximum number of tests per test class. |
+| `aiConfiguration.baseUrl` | OpenAI-compatible endpoint. Must end with `/`. |
+| `aiConfiguration.model` | Model name, e.g. `gpt-4o` or a local model. |
+| `aiConfiguration.apiKey` / `apiKeyEnvVar` | API key directly or via environment variable. |
 
 ---
 
-## Verwendung
+## Usage
 
-### MSBuild-Integration
+### MSBuild Integration
 
-Sobald das Paket referenziert und `aisettings.json` vorhanden ist, läuft der Task automatisch während des Builds.
+Once the package is referenced and `aisettings.json` is present, the task runs automatically during the build.
 
-Optional kannst du das Verhalten über MSBuild-Properties steuern:
+Optionally, you can control the behavior via MSBuild properties:
 
 ```xml
 <PropertyGroup>
@@ -181,20 +202,20 @@ Optional kannst du das Verhalten über MSBuild-Properties steuern:
 </PropertyGroup>
 ```
 
-- `TestGeneratorEnabled=false` deaktiviert den Task.
-- `TestGeneratorSemanticAnalysisEnabled=false` überspringt die semantische Analyse.
-- `TestGeneratorPromptOnly=true` schreibt nur Prompts und Entwürfe, ohne zu kompilieren.
-- `TestGeneratorFailOnError=true` lässt den Build bei Fehlern fehlschlagen.
+- `TestGeneratorEnabled=false` disables the task.
+- `TestGeneratorSemanticAnalysisEnabled=false` skips semantic analysis.
+- `TestGeneratorPromptOnly=true` writes only prompts and drafts, without compiling.
+- `TestGeneratorFailOnError=true` makes the build fail on errors.
 
-### Prompt-Only-Modus
+### Prompt-Only Mode
 
 ```bash
 dotnet build -p:TestGeneratorPromptOnly=true
 ```
 
-In diesem Modus werden die generierten Prompts und Testentwürfe gespeichert, aber nicht gegen das Testprojekt kompiliert. Ideal zum Debuggen oder für reine Prompt-Experimente.
+In this mode, the generated prompts and test drafts are saved but not compiled against the test project. Ideal for debugging or pure prompt experiments.
 
-### Programmatische Nutzung
+### Programmatic Usage
 
 ```csharp
 using NetAI.TestGenerator.Core;
@@ -202,7 +223,7 @@ using NetAI.TestGenerator.Core.Config;
 
 var config = AiSettingsLoader.Load(projectDir);
 
-// Der Klassenname ist historisch bedingt – der Orchestrator erzeugt Tests.
+// The class name is historical – the orchestrator generates tests.
 var orchestrator = new ResxTranslationOrchestrator(config);
 
 var result = await orchestrator.ProcessProjectAsync(
@@ -217,106 +238,229 @@ Console.WriteLine(result);
 
 ---
 
-## Unterstützte Frameworks
+## Supported Frameworks
 
-| Bereich | Unterstützung |
+| Area | Support |
 |---|---|
-| Test-Frameworks | xUnit, NUnit, MSTest |
+| Test frameworks | xUnit, NUnit, MSTest |
 | Mocking | Moq, NSubstitute, FakeItEasy |
-| Assertions | FluentAssertions oder Framework-Asserts |
-| Testdaten | AutoFixture optional |
-| UI/STA | WPF-Erkennung, `Xunit.StaFact`, NUnit `[Apartment(ApartmentState.STA)]`, MSTest `[STATestMethod]` |
-| Projektformate | SDK-Style, Central Package Management, `Directory.Packages.props` |
-| Ziel-Frameworks | `netstandard2.0` (Task), `net10.0` (Core) |
+| Assertions | FluentAssertions or framework asserts |
+| Test data | AutoFixture optional |
+| UI/STA | WPF detection, `Xunit.StaFact`, NUnit `[Apartment(ApartmentState.STA)]`, MSTest `[STATestMethod]` |
+| Project formats | SDK-style, Central Package Management, `Directory.Packages.props` |
+| Target frameworks | `netstandard2.0` (task), `net10.0` (Core) |
 
 ---
 
-## Technische Highlights
+## Technical Highlights
 
-### 1. Semantische Analyse mit Roslyn
+### 1. Semantic Analysis with Roslyn
 
-Der `RoslynDllTestabilityAnalyzer` arbeitet nicht auf Textbasis, sondern auf echten Roslyn-Symbolen und -Operationen:
+The `RoslynDllTestabilityAnalyzer` does not work on a text basis, but on real Roslyn symbols and operations:
 
 - `IMethodSymbol`, `INamedTypeSymbol`, `IOperation`
-- Erkennung von Interfaces, abstrakten Klassen, statischen APIs, Sealed Classes
-- Analyse von Instanzfeldern und deren konkreten Typen
-- Klassifizierung von Abhängigkeiten (`Interface`, `AbstractClass`, `ConcreteClass`, `StaticClass`, …)
-- Mockbarkeit und empfohlene Abstraktionen
-- Aufbau eines Call-Graphs
-- Erkennung von `async void`, `CancellationToken`, `Task`/`Task<T>`
-- WPF/STA-Erkennung über Basisklassen, Interfaces und Attribute
+- Detection of interfaces, abstract classes, static APIs, sealed classes
+- Analysis of instance fields and their concrete types
+- Classification of dependencies (`Interface`, `AbstractClass`, `ConcreteClass`, `StaticClass`, …)
+- Mockability and recommended abstractions
+- Construction of a call graph
+- Detection of `async void`, `CancellationToken`, `Task`/`Task<T>`
+- WPF/STA detection via base classes, interfaces, and attributes
 
-Daraus entsteht ein `TestabilityReport` mit Klartext-Verdict, Blockern, Empfehlungen und einer konkreten Teststrategie.
+This produces a `TestabilityReport` with a plain-text verdict, blockers, recommendations, and a concrete test strategy.
 
-### 2. KI füllt nur das Skeleton
+### 2. AI Fills Only the Skeleton
 
-Der `UnitTestSkeletonGenerator` erzeugt ein **Binding-Skeleton**:
+The `UnitTestSkeletonGenerator` creates a **binding skeleton**:
 
-- korrekte Usings
-- Namespace und Klassenname
-- Mock-Felder und Initialisierung
-- Konstruktor des SUT
-- passendes Testattribut
-- ggf. Skip-Attribut oder Refactoring-Hinweise
-- klar markierter `AI AREA`-Bereich
+- correct usings
+- namespace and class name
+- mock fields and initialization
+- constructor of the SUT
+- matching test attribute
+- optionally a skip attribute or refactoring hints
+- clearly marked `AI AREA` section
 
-Das LLM erhält dieses Skeleton als verbindliche Struktur. Es darf nur den Testkörper zwischen den Markern ausfüllen. Die Struktur selbst – inklusive Mock-Setup, Felder und Attribute – bleibt unverändert. Das reduziert typische KI-Fehler wie erfundene Typen, falsche Namespaces oder unpassende Mocking-Syntax drastisch.
+The LLM receives this skeleton as an authoritative structure. It may only fill in the test body between the markers. The structure itself – including mock setup, fields, and attributes – remains unchanged. This drastically reduces typical AI errors such as invented types, wrong namespaces, or unsuitable mocking syntax.
 
-### 3. Compile-Validierung und automatische Reparatur
+### 3. Compile Validation and Automatic Repair
 
-Der `TestProjectManager` übernimmt die reale Validierung:
+The `TestProjectManager` handles real validation:
 
-- Erstellt oder aktualisiert das Testprojekt.
-- Referenziert das Quellprojekt.
-- Löst fehlende NuGet-Pakete auf.
-- Unterstützt Central Package Management.
-- Fügt bei Bedarf `InternalsVisibleTo` hinzu.
-- Kompiliert mit `dotnet build -t:Compile`.
-- Erkennt Umgebungsprobleme wie Dateisperren und unterscheidet sie von echten Testfehlern.
+- Creates or updates the test project.
+- References the source project.
+- Resolves missing NuGet packages.
+- Supports Central Package Management.
+- Adds `InternalsVisibleTo` if needed.
+- Compiles with `dotnet build -t:Compile`.
+- Detects environment issues such as file locks and distinguishes them from real test errors.
 
-Bei Compilerfehlern greifen mehrere Stufen:
+If compiler errors occur, several stages are applied:
 
-1. **Roslyn-Fixes:** fehlende Usings werden automatisch ergänzt.
-2. **NuGet-Auflösung:** fehlende Pakete werden erkannt und hinzugefügt.
-3. **KI-Reparatur:** bleibt ein Fehler, erhält das Modell den aktuellen Code und die Compilerfehler und liefert eine korrigierte Version.
+1. **Roslyn fixes:** missing usings are added automatically.
+2. **NuGet resolution:** missing packages are detected and added.
+3. **AI repair:** if an error remains, the model receives the current code and the compiler errors and returns a corrected version.
 
-### 4. WPF- und STA-Unterstützung
+### 4. WPF and STA Support
 
-WPF-Typen wie `Window`, `UserControl`, `DependencyObject` oder `DispatcherObject` werden erkannt. Ist eine STA-Anforderung gegeben, wählt der Generator das passende Testattribut – abhängig vom Test-Framework und den verfügbaren Paketen. Andernfalls wird ein Skip-Attribut mit erklärendem Kommentar erzeugt.
+WPF types such as `Window`, `UserControl`, `DependencyObject`, or `DispatcherObject` are detected. If an STA requirement is present, the generator selects the matching test attribute – depending on the test framework and available packages. Otherwise, a skip attribute with an explanatory comment is generated.
 
-### 5. Optional: .resx-Übersetzung
+### 5. Optional: .resx Translation
 
-Der `TranslationPromptBuilder` unterstützt zusätzlich die KI-gestützte Lokalisierung von `.resx`-Dateien. Er erkennt die Domäne der Anwendung und erzeugt strukturierte Batch-Prompts für Übersetzungen. Die Übersetzungsfunktion ist optional und unabhängig von der Testgenerierung nutzbar.
+The `TranslationPromptBuilder` additionally supports AI-powered localization of `.resx` files. It detects the domain of the application and generates structured batch prompts for translations. The translation feature is optional and can be used independently of test generation.
+
+---
+
+## Examples
+
+### Generated Test – xUnit + Moq
+
+```csharp
+using Moq;
+using Xunit;
+
+namespace MyProject.Tests
+{
+    public class OrderServiceTests
+    {
+        [Fact]
+        public async Task ProcessOrder_EmptyCart_ThrowsInvalidOperationException()
+        {
+            var mockRepo = new Mock<IOrderRepository>();
+            var service = new OrderService(mockRepo.Object);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => service.ProcessOrderAsync(new Cart()));
+        }
+    }
+}
+```
+
+### Skipped Test – Untestable `async void`
+
+```csharp
+[Fact(Skip = "Method is async void. Refactor into a testable async Task.")]
+public void OnButtonClick_IsNotDirectlyTestable()
+{
+}
+```
+
+---
+
+## API Overview
+
+### `AiSettingsLoader`
+
+Loads the `aisettings.json` configuration for a project directory.
+
+```csharp
+AiSettings Load(string projectDir)
+```
+
+### `ResxTranslationOrchestrator`
+
+Main orchestrator for test generation.  
+The class name is historical; it generates tests, not translations.
+
+```csharp
+ResxTranslationOrchestrator(AiSettings config)
+
+Task<string> ProcessProjectAsync(
+    string sourceFilePath,
+    string testProjectDirectory,
+    Action<string> logInfo,
+    string solutionPath,
+    bool promptOnly)
+```
+
+### `TestProjectManager`
+
+Creates or updates the test project, resolves packages, references the source project, and compiles the generated tests.
+
+### `RoslynDllTestabilityAnalyzer`
+
+Performs semantic analysis and produces a `TestabilityReport` with test strategy, blockers, and recommendations.
+
+### `UnitTestSkeletonGenerator`
+
+Generates the binding test skeleton that the LLM must fill.
+
+### `LocalLlmClient`
+
+Handles communication with an OpenAI-compatible LLM endpoint.
 
 ---
 
 ## Roadmap
 
-- **Enterprise-Version geplant:** Für Unternehmen ist später eine Enterprise-Lösung vorgesehen, die dieses Repository als Grundlage verwenden wird.
-- Zentrale Konfiguration und Policy-Enforcement
-- Audit-Logs und Reporting
-- CI/CD-Gates und Quality-Gates
-- Erweiterte Modell- und Prompt-Verwaltung
-- Support- und Wartungsangebote
-- Integration in größere Build- und Release-Pipelines
+- **Enterprise version planned:** An Enterprise solution is planned for companies, using this repository as its foundation.
+- Central configuration and policy enforcement
+- Audit logs and reporting
+- CI/CD gates and quality gates
+- Advanced model and prompt management
+- Support and maintenance offerings
+- Integration into larger build and release pipelines
 
 ---
 
-## Lizenz
+## Troubleshooting
 
-Dieses Projekt steht unter der **MIT-Lizenz**.  
-Du darfst es frei verwenden, ändern und weitergeben – auch kommerziell. Weitere Details findest du in der `LICENSE`-Datei.
+### Common Issues
+
+1. **Missing AI configuration**  
+   Ensure `aisettings.json` is present in the project root or the expected build directory.
+
+2. **Compilation errors**  
+   Verify target framework versions and package references. Check whether the generated test project references the source project correctly.
+
+3. **API access issues**  
+   Confirm that the local LLM endpoint or model credentials are correctly configured. The `baseUrl` must end with `/`.
+
+4. **File locks during build**  
+   The generator distinguishes environment issues such as locked files from real test errors. Close any process that may be holding the test assembly.
+
+5. **WPF/STA tests are skipped**  
+   Ensure the required STA test packages are available for your test framework, e.g. `Xunit.StaFact` for xUnit.
+
+6. **NuGet packages are missing**  
+   The generator attempts to resolve missing packages automatically. With Central Package Management, ensure `Directory.Packages.props` is present and valid.
 
 ---
 
-## Beitragen
+## Known Limitations
 
-Beiträge sind willkommen!  
-Bitte erstelle für größere Änderungen zuerst ein Issue, damit wir die Richtung abstimmen können. Für kleinere Fixes oder Verbesserungen kannst du direkt einen Pull Request öffnen.
+1. Best results require meaningful XML documentation comments and clear method names.
+2. Complex dependency graphs may need manual adjustments.
+3. Performance depends on the local LLM and available hardware.
+4. `async void` methods are detected but cannot be tested directly; the generator emits a skip attribute and a refactoring hint.
+5. WPF/STA support depends on the selected test framework and the availability of matching STA packages.
+6. The AI repair loop improves compilability but does not guarantee perfect semantic correctness in every complex scenario.
 
 ---
 
-## Kontakt
+## License
 
-Fragen, Ideen oder Feedback?  
-Eröffne ein Issue im Repository oder kontaktiere das Team über die angegebenen Kontaktkanäle.
+This project is licensed under the **MIT License**.  
+You may use, modify, and distribute it freely – including commercially. See the `LICENSE` file for details.
+
+---
+
+## Contributing
+
+Contributions are welcome!  
+For larger changes, please open an issue first so we can align on the direction. For smaller fixes or improvements, you can open a pull request directly.
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a pull request
+
+Please ensure your code follows the existing style and includes appropriate tests where applicable.
+
+---
+
+## Contact
+
+Questions, ideas, or feedback?  
+Open an issue in the repository or contact the team via the provided contact channels.
