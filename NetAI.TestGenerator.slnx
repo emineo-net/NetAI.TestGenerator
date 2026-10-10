@@ -6,11 +6,9 @@
   </Configurations>
   <Folder Name="/Projektmappenelemente/">
     <File Path="../../../Downloads/unitAnIntegrationTestEnvironment.md" />
-    <File Path="buisinessPlanTranslatorNuget.md" />
     <File Path="createLocalNugetPackage.bat" />
-    <File Path="INFRASTRUKTUR.md" />
+    <File Path="publishNugetPackage.bat" />
     <File Path="RebuildNetAIResxTranslator.bat" />
-    <File Path="TODO.md" />
   </Folder>
   <Folder Name="/Projektmappenelemente/prompts/">
     <File Path="rules.md" />
