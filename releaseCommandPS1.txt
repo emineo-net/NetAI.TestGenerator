@@ -1,0 +1,6 @@
+cd C:\Users\steph\source\repos\NetAI.TestGenerator
+
+
+.\release.ps1 -Version 1.0.2
+.\release.ps1 -Version 1.0.3
+...
