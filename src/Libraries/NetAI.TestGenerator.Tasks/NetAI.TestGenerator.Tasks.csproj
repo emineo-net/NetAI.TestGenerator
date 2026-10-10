@@ -33,7 +33,7 @@
 		<!-- <PackageIcon>icon.png</PackageIcon> -->
 
 		<!-- ==================== Versionierung ==================== -->
-		<VersionPrefix>1.0.0</VersionPrefix>
+		<VersionPrefix>1.0.1</VersionPrefix>
 		<BuildTimestamp>$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</BuildTimestamp>
 		<VersionSuffix>dev.$(BuildTimestamp)</VersionSuffix>
 
