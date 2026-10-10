@@ -39,18 +39,13 @@ jobs:
         with:
           user: 'StephanEmmermann'
 
-      - name: Push .nupkg to NuGet.org
+      - name: Push to NuGet.org
         run: dotnet nuget push artifacts/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
-
-      - name: Push .snupkg to NuGet.org
-        run: dotnet nuget push artifacts/*.snupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Upload artifacts (optional)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nupkg
-          path: |
-            artifacts/*.nupkg
-            artifacts/*.snupkg
+          path: artifacts/*.nupkg
           if-no-files-found: warn
