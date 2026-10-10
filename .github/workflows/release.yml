@@ -3,14 +3,18 @@ name: Publish NuGet Package
 on:
   push:
     tags:
-      - 'v*.*.*' # Reagiert auf Tags wie v1.0.0
+      - 'v*.*.*'
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write # WICHTIG: Erlaubt das Anfordern des OIDC-Tokens
+      id-token: write
       contents: read
+
+    env:
+      # Nur dieses Projekt wird gebaut - NICHT die ganze Solution
+      PROJECT_PATH: src/Libraries/NetAI.TestGenerator.Tasks/NetAI.TestGenerator.Tasks.csproj
 
     steps:
       - name: Checkout repository
@@ -19,22 +23,30 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x' # Passe die Version bei Bedarf an
+          dotnet-version: '10.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore "$PROJECT_PATH"
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build "$PROJECT_PATH" --configuration Release --no-restore
 
       - name: Pack
-        run: dotnet pack --configuration Release --no-build --output artifacts
+        run: dotnet pack "$PROJECT_PATH" --configuration Release --no-build --output artifacts
 
       - name: NuGet Login (OIDC -> Temporary API Key)
         uses: NuGet/login@v1
         id: login
         with:
-          user: 'Stephan Emmermann' # Dein nuget.org-Profilname (KEIN E-Mail, KEINE Organisation)
+          user: 'Stephan Emmermann'
 
       - name: Push to NuGet.org
-        run: dotnet nuget push artifacts/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push artifacts/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Upload artifacts (optional, für Debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: artifacts/*.nupkg
+          if-no-files-found: warn
