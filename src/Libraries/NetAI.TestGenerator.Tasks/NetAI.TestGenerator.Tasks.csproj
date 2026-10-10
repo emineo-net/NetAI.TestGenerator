@@ -26,8 +26,10 @@
 		<RepositoryType>git</RepositoryType>
 		<Copyright>Copyright (c) emineo-net / Stephan Emmermann</Copyright>
 
-		<!-- Optional: README und Icon einbinden, sobald vorhanden -->
-		<!-- <PackageReadmeFile>README.md</PackageReadmeFile> -->
+		<!-- README aus dem Solution-Root einbinden -->
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<!-- Optional: Icon einbinden, sobald vorhanden -->
 		<!-- <PackageIcon>icon.png</PackageIcon> -->
 
 		<!-- ==================== Versionierung ==================== -->
@@ -57,6 +59,11 @@
 	<!-- 2. WICHTIG: Die .targets-Datei muss mit ins Paket! -->
 	<ItemGroup>
 		<None Include="build\NetAI.TestGenerator.Tasks.targets" Pack="true" PackagePath="build\$(PackageId).targets" />
+	</ItemGroup>
+
+	<!-- 3. README aus dem Solution-Root ins Paket-Root packen -->
+	<ItemGroup>
+		<None Include="..\..\..\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>
