@@ -14,7 +14,6 @@
 
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
-		<!-- ==================== NuGet-Paketmetadaten ==================== -->
 		<PackageId>NetAI.TestGenerator.Tasks</PackageId>
 		<Authors>Stephan Emmermann</Authors>
 		<Company>emineo-net</Company>
@@ -28,13 +27,6 @@
 
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 
-		<!-- ==================== Source Link ==================== -->
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-
-		<!-- ==================== Versionierung ==================== -->
 		<VersionPrefix>1.0.1</VersionPrefix>
 		<BuildTimestamp>$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</BuildTimestamp>
 		<VersionSuffix>dev.$(BuildTimestamp)</VersionSuffix>
@@ -48,8 +40,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" ExcludeAssets="runtime" />
-		<!-- Source Link für GitHub -->
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup>
