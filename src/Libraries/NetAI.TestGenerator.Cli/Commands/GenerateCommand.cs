@@ -170,7 +170,7 @@ public sealed class GenerateCommand : AsyncCommand<GenerateCommandSettings>
         Console.CancelKeyPress += handler;
 
         var results = new List<FileResult>(sources.Count);
-        var orchestrator = new ResxTranslationOrchestrator(coreConfig);
+        var orchestrator = new TetsGeneratorOrchestrator(coreConfig);
 
         try
         {

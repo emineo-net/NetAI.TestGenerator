@@ -15,7 +15,7 @@ using NetAI.TestGenerator.Core.Services;
 namespace NetAI.TestGenerator.Core;
 
 /// <summary>Coordinates source analysis, AI-generated unit tests, and optional compile validation.</summary>
-public class ResxTranslationOrchestrator
+public class TetsGeneratorOrchestrator
 {
     private static readonly Regex TestCodeBlockRegex = new(
         @"```(?:csharp|cs)?\s*([\s\S]*?)\s*```", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -51,7 +51,7 @@ public class ResxTranslationOrchestrator
     ///     Reserved for custom transport support; the current implementation uses
     ///     <see cref="LocalLlmClient" />.
     /// </param>
-    public ResxTranslationOrchestrator(HttpClient? httpClient = null) : this(TestFramework.xUnit, MockFramework.Unknown, httpClient)
+    public TetsGeneratorOrchestrator(HttpClient? httpClient = null) : this(TestFramework.xUnit, MockFramework.Unknown, httpClient)
     {
     }
 
@@ -62,12 +62,12 @@ public class ResxTranslationOrchestrator
     ///     <see cref="LocalLlmClient" />.
     /// </param>
     /// <exception cref="ArgumentException">A configured test or mocking framework is unsupported.</exception>
-    public ResxTranslationOrchestrator(AiTestingConfig config, HttpClient? httpClient = null) : this(ParseTestFramework(config),
+    public TetsGeneratorOrchestrator(AiTestingConfig config, HttpClient? httpClient = null) : this(ParseTestFramework(config),
         ParseMockFramework(config), httpClient)
     {
     }
 
-    private ResxTranslationOrchestrator(TestFramework testFramework, MockFramework mockFramework, HttpClient? httpClient)
+    private TetsGeneratorOrchestrator(TestFramework testFramework, MockFramework mockFramework, HttpClient? httpClient)
     {
         _testGeneratorService = new TestGeneratorService();
         _testFramework = testFramework;

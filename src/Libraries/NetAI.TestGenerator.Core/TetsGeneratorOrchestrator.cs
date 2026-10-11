@@ -15,7 +15,7 @@ using NetAI.TestGenerator.Core.Services;
 namespace NetAI.TestGenerator.Core;
 
 /// <summary>Coordinates source analysis, AI-generated unit tests, and optional compile validation.</summary>
-public class ResxTranslationOrchestrator
+public class TetsGeneratorOrchestrator
 {
     private static readonly Regex AiAreaMarkerLineRegex = new(@"^[ \t]*//[^\r\n]*AI AREA[^\r\n]*\r?\n" + @"|^[ \t]*//[ \t]*=+[ \t]*\r?\n",
         RegexOptions.Compiled | RegexOptions.Multiline);
@@ -34,17 +34,17 @@ public class ResxTranslationOrchestrator
     private readonly TestGeneratorService _testGeneratorService;
 
     /// <summary>Creates an orchestrator for generating tests from source files.</summary>
-    public ResxTranslationOrchestrator(HttpClient? httpClient = null) : this(TestFramework.xUnit, MockFramework.Unknown, null, httpClient)
+    public TetsGeneratorOrchestrator(HttpClient? httpClient = null) : this(TestFramework.xUnit, MockFramework.Unknown, null, httpClient)
     {
     }
 
     /// <summary>Creates an orchestrator using the configured test and mocking frameworks.</summary>
-    public ResxTranslationOrchestrator(AiTestingConfig config, HttpClient? httpClient = null) : this(ParseTestFramework(config),
+    public TetsGeneratorOrchestrator(AiTestingConfig config, HttpClient? httpClient = null) : this(ParseTestFramework(config),
         ParseMockFramework(config), config, httpClient)
     {
     }
 
-    private ResxTranslationOrchestrator(TestFramework testFramework, MockFramework mockFramework, AiTestingConfig? config,
+    private TetsGeneratorOrchestrator(TestFramework testFramework, MockFramework mockFramework, AiTestingConfig? config,
         HttpClient? httpClient)
     {
         _testGeneratorService = new TestGeneratorService();

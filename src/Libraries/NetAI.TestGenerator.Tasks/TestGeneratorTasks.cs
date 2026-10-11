@@ -232,10 +232,10 @@ public class TestGeneratorTask : Task
         var testProjectDirectory = Path.Combine(solutionDirectory, "tests", "UnitTests", $"{projectName}.Tests");
 
         var collectedIssues = new List<string>();
-        ResxTranslationOrchestrator orchestrator;
+        TetsGeneratorOrchestrator orchestrator;
         try
         {
-            orchestrator = new ResxTranslationOrchestrator(config);
+            orchestrator = new TetsGeneratorOrchestrator(config);
         }
         catch (ArgumentException ex)
         {
@@ -255,7 +255,7 @@ public class TestGeneratorTask : Task
                                !file.EndsWith("Tests.cs", StringComparison.OrdinalIgnoreCase) && !file.Contains("_wpftmp") &&
                                !file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) &&
                                !file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase) && !file.Contains("Designer.cs") &&
-                               !file.Contains("AiTranslatorRunner") && !file.Contains("AssemblyAttributes") &&
+                               !file.Contains("AiTestGeneratorRunner") && !file.Contains("AssemblyAttributes") &&
                                !file.Contains("AssemblyInfo")).ToList();
         }
         else
@@ -266,7 +266,7 @@ public class TestGeneratorTask : Task
                                !file.EndsWith("Tests.cs", StringComparison.OrdinalIgnoreCase) && !file.Contains("_wpftmp") &&
                                !file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) &&
                                !file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase) && !file.Contains("Designer.cs") &&
-                               !file.EndsWith(".xaml.cs", StringComparison.OrdinalIgnoreCase) && !file.Contains("AiTranslatorRunner") &&
+                               !file.EndsWith(".xaml.cs", StringComparison.OrdinalIgnoreCase) && !file.Contains("AiTestGeneratorRunner") &&
                                !file.Contains("AssemblyAttributes") && !file.Contains("AssemblyInfo")).ToList();
         }
 

@@ -12,8 +12,8 @@ public class TestGeneratorServiceWrapperTests
     [Fact]
     public void PrepareValidationStructure_DoesNotNestIncomingNamespaceOrClass()
     {
-        var orchestrator = new ResxTranslationOrchestrator();
-        var prepareMethod = typeof(ResxTranslationOrchestrator).GetMethod(
+        var orchestrator = new TetsGeneratorOrchestrator();
+        var prepareMethod = typeof(TetsGeneratorOrchestrator).GetMethod(
             "PrepareValidationStructure", BindingFlags.Instance | BindingFlags.NonPublic);
 
         Assert.NotNull(prepareMethod);
@@ -125,7 +125,7 @@ public class TestGeneratorServiceWrapperTests
     {
         var testDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         var filePath = Path.Combine(testDirectory, "MainWindowTests.cs");
-        var extracted = ResxTranslationOrchestrator.ExtractTestClass("""
+        var extracted = TetsGeneratorOrchestrator.ExtractTestClass("""
                                                                      using Xunit;
 
                                                                      namespace NetAI.Generated.Tests

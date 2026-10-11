@@ -30,7 +30,7 @@ public partial class MainWindow : Window
 
         Console.WriteLine(finalPrompt);
 
-        var runner = new AiTranslatorRunner
+        var runner = new AiTestGeneratorRunner
         {
             ProjectDir = @"C:\Users\steph\source\repos\NetAI.TestGenerator\src\UI\WpftranlationTestApp",
             ApiKey = "sk-...",

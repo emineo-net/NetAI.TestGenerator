@@ -5,7 +5,7 @@ using NetAI.TestGenerator.Core.Config;
 
 namespace WpftranlationTestApp;
 
-public class AiTranslatorRunner
+public class AiTestGeneratorRunner
 {
     public string ProjectDir { get; set; } = string.Empty;
 
@@ -43,10 +43,10 @@ public class AiTranslatorRunner
             return false;
         }
 
-        ResxTranslationOrchestrator orchestrator;
+        TetsGeneratorOrchestrator orchestrator;
         try
         {
-            orchestrator = new ResxTranslationOrchestrator(config);
+            orchestrator = new TetsGeneratorOrchestrator(config);
         }
         catch (ArgumentException ex)
         {

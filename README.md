@@ -224,7 +224,7 @@ using NetAI.TestGenerator.Core.Config;
 var config = AiSettingsLoader.Load(projectDir);
 
 // The class name is historical – the orchestrator generates tests.
-var orchestrator = new ResxTranslationOrchestrator(config);
+var orchestrator = new TetsGeneratorOrchestrator(config);
 
 var result = await orchestrator.ProcessProjectAsync(
     sourceFilePath: @"C:\src\MyApp\Services\OrderService.cs",
@@ -357,13 +357,13 @@ Loads the `aisettings.json` configuration for a project directory.
 AiSettings Load(string projectDir)
 ```
 
-### `ResxTranslationOrchestrator`
+### `TetsGeneratorOrchestrator`
 
 Main orchestrator for test generation.  
 The class name is historical; it generates tests, not translations.
 
 ```csharp
-ResxTranslationOrchestrator(AiSettings config)
+TetsGeneratorOrchestrator(AiSettings config)
 
 Task<string> ProcessProjectAsync(
     string sourceFilePath,
