@@ -17,6 +17,7 @@
   </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/Libraries/">
+    <Project Path="src/Libraries/NetAI.TestGenerator.Cli/NetAI.TestGenerator.Cli.csproj" />
     <Project Path="src/Libraries/NetAI.TestGenerator.Core/NetAI.TestGenerator.Core.csproj" />
     <Project Path="src/Libraries/NetAI.TestGenerator.Tasks/NetAI.TestGenerator.Tasks.csproj" />
   </Folder>
