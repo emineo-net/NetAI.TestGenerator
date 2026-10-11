@@ -1,25 +1,36 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>netai</AssemblyName>
-    <RootNamespace>NetAI.TestGenerator.Cli</RootNamespace>
-    <PackAsTool>true</PackAsTool>
-    <ToolCommandName>netai</ToolCommandName>
-    <PackageId>NetAI.TestGenerator.Cli</PackageId>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <OldToolsVersion>2.0</OldToolsVersion>
-  </PropertyGroup>
- 
-  <ItemGroup>
-    <PackageReference Include="Spectre.Console.Cli" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NetAI.TestGenerator.Core\NetAI.TestGenerator.Core.csproj" />
-  </ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AssemblyName>netai</AssemblyName>
+		<RootNamespace>NetAI.TestGenerator.Cli</RootNamespace>
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>netai</ToolCommandName>
+		<PackageId>NetAI.TestGenerator.Cli</PackageId>
+		<!-- MSBuild 18.x ist offiziell auf net11.0; für net10.0 ist es ungetestet und warnt. -->
+		<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+	</PropertyGroup>
+
+	
+	<ItemGroup>
+		<PackageReference Include="Spectre.Console.Cli" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
+
+		<!-- MSBuild-Pakete + transitive Unterpakete von Microsoft.Build:
+       ExcludeAssets/PrivateAssets müssen direkt am PackageReference stehen. -->
+		<PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Build.Framework" ExcludeAssets="runtime" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" ExcludeAssets="runtime" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Build.Tasks.Core" ExcludeAssets="runtime" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.NET.StringTools" ExcludeAssets="runtime" PrivateAssets="all" />
+		<PackageReference Include="NuGet.Frameworks" ExcludeAssets="runtime" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\NetAI.TestGenerator.Core\NetAI.TestGenerator.Core.csproj" />
+	</ItemGroup>
+
 </Project>

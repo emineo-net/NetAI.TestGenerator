@@ -16,9 +16,20 @@ public sealed class SpectreLog
     public void Info(string message)
     {
         if (string.IsNullOrWhiteSpace(message)) return;
+
+        // Only surface [NetAI]-prefixed messages unless --verbose.
         if (!_verbose && !message.StartsWith("[NetAI", StringComparison.Ordinal)) return;
 
-        var text = _noColor ? Markup.Escape(message) : message;
-        AnsiConsole.MarkupLine($"[grey]{text}[/]");
+        if (_noColor)
+        {
+            // Raw write: no markup parsing at all.
+            Console.WriteLine(message);
+        }
+        else
+        {
+            // Always escape: messages contain literal [NetAI] which Spectre
+            // would otherwise interpret as a style tag.
+            AnsiConsole.MarkupLine($"[grey]{Markup.Escape(message)}[/]");
+        }
     }
 }

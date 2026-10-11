@@ -1,32 +1,48 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using Spectre.Console.Cli;
 
 namespace NetAI.TestGenerator.Cli.Commands;
 
 public sealed class GenerateCommandSettings : CommandSettings
 {
-    [CommandArgument(0, "<sourceFile>")]
-    [Description("Path to the C# source file to generate tests for.")]
-    public string SourceFile { get; init; } = "";
+    [CommandArgument(0, "[source]")]
+    [Description("Source file or directory. Optional if --project is given.")]
+    public string? Source { get; init; }
+
+    [CommandOption("--project <FILE>")]
+    [Description("Path to a .csproj. Uses its Roslyn compilation to enumerate sources and enables semantic analysis (loaded once per run).")]
+    public string? ProjectPath { get; init; }
 
     [CommandOption("--test-project <DIR>")]
-    [Description("Directory of the test project. Defaults to a sibling '<Project>.Tests' folder.")]
+    [Description("Directory of the test project. Default: sibling '<Project>.Tests' or 'tests/<Project>.Tests' searched upward from each source file.")]
     public string? TestProjectDirectory { get; init; }
 
     [CommandOption("--config <FILE>")]
-    [Description("Path to aisettings.json. If omitted, the CLI searches upward from the source file.")]
+    [Description("Path to aisettings.json. If omitted, the CLI searches upward from the first source file.")]
     public string? ConfigPath { get; init; }
 
-    [CommandOption("--solution <FILE>")]
-    [Description("Path to the .sln to load via MSBuild (enables semantic analysis).")]
-    public string? SolutionPath { get; init; }
+    [CommandOption("--recursive")]
+    [Description("If [source] is a directory, walk subdirectories. obj/ and bin/ are always excluded.")]
+    public bool Recursive { get; init; }
 
-    [CommandOption("--project <FILE>")]
-    [Description("Path to the .csproj to load via MSBuild.")]
-    public string? ProjectPath { get; init; }
+    [CommandOption("--filter <GLOB>")]
+    [Description("Only include file names matching this glob (e.g. '*.Services.cs'). Repeatable.")]
+    public string[] Filter { get; init; } = Array.Empty<string>();
+
+    [CommandOption("--exclude <GLOB>")]
+    [Description("Exclude file names matching this glob. Repeatable.")]
+    public string[] Exclude { get; init; } = Array.Empty<string>();
+
+    [CommandOption("--max-files <N>")]
+    [Description("Abort if more than N source files would be processed.")]
+    public int? MaxFiles { get; init; }
+
+    [CommandOption("--dry-run")]
+    [Description("List what would be processed without calling the LLM or writing files.")]
+    public bool DryRun { get; init; }
 
     [CommandOption("--prompt-only")]
-    [Description("Save the prompt to obj/netai/prompts but do not call the LLM.")]
+    [Description("Save prompts to obj/netai/prompts and skip the LLM call.")]
     public bool PromptOnly { get; init; }
 
     [CommandOption("--framework <NAME>")]
@@ -44,6 +60,6 @@ public sealed class GenerateCommandSettings : CommandSettings
     public bool NoColor { get; init; }
 
     [CommandOption("--json")]
-    [Description("Emit machine-readable JSON instead of console output.")]
+    [Description("Machine-readable JSON on stdout, logs on stderr.")]
     public bool Json { get; init; }
 }

@@ -2,29 +2,41 @@ namespace NetAI.TestGenerator.Cli.Infrastructure;
 
 public static class ProjectLocator
 {
+    private static readonly string[] TestFolderNames = { "tests", "test", "Tests", "Test" };
+
     public static string? ResolveTestProjectDirectory(string sourceFilePath)
     {
-        var srcDir = Path.GetDirectoryName(sourceFilePath);
-        var csproj = FindUpwards(srcDir, "*.csproj");
+        var csproj = FindUpwards(Path.GetDirectoryName(sourceFilePath), "*.csproj");
         if (csproj is null) return null;
 
         var projectDir = Path.GetDirectoryName(csproj)!;
         var projectName = Path.GetFileNameWithoutExtension(csproj);
+        var candidateName = $"{projectName}.Tests";
 
-        // Kandidat 1: Geschwisterordner "<Project>.Tests"
-        var parent = Path.GetDirectoryName(projectDir);
-        if (parent is not null)
+        // Walk up from the source project directory toward the repo root.
+        var dir = new DirectoryInfo(projectDir);
+        while (dir is not null)
         {
-            var sibling = Path.Combine(parent, $"{projectName}.Tests");
-            if (Directory.Exists(sibling)) return sibling;
+            // 1) Direct sibling: <level>/<Project>.Tests
+            var direct = Path.Combine(dir.FullName, candidateName);
+            if (IsTestProjectDir(direct)) return direct;
 
-            // Kandidat 2: Parent/tests/<Project>.Tests
-            var testsSibling = Path.Combine(parent, "tests", $"{projectName}.Tests");
-            if (Directory.Exists(testsSibling)) return testsSibling;
+            // 2) Nested: <level>/tests/<Project>.Tests (also test/Tests/Test)
+            foreach (var sub in TestFolderNames)
+            {
+                var nested = Path.Combine(dir.FullName, sub, candidateName);
+                if (IsTestProjectDir(nested)) return nested;
+            }
+
+            dir = dir.Parent;
         }
 
         return null;
     }
+
+    private static bool IsTestProjectDir(string directory) =>
+        Directory.Exists(directory) &&
+        Directory.EnumerateFiles(directory, "*.csproj", SearchOption.TopDirectoryOnly).Any();
 
     public static string? FindUpwards(string? startDirectory, string pattern)
     {

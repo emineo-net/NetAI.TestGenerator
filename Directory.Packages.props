@@ -18,9 +18,28 @@
 
     <PackageVersion Include="Spectre.Console.Cli" Version="0.49.1" />
 
+    <!-- <PackageVersion Include="Microsoft.Build.Framework" Version="17.11.48" />
+     <PackageVersion Include="Microsoft.Build" Version="17.11.48" />
+  <PackageVersion Include="Microsoft.Build.Framework" Version="17.11.48" />
+  <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="17.11.48" />
+  <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="17.11.48" /> -->
+
+    <!-- <PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2" />
+    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.10.1" /> -->
+
+    <!-- Microsoft.Build.* für Roslyn Workspaces.MSBuild -->
+
+<PackageVersion Include="Microsoft.NET.StringTools" Version="18.10.1" />
+<PackageVersion Include="NuGet.Frameworks" Version="7.0.0" />
+
+
+<PackageVersion Include="Microsoft.Build" Version="18.10.1" />
+<PackageVersion Include="Microsoft.Build.Framework" Version="18.10.1" />
+<PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.10.1" />
+<PackageVersion Include="Microsoft.Build.Tasks.Core" Version="18.10.1" />
+<PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2" />
 
     <!-- C-L -->
-    <PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.9.0" />
@@ -79,7 +98,7 @@
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.OpenTelemetry" Version="1.2.0" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.1.0" />
     <PackageVersion Include="Microsoft.Bcl.Memory" Version="10.0.12" />
-    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.10.1" />
+    
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.1.0" />
     <PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="10.0.12" />
     <!-- Hebe EF Core komplett auf Version 10.0.12 an -->

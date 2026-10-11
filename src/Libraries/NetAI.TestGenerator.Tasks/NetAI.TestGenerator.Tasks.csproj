@@ -36,10 +36,26 @@
 
 		<Deterministic>true</Deterministic>
 		<ContinuousIntegrationBuild Condition="'$(Configuration)' == 'Release'">true</ContinuousIntegrationBuild>
+
+		<!-- Microsoft.Build 18.x ist offiziell für net11.0; für net10.0 ungetestet und warnt. -->
+		<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 	</PropertyGroup>
 
+	<!--
+		MSBuild-Pakete: ExcludeAssets="runtime" + PrivateAssets="all" MÜSSEN direkt an jeder
+		PackageReference stehen. Auch die, die nur transitiv über Utilities.Core reinkommen
+		(Microsoft.Build, Microsoft.Build.Framework, Microsoft.Build.Tasks.Core), brauchen eine
+		eigene PackageReference — sonst schlägt der MSBL001-Check in Microsoft.Build.Locator.targets fehl.
+	-->
+	
+
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" ExcludeAssets="runtime" />
+		<PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Build.Framework" ExcludeAssets="runtime" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" ExcludeAssets="runtime" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Build.Tasks.Core" ExcludeAssets="runtime" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.NET.StringTools" ExcludeAssets="runtime" PrivateAssets="all" />
+		<PackageReference Include="NuGet.Frameworks" ExcludeAssets="runtime" PrivateAssets="all" />
 	</ItemGroup>
 
 	<ItemGroup>
