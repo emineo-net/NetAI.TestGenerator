@@ -21,7 +21,6 @@ This README covers the **CLI tool**. For the full project overview, see the [sol
 - [JSON Output (for CI)](#json-output-for-ci)
 - [Examples](#examples)
 - [Configuration](#configuration)
-- [Enterprise Edition — Help Us Prioritize It](#enterprise-edition--help-us-prioritize-it)
 - [License](#license)
 
 ---
@@ -438,28 +437,6 @@ The CLI reads the same `aisettings.json` as the build task — there is only one
 ## Ctrl+C
 
 Spectre.Console.Cli 0.49.1 exposes no cancellation hook on `AsyncCommand`, and `ProcessProjectAsync` does not accept a `CancellationToken`. The CLI installs a `Console.CancelKeyPress` handler that stops the batch loop after the current file and returns exit code `130`. The currently running LLM / compile step still completes before the process exits.
-
----
-
-## Enterprise Edition — Help Us Prioritize It
-
-> **If you find `netai` useful and think your organization would too — please tell them.** The Enterprise roadmap is driven by real demand.
-
-The community edition is and will remain MIT-licensed. An **Enterprise edition** is planned on top of the same engine, with features like:
-
-- Central configuration and policy enforcement
-- Audit logs and reporting
-- CI/CD gates and coverage thresholds
-- Advanced model and prompt management
-- Support and maintenance offerings
-
-**How you can help:**
-
-1. Mention the project to your team lead, architect, or in your next 1:1.
-2. Open an issue with the label **`enterprise-interest`** describing what your team would need.
-3. Star the repository — Enterprise milestones are announced there first.
-
-See the [full Enterprise section in the solution README](../../../README.md#enterprise-edition--help-us-prioritize-it).
 
 ---
 
