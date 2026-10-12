@@ -32,7 +32,7 @@ Because test coverage shouldn't depend on anyone remembering to write tests.
 A build task means:
 
 - **No separate step.** `dotnet build` is the whole workflow.
-- **No drift.** Tests are generated next to the code that needs them, on every build where the translator is active.
+- **No drift.** Tests are generated next to the code that needs them, on every build where the generator is active.
 - **No CI glue.** Whatever runs your build runs the generator.
 - **Nothing to forget.** A developer adds a public method, builds, and the test project already contains a candidate test.
 
@@ -192,27 +192,22 @@ The `.targets` file that ships with the package is designed to be a **good citiz
 - **WPF-safe.** Projects whose name ends in `_wpftmp` abort silently.
 - **Multi-targeting aware.** Runs only for the first TFM in `TargetFrameworks`.
 - **Task host isolation.** `TaskFactory="TaskHostFactory"` runs the task in a separate MSBuild process, so the task assembly is **never locked** by Visual Studio.
-- **Explicit warning if missing.** If the task assembly can't be located, `RESXT001` is emitted instead of silently doing nothing.
+- **Explicit warning if missing.** If the task assembly can't be located, a build warning is emitted instead of silently doing nothing.
 
 The task participates in the following build phases:
 
-| Target | When | What it does |
+| Phase | When | What it does |
 |---|---|---|
-| `SetupTestGeneratorSettings` | Before compile | Scaffolds `aisettings.json` / `aisettings-schema.json` if missing. |
-| `RunSemanticTestAnalysis` | After `ResolveReferences`, before `CoreCompile` | Produces `obj/netai/testability-report.txt` when `TestGeneratorSemanticAnalysisEnabled=true`. |
-| `RunResxTranslation` | Before compile | Runs the orchestrator over `@(Compile)` sources. |
-| `IncludeGeneratedResx` | Before `PrepareForBuild` | Re-embeds newly created `.resx` files *(shared with the ResxTranslator package)*. |
-| `RunResxTranslationOnPublish` | Before `PrepareForPublish` | Publish-time fallback when `_IsPublishing` isn't set by the build host. |
+| Settings bootstrap | Before compile | Scaffolds `aisettings.json` / `aisettings-schema.json` if missing. |
+| Semantic analysis | After `ResolveReferences`, before `CoreCompile` | Produces `obj/netai/testability-report.txt` when `TestGeneratorSemanticAnalysisEnabled=true`. |
+| Test generation | Before compile | Runs the orchestrator over `@(Compile)` sources. |
+| Publish fallback | Before `PrepareForPublish` | Runs test generation on publish when `_IsPublishing` isn't set by the build host. |
 
 ---
 
 ## Troubleshooting
 
-### `RESXT001` — Task assembly not found
-
-```
-warning RESXT001: NetAI.TestGenerator: Task assembly not found (...). No translation will be performed.
-```
+### "Task assembly not found" warning
 
 The `.targets` file couldn't locate the task DLL. Try:
 
