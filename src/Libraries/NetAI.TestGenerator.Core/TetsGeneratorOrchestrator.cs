@@ -53,7 +53,10 @@ public class TetsGeneratorOrchestrator
         _config = config;
     }
 
-    /// <summary>Generates tests for uncovered methods in the first class found in a source file.</summary>
+    /// <summary>
+    /// Generates tests for uncovered methods of every top-level (non-nested, non-test) class or record
+    /// found in the supplied source file.
+    /// </summary>
     public async Task<string> ProcessProjectAsync(string sourceFilePath, string testProjectDirectory, Action<string>? logInfo = null,
         Compilation? compilation = null, bool promptOnly = false, string? solutionPath = null, string? projectPath = null)
     {
@@ -80,31 +83,38 @@ public class TetsGeneratorOrchestrator
 
             var sourceRoot = sourceTree.GetCompilationUnitRoot();
 
-            var targetClass = sourceRoot.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
-            if (targetClass == null)
+            // ------------------------------------------------------------------
+            // FIX: alle Typdeklarationen der Datei verarbeiten, nicht nur die erste.
+            // Nur Top-Level-Typen (Parent ist Namespace oder CompilationUnit),
+            // ohne explizit private/protected, ohne Test-Klassen, ohne Klassen,
+            // die bereits Testmethoden enthalten.
+            // ------------------------------------------------------------------
+            var targetClasses = sourceRoot.DescendantNodes()
+                .OfType<TypeDeclarationSyntax>()
+                .Where(t => t is ClassDeclarationSyntax or RecordDeclarationSyntax)
+                .Where(t => t.Parent is BaseNamespaceDeclarationSyntax or CompilationUnitSyntax)
+                .Where(t => !t.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword)))
+                .Where(t => !t.Identifier.Text.EndsWith("Tests", StringComparison.OrdinalIgnoreCase))
+                .Where(t => !t.DescendantNodes().OfType<MethodDeclarationSyntax>().Any(HasTestAttribute))
+                .ToList();
+
+            if (targetClasses.Count == 0)
             {
                 return "No class found in source file.";
             }
 
-            var className = targetClass.Identifier.Text;
-
-            var effectiveTestNamespace = ResolveTestNamespace(testProjectDirectory, targetClass);
-
             var hostProjectDir = promptOnly ? FindProjectDirectory(sourceFilePath) : null;
-
             BuildLogger.Info(hostProjectDir);
 
-            var testClassName = $"{className}Tests";
-            var testFilePath = Path.Combine(testProjectDirectory, $"{testClassName}.cs");
+            logInfo?.Invoke($"[NetAI] File '{Path.GetFileName(sourceFilePath)}' contains {targetClasses.Count} class(es) to process.");
 
-            BuildLogger.Info(testFilePath);
+            // ------------------------------------------------------------------
+            // Setup, das pro Datei nur einmal benötigt wird.
+            // ------------------------------------------------------------------
 
-            logInfo?.Invoke($"[NetAI] Starting analysis for class: {className}");
-
-            var existingTestMethods = _testGeneratorService.GetExistingTestMethods(testFilePath);
-            var sourceMethods = targetClass.DescendantNodes().OfType<MethodDeclarationSyntax>();
-
-            var localLlmClient = new LocalLlmClient();
+            // Vorheriger Fix: Settings aus aisettings.json übergeben, sonst greift der Default.
+            var llmSettings = _config?.AiConfiguration ?? new LlmConnectionSettings();
+            var localLlmClient = new LocalLlmClient(llmSettings);
             var aiPromptBuilderSimple = new AiPromptBuilderSimple();
             var testProjectManager = new TestProjectManager(testFramework: _testFramework, mockFramework: _mockFramework);
 
@@ -183,253 +193,272 @@ public class TetsGeneratorOrchestrator
 
             var projectContext = BuildProjectContextHint(sourceFilePath, testProjectDirectory, _testFramework, _mockFramework);
 
-            var collectedMethodCodes = new List<string>();
-
-            foreach (var method in sourceMethods)
+            // ------------------------------------------------------------------
+            // Schleife über alle Klassen der Datei.
+            // ------------------------------------------------------------------
+            foreach (var targetClass in targetClasses)
             {
-                var methodName = method.Identifier.Text;
+                var className = targetClass.Identifier.Text;
+                var effectiveTestNamespace = ResolveTestNamespace(testProjectDirectory, targetClass);
+                var testClassName = $"{className}Tests";
+                var testFilePath = Path.Combine(testProjectDirectory, $"{testClassName}.cs");
 
-                var testExists = existingTestMethods.Any(t => t.Contains(methodName, StringComparison.OrdinalIgnoreCase));
-                if (testExists)
+                BuildLogger.Info(testFilePath);
+                logInfo?.Invoke($"[NetAI] Starting analysis for class: {className}");
+
+                var existingTestMethods = _testGeneratorService.GetExistingTestMethods(testFilePath);
+                var sourceMethods = targetClass.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
+
+                var collectedMethodCodes = new List<string>();
+
+                foreach (var method in sourceMethods)
                 {
-                    logInfo?.Invoke($"[NetAI] Method '{methodName}' is already covered by an existing test. Skipping.");
-                    continue;
-                }
+                    var methodName = method.Identifier.Text;
 
-                var maxChars = _config?.MaxMethodChars ?? 25_000;
-
-                if (!IsWithinSizeLimit(method, maxChars, out var methodChars))
-                {
-                    logInfo?.Invoke($"[NetAI] Method '{methodName}' is {methodChars:N0} chars (limit: {maxChars:N0}). " +
-                                    $"Generating skip stub instead of a real test.");
-
-                    var model = effectiveCompilation?.GetSemanticModel(method.SyntaxTree);
-                    var methodSymbol = model?.GetDeclaredSymbol(method);
-
-                    if (methodSymbol is not null)
+                    var testExists = existingTestMethods.Any(t =>
+                        t.Equals(methodName, StringComparison.OrdinalIgnoreCase) ||
+                        t.StartsWith(methodName + "_", StringComparison.OrdinalIgnoreCase));
+                    if (testExists)
                     {
-                        var skipReason = $"method is {methodChars:N0} chars (limit: {maxChars:N0}). " +
-                                         $"Refactor into smaller, focused methods.";
-
-                        var skipResult = UnitTestSkeletonGenerator.GenerateFromMethod(methodSymbol, profile, false,
-                            UnitTestSkeletonGenerator.TestStrategy.Skip, null, skipReason);
-
-                        collectedMethodCodes.Add(StripAiAreaMarkers(skipResult.TestSkeleton));
-                        existingTestMethods.Add(methodName);
-                    }
-                    else
-                    {
-                        logInfo?.Invoke($"[NetAI] Could not resolve '{methodName}' to build a skip stub; skipping entirely.");
-                    }
-
-                    continue;
-                }
-
-                var complexity = EstimateCyclomaticComplexity(method);
-                if (complexity > 20)
-                {
-                    logInfo?.Invoke($"[NetAI] Method '{methodName}' has cyclomatic complexity {complexity}. " +
-                                    $"The generated test will likely cover only the happy path — review manually.");
-                }
-
-                logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
-
-                var trivialModel = effectiveCompilation?.GetSemanticModel(method.SyntaxTree);
-                var trivialSymbol = trivialModel?.GetDeclaredSymbol(method);
-
-                if (trivialModel is not null && trivialSymbol is not null)
-                {
-                    var trivial = TrivialTestGenerator.TryGenerate(method, trivialSymbol, trivialModel, profile, false);
-
-                    if (trivial.ShouldSkipEntirely)
-                    {
-                        logInfo?.Invoke($"[NetAI] Method '{methodName}' is marked as not-implemented; skipping entirely.");
-                        existingTestMethods.Add(methodName);
+                        logInfo?.Invoke($"[NetAI] Method '{methodName}' is already covered by an existing test. Skipping.");
                         continue;
                     }
 
-                    if (trivial.TestSnippet is not null)
+                    var maxChars = _config?.MaxMethodChars ?? 25_000;
+
+                    if (!IsWithinSizeLimit(method, maxChars, out var methodChars))
                     {
-                        logInfo?.Invoke($"[NetAI] Method '{methodName}' is trivial; generated template test without LLM.");
-                        collectedMethodCodes.Add(trivial.TestSnippet);
-                        existingTestMethods.Add(methodName);
-                        continue;
-                    }
-                }
+                        logInfo?.Invoke($"[NetAI] Method '{methodName}' is {methodChars:N0} chars (limit: {maxChars:N0}). " +
+                                        $"Generating skip stub instead of a real test.");
 
-                var classSkeleton = BuildClassSkeleton(targetClass, method);
-                BuildLogger.Info(classSkeleton);
+                        var model = effectiveCompilation?.GetSemanticModel(method.SyntaxTree);
+                        var methodSymbol = model?.GetDeclaredSymbol(method);
 
-                var semanticHint = await BuildSemanticHintAsync(semanticAnalyzer, effectiveCompilation, method, logInfo)
-                    .ConfigureAwait(false);
-
-                BuildLogger.Info(semanticHint.Xml);
-
-                var basePrompt = BuildBasePrompt(className, methodName, semanticHint.Xml, projectContext, classSkeleton,
-                    semanticHint.Skeleton, semanticHint.RequiresSta);
-
-                BuildLogger.Info(basePrompt);
-
-                if (promptOnly)
-                {
-                    var promptDirectory = Path.Combine(hostProjectDir ?? Path.GetDirectoryName(sourceFilePath)!, "obj", "netai", "prompts");
-                    Directory.CreateDirectory(promptDirectory);
-                    var promptPath = Path.Combine(promptDirectory, $"{className}.{methodName}.prompt.md");
-                    File.WriteAllText(promptPath, basePrompt, Encoding.UTF8);
-                    logInfo?.Invoke($"[NetAI] Prompt with semantic context saved: {promptPath}");
-                }
-
-                const string systemPrompt = "You are a C# testing expert. Respond only with runnable C# code and no explanations. " +
-                                            "If a <BindingSkeleton> block is present, preserve its structure verbatim " +
-                                            "(usings, namespace, class name, fields, constructor, test attribute) and only fill in the test body.";
-
-                var newTestClassResponse = await localLlmClient.AskAsync(basePrompt, systemPrompt).ConfigureAwait(false);
-
-                var testMethodCode = ExtractTestClass(newTestClassResponse);
-                BuildLogger.Info(testMethodCode);
-
-                if (promptOnly)
-                {
-                    collectedMethodCodes.Add(StripAiAreaMarkers(testMethodCode));
-                    existingTestMethods.Add(methodName);
-                    logInfo?.Invoke($"[NetAI] Test draft for '{methodName}' collected; compile validation skipped.");
-                    continue;
-                }
-
-                TestGenerationResult? result = null;
-                var isCompiledSuccessfully = false;
-
-                var aiAttempts = 0;
-                var envAttempts = 0;
-                var roslynFixApplied = false;
-
-                const int MaxAiRetries = 1;
-                const int MaxEnvRetries = 1;
-
-                while (true)
-                {
-                    if (envAttempts >= MaxEnvRetries)
-                    {
-                        logInfo?.Invoke($"[NetAI] Reached {MaxEnvRetries} environment retries for '{methodName}'. " +
-                                        $"Close Visual Studio / the running app and try again. " +
-                                        $"Last known test class: {result?.TestClassPath}");
-                        break;
-                    }
-
-                    var validationClassStructure = PrepareValidationStructure(testClassName, effectiveTestNamespace, testMethodCode,
-                        semanticHint.Skeleton);
-
-                    validationClassStructure = await testCodeProcessor
-                        .ProcessTestClassAsync(validationClassStructure, _testFramework, _mockFramework).ConfigureAwait(false);
-
-                    result = await testProjectManager.SetupAndValidateTestAsync(sourceFilePath, validationClassStructure,
-                            testTemplate: GetTestTemplate(_testFramework), testProjectDirectoryOverride: testProjectDirectory)
-                        .ConfigureAwait(false);
-
-                    BuildLogger.Warning(result.CompilerErrors);
-
-                    if (result.IsSuccess)
-                    {
-                        isCompiledSuccessfully = true;
-                        if (!string.IsNullOrEmpty(result.TestClassCode))
+                        if (methodSymbol is not null)
                         {
-                            testMethodCode = ExtractTestClass(result.TestClassCode!);
+                            var skipReason = $"method is {methodChars:N0} chars (limit: {maxChars:N0}). " +
+                                             $"Refactor into smaller, focused methods.";
+
+                            var skipResult = UnitTestSkeletonGenerator.GenerateFromMethod(methodSymbol, profile, false,
+                                UnitTestSkeletonGenerator.TestStrategy.Skip, null, skipReason);
+
+                            collectedMethodCodes.Add(StripAiAreaMarkers(skipResult.TestSkeleton));
+                            existingTestMethods.Add(methodName);
+                        }
+                        else
+                        {
+                            logInfo?.Invoke($"[NetAI] Could not resolve '{methodName}' to build a skip stub; skipping entirely.");
                         }
 
-                        break;
-                    }
-
-                    if (result.IsEnvironmentIssue)
-                    {
-                        envAttempts++;
-                        logInfo?.Invoke($"[NetAI] Environment issue while validating '{methodName}' " +
-                                        $"(env retry {envAttempts}/{MaxEnvRetries}). " +
-                                        $"Not asking the AI to repair – the test code itself is fine. " +
-                                        $"Cause: a referenced assembly is locked by another process.");
-                        await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
                         continue;
                     }
 
-                    if (!roslynFixApplied && result.CompilerErrors?.Any() == true)
+                    var complexity = EstimateCyclomaticComplexity(method);
+                    if (complexity > 20)
                     {
-                        var codeForRoslyn = result.TestClassCode ?? validationClassStructure;
-                        var roslynFixed = await _testCodeBeautifier.TryFixCompilerErrorsAsync(
-                            codeForRoslyn, result.CompilerErrors, _testFramework, _mockFramework).ConfigureAwait(false);
+                        logInfo?.Invoke($"[NetAI] Method '{methodName}' has cyclomatic complexity {complexity}. " +
+                                        $"The generated test will likely cover only the happy path — review manually.");
+                    }
 
-                        if (!string.Equals(roslynFixed, codeForRoslyn, StringComparison.Ordinal))
+                    logInfo?.Invoke($"[NetAI] Missing test detected for method: {methodName}. Triggering AI generation...");
+
+                    var trivialModel = effectiveCompilation?.GetSemanticModel(method.SyntaxTree);
+                    var trivialSymbol = trivialModel?.GetDeclaredSymbol(method);
+
+                    if (trivialModel is not null && trivialSymbol is not null)
+                    {
+                        var trivial = TrivialTestGenerator.TryGenerate(method, trivialSymbol, trivialModel, profile, false);
+
+                        if (trivial.ShouldSkipEntirely)
                         {
-                            BuildLogger.Info(roslynFixed);
-                            logInfo?.Invoke("[NetAI] Roslyn automatically added missing using directives; " +
-                                            "retrying compilation without AI.");
-                            testMethodCode = ExtractTestClass(roslynFixed);
-                            roslynFixApplied = true;
+                            logInfo?.Invoke($"[NetAI] Method '{methodName}' is marked as not-implemented; skipping entirely.");
+                            existingTestMethods.Add(methodName);
+                            continue;
+                        }
+
+                        if (trivial.TestSnippet is not null)
+                        {
+                            logInfo?.Invoke($"[NetAI] Method '{methodName}' is trivial; generated template test without LLM.");
+                            collectedMethodCodes.Add(trivial.TestSnippet);
+                            existingTestMethods.Add(methodName);
                             continue;
                         }
                     }
 
-                    if (aiAttempts >= MaxAiRetries)
+                    var classSkeleton = BuildClassSkeleton(targetClass, method);
+                    BuildLogger.Info(classSkeleton);
+
+                    var semanticHint = await BuildSemanticHintAsync(semanticAnalyzer, effectiveCompilation, method, logInfo)
+                        .ConfigureAwait(false);
+
+                    BuildLogger.Info(semanticHint.Xml);
+
+                    var basePrompt = BuildBasePrompt(className, methodName, semanticHint.Xml, projectContext, classSkeleton,
+                        semanticHint.Skeleton, semanticHint.RequiresSta);
+
+                    BuildLogger.Info(basePrompt);
+
+                    if (promptOnly)
                     {
-                        logInfo?.Invoke($"[NetAI] Reached {MaxAiRetries} AI repair attempts for '{methodName}'. Giving up.");
-                        break;
+                        var promptDirectory = Path.Combine(hostProjectDir ?? Path.GetDirectoryName(sourceFilePath)!, "obj", "netai", "prompts");
+                        Directory.CreateDirectory(promptDirectory);
+                        var promptPath = Path.Combine(promptDirectory, $"{className}.{methodName}.prompt.md");
+                        File.WriteAllText(promptPath, basePrompt, Encoding.UTF8);
+                        logInfo?.Invoke($"[NetAI] Prompt with semantic context saved: {promptPath}");
                     }
 
-                    aiAttempts++;
-                    logInfo?.Invoke($"[NetAI] Test for '{methodName}' failed compilation " +
-                                    $"(AI attempt {aiAttempts}/{MaxAiRetries}). Running AI repair loop...");
+                    const string systemPrompt = "You are a C# testing expert. Respond only with runnable C# code and no explanations. " +
+                                                "If a <BindingSkeleton> block is present, preserve its structure verbatim " +
+                                                "(usings, namespace, class name, fields, constructor, test attribute) and only fill in the test body.";
 
-                    if (result.CompilerErrors?.Any(i =>
-                            i.IndexOf("Could not automatically resolve a NuGet package for the namespace(s)",
-                                StringComparison.Ordinal) >= 0) == true)
-                    {
-                        logInfo?.Invoke("[NetAI] Warning: Missing NuGet dependencies detected in generated test.");
-                    }
+                    var newTestClassResponse = await localLlmClient.AskAsync(basePrompt, systemPrompt).ConfigureAwait(false);
 
-                    if (result.RequiresRegeneration)
-                    {
-                        logInfo?.Invoke("[NetAI] The manager flagged the test code for regeneration " +
-                                        "(likely hallucinated types or invented members). " +
-                                        "The repair prompt will include concrete hints.");
-                    }
-
-                    var errorsText = string.Join("\n", result.CompilerErrors ?? Array.Empty<string>());
-                    BuildLogger.Info(errorsText);
-                    var codeForRepair = result.TestClassCode ?? validationClassStructure;
-
-                    var errorPrompt = aiPromptBuilderSimple.FixUnittestPromptSimple(errorsText, codeForRepair);
-                    BuildLogger.Info(errorPrompt);
-
-                    var repairSystemPrompt = "You are a precise C# compiler assistant. Your only task is to accurately fix " +
-                                             "syntax and compilation errors in the provided C# code " +
-                                             "and return runnable code without textual explanations.\n";
-
-                    var correctedOutput = await localLlmClient.AskAsync(errorPrompt, repairSystemPrompt).ConfigureAwait(false);
-                    testMethodCode = ExtractTestClass(correctedOutput);
+                    var testMethodCode = ExtractTestClass(newTestClassResponse);
                     BuildLogger.Info(testMethodCode);
-                }
 
-                BuildLogger.Info("DONE");
-
-                if (isCompiledSuccessfully)
-                {
-                    collectedMethodCodes.Add(StripAiAreaMarkers(testMethodCode));
-                    existingTestMethods.Add(methodName);
-                }
-                else
-                {
-                    logInfo?.Invoke(
-                        $"[NetAI Warning] Could not generate a compilable test for '{methodName}' after {MaxAiRetries} retries.");
-                    if (result?.CompilerErrors != null)
+                    if (promptOnly)
                     {
-                        logInfo?.Invoke($"[NetAI] Final Compiler Errors:\n{string.Join("\n", result.CompilerErrors)}");
+                        collectedMethodCodes.Add(StripAiAreaMarkers(testMethodCode));
+                        existingTestMethods.Add(methodName);
+                        logInfo?.Invoke($"[NetAI] Test draft for '{methodName}' collected; compile validation skipped.");
+                        continue;
+                    }
+
+                    TestGenerationResult? result = null;
+                    var isCompiledSuccessfully = false;
+
+                    var aiAttempts = 0;
+                    var envAttempts = 0;
+                    var roslynFixApplied = false;
+
+                    const int MaxAiRetries = 1;
+                    const int MaxEnvRetries = 1;
+
+                    while (true)
+                    {
+                        if (envAttempts >= MaxEnvRetries)
+                        {
+                            logInfo?.Invoke($"[NetAI] Reached {MaxEnvRetries} environment retries for '{methodName}'. " +
+                                            $"Close Visual Studio / the running app and try again. " +
+                                            $"Last known test class: {result?.TestClassPath}");
+                            break;
+                        }
+
+                        var validationClassStructure = PrepareValidationStructure(testClassName, effectiveTestNamespace, testMethodCode,
+                            semanticHint.Skeleton);
+
+                        validationClassStructure = await testCodeProcessor
+                            .ProcessTestClassAsync(validationClassStructure, _testFramework, _mockFramework).ConfigureAwait(false);
+
+                        result = await testProjectManager.SetupAndValidateTestAsync(sourceFilePath, validationClassStructure,
+                                testTemplate: GetTestTemplate(_testFramework), testProjectDirectoryOverride: testProjectDirectory)
+                            .ConfigureAwait(false);
+
+                        BuildLogger.Warning(result.CompilerErrors);
+
+                        if (result.IsSuccess)
+                        {
+                            isCompiledSuccessfully = true;
+                            if (!string.IsNullOrEmpty(result.TestClassCode))
+                            {
+                                testMethodCode = ExtractTestClass(result.TestClassCode!);
+                            }
+
+                            break;
+                        }
+
+                        if (result.IsEnvironmentIssue)
+                        {
+                            envAttempts++;
+                            logInfo?.Invoke($"[NetAI] Environment issue while validating '{methodName}' " +
+                                            $"(env retry {envAttempts}/{MaxEnvRetries}). " +
+                                            $"Not asking the AI to repair – the test code itself is fine. " +
+                                            $"Cause: a referenced assembly is locked by another process.");
+                            await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                            continue;
+                        }
+
+                        if (!roslynFixApplied && result.CompilerErrors?.Any() == true)
+                        {
+                            var codeForRoslyn = result.TestClassCode ?? validationClassStructure;
+                            var roslynFixed = await _testCodeBeautifier.TryFixCompilerErrorsAsync(
+                                codeForRoslyn, result.CompilerErrors, _testFramework, _mockFramework).ConfigureAwait(false);
+
+                            if (!string.Equals(roslynFixed, codeForRoslyn, StringComparison.Ordinal))
+                            {
+                                BuildLogger.Info(roslynFixed);
+                                logInfo?.Invoke("[NetAI] Roslyn automatically added missing using directives; " +
+                                                "retrying compilation without AI.");
+                                testMethodCode = ExtractTestClass(roslynFixed);
+                                roslynFixApplied = true;
+                                continue;
+                            }
+                        }
+
+                        if (aiAttempts >= MaxAiRetries)
+                        {
+                            logInfo?.Invoke($"[NetAI] Reached {MaxAiRetries} AI repair attempts for '{methodName}'. Giving up.");
+                            break;
+                        }
+
+                        aiAttempts++;
+                        logInfo?.Invoke($"[NetAI] Test for '{methodName}' failed compilation " +
+                                        $"(AI attempt {aiAttempts}/{MaxAiRetries}). Running AI repair loop...");
+
+                        if (result.CompilerErrors?.Any(i =>
+                                i.IndexOf("Could not automatically resolve a NuGet package for the namespace(s)",
+                                    StringComparison.Ordinal) >= 0) == true)
+                        {
+                            logInfo?.Invoke("[NetAI] Warning: Missing NuGet dependencies detected in generated test.");
+                        }
+
+                        if (result.RequiresRegeneration)
+                        {
+                            logInfo?.Invoke("[NetAI] The manager flagged the test code for regeneration " +
+                                            "(likely hallucinated types or invented members). " +
+                                            "The repair prompt will include concrete hints.");
+                        }
+
+                        var errorsText = string.Join("\n", result.CompilerErrors ?? Array.Empty<string>());
+                        BuildLogger.Info(errorsText);
+                        var codeForRepair = result.TestClassCode ?? validationClassStructure;
+
+                        var errorPrompt = aiPromptBuilderSimple.FixUnittestPromptSimple(errorsText, codeForRepair);
+                        BuildLogger.Info(errorPrompt);
+
+                        var repairSystemPrompt = "You are a precise C# compiler assistant. Your only task is to accurately fix " +
+                                                 "syntax and compilation errors in the provided C# code " +
+                                                 "and return runnable code without textual explanations.\n";
+
+                        var correctedOutput = await localLlmClient.AskAsync(errorPrompt, repairSystemPrompt).ConfigureAwait(false);
+                        testMethodCode = ExtractTestClass(correctedOutput);
+                        BuildLogger.Info(testMethodCode);
+                    }
+
+                    BuildLogger.Info("DONE");
+
+                    if (isCompiledSuccessfully)
+                    {
+                        collectedMethodCodes.Add(StripAiAreaMarkers(testMethodCode));
+                        existingTestMethods.Add(methodName);
+                    }
+                    else
+                    {
+                        logInfo?.Invoke(
+                            $"[NetAI Warning] Could not generate a compilable test for '{methodName}' after {MaxAiRetries} retries.");
+                        if (result?.CompilerErrors != null)
+                        {
+                            logInfo?.Invoke($"[NetAI] Final Compiler Errors:\n{string.Join("\n", result.CompilerErrors)}");
+                        }
                     }
                 }
-            }
 
-            if (collectedMethodCodes.Count > 0)
-            {
-                var merged = MergeCollectedTestClasses(testClassName, effectiveTestNamespace, collectedMethodCodes);
-                File.WriteAllText(testFilePath, merged, Encoding.UTF8);
-                logInfo?.Invoke($"[NetAI] Wrote {collectedMethodCodes.Count} test method(s) to {testFilePath}.");
+                if (collectedMethodCodes.Count > 0)
+                {
+                    var merged = MergeCollectedTestClasses(testClassName, effectiveTestNamespace, collectedMethodCodes);
+                    File.WriteAllText(testFilePath, merged, Encoding.UTF8);
+                    logInfo?.Invoke($"[NetAI] Wrote {collectedMethodCodes.Count} test method(s) to {testFilePath}.");
+                }
             }
 
             return "ok";
@@ -1320,7 +1349,7 @@ public class TetsGeneratorOrchestrator
             normalized.Name?.ToString());
     }
 
-    private static string BuildClassSkeleton(ClassDeclarationSyntax targetClass, MethodDeclarationSyntax targetMethod,
+    private static string BuildClassSkeleton(TypeDeclarationSyntax targetClass, MethodDeclarationSyntax targetMethod,
         bool includeProperties = true, bool includeConstructors = true, bool includeRecursiveHelpers = true)
     {
         var sb = new StringBuilder();
@@ -1565,7 +1594,7 @@ public class TetsGeneratorOrchestrator
         return null;
     }
 
-    private static string? GetSourceNamespace(ClassDeclarationSyntax targetClass)
+    private static string? GetSourceNamespace(TypeDeclarationSyntax targetClass)
     {
         for (var current = targetClass.Parent; current is not null; current = current.Parent)
         {
@@ -1608,7 +1637,7 @@ public class TetsGeneratorOrchestrator
         }
     }
 
-    private static string ResolveTestNamespace(string testProjectDirectory, ClassDeclarationSyntax targetClass)
+    private static string ResolveTestNamespace(string testProjectDirectory, TypeDeclarationSyntax targetClass)
     {
         var fromProject = TryReadTestProjectRootNamespace(testProjectDirectory);
         if (!string.IsNullOrWhiteSpace(fromProject))

@@ -14,7 +14,7 @@ public class LlmConnectionSettings
 {
     /// <summary>Gets or sets the base URL of the endpoint. Must end with a trailing slash.</summary>
     [JsonProperty("baseUrl")]
-    public string BaseUrl { get; set; } = "http://localhost:8080/";
+    public string BaseUrl { get; set; } = "http://localhost:8081/";
 
     /// <summary>Gets or sets the model identifier.</summary>
     [JsonProperty("model")]
