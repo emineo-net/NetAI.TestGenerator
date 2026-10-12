@@ -30,8 +30,14 @@ jobs:
       - name: Build
         run: dotnet build "$PROJECT_PATH" --configuration Release --no-restore
 
+      # ✅ NEU: Version aus dem Tag ableiten (v1.0.3 -> 1.0.3)
+      - name: Determine version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      # ✅ GEÄNDERT: Version beim Packen übergeben
       - name: Pack
-        run: dotnet pack "$PROJECT_PATH" --configuration Release --no-build --output artifacts
+        run: dotnet pack "$PROJECT_PATH" --configuration Release --no-build --output artifacts -p:Version=${{ steps.version.outputs.VERSION }}
 
       - name: NuGet Login (OIDC -> Temporary API Key)
         uses: NuGet/login@v1

@@ -8,7 +8,7 @@
     <File Path="../../../Downloads/unitAnIntegrationTestEnvironment.md" />
     <File Path="createLocalNugetPackage.bat" />
     <File Path="nugetReleasePkg.bat" />
-    <File Path="publishNugetPackage.bat" />
+    <File Path="publishNugetPackageCommandline.txt" />
     <File Path="RebuildNetAIResxTranslator.bat" />
   </Folder>
   <Folder Name="/Projektmappenelemente/prompts/">
