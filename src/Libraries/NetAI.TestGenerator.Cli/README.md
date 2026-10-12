@@ -21,6 +21,7 @@ This README covers the **CLI tool**. For the full project overview, see the [sol
 - [JSON Output (for CI)](#json-output-for-ci)
 - [Examples](#examples)
 - [Configuration](#configuration)
+- [Enterprise Edition — Help Us Prioritize It](#enterprise-edition--help-us-prioritize-it)
 - [License](#license)
 
 ---
@@ -86,8 +87,15 @@ Everything after `--` is passed to `netai` verbatim.
 # 1. Scaffold an aisettings.json next to your .csproj / .sln
 netai init ./src/MyApp
 
-# 2. Open ./src/MyApp/aisettings.json and point it at your LLM
-#    (see the solution README for all connection variants)
+# 2. Point it at a local model. The easiest way:
+#    - open LLMRunner (companion app, same authors)
+#    - pick a model, click "Serve on localhost:8080"
+#    - the default aisettings.json already expects exactly that address.
+#
+#    Prefer a terminal? Use Ollama with Qwen 2.5 14B:
+#      ollama pull qwen2.5:14b
+#      ollama serve
+#    ... then set baseUrl to http://localhost:11434/ and model to qwen2.5:14b.
 
 # 3. Find out what the analyzer sees for a file
 netai analyse ./src/MyApp/Services/OrderService.cs
@@ -97,6 +105,8 @@ netai generate ./src/MyApp/Services/OrderService.cs
 ```
 
 That's it. Tests will be generated in the resolved test project — the same way the build task would do it.
+
+> **Just want to try it with a local model?** Grab **LLMRunner** from the same repository profile or the releases page. It downloads, chats, and serves a model on `http://localhost:8080/` — one window, no terminal.
 
 ---
 
@@ -418,6 +428,7 @@ The CLI reads the same `aisettings.json` as the build task — there is only one
 
 - The full configuration reference.
 - All AI connection variants (local, OpenAI, Azure, custom proxy).
+- A ready-to-use **Ollama + Qwen 2.5 14B** example.
 - Rules & pitfalls (trailing slash on `baseUrl`, mutually-exclusive key fields, …).
 
 **Note:** `buildConfigurationFilter` is **ignored by the CLI** — a CLI invocation is always explicit. Mode-based gating only applies to the MSBuild task.
@@ -427,6 +438,28 @@ The CLI reads the same `aisettings.json` as the build task — there is only one
 ## Ctrl+C
 
 Spectre.Console.Cli 0.49.1 exposes no cancellation hook on `AsyncCommand`, and `ProcessProjectAsync` does not accept a `CancellationToken`. The CLI installs a `Console.CancelKeyPress` handler that stops the batch loop after the current file and returns exit code `130`. The currently running LLM / compile step still completes before the process exits.
+
+---
+
+## Enterprise Edition — Help Us Prioritize It
+
+> **If you find `netai` useful and think your organization would too — please tell them.** The Enterprise roadmap is driven by real demand.
+
+The community edition is and will remain MIT-licensed. An **Enterprise edition** is planned on top of the same engine, with features like:
+
+- Central configuration and policy enforcement
+- Audit logs and reporting
+- CI/CD gates and coverage thresholds
+- Advanced model and prompt management
+- Support and maintenance offerings
+
+**How you can help:**
+
+1. Mention the project to your team lead, architect, or in your next 1:1.
+2. Open an issue with the label **`enterprise-interest`** describing what your team would need.
+3. Star the repository — Enterprise milestones are announced there first.
+
+See the [full Enterprise section in the solution README](../../../README.md#enterprise-edition--help-us-prioritize-it).
 
 ---
 

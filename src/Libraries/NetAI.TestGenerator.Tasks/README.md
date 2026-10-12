@@ -15,12 +15,14 @@ This README covers the **MSBuild task / NuGet package**. For the full project ov
 - [Why a Build Task?](#why-a-build-task)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Getting a Local LLM Running](#getting-a-local-llm-running)
 - [What the Task Does on Each Build](#what-the-task-does-on-each-build)
 - [Build-Time Switches](#build-time-switches)
 - [Prompt-Only Mode](#prompt-only-mode)
 - [Build Integration](#build-integration)
 - [Troubleshooting](#troubleshooting)
 - [Configuration](#configuration)
+- [Enterprise Edition — Help Us Prioritize It](#enterprise-edition--help-us-prioritize-it)
 - [License](#license)
 
 ---
@@ -70,7 +72,7 @@ Both are added to the project as `None` items with `CopyToOutputDirectory=Preser
 3. **Edit `aisettings.json`** to point at your LLM and pick your test / mocking framework.
 4. **Build again.** Missing tests appear in the resolved test project.
 
-Minimal `aisettings.json`:
+Minimal `aisettings.json` — assuming a local model on `http://localhost:8080/` (which is what our companion app **LLMRunner** serves out of the box):
 
 ```json
 {
@@ -89,8 +91,8 @@ Minimal `aisettings.json`:
     "verbosePrompt": true
   },
   "aiConfiguration": {
-    "baseUrl": "http://localhost:11434/",
-    "model": "llama3.1",
+    "baseUrl": "http://localhost:8080/",
+    "model": "local-model",
     "temperature": 0.2,
     "timeoutMinutes": 10
   }
@@ -98,6 +100,55 @@ Minimal `aisettings.json`:
 ```
 
 The task searches upward from `ProjectDir` for a `.sln` / `.slnx`, then places the test project under `tests/UnitTests/<ProjectName>.Tests/` by default.
+
+---
+
+## Getting a Local LLM Running
+
+You have three ways to get an OpenAI-compatible model on your machine:
+
+### Option A — LLMRunner *(recommended)*
+
+**LLMRunner** is a companion WPF app from the same authors. It lets you:
+
+- Browse a curated list of popular LLMs with **direct HuggingFace download links**.
+- **Chat with the model** before you trust it with your test suite.
+- **Serve it on `http://localhost:8080/`** with one click — the exact address `aisettings.json` expects.
+
+Zero terminals. Zero flags. Find it in the same repository profile or the releases page.
+
+### Option B — Ollama + Qwen 2.5 14B
+
+[Qwen 2.5 14B](https://ollama.com/library/qwen2.5) is a strong, compact open-weights model that fits on a 16 GB machine and follows structured prompt formats reliably. A great default for this task.
+
+```bash
+# 1. Install Ollama from https://ollama.com/download
+# 2. Pull the model
+ollama pull qwen2.5:14b
+
+# 3. Start the server (listens on http://localhost:11434/)
+ollama serve
+```
+
+Point `aisettings.json` at it:
+
+```json
+"aiConfiguration": {
+  "baseUrl": "http://localhost:11434/",
+  "model": "qwen2.5:14b",
+  "temperature": 0.2,
+  "timeoutMinutes": 10,
+  "systemPrompt": "You are an expert .NET developer. Write clean, maintainable code following Clean Code principles. Always use the Arrange-Act-Assert (AAA) pattern.",
+  "apiKey": null,
+  "apiKeyEnvVar": null
+}
+```
+
+> The trailing slash on `baseUrl` is required.
+
+### Option C — Any other OpenAI-compatible endpoint
+
+LM Studio, llama.cpp server, or a hosted API. See the [solution README](../../../README.md#ai-connection-variants) for all variants.
 
 ---
 
@@ -192,7 +243,7 @@ The `.targets` file that ships with the package is designed to be a **good citiz
 - **WPF-safe.** Projects whose name ends in `_wpftmp` abort silently.
 - **Multi-targeting aware.** Runs only for the first TFM in `TargetFrameworks`.
 - **Task host isolation.** `TaskFactory="TaskHostFactory"` runs the task in a separate MSBuild process, so the task assembly is **never locked** by Visual Studio.
-- **Explicit warning if missing.** If the task assembly can't be located, a build warning is emitted instead of silently doing nothing.
+- **Explicit warning if missing.** If the task assembly can't be located, a build warning (`TESTGEN001`) is emitted instead of silently doing nothing.
 
 The task participates in the following build phases:
 
@@ -207,7 +258,11 @@ The task participates in the following build phases:
 
 ## Troubleshooting
 
-### "Task assembly not found" warning
+### `TESTGEN001` — Task assembly not found
+
+```
+warning TESTGEN001: NetAI.TestGenerator: Task assembly not found (...). No tests will be generated.
+```
 
 The `.targets` file couldn't locate the task DLL. Try:
 
@@ -232,7 +287,8 @@ Check the following in order:
 
 That's the LLM, not the task. Options:
 
-- Use a local model on a fast machine (Ollama with a 7B–14B model is plenty for a single test method).
+- Use **LLMRunner** and pick a quantized 14B model — fast enough on a modern laptop GPU.
+- Try **Ollama with `qwen2.5:14b`** — see [Getting a Local LLM Running](#getting-a-local-llm-running).
 - Set `TestGeneratorPromptOnly=true` while iterating on prompt templates.
 - Set `TestGeneratorFailOnError=false` (default) so a single failure doesn't abort the build.
 - Temporarily disable the task: `dotnet build -p:TestGeneratorEnabled=false`.
@@ -259,6 +315,28 @@ Task-specific settings:
 |---|---|---|---|
 | `buildConfigurationFilter` | string | `all` | `all`, `Debug`, or `Release` — controls when the task runs. |
 | `maxMethodChars` | int | `25000` | Methods longer than this get a skip stub instead of a real test. |
+
+---
+
+## Enterprise Edition — Help Us Prioritize It
+
+> **If you like this package and think your team would benefit from a supported, more capable edition — please tell your employer.** The Enterprise roadmap is driven by real demand.
+
+The community edition is and will remain MIT-licensed. An **Enterprise edition** is planned on top of this codebase with features like:
+
+- Central configuration and policy enforcement
+- Audit logs and reporting
+- CI/CD gates and coverage thresholds
+- Advanced model and prompt management
+- Support and maintenance offerings
+
+**How you can help:**
+
+1. Mention the project to your team lead, architect, or in your next 1:1.
+2. Open an issue with the label **`enterprise-interest`** describing what your team would need.
+3. Star the repository — Enterprise milestones are announced there first.
+
+See the [full Enterprise section in the solution README](../../../README.md#enterprise-edition--help-us-prioritize-it).
 
 ---
 

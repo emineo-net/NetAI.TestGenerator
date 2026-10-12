@@ -20,7 +20,6 @@
 		<TestGeneratorSemanticAnalysisEnabled Condition="'$(TestGeneratorSemanticAnalysisEnabled)' == ''">true</TestGeneratorSemanticAnalysisEnabled>
 		<TestGeneratorPromptOnly Condition="'$(TestGeneratorPromptOnly)' == ''">false</TestGeneratorPromptOnly>
 
-		<!-- NEU: Default-Werte, die an die Task durchgereicht werden. -->
 		<TestGeneratorFailOnError Condition="'$(TestGeneratorFailOnError)' == ''">false</TestGeneratorFailOnError>
 
 		<_TestGeneratorAnalysisDir>$(IntermediateOutputPath)netai\</_TestGeneratorAnalysisDir>
@@ -35,12 +34,11 @@
 	<Target Name="TestGeneratorAssemblyMissing"
 	        BeforeTargets="PrepareForBuild"
 	        Condition="'$(TestGeneratorEnabled)' != 'false' And '$(DesignTimeBuild)' != 'true' And '$(TestGeneratorTaskExists)' != 'true'">
-		<Warning Code="RESXT001"
-		         Text="NetAI.TestGenerator: Task assembly not found ($(TestGeneratorTaskAssembly)). No translation will be performed." />
+		<Warning Code="TESTGEN001"
+		         Text="NetAI.TestGenerator: Task assembly not found ($(TestGeneratorTaskAssembly)). No tests will be generated." />
 	</Target>
 
 	<Target Name="SetupTestGeneratorSettings" Condition="'$(TestGeneratorActive)' == 'true'">
-		<!-- Geänderter Pfad zu ..\content\ -->
 		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\content\aisettings-schema.json"
 		      DestinationFiles="$(MSBuildProjectDirectory)\aisettings-schema.json"
 		      Condition="!Exists('$(MSBuildProjectDirectory)\aisettings-schema.json')" />
@@ -57,8 +55,8 @@
 		</ItemGroup>
 	</Target>
 
-
-	<Target Name="RunResxTranslation"
+	<Target Name="RunTestGeneration"
+	        BeforeTargets="PrepareForBuild"
 	        DependsOnTargets="SetupTestGeneratorSettings"
 	        Condition="'$(TestGeneratorActive)' == 'true' And '$(_TestGeneratorIsFirstTfm)' == 'true'">
 
@@ -74,19 +72,8 @@
 		                   FailOnError="$(TestGeneratorFailOnError)" />
 	</Target>
 
-	<Target Name="IncludeGeneratedResx"
-	        BeforeTargets="PrepareForBuild"
-	        DependsOnTargets="RunResxTranslation"
-	        Condition="'$(TestGeneratorActive)' == 'true' And '$(EnableDefaultEmbeddedResourceItems)' != 'false'">
-
-		<ItemGroup>
-			<_ResxOnDisk Include="**\*.resx" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-			<_ResxNotYetEmbedded Include="@(_ResxOnDisk)" Exclude="@(EmbeddedResource)" />
-			<EmbeddedResource Include="@(_ResxNotYetEmbedded)" />
-		</ItemGroup>
-	</Target>
-
-	<Target Name="RunResxTranslationOnPublish"
+	
+	<Target Name="RunTestGenerationOnPublish"
 	        BeforeTargets="PrepareForPublish"
 	        DependsOnTargets="SetupTestGeneratorSettings"
 	        Condition="'$(TestGeneratorActive)' == 'true' And '$(_TestGeneratorIsFirstTfm)' == 'true' And '$(_TestGeneratorIsPublishing)' != 'true'">

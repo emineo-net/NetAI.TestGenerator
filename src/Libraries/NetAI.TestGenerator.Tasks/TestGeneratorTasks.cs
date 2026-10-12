@@ -63,7 +63,7 @@ public class TestGeneratorTask : Task
 
         var hasSemanticInputs = SourceFiles.Length > 0 && ReferencePaths.Length > 0 && !string.IsNullOrWhiteSpace(AnalysisOutputDirectory);
 
-        return hasSemanticInputs ? ExecuteSemanticAnalysis() : ExecuteResxGeneration();
+        return hasSemanticInputs ? ExecuteSemanticAnalysis() : ExecuteTestGeneration();
     }
 
     private bool ExecuteSemanticAnalysis()
@@ -185,7 +185,7 @@ public class TestGeneratorTask : Task
         File.WriteAllText(path, sb.ToString());
     }
 
-    private bool ExecuteResxGeneration()
+    private bool ExecuteTestGeneration()
     {
 //#if DEBUG
 //        if (!Debugger.IsAttached)
