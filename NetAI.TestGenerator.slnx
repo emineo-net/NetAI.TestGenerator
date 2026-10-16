@@ -10,6 +10,7 @@
     <File Path="nugetReleasePkg.bat" />
     <File Path="publishNugetPackageCommandline.txt" />
     <File Path="RebuildNetAIResxTranslator.bat" />
+    <File Path="TextFile1.txt" />
   </Folder>
   <Folder Name="/Projektmappenelemente/prompts/">
     <File Path="rules.md" />

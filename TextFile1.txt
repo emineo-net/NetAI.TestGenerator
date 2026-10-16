@@ -1,0 +1,159 @@
+# Stefan Emmermann - Professional Summary
+- **Target Role:** Full Stack / .NET Developer
+- **Total Experience:** 21+ Years
+
+## Core Tech Stack Matrix
+- **Languages & Frameworks:** C#, .NET 8/6/Core/Framework, ASP.NET Core/MVC/Web API, Blazor, WPF, XAML, Angular 2–14, TypeScript, JavaScript, HTML5, CSS3, jQuery, Bootstrap, Node.js, MAUI, Windows Forms, PowerShell; AI/ML: Microsoft Semantic Kernel, Hugging Face, LLAMA for .NET, Ollama, Local AI, DeepSeek R1, OpenRouter, LibreTranslate, Roslyn (semantic analysis & code generation), Web Scraping.
+- **Data & Storage:** MS SQL Server, Oracle, PostgreSQL, SQLite, Elasticsearch, MongoDB, NoSQL, Supabase, Entity Framework, LINQ, SQL.
+- **DevOps & Infrastructure:** Azure DevOps, Docker, OpenShift, IIS, SCCM, Jenkins, Git, TFS, Jira/Atlassian, REST APIs, Web API, RabbitMQ, Kafka, Azure Functions, Azure Static Web Apps.
+
+## Professional Experience Chronology
+
+### CloserPage | Backend Developer (Project) | Oct 2024 – Jan 2026 (1 yr 4 mo)
+- **Project Scope:** Automated web-scraping service for extracting, processing, and distributing web content.
+- **Core Contributions:**
+  - Implemented URL-driven scraping logic that analyzes article structure, extracts relevant content, and persists it.
+  - Built event-based notifications, automated Word/PDF report generation, and end-user delivery.
+  - Leveraged Microsoft Semantic Kernel, Ollama, and local AI models for intelligent content processing; applied Roslyn for semantic analysis and code generation; integrated Supabase and Azure Functions/Static Web Apps; used RabbitMQ/Kafka for messaging.
+- **Technologies Used:** .NET 8, Blazor, MS SQL Server, Visual Studio, VS Code, Azure DevOps, LibreTranslate API, DeepSeek R1, OpenRouter, Microsoft Semantic Kernel, Ollama, Local AI, Roslyn, Web Scraping, Supabase, Azure Functions, Azure Static Web Apps, RabbitMQ, Kafka.
+
+### Infineon AG | Backend Developer (Project) | Aug 2022 – Sep 2024 (2 yr 2 mo)
+- **Project Scope:** Workflow management solution to optimize chip production planning.
+- **Core Contributions:**
+  - Classified and standardized hundreds of technological operations to simplify production planning.
+  - Developed a similarity-comparison algorithm for process maps to detect duplication and integrated internal data stores via defined interfaces.
+  - Utilized Microsoft Semantic Kernel, Llama, Ollama, Local AI, RabbitMQ, Kafka, Roslyn, web scraping, Supabase, Azure Functions, and Static Web Apps.
+- **Technologies Used:** .NET 6, Blazor, Angular 14, Elasticsearch, Oracle DB, OpenShift, Visual Studio, VS Code, Microsoft Semantic Kernel, Llama, Ollama, Local AI, RabbitMQ, Kafka, Roslyn, Web Scraping, Supabase, Azure Functions, Azure Static Web Apps.
+
+### CETOS AG | .NET Programmer | Mar 2010 – Sep 2022 (12 yr 7 mo)
+- **Project Scope:** Software packaging and distribution products, plus parallel client projects.
+- **Core Contributions:**
+  - Developed a WPF desktop application for workflow-oriented software packaging and deployment in Microsoft System Center (SCCM 2007/2012).
+  - Implemented billing module and web portal for package ordering, approvals, SLA tracking, and billing.
+- **Technologies Used:** C#, WPF, XAML, Entity Framework, SQL, Web API, JavaScript, HTML, CSS, PowerShell, MahApps.Metro, MS SQL Server, SCCM API, TFS, Visual Studio, Blend.
+
+### ToAppointment | Full-Stack Developer (Project) | Feb 2022 – Jul 2022 (6 mo)
+- **Project Scope:** Automated appointment planning for doctors, lawyers, and government institutions.
+- **Core Contributions:**
+  - Implemented automatic shift/slot determination and management based on staff availability.
+  - Created public booking portal with real-time availability, email confirmation, analytics dashboard, and dynamic low-load discounts.
+- **Technologies Used:** .NET 6, Blazor, MS SQL Server, Docker, Azure DevOps, Visual Studio, VS Code.
+
+### Arkona36 | Backend Developer (Permanent) | Feb 2021 – Dec 2021 (11 mo)
+- **Project Scope:** Backend and database integration with external APIs for an auto parts business.
+- **Core Contributions:**
+  - Designed and implemented a service to collect and synchronize product/stock data from supplier APIs, eliminating manual entry.
+  - Optimized critical SQL queries using execution plans; built a WPF notification client with Telegram Bot API for real-time delivery tracking.
+- **Technologies Used:** .NET Framework 4.8, C#, MS SQL Server, REST APIs, Web API, WPF, Visual Studio, VS Code.
+
+### Xeno-Data GmbH | Full-Stack Developer (Project) | Nov 2019 – Jan 2021 (1 yr 3 mo)
+- **Project Scope:** POS system for hotels and restaurants with inventory and planning tools.
+- **Core Contributions:**
+  - Developed full POS functionality including order processing, invoicing, and payments.
+  - Implemented inventory management, interactive table-layout/reservation planning, and staff shift planning with access rights and analytics.
+- **Technologies Used:** .NET Core, Blazor, MudBlazor, MS SQL Server, Docker, Azure DevOps, Microsoft Identity, Visual Studio, VS Code.
+
+### Minimax GmbH | Software Developer (Project) | Sep 2019 – Feb 2020 (6 mo)
+- **Project Scope:** AutoCAD plugin and web tool for fire-extinguishing system calculations and geolocation.
+- **Core Contributions:**
+  - Built AutoCAD plugin for automated calculation of building structures, piping networks, and extinguishing-agent volumes.
+  - Developed WPF frontend connected to a .NET Framework backend and a separate web application for geographic localization.
+- **Technologies Used:** C#, .NET Framework 4.6, .NET Core 3.2, WPF, XAML, Blazor, MS SQL Server, SQLite, Entity Framework, LINQ, AutoCAD API, Git, Visual Studio.
+
+### KWS Saat | Full-Stack Developer (Project) | Sep 2018 – Aug 2019 (1 yr)
+- **Project Scope:** Laboratory data management for a seed producer.
+- **Core Contributions:**
+  - Digitized quality research ordering, result registration, and long-term laboratory data analysis.
+  - Delivered Angular frontend and .NET Core backend in two-week Scrum sprints.
+- **Technologies Used:** .NET Core 2, Angular 6/7, TypeScript, C#, Elasticsearch, Oracle DB, IIS, Git, TFS, Visual Studio, VS Code.
+
+### Hays AG | Full-Stack Developer (Project) | Sep 2018 – Aug 2019 (1 yr)
+- **Project Scope:** Single Page Application for a recruiting agency.
+- **Core Contributions:**
+  - Built Elasticsearch index structure for existing data arrays.
+  - Implemented .NET Core WebAPI backend and Angular 6/7 frontend in a Scrum team.
+- **Technologies Used:** .NET Core 2, Angular 6/7, TypeScript, C#, Web API, Elasticsearch, Oracle DB, IIS, Git, TFS, Visual Studio, VS Code.
+
+### abat AG | Web Developer (Project) | Feb 2017 – Jan 2018 (1 yr)
+- **Project Scope:** Single Page Application in the automotive environment.
+- **Core Contributions:**
+  - Supported a 10-developer team on a critical web application using Angular/WebAPI.
+  - Participated in code reviews and agile Scrum development.
+- **Technologies Used:** Angular 2/4, TypeScript, C#, Web API, .NET Core, Docker, Jenkins, Git, Visual Studio, VS Code, Postman.
+
+### IT Provider – Cloud Software Distribution (Phase 2) | Full-Stack Developer (Project) | May 2017 – Sep 2017 (5 mo)
+- **Project Scope:** Further development of a cloud solution for software inventory and distribution.
+- **Core Contributions:**
+  - Designed and implemented MS SQL database for inventory and distribution data.
+  - Developed encrypted Windows service for client communication and MVC web interface for management/monitoring.
+- **Technologies Used:** .NET Core, Angular 2/4, C#, MVC, Web API, SQL, LINQ, JavaScript, TypeScript, MS SQL Server, Docker, Jenkins, Visual Studio.
+
+### Adecco GmbH | Full-Stack Developer (Project) | Sep 2015 – Apr 2017 (1 yr 8 mo)
+- **Project Scope:** Career portal and HR management system.
+- **Core Contributions:**
+  - Modernized job search, employee portal, and supplier portal with responsive Bootstrap UI.
+  - Developed web service methods providing SQL data as JSON to frontends.
+- **Technologies Used:** C#, ASP.NET Core, Angular.js, SQL, LINQ, JavaScript, jQuery, HTML5, CSS3, Bootstrap, MS SQL Server, DevExpress Controls, TFS, Visual Studio.
+
+### IT Provider – Cloud Software Distribution (Phase 1) | Full-Stack Developer (Project) | Mar 2015 – Aug 2015 (6 mo)
+- **Project Scope:** Initial development of a cloud solution for software inventory and distribution.
+- **Core Contributions:**
+  - Designed and created MS SQL database.
+  - Implemented encrypted Windows service and MVC web interface for management and monitoring.
+- **Technologies Used:** C#, ASP.NET MVC, SQL, LINQ, JavaScript, jQuery, HTML5, CSS3, MS SQL Server, Web API, SCCM 2012 API, TFS, Visual Studio.
+
+### Twister Kurierdienst | Full-Stack Developer (Project) | Jun 2014 – Feb 2015 (9 mo)
+- **Project Scope:** Website with full order-processing cycle for a courier service.
+- **Core Contributions:**
+  - Digitized order handling from placement through billing to replace telephone order intake.
+  - Designed/optimized MS SQL database, built web UI, and integrated Google/Bing Maps for geolocation and route optimization.
+- **Technologies Used:** C#, ASP.NET, JavaScript, SQL, LINQ, HTML5, CSS3, Google Maps API, Bing Maps API, MS SQL Server, Visual Studio, Adobe Illustrator.
+
+### IT Provider – Tools, Portals, Reporting | Software Developer (Project) | Dec 2013 – May 2014 (6 mo)
+- **Project Scope:** Tools and portals for software packaging and monitoring.
+- **Core Contributions:**
+  - Developed web portal for ordering software packages.
+  - Implemented management interface for monitoring/reporting and optimized existing packaging software.
+- **Technologies Used:** C#, ASP.NET, SQL, LINQ, XML, MS SQL Server, Visual Studio.
+
+### Landesbank Berlin | Software Developer (Project) | Aug 2013 – Nov 2013 (4 mo)
+- **Project Scope:** Database-driven rollout management for a Windows XP → 7 migration.
+- **Core Contributions:**
+  - Designed database with defined interfaces to display the full rollout process.
+  - Configured automatic generation of standard acceptance documents using MS-Office Interop.
+- **Technologies Used:** C#, SQL, LINQ, WPF, MS SQL Server, MS-Office Interop, Visual Studio.
+
+### Various Client Projects | Web Developer | Oct 2004 – Dec 2011 (7 yr 3 mo)
+- **Project Scope:** Creation and maintenance of various corporate websites.
+- **Core Contributions:**
+  - Built and supported multiple corporate sites across restaurant, hotel, community, and retail domains.
+  - Delivered full-stack .NET web solutions with database integration.
+- **Technologies Used:** C#, ASP.NET MVC, AJAX, LINQ, MS SQL Server, IIS7, Visual Studio.
+
+### Klassikfestival Betriebs GmbH | Web Developer (Project) | May 2009 – Oct 2010 (1 yr 6 mo)
+- **Project Scope:** Website with ticket ordering and CMS for events.
+- **Core Contributions:**
+  - Developed event website including ticket ordering system.
+  - Implemented content management system for event administration.
+- **Technologies Used:** C#, ASP.NET, .NET, Entity Framework, MS SQL Server, IIS7, Visual Studio.
+
+### Praxis Norbert Chmielewski | .NET Programmer | Aug 2007 – Mar 2008 (8 mo)
+- **Project Scope:** Document management system for a hygiene practice.
+- **Core Contributions:**
+  - Implemented database, post-change template handling, role management, and user uploads.
+  - Integrated MS Office functionality.
+- **Technologies Used:** C#, Entity Framework, Office Interop, Windows Forms, .NET, Visual Studio 2008, SQL Management Studio.
+
+### Emineo-Scheduler | .NET Programmer | Dec 2005 – Apr 2006 (5 mo)
+- **Project Scope:** Online appointment system for doctors, cosmetic studios, and auto plants.
+- **Core Contributions:**
+  - Developed .NET scheduling and referral solution.
+  - Used Entity Framework and MSSQL on IIS web server.
+- **Technologies Used:** .NET, C#, IIS7, MSSQL, ASP.NET, Entity Framework, Visual Studio 2003, Adobe Illustrator, SQL Management Studio.
+
+### Mesantis GmbH | .NET Programmer | Jan 2005 – Nov 2005 (11 mo)
+- **Project Scope:** Online booking, management, file portal, and archiving for a dental clinic.
+- **Core Contributions:**
+  - Built online booking and management functionality for medical referrals.
+  - Implemented internal file portal and archiving system.
+- **Technologies Used:** .NET, C#, IIS7, MSSQL, ASP.NET, AJAX, LINQ, Visual Studio, Adobe Illustrator, SQL Management Studio.
