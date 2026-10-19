@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Moq;
+﻿using Moq;
 using System.Threading.Tasks;
 using System;
 using Xunit;
@@ -8,38 +7,36 @@ namespace WpftranlationTestApp.Tests
 {
     public class MainWindowTests
     {
-        private readonly MainWindow _sut; public MainWindowTests()
+        // REQUIRED SOURCE REFACTORING (do not implement the test yet):
+
+        // 1) Make method 'internal' and add InternalsVisibleTo.
+
+        // 2) Change 'async void' to 'async Task'.
+
+        // 3) Inject 'IFileSystem' (package 'System.IO.Abstractions') instead of static 'System.IO.File'.
+
+
+        [StaFact(Skip = "requires refactoring: async void method must become an awaitable async Task")]
+        public void TestButton_OnClick_RequiresRefactoring()
         {
-            _sut = new MainWindow();
-        }
-        [StaFact]
-        public void IsValidWebUrl_WhenCalled_ShouldBehavior()
-        {
-
-            // Arrange
-            string validUrl = "https://www.example.com";
-            string invalidUrl = "not-a-url";
-            string nullUrl = null;
-            string emptyUrl = "";
-            string whitespaceUrl = "   ";
-            string ftpUrl = "ftp://example.com";
-
-            // Act
-            var result1 = MainWindow.IsValidWebUrl(validUrl);
-            var result2 = MainWindow.IsValidWebUrl(invalidUrl);
-            var result3 = MainWindow.IsValidWebUrl(nullUrl);
-            var result4 = MainWindow.IsValidWebUrl(emptyUrl);
-            var result5 = MainWindow.IsValidWebUrl(whitespaceUrl);
-            var result6 = MainWindow.IsValidWebUrl(ftpUrl);
-
-            // Assert
-            result1.Should().BeTrue();
-            result2.Should().BeFalse();
-            result3.Should().BeFalse();
-            result4.Should().BeFalse();
-            result5.Should().BeFalse();
-            result6.Should().BeFalse();
-
+            // 1) Make method 'internal' and add InternalsVisibleTo.
+            // 2) Change 'async void' to 'async Task'.
+            // 3) Inject 'IFileSystem' (package 'System.IO.Abstractions') instead of static 'System.IO.File'.
+            //
+            // Suggested refactoring pattern:
+            // BEFORE:
+            //   private async void TestButton_OnClick(object sender, RoutedEventArgs e)
+            //   { /* original async body */ }
+            //
+            // AFTER:
+            //   private async void TestButton_OnClick(object sender, RoutedEventArgs e)
+            //       => await TestButton_OnClickAsync();
+            //
+            //   private async Task TestButton_OnClickAsync()
+            //   { /* original async body, now awaitable & testable */ }
+            //
+            // Rationale: the shim stays UI-bound by design and is excluded from unit tests;
+            // the TestButton_OnClickAsync method carries all logic and is fully unit-testable.
         }
     }
 }

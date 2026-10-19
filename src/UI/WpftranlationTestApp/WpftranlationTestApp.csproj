@@ -47,6 +47,9 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <Import Project="..\..\Libraries\NetAI.TestGenerator.Tasks\build\NetAI.TestGenerator.Tasks.targets"
-          Condition="Exists('..\..\Libraries\NetAI.TestGenerator.Tasks\build\NetAI.TestGenerator.Tasks.targets')" />
+  <ItemGroup>
+    <Folder Include="netai\" />
+  </ItemGroup>
+
+  <Import Project="..\..\Libraries\NetAI.TestGenerator.Tasks\build\NetAI.TestGenerator.Tasks.targets" Condition="Exists('..\..\Libraries\NetAI.TestGenerator.Tasks\build\NetAI.TestGenerator.Tasks.targets')" />
 </Project>
