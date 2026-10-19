@@ -42,7 +42,7 @@ public partial class MainWindow : Window
 
 
 
-    public static bool IsValidWebUrl(string? url)
+    private static bool IsValidWebUrl(string? url)
     {
         if (string.IsNullOrWhiteSpace(url))
         {

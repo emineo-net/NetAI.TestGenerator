@@ -293,6 +293,27 @@ public class TetsGeneratorOrchestrator
 
                     BuildLogger.Info(semanticHint.Xml);
 
+                    // ----------------------------------------------------------
+                    // NEU: Deterministischer Skip-Stub ohne KI-Aufruf, wenn die
+                    // semantische Analyse Skip / RefactorFirst / private Reflection
+                    // signalisiert.
+                    // ----------------------------------------------------------
+                    if (ShouldGenerateSkipStub(semanticHint, out var skipStubReason))
+                    {
+                        var skipTestClass = GenerateRoslynSkipTestClass(
+                            testClassName,
+                            effectiveTestNamespace,
+                            methodName,
+                            semanticHint,
+                            skipStubReason);
+
+                        collectedMethodCodes.Add(StripAiAreaMarkers(skipTestClass));
+                        existingTestMethods.Add(methodName);
+
+                        logInfo?.Invoke($"[NetAI] Method '{methodName}' skipped via Roslyn (no AI call): {skipStubReason}");
+                        continue;
+                    }
+
                     var basePrompt = BuildBasePrompt(className, methodName, semanticHint.Xml, projectContext, classSkeleton,
                         semanticHint.Skeleton, semanticHint.RequiresSta);
 
@@ -456,6 +477,7 @@ public class TetsGeneratorOrchestrator
                 if (collectedMethodCodes.Count > 0)
                 {
                     var merged = MergeCollectedTestClasses(testClassName, effectiveTestNamespace, collectedMethodCodes);
+                    Directory.CreateDirectory(testProjectDirectory);
                     File.WriteAllText(testFilePath, merged, Encoding.UTF8);
                     logInfo?.Invoke($"[NetAI] Wrote {collectedMethodCodes.Count} test method(s) to {testFilePath}.");
                 }
@@ -478,6 +500,157 @@ public class TetsGeneratorOrchestrator
             }
         }
     }
+
+    // ======================================================================
+    // NEU: Deterministische Skip-Stub-Erzeugung per Roslyn/StringBuilder.
+    // ======================================================================
+
+    /// <summary>
+    /// Entscheidet anhand der semantischen Analyse, ob ein Skip-Stub ohne LLM erzeugt werden soll.
+    /// </summary>
+    private static bool ShouldGenerateSkipStub(SemanticHint hint, out string reason)
+    {
+        reason = string.Empty;
+
+        // Ohne semantische Analyse können wir nichts belastbar entscheiden -> KI darf ran.
+        if (string.IsNullOrEmpty(hint.Xml))
+        {
+            return false;
+        }
+
+        switch (hint.Strategy)
+        {
+            case UnitTestSkeletonGenerator.TestStrategy.Skip:
+                reason = "Semantic analysis: Skip strategy.";
+                return true;
+
+            case UnitTestSkeletonGenerator.TestStrategy.RefactorFirst:
+                reason = "Semantic analysis: RefactorFirst. " +
+                         (hint.Blockers.Count > 0 ? string.Join(" | ", hint.Blockers) : string.Empty);
+                return true;
+
+            case UnitTestSkeletonGenerator.TestStrategy.Reflection:
+                // Bei privaten Methoden abbrechen und stattdessen den besseren Weg
+                // (InternalsVisibleTo / Refactoring) als Hinweis liefern.
+                if (hint.Blockers.Any(b => b.IndexOf("Private", StringComparison.OrdinalIgnoreCase) >= 0))
+                {
+                    reason = "Method is private and not directly testable. " +
+                             (hint.Blockers.Count > 0 ? string.Join(" | ", hint.Blockers) : string.Empty);
+                    return true;
+                }
+                // Andere Reflection-Fälle (z. B. explizite Interface-Implementierung)
+                // dürfen weiterhin durch die KI getestet werden.
+                return false;
+
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
+    /// Sammelt die Hinweise (Verdict, Blocker, Refactoring-Empfehlungen), die im Skip-Stub als Kommentar landen.
+    /// </summary>
+    private static IReadOnlyList<string> BuildSkipHintLines(SemanticHint hint)
+    {
+        var lines = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(hint.Verdict))
+        {
+            lines.Add("Verdict: " + hint.Verdict);
+        }
+
+        if (hint.Blockers.Count > 0)
+        {
+            lines.Add("Blockers:");
+            foreach (var b in hint.Blockers)
+            {
+                lines.Add("  - " + b);
+            }
+        }
+
+        if (hint.SourceRefactoringRecommendations.Count > 0)
+        {
+            lines.Add("Recommended source refactorings:");
+            foreach (var r in hint.SourceRefactoringRecommendations)
+            {
+                lines.Add("  - " + r);
+            }
+        }
+
+        // NEU: async void – konkretes Refactoring-Pattern, bereits //-kommentiert
+        if (hint.AsyncVoidRefactoringLines.Count > 0)
+        {
+            lines.Add("Suggested refactoring (async void → awaitable Task):");
+            foreach (var line in hint.AsyncVoidRefactoringLines)
+            {
+                lines.Add(line);   // verbatim, keine zusätzliche "  - "-Präfixierung
+            }
+        }
+
+        return lines;
+    }
+
+    /// <summary>
+    /// Baut eine komplette Testklasse mit Skip-/Ignore-Attribut und Kommentarhinweisen.
+    /// Kein LLM-Aufruf, kein Compile-Validierungs-Loop.
+    /// </summary>
+    private string GenerateRoslynSkipTestClass(
+        string testClassName,
+        string testNamespace,
+        string methodName,
+        SemanticHint hint,
+        string skipReason)
+    {
+        var testMethodName = $"{methodName}_IsNotDirectlyTestable";
+        var hintLines = BuildSkipHintLines(hint);
+
+        // Attribut-Grund kurz halten; Details stehen als Kommentar im Body.
+        var attributeReason = skipReason.Length > 100
+            ? skipReason.Substring(0, 97) + "..."
+            : skipReason;
+
+        var sb = new StringBuilder();
+        sb.AppendLine($"using {GetTestFrameworkNamespace(_testFramework)};");
+        sb.AppendLine();
+        sb.AppendLine($"namespace {testNamespace}");
+        sb.AppendLine("{");
+        sb.AppendLine($"    public class {testClassName}");
+        sb.AppendLine("    {");
+        sb.AppendLine($"        {GetSkipAttribute(EscapeAttributeString(attributeReason))}");
+        sb.AppendLine($"        public void {testMethodName}()");
+        sb.AppendLine("        {");
+        sb.AppendLine("            // Auto-generated skip stub by NetAI (Roslyn-only, no AI call).");
+
+        foreach (var hintLine in hintLines)
+        {
+            if (string.IsNullOrWhiteSpace(hintLine))
+            {
+                continue;
+            }
+
+            foreach (var sub in hintLine.Split('\n'))
+            {
+                var trimmed = sub.TrimEnd();
+                var withoutSlash = trimmed.StartsWith("//", StringComparison.Ordinal)
+                    ? trimmed.Substring(2).TrimStart()
+                    : trimmed;
+                sb.AppendLine($"            // {withoutSlash}");
+            }
+        }
+
+        sb.AppendLine("        }");
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
+
+        return sb.ToString();
+    }
+
+    private static string EscapeAttributeString(string value) =>
+        value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+    // ======================================================================
+    // Bestehende Methoden unverändert.
+    // ======================================================================
 
     private string MergeCollectedTestClasses(string testClassName, string testNamespace, IReadOnlyList<string> classSnippets)
     {
@@ -777,7 +950,7 @@ public class TetsGeneratorOrchestrator
     {
         if (analyzer == null || compilation == null)
         {
-            return new SemanticHint(string.Empty, null, false);
+            return EmptySemanticHint();
         }
 
         var methodName = methodDeclaration.Identifier.Text;
@@ -802,19 +975,30 @@ public class TetsGeneratorOrchestrator
             var filePath = methodDeclaration.SyntaxTree.FilePath ?? methodName;
             var xml = FormatReportAsXml(report, filePath, methodName);
 
-            return new SemanticHint(xml, report.TestSkeleton, report.RequiresSta);
+            return new SemanticHint(
+                xml,
+                report.TestSkeleton,
+                report.RequiresSta,
+                report.Strategy,
+                report.Blockers ?? Array.Empty<string>(),
+                report.Verdict ?? string.Empty,
+                report.SourceRefactoringRecommendations ?? new List<string>(),
+                report.Method is { IsAsyncVoid: true } m
+                    ? BuildAsyncVoidRefactoringPattern(m)          // bereits vorhandene Methode
+                    : Array.Empty<string>());
         }
         catch (InvalidOperationException ex)
         {
             logInfo?.Invoke($"[NetAI] Skipped semantic analysis for '{methodName}': {ex.Message}");
-            return new SemanticHint(string.Empty, null, false);
+            return EmptySemanticHint();
         }
         catch (Exception ex)
         {
             logInfo?.Invoke($"[NetAI] Semantic analysis for '{methodName}' failed: {ex.Message}");
-            return new SemanticHint(string.Empty, null, false);
+            return EmptySemanticHint();
         }
     }
+
 
     private string FormatReportAsXml(TestabilityReport report, string sourceFilePath, string methodName)
     {
@@ -1813,5 +1997,26 @@ public class TetsGeneratorOrchestrator
         return actualChars <= maxChars;
     }
 
-    private sealed record SemanticHint(string Xml, UnitTestSkeletonGenerator.GeneratorResult? Skeleton, bool RequiresSta);
+    private sealed record SemanticHint(
+        string Xml,
+        UnitTestSkeletonGenerator.GeneratorResult? Skeleton,
+        bool RequiresSta,
+        UnitTestSkeletonGenerator.TestStrategy Strategy,
+        IReadOnlyList<string> Blockers,
+        string Verdict,
+        IReadOnlyList<string> SourceRefactoringRecommendations,
+        IReadOnlyList<string> AsyncVoidRefactoringLines);   // NEU
+
+    private static SemanticHint EmptySemanticHint() => new(
+        string.Empty,
+        null,
+        false,
+        UnitTestSkeletonGenerator.TestStrategy.Direct,
+        Array.Empty<string>(),
+        string.Empty,
+        Array.Empty<string>(),
+        Array.Empty<string>());
+
+
+
 }

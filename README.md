@@ -84,7 +84,7 @@ Detailed documentation lives next to each project:
 
 - **Pick from popular models** — a curated list with direct **HuggingFace** download links, so you don't have to hunt for GGUF files and quantizations that actually work.
 - **Chat with the model before wiring it up** — sanity-check the output quality on your own prompts, not on someone else's benchmark.
-- **Serve it on `http://localhost:8080/` with one click** — exactly the address `aisettings.json` expects by default. No environment variables, no command-line flags, no guesswork.
+- **Serve it on `http://localhost:8081/` with one click** — exactly the address `aisettings.json` expects by default. No environment variables, no command-line flags, no guesswork.
 
 That means the whole "get a local LLM running" step collapses into: open LLMRunner → pick a model → click *Serve*. From there, `dotnet build` will already find your model.
 
@@ -107,7 +107,7 @@ If you prefer to run a model server yourself (Ollama, LM Studio, llama.cpp), tha
 - **Central Package Management support** — Reads and writes `Directory.Packages.props`.
 - **Safe by default** — Skips design-time builds, respects multi-targeting, can be disabled per build.
 - **Two entry points, one engine** — NuGet build task and `netai` CLI share the same `Core`.
-- **Companion local-LLM runner** — LLMRunner gets you from zero to `localhost:8080` without a terminal.
+- **Companion local-LLM runner** — LLMRunner gets you from zero to `localhost:8081` without a terminal.
 
 ---
 

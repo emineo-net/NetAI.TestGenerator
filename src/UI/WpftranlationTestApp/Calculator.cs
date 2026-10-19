@@ -9,7 +9,7 @@ namespace WpftranlationTestApp
 {
     public class Calculator
     {
-        public void Guard() => throw new InvalidOperationException("not allowed");
+        private void Guard() => throw new InvalidOperationException("not allowed");
         public int Add(int a, int b)
         {
             return a + b;
