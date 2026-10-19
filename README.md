@@ -257,7 +257,7 @@ Whether you use the task or the CLI, everything is driven by a single `aisetting
     "maxTestsPerClass": 15
   },
   "aiConfiguration": {
-    "baseUrl": "http://localhost:8080/",
+    "baseUrl": "http://localhost:8081/",
     "model": "gpt-4o",
     "temperature": 0.2,
     "timeoutMinutes": 5,
@@ -302,7 +302,7 @@ That's it. Build (or run `netai generate`) and the model is picked up.
 > **Tips:**
 > - The trailing slash on `baseUrl` is required.
 > - `timeoutMinutes` of `10` is a good starting point for a 14B model on CPU; on a modern GPU, `5` is usually enough.
-> - If you'd rather not touch a terminal at all, **LLMRunner** does all of this — download, chat, and serve on `localhost:8080` — in a single window. See [Meet LLMRunner](#meet-llmrunner).
+> - If you'd rather not touch a terminal at all, **LLMRunner** does all of this — download, chat, and serve on `localhost:8081` — in a single window. See [Meet LLMRunner](#meet-llmrunner).
 
 ### AI Connection Variants
 
@@ -319,7 +319,7 @@ The same `aiConfiguration` block works for every endpoint — only the values ch
 
 | Field            | Type     | Default (when empty)     | Description                                                              |
 |------------------|----------|--------------------------|--------------------------------------------------------------------------|
-| `baseUrl`        | `string` | `http://localhost:8080/` | Endpoint URL — **must end with `/`**.                                    |
+| `baseUrl`        | `string` | `http://localhost:8081/` | Endpoint URL — **must end with `/`**.                                    |
 | `timeoutMinutes` | `integer`| `5`                      | HTTP timeout in minutes.                                                 |
 | `systemPrompt`   | `string` | *(none)*                 | System role and rules for the model.                                     |
 | `apiKey`         | `string` | *(none)*                 | API key directly in the file — **mutually exclusive with `apiKeyEnvVar`**. |
@@ -327,7 +327,7 @@ The same `aiConfiguration` block works for every endpoint — only the values ch
 
 #### Variant 1 — LLMRunner, no configuration required
 
-If you use the companion **LLMRunner** app, it serves your chosen local model on `http://localhost:8080/` — the default. The minimal `aisettings.json` above works out of the box.
+If you use the companion **LLMRunner** app, it serves your chosen local model on `http://localhost:8081/` — the default. The minimal `aisettings.json` above works out of the box.
 
 #### Variant 2 — Ollama (Qwen 2.5 14B)
 

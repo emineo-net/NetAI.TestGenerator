@@ -120,8 +120,8 @@
           "type": "string",
           "format": "uri",
           "pattern": "/$",
-          "default": "http://localhost:8080/",
-          "description": "Absolute URL of the OpenAI-compatible endpoint. Must end with '/'. Defaults to a local server on port 8080. Examples: 'http://localhost:11434/' (Ollama), 'https://api.openai.com/'."
+          "default": "http://localhost:8081/",
+          "description": "Absolute URL of the OpenAI-compatible endpoint. Must end with '/'. Defaults to a local server on port 8081. Examples: 'http://localhost:11434/' (Ollama), 'https://api.openai.com/'."
         },
         "model": {
           "type": "string",

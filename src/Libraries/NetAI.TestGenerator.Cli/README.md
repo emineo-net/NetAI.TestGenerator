@@ -88,7 +88,7 @@ netai init ./src/MyApp
 
 # 2. Point it at a local model. The easiest way:
 #    - open LLMRunner (companion app, same authors)
-#    - pick a model, click "Serve on localhost:8080"
+#    - pick a model, click "Serve on localhost:8081"
 #    - the default aisettings.json already expects exactly that address.
 #
 #    Prefer a terminal? Use Ollama with Qwen 2.5 14B:
@@ -105,7 +105,7 @@ netai generate ./src/MyApp/Services/OrderService.cs
 
 That's it. Tests will be generated in the resolved test project — the same way the build task would do it.
 
-> **Just want to try it with a local model?** Grab **LLMRunner** from the same repository profile or the releases page. It downloads, chats, and serves a model on `http://localhost:8080/` — one window, no terminal.
+> **Just want to try it with a local model?** Grab **LLMRunner** from the same repository profile or the releases page. It downloads, chats, and serves a model on `http://localhost:8081/` — one window, no terminal.
 
 ---
 

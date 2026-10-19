@@ -71,7 +71,7 @@ Both are added to the project as `None` items with `CopyToOutputDirectory=Preser
 3. **Edit `aisettings.json`** to point at your LLM and pick your test / mocking framework.
 4. **Build again.** Missing tests appear in the resolved test project.
 
-Minimal `aisettings.json` — assuming a local model on `http://localhost:8080/` (which is what our companion app **LLMRunner** serves out of the box):
+Minimal `aisettings.json` — assuming a local model on `http://localhost:8081/` (which is what our companion app **LLMRunner** serves out of the box):
 
 ```json
 {
@@ -90,7 +90,7 @@ Minimal `aisettings.json` — assuming a local model on `http://localhost:8080/`
     "verbosePrompt": true
   },
   "aiConfiguration": {
-    "baseUrl": "http://localhost:8080/",
+    "baseUrl": "http://localhost:8081/",
     "model": "local-model",
     "temperature": 0.2,
     "timeoutMinutes": 10
@@ -112,7 +112,7 @@ You have three ways to get an OpenAI-compatible model on your machine:
 
 - Browse a curated list of popular LLMs with **direct HuggingFace download links**.
 - **Chat with the model** before you trust it with your test suite.
-- **Serve it on `http://localhost:8080/`** with one click — the exact address `aisettings.json` expects.
+- **Serve it on `http://localhost:8081/`** with one click — the exact address `aisettings.json` expects.
 
 Zero terminals. Zero flags. Find it in the same repository profile or the releases page.
 
