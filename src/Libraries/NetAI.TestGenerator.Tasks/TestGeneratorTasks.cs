@@ -201,7 +201,7 @@ public class TestGeneratorTask : Task
         }
         catch (Exception ex)
         {
-            Log.LogError($"[NetAI] Could not load aisettings.json: {ex.Message}");
+            Log.LogError($"[NetAI] Could not load aitranssettings.json: {ex.Message}");
             return false;
         }
 
@@ -239,7 +239,7 @@ public class TestGeneratorTask : Task
         }
         catch (ArgumentException ex)
         {
-            Log.LogError($"[NetAI] Invalid framework settings in aisettings.json: {ex.Message}");
+            Log.LogError($"[NetAI] Invalid framework settings in aitranssettings.json: {ex.Message}");
             return false;
         }
 
