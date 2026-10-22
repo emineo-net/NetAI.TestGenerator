@@ -560,11 +560,36 @@ public sealed class RoslynDllTestabilityAnalyzer
             DependencyKind = ClassifyDependencyKind(containing),
             BaseType = containing.BaseType?.ToDisplayString(FqFormat) ?? "",
             AllBaseTypes = new List<string>(),
-            Interfaces = new List<string>(),
-            Constructors = new List<string>(),
-            VirtualMemberCount = 0,
-            MemberCount = 0
+            Interfaces = GetImplementedInterfaces(containing),
+            Constructors = GetPublicInstanceConstructors(containing),
+            PublicMethods = GetPublicMethodSignatures(containing),
+            VirtualMemberCount = containing.GetMembers().Count(m => m.IsVirtual || m.IsAbstract || m.IsOverride),
+            MemberCount = containing.GetMembers().Length
         };
+    }
+
+    private static List<string> GetPublicMethodSignatures(INamedTypeSymbol type)
+    {
+        return type.GetMembers()
+            .OfType<IMethodSymbol>()
+            .Where(m => !m.IsImplicitlyDeclared)
+            .Where(m => m.DeclaredAccessibility == Accessibility.Public)
+            .Where(m => m.MethodKind == MethodKind.Ordinary)
+            .Select(m => m.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))
+            .ToList();
+    }
+
+    private static List<string> GetPublicInstanceConstructors(INamedTypeSymbol type)
+    {
+        return type.InstanceConstructors
+            .Where(c => !c.IsStatic && c.DeclaredAccessibility == Accessibility.Public)
+            .Select(c => c.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))
+            .ToList();
+    }
+
+    private static List<string> GetImplementedInterfaces(INamedTypeSymbol type)
+    {
+        return type.AllInterfaces.Select(i => i.ToDisplayString(FqFormat)).ToList();
     }
 
     private (List<TypeFact> Types, HashSet<string> InstanceFieldTypes) CollectReferencedTypes(IMethodSymbol root, Compilation compilation)
@@ -627,6 +652,7 @@ public sealed class RoslynDllTestabilityAnalyzer
 
             if (seen.TryGetValue(full, out var existing))
             {
+                // Preserve API facts from the first observation — do NOT reset them to empty.
                 seen[full] = new TypeFact
                 {
                     FullName = existing.FullName,
@@ -646,14 +672,15 @@ public sealed class RoslynDllTestabilityAnalyzer
                     DependencyKind = existing.DependencyKind,
                     Usages = existing.Usages | usage,
                     BaseType = existing.BaseType,
-                    AllBaseTypes = new List<string>(),
+                    AllBaseTypes = existing.AllBaseTypes,
                     RecommendedAbstraction = existing.RecommendedAbstraction,
                     RecommendedAbstractionPackage = existing.RecommendedAbstractionPackage,
                     RecommendationReason = existing.RecommendationReason,
-                    Interfaces = new List<string>(),
-                    Constructors = new List<string>(),
-                    VirtualMemberCount = 0,
-                    MemberCount = 0
+                    Interfaces = existing.Interfaces,
+                    Constructors = existing.Constructors,
+                    PublicMethods = existing.PublicMethods,
+                    VirtualMemberCount = existing.VirtualMemberCount,
+                    MemberCount = existing.MemberCount
                 };
                 return;
             }
@@ -682,10 +709,11 @@ public sealed class RoslynDllTestabilityAnalyzer
                 RecommendedAbstraction = abstraction.Abstraction,
                 RecommendedAbstractionPackage = abstraction.Package,
                 RecommendationReason = abstraction.Reason,
-                Constructors = new List<string>(),
-                Interfaces = new List<string>(),
-                VirtualMemberCount = 0,
-                MemberCount = 0
+                Interfaces = GetImplementedInterfaces(named),
+                Constructors = GetPublicInstanceConstructors(named),
+                PublicMethods = GetPublicMethodSignatures(named),
+                VirtualMemberCount = named.GetMembers().Count(m => m.IsVirtual || m.IsAbstract || m.IsOverride),
+                MemberCount = named.GetMembers().Length
             };
         }
 

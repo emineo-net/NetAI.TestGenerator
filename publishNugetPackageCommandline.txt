@@ -1,8 +1,8 @@
 
-zuerstt <VersionPrefix>1.0.4</VersionPrefix> VERSIN ERHÖHEN!!!!	
+zuerstt <VersionPrefix>1.0.6</VersionPrefix> VERSIN ERHÖHEN!!!!	
 commit!!!
 
-git tag v1.0.5
-git push origin v1.0.5
+git tag v1.0.6
+git push origin v1.0.6
 
 

@@ -74,6 +74,12 @@ public sealed class TypeFact
     /// <summary>Gets the interfaces implemented by the type.</summary>
     public List<string> Interfaces { get; init; } = new();
 
+    /// <summary>
+    /// Gets the public ordinary method signatures declared on the type.
+    /// These are sent to the AI as <c>&lt;PublicMethods&gt;</c> facts so the model does not invent members.
+    /// </summary>
+    public List<string> PublicMethods { get; init; } = new();
+
     /// <summary>Gets the number of virtual, abstract, or overridden members on the type.</summary>
     public int VirtualMemberCount { get; init; }
 
