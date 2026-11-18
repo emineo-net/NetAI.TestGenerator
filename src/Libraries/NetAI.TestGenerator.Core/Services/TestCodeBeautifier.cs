@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
+using NetAI.TestGenerator.Core.Extensions;
 using NetAI.TestGenerator.Core.Models.Enums;
 
 namespace NetAI.TestGenerator.Core.Services;
@@ -83,18 +84,14 @@ public class TestCodeBeautifier
     {
         var required = new HashSet<string>(StringComparer.Ordinal);
 
-        switch (testFramework)
+        if (testFramework != TestFramework.Unknown)
         {
-            case TestFramework.NUnit: required.Add("NUnit.Framework"); break;
-            case TestFramework.xUnit: required.Add("Xunit"); break;
-            case TestFramework.MSTest: required.Add("Microsoft.VisualStudio.TestTools.UnitTesting"); break;
+            required.Add(testFramework.Namespace());
         }
 
-        switch (mockFramework)
+        if (mockFramework != MockFramework.Unknown)
         {
-            case MockFramework.Moq: required.Add("Moq"); break;
-            case MockFramework.NSubstitute: required.Add("NSubstitute"); break;
-            case MockFramework.FakeItEasy: required.Add("FakeItEasy"); break;
+            required.Add(mockFramework.Namespace());
         }
 
         var code = root.ToFullString();
@@ -245,7 +242,8 @@ public class TestCodeBeautifier
                 or "IReadOnlyDictionary" => "System.Collections.Generic",
             "BindingFlags" or "MemberInfo" or "MethodBase" or "MethodInfo" or "ConstructorInfo" or "PropertyInfo" or "FieldInfo"
                 or "EventInfo" or "ParameterInfo" or "Assembly" or "Module" or "TargetException" or "TargetInvocationException"
-                or "Activator" or "Binder" => "System.Reflection",
+                or "Binder" => "System.Reflection",
+            "Activator" => "System",
             "Regex" or "Match" or "MatchCollection" => "System.Text.RegularExpressions",
             "XElement" or "XDocument" or "XAttribute" or "XName" => "System.Xml.Linq",
             "Exception" or "ArgumentException" or "ArgumentNullException" or "InvalidOperationException" or "NotSupportedException"

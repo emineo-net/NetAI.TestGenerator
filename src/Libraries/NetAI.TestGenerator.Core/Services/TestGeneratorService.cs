@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
+using NetAI.TestGenerator.Core.Extensions;
 
 namespace NetAI.TestGenerator.Core.Services;
 
@@ -21,7 +22,8 @@ public class TestGeneratorService
         {
             var testCode = File.ReadAllText(testFilePath);
             var root = CSharpSyntaxTree.ParseText(testCode).GetCompilationUnitRoot();
-            var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
+            // Only real tests count; helpers such as CreateSut() or Dispose() must not mark source methods as covered.
+            var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().Where(m => m.HasTestAttribute());
             foreach (var m in methods)
             {
                 methodNames.Add(m.Identifier.Text);
@@ -92,12 +94,12 @@ public class TestGeneratorService
             throw new ArgumentException("Generated code does not contain any class members.", nameof(methodCode));
         }
 
-        var existingKeys = new HashSet<string>(classDecl.Members.Select(GetMemberKey), StringComparer.Ordinal);
+        var existingKeys = new HashSet<string>(classDecl.Members.Select(m => m.GetMemberKey()), StringComparer.Ordinal);
 
         var newMembers = new List<MemberDeclarationSyntax>();
         foreach (var member in incomingMembers)
         {
-            var key = GetMemberKey(member);
+            var key = member.GetMemberKey();
             if (existingKeys.Add(key))
             {
                 newMembers.Add(member);
@@ -110,13 +112,13 @@ public class TestGeneratorService
         }
 
         var usings = root.Usings.ToList();
-        var existingUsingKeys = new HashSet<string>(usings.Select(GetUsingKey), StringComparer.Ordinal);
+        var existingUsingKeys = new HashSet<string>(usings.Select(u => u.GetUsingKey()), StringComparer.Ordinal);
 
         foreach (var usingText in extractedUsings)
         {
             var parsedUsing = CSharpSyntaxTree.ParseText(usingText).GetCompilationUnitRoot().Usings.FirstOrDefault();
 
-            if (parsedUsing != null && existingUsingKeys.Add(GetUsingKey(parsedUsing)))
+            if (parsedUsing != null && existingUsingKeys.Add(parsedUsing.GetUsingKey()))
             {
                 usings.Add(parsedUsing);
             }
@@ -192,83 +194,9 @@ public class TestGeneratorService
     private static ClassDeclarationSyntax? FindTestClass(CompilationUnitSyntax root)
     {
         var byAttribute = root.DescendantNodes().OfType<ClassDeclarationSyntax>()
-            .FirstOrDefault(c => c.DescendantNodes().OfType<MethodDeclarationSyntax>().Any(HasTestAttribute));
+            .FirstOrDefault(c => c.DescendantNodes().OfType<MethodDeclarationSyntax>().Any(m => m.HasTestAttribute()));
 
         return byAttribute ?? root.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
     }
 
-    private static string GetMemberKey(MemberDeclarationSyntax member)
-    {
-        switch (member)
-        {
-            case MethodDeclarationSyntax m:
-                return "M:" + GetMethodKey(m);
-
-            case ConstructorDeclarationSyntax c:
-                return "C:" + string.Join(",", c.ParameterList.Parameters.Select(p => p.Type?.ToString() ?? ""));
-
-            case FieldDeclarationSyntax f:
-                return "F:" + string.Join(",", f.Declaration.Variables.Select(v => v.Identifier.Text));
-
-            case PropertyDeclarationSyntax p:
-                return "P:" + p.Identifier.Text;
-
-            case EventFieldDeclarationSyntax e:
-                return "E:" + string.Join(",", e.Declaration.Variables.Select(v => v.Identifier.Text));
-
-            default:
-                return "O:" + member.NormalizeWhitespace().ToFullString();
-        }
-    }
-
-    private static string GetMethodKey(MethodDeclarationSyntax method)
-    {
-        var parts = new List<string> { method.Identifier.Text, (method.TypeParameterList?.Parameters.Count ?? 0).ToString() };
-
-        foreach (var p in method.ParameterList.Parameters)
-        {
-            var refKind = string.Empty;
-            foreach (var modifier in p.Modifiers)
-            {
-                if (modifier.IsKind(SyntaxKind.RefKeyword) || modifier.IsKind(SyntaxKind.OutKeyword) ||
-                    modifier.IsKind(SyntaxKind.InKeyword))
-                {
-                    refKind = modifier.ValueText;
-                    break;
-                }
-            }
-
-            parts.Add((p.Type?.WithoutTrivia().ToString() ?? string.Empty) + ":" + refKind);
-        }
-
-        return string.Join("|", parts);
-    }
-
-    private static string GetUsingKey(UsingDirectiveSyntax usingDirective)
-    {
-        var normalized = usingDirective.WithoutTrivia();
-        return string.Join("|", normalized.GlobalKeyword.RawKind, normalized.StaticKeyword.RawKind, normalized.Alias?.Name.ToString(),
-            normalized.Name?.ToString());
-    }
-
-    private static bool HasTestAttribute(MethodDeclarationSyntax method)
-    {
-        foreach (var list in method.AttributeLists)
-        {
-            foreach (var attr in list.Attributes)
-            {
-                var name = attr.Name.ToString();
-
-                if (name.EndsWith("Fact", StringComparison.Ordinal) || name.EndsWith("Theory", StringComparison.Ordinal) ||
-                    name.EndsWith("Test", StringComparison.Ordinal) || name.EndsWith("TestCase", StringComparison.Ordinal) ||
-                    name.EndsWith("TestMethod", StringComparison.Ordinal) || name.EndsWith("DataTestMethod", StringComparison.Ordinal) ||
-                    name.EndsWith("StaFact", StringComparison.Ordinal) || name.EndsWith("STATestMethod", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 }

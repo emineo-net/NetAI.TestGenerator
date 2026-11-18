@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using NetAI.TestGenerator.Core.Extensions;
 using NetAI.TestGenerator.Core.Models.Enums;
 
 namespace DotNet10TestGenerator;
@@ -902,12 +903,7 @@ public class TestProjectManager
             return;
         }
 
-        var itemGroup = doc.Root.Elements("ItemGroup").FirstOrDefault(g => g.Elements("PackageVersion").Any());
-        if (itemGroup is null)
-        {
-            itemGroup = new XElement("ItemGroup");
-            doc.Root.Add(itemGroup);
-        }
+        var itemGroup = doc.Root!.GetOrAddItemGroup("PackageVersion");
 
         itemGroup.Add(new XElement("PackageVersion", new XAttribute("Include", packageId), new XAttribute("Version", version)));
         doc.Save(propsPath);
@@ -931,12 +927,7 @@ public class TestProjectManager
             return true;
         }
 
-        var itemGroup = doc.Root.Elements("ItemGroup").FirstOrDefault(g => g.Elements("PackageReference").Any());
-        if (itemGroup is null)
-        {
-            itemGroup = new XElement("ItemGroup");
-            doc.Root.Add(itemGroup);
-        }
+        var itemGroup = doc.Root!.GetOrAddItemGroup("PackageReference");
 
         itemGroup.Add(new XElement("PackageReference", new XAttribute("Include", packageId)));
         doc.Save(csprojPath);
@@ -985,7 +976,7 @@ public class TestProjectManager
     private async Task<string?> TryAddMissingUsingsAsync(string testClassPath, string testProjectPath, string? sourceProjectPath,
         string solutionDirectory, IReadOnlyList<string> compilerErrors, CancellationToken ct)
     {
-        var missing = ExtractMissingIdentifiers(compilerErrors);
+        var missing = ExtractMissingIdentifiers(compilerErrors, includeExtensionMembers: true);
         if (missing.Count == 0)
         {
             return null;
@@ -1060,33 +1051,51 @@ public class TestProjectManager
         return newCode;
     }
 
-    private static List<string> ExtractMissingIdentifiers(IReadOnlyList<string> compilerErrors)
+    /// <summary>
+    /// Extracts identifiers that might be fixed by adding a using directive.
+    /// <paramref name="includeExtensionMembers"/>: also return member names of CS1061 "no accessible extension method"
+    /// errors (e.g. <c>GetRequiredService</c>), which map to a namespace but are not type names.
+    /// </summary>
+    private static List<string> ExtractMissingIdentifiers(IReadOnlyList<string> compilerErrors, bool includeExtensionMembers = false)
     {
         var result = new List<string>();
+
+        void Add(string raw)
+        {
+            var name = Regex.Replace(raw, "<.*>$", string.Empty);
+            if (name.Length > 0 && name.IndexOf('.') < 0 && !result.Contains(name, StringComparer.Ordinal))
+            {
+                result.Add(name);
+            }
+        }
+
         foreach (var line in compilerErrors)
         {
-            if (line.IndexOf("CS0246", StringComparison.OrdinalIgnoreCase) < 0 &&
-                line.IndexOf("CS0103", StringComparison.OrdinalIgnoreCase) < 0 &&
-                line.IndexOf("CS1929", StringComparison.OrdinalIgnoreCase) < 0 &&
-                line.IndexOf("CS0234", StringComparison.OrdinalIgnoreCase) < 0 &&
-                line.IndexOf("CS1061", StringComparison.OrdinalIgnoreCase) < 0)
+            var quoted = Regex.Matches(line, "'([^']+)'").Cast<Match>().Select(m => m.Groups[1].Value).ToList();
+            if (quoted.Count == 0)
             {
                 continue;
             }
 
-            if (line.IndexOf("CS1061", StringComparison.OrdinalIgnoreCase) >= 0 &&
-                line.IndexOf("does not contain a definition", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (line.IndexOf("CS0246", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                line.IndexOf("CS0103", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                line.IndexOf("CS0234", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                continue;
+                // Only the first quoted token is the missing name; for CS0234 the second one is the (existing) namespace.
+                Add(quoted[0]);
             }
-
-            foreach (Match m in Regex.Matches(line, "'([^']+)'"))
+            else if (line.IndexOf("CS1061", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                var name = Regex.Replace(m.Groups[1].Value, "<.*>$", string.Empty);
-                if (name.Length > 0 && name.IndexOf('.') < 0 && !result.Contains(name, StringComparer.Ordinal))
+                // "'T' does not contain a definition for 'M' and no accessible extension method 'M' ..." → M may need a using.
+                if (includeExtensionMembers && quoted.Count >= 2 &&
+                    line.IndexOf("extension method", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    result.Add(name);
+                    Add(quoted[1]);
                 }
+            }
+            else if (line.IndexOf("CS1929", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                quoted.ForEach(Add);
             }
         }
 
@@ -1551,12 +1560,7 @@ public class TestProjectManager
             string.Equals((string?)e.Attribute("Include"), packageId, StringComparison.OrdinalIgnoreCase));
         if (versionElement is null)
         {
-            var itemGroup = propsDoc.Root!.Elements("ItemGroup").FirstOrDefault(g => g.Elements("PackageVersion").Any());
-            if (itemGroup is null)
-            {
-                itemGroup = new XElement("ItemGroup");
-                propsDoc.Root.Add(itemGroup);
-            }
+            var itemGroup = propsDoc.Root!.GetOrAddItemGroup("PackageVersion");
 
             itemGroup.Add(new XElement("PackageVersion", new XAttribute("Include", packageId), new XAttribute("Version", version)));
             changed = true;
@@ -1581,12 +1585,7 @@ public class TestProjectManager
             string.Equals((string?)e.Attribute("Include"), packageId, StringComparison.OrdinalIgnoreCase));
         if (existingRef is null)
         {
-            var itemGroup = csprojDocCpm.Root!.Elements("ItemGroup").FirstOrDefault(g => g.Elements("PackageReference").Any());
-            if (itemGroup is null)
-            {
-                itemGroup = new XElement("ItemGroup");
-                csprojDocCpm.Root.Add(itemGroup);
-            }
+            var itemGroup = csprojDocCpm.Root!.GetOrAddItemGroup("PackageReference");
 
             itemGroup.Add(new XElement("PackageReference", new XAttribute("Include", packageId)));
             changed = true;
@@ -1696,8 +1695,9 @@ public class TestProjectManager
                 await RunDotNetCliAsync(new[] { "restore", testProjectPath }, dir, ct);
             }
         }
-        catch
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            // Best effort: the following build reports the real problem (e.g. missing WPF settings) to the caller.
         }
     }
 
@@ -1736,7 +1736,10 @@ public class TestProjectManager
             "-n",
             projectName,
             "-o",
-            "."
+            ".",
+            // Restore only after the central-package-management fix-up in RunDotNetCliAsync; restoring the raw
+            // template under CPM fails with NU1008 (Version attributes) and aborted project creation.
+            "--no-restore"
         };
         if (!string.IsNullOrWhiteSpace(targetFramework) && targetFramework!.IndexOf("-windows", StringComparison.OrdinalIgnoreCase) < 0)
         {
@@ -1934,12 +1937,7 @@ public class TestProjectManager
             {
                 if (targetItemGroup is null)
                 {
-                    targetItemGroup = propsDoc.Root.Elements("ItemGroup").FirstOrDefault(g => g.Elements("PackageVersion").Any());
-                    if (targetItemGroup is null)
-                    {
-                        targetItemGroup = new XElement("ItemGroup");
-                        propsDoc.Root.Add(targetItemGroup);
-                    }
+                    targetItemGroup = propsDoc.Root!.GetOrAddItemGroup("PackageVersion");
                 }
 
                 targetItemGroup.Add(

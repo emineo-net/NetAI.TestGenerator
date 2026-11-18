@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using NetAI.TestGenerator.Core.Analysis;
 using NetAI.TestGenerator.Core.Config;
+using NetAI.TestGenerator.Core.Extensions;
 using NetAI.TestGenerator.Core.Models;
 using NetAI.TestGenerator.Core.Models.Enums;
 using NetAI.TestGenerator.Core.Services;
@@ -224,7 +225,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
                 }
             }
 
-            var testTemplate = GetTestTemplate(_testFramework);
+            var testTemplate = _testFramework.TemplateName();
 
             var compilerService = new TestProjectManagerCompilerService((code, ct) => testProjectManager.SetupAndValidateTestAsync(
                 sourceFilePath, code, testTemplate: testTemplate, cancellationToken: ct, testProjectDirectoryOverride: testProjectDirectory));
@@ -424,7 +425,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
 
             var merged = Merge(attempt);
             lastResult = await ctx.TestProjectManager.SetupAndValidateTestAsync(ctx.SourceFilePath, merged,
-                    testTemplate: GetTestTemplate(_testFramework), cancellationToken: ct,
+                    testTemplate: _testFramework.TemplateName(), cancellationToken: ct,
                     testProjectDirectoryOverride: ctx.TestProjectDirectory)
                 .ConfigureAwait(false);
 
@@ -586,7 +587,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
                 .ProcessTestClassAsync(validationClassStructure, _testFramework, _mockFramework, ct).ConfigureAwait(false);
 
             result = ctx.CompilerService.LastResult ?? await ctx.TestProjectManager.SetupAndValidateTestAsync(ctx.SourceFilePath,
-                    validationClassStructure, testTemplate: GetTestTemplate(_testFramework), cancellationToken: ct,
+                    validationClassStructure, testTemplate: _testFramework.TemplateName(), cancellationToken: ct,
                     testProjectDirectoryOverride: ctx.TestProjectDirectory)
                 .ConfigureAwait(false);
 
@@ -767,7 +768,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
             .Where(t => t.Parent is BaseNamespaceDeclarationSyntax or CompilationUnitSyntax)
             .Where(t => !t.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword)))
             .Where(t => !t.Identifier.Text.EndsWith("Tests", StringComparison.OrdinalIgnoreCase))
-            .Where(t => !t.Members.OfType<MethodDeclarationSyntax>().Any(HasTestAttribute))
+            .Where(t => !t.Members.OfType<MethodDeclarationSyntax>().Any(m => m.HasTestAttribute()))
             .ToList();
     }
 
@@ -786,7 +787,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
         }
 
         foreach (var method in CSharpSyntaxTree.ParseText(testFileContent!).GetCompilationUnitRoot().DescendantNodes()
-                     .OfType<MethodDeclarationSyntax>().Where(HasTestAttribute))
+                     .OfType<MethodDeclarationSyntax>().Where(m => m.HasTestAttribute()))
         {
             names.Add(method.Identifier.Text);
         }
@@ -804,7 +805,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
     {
         return !string.IsNullOrWhiteSpace(code) &&
                CSharpSyntaxTree.ParseText(code).GetCompilationUnitRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
-                   .Any(HasTestAttribute);
+                   .Any(m => m.HasTestAttribute());
     }
 
     private enum SnippetKind
@@ -1002,18 +1003,18 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
             : skipReason;
 
         var sb = new StringBuilder();
-        sb.AppendLine($"using {GetTestFrameworkNamespace(_testFramework)};");
+        sb.AppendLine($"using {_testFramework.Namespace()};");
         sb.AppendLine();
         sb.AppendLine($"namespace {testNamespace}");
         sb.AppendLine("{");
-        if (GetClassAttribute(_testFramework) is { } classAttribute)
+        if (_testFramework.ClassAttribute() is { } classAttribute)
         {
             sb.AppendLine($"    {classAttribute}");
         }
 
         sb.AppendLine($"    public class {testClassName}");
         sb.AppendLine("    {");
-        sb.AppendLine($"        {GetSkipAttribute(EscapeAttributeString(attributeReason))}");
+        sb.AppendLine($"        {_testFramework.SkipAttribute(EscapeAttributeString(attributeReason))}");
         sb.AppendLine($"        public void {testMethodName}()");
         sb.AppendLine("        {");
         sb.AppendLine("            // Auto-generated skip stub by NetAI (Roslyn-only, no AI call).");
@@ -1068,13 +1069,13 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
         void AddUsing(UsingDirectiveSyntax directive)
         {
             var normalized = directive.WithoutTrivia();
-            if (usingKeys.Add(GetUsingKey(normalized)))
+            if (usingKeys.Add(normalized.GetUsingKey()))
             {
                 usings.Add(normalized);
             }
         }
 
-        AddUsing(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(GetTestFrameworkNamespace(_testFramework))));
+        AddUsing(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(_testFramework.Namespace())));
 
         foreach (var snippet in classSnippets)
         {
@@ -1093,7 +1094,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
             var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>()
                 .Where(c => c.Parent is BaseNamespaceDeclarationSyntax or CompilationUnitSyntax).ToList();
 
-            var testClass = classes.FirstOrDefault(c => c.Members.OfType<MethodDeclarationSyntax>().Any(HasTestAttribute))
+            var testClass = classes.FirstOrDefault(c => c.Members.OfType<MethodDeclarationSyntax>().Any(m => m.HasTestAttribute()))
                             ?? classes.FirstOrDefault(c => c.Identifier.Text == testClassName)
                             ?? classes.FirstOrDefault(c => c.Members.OfType<MethodDeclarationSyntax>().Any());
 
@@ -1115,7 +1116,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
 
             foreach (var member in testClass.Members)
             {
-                var key = GetMemberKey(member);
+                var key = member.GetMemberKey();
                 var cleaned = CleanTrivia(member);
 
                 if (seenMemberKeys.Add(key))
@@ -1131,7 +1132,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
                 }
 
                 // Same signature: identical test → skip; different test with the same name → keep it under a new name.
-                if (member is MethodDeclarationSyntax method && HasTestAttribute(method) &&
+                if (member is MethodDeclarationSyntax method && method.HasTestAttribute() &&
                     seenMemberTexts.Add(method.NormalizeWhitespace().ToFullString()))
                 {
                     var suffix = 2;
@@ -1143,7 +1144,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
 
                     var renamed = ((MethodDeclarationSyntax)cleaned).WithIdentifier(SyntaxFactory.Identifier(newName));
                     memberNames.Add(newName);
-                    seenMemberKeys.Add(GetMemberKey(renamed));
+                    seenMemberKeys.Add(renamed.GetMemberKey());
                     members.Add(renamed);
                 }
             }
@@ -1164,7 +1165,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
             .WithBaseList(baseList)
             .AddMembers(members.ToArray());
 
-        if (classDeclNew.AttributeLists.Count == 0 && GetClassAttribute(_testFramework) is { } classAttribute)
+        if (classDeclNew.AttributeLists.Count == 0 && _testFramework.ClassAttribute() is { } classAttribute)
         {
             classDeclNew = classDeclNew.AddAttributeLists(SyntaxFactory.ParseCompilationUnit($"{classAttribute} class C {{}}")
                 .DescendantNodes().OfType<ClassDeclarationSyntax>().First().AttributeLists.ToArray());
@@ -1178,53 +1179,6 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
         var compilationUnit = SyntaxFactory.CompilationUnit().WithUsings(SyntaxFactory.List(usings)).AddMembers(namespaceDecl);
 
         return Formatter.Format(compilationUnit, _formatWorkspace).ToFullString();
-    }
-
-    private static string GetMemberKey(MemberDeclarationSyntax member)
-    {
-        switch (member)
-        {
-            case MethodDeclarationSyntax m:
-                return "M:" + GetMethodKey(m);
-
-            case ConstructorDeclarationSyntax c:
-                return "C:" + string.Join(",", c.ParameterList.Parameters.Select(p => p.Type?.ToString() ?? ""));
-
-            case FieldDeclarationSyntax f:
-                return "F:" + string.Join(",", f.Declaration.Variables.Select(v => v.Identifier.Text));
-
-            case PropertyDeclarationSyntax p:
-                return "P:" + p.Identifier.Text;
-
-            case EventFieldDeclarationSyntax e:
-                return "E:" + string.Join(",", e.Declaration.Variables.Select(v => v.Identifier.Text));
-
-            default:
-                return "O:" + member.NormalizeWhitespace().ToFullString();
-        }
-    }
-
-    private static string GetMethodKey(MethodDeclarationSyntax method)
-    {
-        var parts = new List<string> { method.Identifier.Text, (method.TypeParameterList?.Parameters.Count ?? 0).ToString() };
-
-        foreach (var p in method.ParameterList.Parameters)
-        {
-            var refKind = string.Empty;
-            foreach (var modifier in p.Modifiers)
-            {
-                if (modifier.IsKind(SyntaxKind.RefKeyword) || modifier.IsKind(SyntaxKind.OutKeyword) ||
-                    modifier.IsKind(SyntaxKind.InKeyword))
-                {
-                    refKind = modifier.ValueText;
-                    break;
-                }
-            }
-
-            parts.Add((p.Type?.WithoutTrivia().ToString() ?? string.Empty) + ":" + refKind);
-        }
-
-        return string.Join("|", parts);
     }
 
     private static MemberDeclarationSyntax CleanTrivia(MemberDeclarationSyntax member)
@@ -1260,9 +1214,9 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
     private string BuildBasePrompt(string className, string methodName, string semanticHintXml, string projectContext, string classSkeleton,
         UnitTestSkeletonGenerator.GeneratorResult? skeleton, bool requiresSta)
     {
-        var frameworkName = GetTestFrameworkName(_testFramework);
-        var testAttribute = GetTestAttribute(_testFramework);
-        var skipAttributeTemplate = GetSkipAttribute("<reason>");
+        var frameworkName = _testFramework.DisplayName();
+        var testAttribute = _testFramework.TestAttribute();
+        var skipAttributeTemplate = _testFramework.SkipAttribute("<reason>");
         var mockFrameworkInstruction = _mockFramework == MockFramework.Unknown
             ? "Do not introduce a mocking library unless it is listed in <TestProject>."
             : $"When mocking is needed, use {_mockFramework} only if it is listed in <TestProject>.";
@@ -1322,7 +1276,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
         sb.AppendLine(
             "- \"Compilable C# code\" refers to the generated TEST code, assuming the source project\r\n  compiles as-is. Source compilation errors reported by the analyzer are host artifacts\r\n  and do not affect this assumption.");
         sb.AppendLine(
-            $"- Include \"using {GetTestFrameworkNamespace(_testFramework)};\" at the top of the generated code UNLESS the test project's <ProjectContext> already lists that namespace under <GlobalUsings>.");
+            $"- Include \"using {_testFramework.Namespace()};\" at the top of the generated code UNLESS the test project's <ProjectContext> already lists that namespace under <GlobalUsings>.");
         sb.AppendLine("- Use top-level usings consistent with ImplicitUsings/Nullable settings from <ProjectContext>.");
         sb.AppendLine("- Use the test project's <RootNamespace> from <ProjectContext> verbatim when present.");
         sb.AppendLine(
@@ -1672,7 +1626,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
     private void AppendSuggestedTestStrategy(StringBuilder sb, TestabilityReport report)
     {
         var method = report.Method;
-        var frameworkName = X(GetTestFrameworkName(_testFramework));
+        var frameworkName = X(_testFramework.DisplayName());
 
         switch (report.Strategy)
         {
@@ -1746,27 +1700,6 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
         };
     }
 
-    private string GetSkipAttribute(string reason)
-    {
-        return _testFramework switch
-        {
-            // NUnit/MSTest: [Ignore] alone does not make a method a test, so the stub would never show up as skipped.
-            TestFramework.NUnit => $"[Test, Ignore(\"{reason}\")]",
-            TestFramework.MSTest => $"[TestMethod, Ignore(\"{reason}\")]",
-            TestFramework.xUnit => $"[Fact(Skip = \"{reason}\")]",
-            _ => throw new ArgumentOutOfRangeException(nameof(_testFramework), _testFramework, "Unsupported test framework.")
-        };
-    }
-
-    private static string? GetClassAttribute(TestFramework testFramework)
-    {
-        return testFramework switch
-        {
-            TestFramework.MSTest => "[TestClass]",
-            _ => null
-        };
-    }
-
     private string BuildProjectContextHint(string sourceFilePath, string testProjectDirectory, TestProjectInfo testProject)
     {
         var testFramework = _testFramework;
@@ -1794,7 +1727,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
             var derivedRootNamespace = DeriveRootNamespaceFromDirectory(testProjectDirectory);
 
             sb.AppendLine(
-                $"  <TestProject status=\"not-created\" directory=\"{X(testProjectDirectory)}\" template=\"{X(GetTestTemplate(testFramework))}\">");
+                $"  <TestProject status=\"not-created\" directory=\"{X(testProjectDirectory)}\" template=\"{X(testFramework.TemplateName())}\">");
 
             if (!string.IsNullOrWhiteSpace(derivedRootNamespace))
             {
@@ -1807,7 +1740,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
         }
 
         sb.AppendLine(
-            $"  <SelectedFrameworks test=\"{X(GetTestFrameworkName(testFramework))}\" mocking=\"{X(mockFramework.ToString())}\" />");
+            $"  <SelectedFrameworks test=\"{X(testFramework.DisplayName())}\" mocking=\"{X(mockFramework.ToString())}\" />");
         sb.AppendLine("</ProjectContext>");
         return sb.ToString();
     }
@@ -1917,7 +1850,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
         List<MemberDeclarationSyntax> members;
 
         var incomingClass = generatedRoot.DescendantNodes().OfType<ClassDeclarationSyntax>()
-            .FirstOrDefault(c => c.Members.OfType<MethodDeclarationSyntax>().Any(HasTestAttribute));
+            .FirstOrDefault(c => c.Members.OfType<MethodDeclarationSyntax>().Any(m => m.HasTestAttribute()));
 
         if (incomingClass is not null)
         {
@@ -1950,15 +1883,15 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
 
         var usings = new List<UsingDirectiveSyntax>
         {
-            SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(GetTestFrameworkNamespace(_testFramework)))
+            SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(_testFramework.Namespace()))
         };
 
-        var usingKeys = new HashSet<string>(usings.Select(GetUsingKey), StringComparer.Ordinal);
+        var usingKeys = new HashSet<string>(usings.Select(u => u.GetUsingKey()), StringComparer.Ordinal);
 
         void AddUsingIfMissing(string name)
         {
             var directive = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(name));
-            if (usingKeys.Add(GetUsingKey(directive)))
+            if (usingKeys.Add(directive.GetUsingKey()))
             {
                 usings.Add(directive);
             }
@@ -1970,7 +1903,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
             foreach (var u in skeletonRoot.Usings)
             {
                 var normalized = u.WithoutTrivia();
-                if (usingKeys.Add(GetUsingKey(normalized)))
+                if (usingKeys.Add(normalized.GetUsingKey()))
                 {
                     usings.Add(normalized);
                 }
@@ -1980,7 +1913,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
         foreach (var usingDirective in generatedRoot.Usings)
         {
             var normalizedUsing = usingDirective.WithoutTrivia();
-            if (usingKeys.Add(GetUsingKey(normalizedUsing)))
+            if (usingKeys.Add(normalizedUsing.GetUsingKey()))
             {
                 usings.Add(normalizedUsing);
             }
@@ -2030,7 +1963,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
             .WithBaseList(incomingClass?.BaseList)
             .AddMembers(members.ToArray());
 
-        if (generatedClass.AttributeLists.Count == 0 && GetClassAttribute(_testFramework) is { } classAttribute)
+        if (generatedClass.AttributeLists.Count == 0 && _testFramework.ClassAttribute() is { } classAttribute)
         {
             generatedClass = generatedClass.AddAttributeLists(SyntaxFactory.ParseCompilationUnit($"{classAttribute} class C {{}}")
                 .DescendantNodes().OfType<ClassDeclarationSyntax>().First().AttributeLists.ToArray());
@@ -2051,13 +1984,6 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
             .AddMembers(generatedNamespace);
 
         return Formatter.Format(compilationUnit, _formatWorkspace).ToFullString();
-    }
-
-    private static string GetUsingKey(UsingDirectiveSyntax usingDirective)
-    {
-        var normalized = usingDirective.WithoutTrivia();
-        return string.Join("|", normalized.GlobalKeyword.RawKind, normalized.StaticKeyword.RawKind, normalized.Alias?.Name.ToString(),
-            normalized.Name?.ToString());
     }
 
     private static string BuildClassSkeleton(TypeDeclarationSyntax targetClass, MethodDeclarationSyntax targetMethod,
@@ -2174,7 +2100,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
         var root = tree.GetCompilationUnitRoot();
 
         var classWithTest = root.DescendantNodes().OfType<ClassDeclarationSyntax>()
-            .FirstOrDefault(c => c.DescendantNodes().OfType<MethodDeclarationSyntax>().Any(HasTestAttribute));
+            .FirstOrDefault(c => c.DescendantNodes().OfType<MethodDeclarationSyntax>().Any(m => m.HasTestAttribute()));
 
         if (classWithTest is not null)
         {
@@ -2219,7 +2145,7 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
             return string.Empty;
         }
 
-        var chosen = methods.FirstOrDefault(HasTestAttribute) ?? methods[0];
+        var chosen = methods.FirstOrDefault(m => m.HasTestAttribute()) ?? methods[0];
 
         var sb = new StringBuilder();
 
@@ -2236,27 +2162,6 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
         sb.AppendLine(chosen.ToFullString());
 
         return sb.ToString().Trim();
-    }
-
-    private static bool HasTestAttribute(MethodDeclarationSyntax method)
-    {
-        foreach (var attributeList in method.AttributeLists)
-        {
-            foreach (var attribute in attributeList.Attributes)
-            {
-                var name = attribute.Name.ToString();
-
-                if (name.EndsWith("Fact", StringComparison.Ordinal) || name.EndsWith("Theory", StringComparison.Ordinal) ||
-                    name.EndsWith("Test", StringComparison.Ordinal) || name.EndsWith("TestCase", StringComparison.Ordinal) ||
-                    name.EndsWith("TestMethod", StringComparison.Ordinal) || name.EndsWith("DataTestMethod", StringComparison.Ordinal) ||
-                    name.EndsWith("StaFact", StringComparison.Ordinal) || name.EndsWith("STATestMethod", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     private static string? FindProjectDirectory(string filePath) =>
@@ -2401,50 +2306,6 @@ public sealed class TetsGeneratorOrchestrator : IDisposable
         throw new ArgumentException(
             $"Unsupported mocking framework '{value}'. Supported values are moq, nsubstitute, fakeiteasy, and none.",
             nameof(config));
-    }
-
-    private static string GetTestTemplate(TestFramework testFramework)
-    {
-        return testFramework switch
-        {
-            TestFramework.NUnit => "nunit",
-            TestFramework.MSTest => "mstest",
-            TestFramework.xUnit => "xunit",
-            _ => throw new ArgumentOutOfRangeException(nameof(testFramework), testFramework, "Unsupported test framework.")
-        };
-    }
-
-    private static string GetTestFrameworkName(TestFramework testFramework)
-    {
-        return testFramework switch
-        {
-            TestFramework.NUnit => "NUnit",
-            TestFramework.MSTest => "MSTest",
-            TestFramework.xUnit => "xUnit",
-            _ => throw new ArgumentOutOfRangeException(nameof(testFramework), testFramework, "Unsupported test framework.")
-        };
-    }
-
-    private static string GetTestAttribute(TestFramework testFramework)
-    {
-        return testFramework switch
-        {
-            TestFramework.NUnit => "[Test]",
-            TestFramework.MSTest => "[TestMethod]",
-            TestFramework.xUnit => "[Fact]",
-            _ => throw new ArgumentOutOfRangeException(nameof(testFramework), testFramework, "Unsupported test framework.")
-        };
-    }
-
-    private static string GetTestFrameworkNamespace(TestFramework testFramework)
-    {
-        return testFramework switch
-        {
-            TestFramework.NUnit => "NUnit.Framework",
-            TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting",
-            TestFramework.xUnit => "Xunit",
-            _ => throw new ArgumentOutOfRangeException(nameof(testFramework), testFramework, "Unsupported test framework.")
-        };
     }
 
     private static string StripAiAreaMarkers(string code)

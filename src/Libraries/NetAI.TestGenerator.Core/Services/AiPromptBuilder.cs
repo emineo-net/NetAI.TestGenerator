@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using NetAI.TestGenerator.Core.Extensions;
 using NetAI.TestGenerator.Core.Config;
 using NetAI.TestGenerator.Core.Models.Enums;
 using Scriban;
@@ -28,10 +29,12 @@ public class AiPromptBuilder
             _ => "xUnit"
         };
 
-        var mocker = config.Frameworks.MockingFramework.ToLowerInvariant() switch
+        var mocker = (config.Frameworks.MockingFramework ?? string.Empty).ToLowerInvariant() switch
         {
             "nsubstitute" or "nsub" => "NSubstitute",
-            _ => "Moq"
+            "fakeiteasy" => "FakeItEasy",
+            "moq" => "Moq",
+            _ => "hand-written test doubles (no mocking library is configured)"
         };
 
         var promptBuilder = new StringBuilder();
@@ -104,50 +107,17 @@ public class AiPromptBuilder
 
         var kontext = new Dictionary<string, object>
         {
-            { "test_framework", GetTestFrameworkName(testFramework) },
-            { "test_framework_namespace", GetTestFrameworkNamespace(testFramework) },
-            { "test_attribute", GetTestAttribute(testFramework) },
+            { "test_framework", OrDefault(testFramework).DisplayName() },
+            { "test_framework_namespace", OrDefault(testFramework).Namespace() },
+            { "test_attribute", OrDefault(testFramework).TestAttribute() },
             { "mocking_library", GetMockFrameworkName(mockFramework) },
-            { "mock_framework_namespace", GetMockFrameworkNamespace(mockFramework) ?? string.Empty },
+            { "mock_framework_namespace", mockFramework.Namespace() },
             { "ziel_methode_name", methodenName },
             { "ziel_methode_signatur", methodenSignatur },
             { "klassen_code", klassenCode }
         };
 
         return template.Render(kontext);
-    }
-
-    private static string GetTestFrameworkName(TestFramework testFramework)
-    {
-        return testFramework switch
-        {
-            TestFramework.NUnit => "NUnit",
-            TestFramework.MSTest => "MSTest",
-            TestFramework.xUnit => "xUnit",
-            _ => "xUnit"
-        };
-    }
-
-    private static string GetTestFrameworkNamespace(TestFramework testFramework)
-    {
-        return testFramework switch
-        {
-            TestFramework.NUnit => "NUnit.Framework",
-            TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting",
-            TestFramework.xUnit => "Xunit",
-            _ => "Xunit"
-        };
-    }
-
-    private static string GetTestAttribute(TestFramework testFramework)
-    {
-        return testFramework switch
-        {
-            TestFramework.NUnit => "[Test]",
-            TestFramework.MSTest => "[TestMethod]",
-            TestFramework.xUnit => "[Fact]",
-            _ => "[Fact]"
-        };
     }
 
     private static string GetMockFrameworkName(MockFramework mockFramework)
@@ -161,14 +131,6 @@ public class AiPromptBuilder
         };
     }
 
-    private static string? GetMockFrameworkNamespace(MockFramework mockFramework)
-    {
-        return mockFramework switch
-        {
-            MockFramework.Moq => "Moq",
-            MockFramework.NSubstitute => "NSubstitute",
-            MockFramework.FakeItEasy => "FakeItEasy",
-            _ => null
-        };
-    }
+    /// <summary>Prompts fall back to xUnit when no framework is configured.</summary>
+    private static TestFramework OrDefault(TestFramework framework) => framework == TestFramework.Unknown ? TestFramework.xUnit : framework;
 }
