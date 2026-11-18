@@ -1,6 +1,4 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using NetAI.TestGenerator.Cli.Infrastructure;
+using System.Reflection;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -14,34 +12,35 @@ public sealed class InitCommandSettings : CommandSettings
 
 public sealed class InitCommand : Command<InitCommandSettings>
 {
+    // Embedded from NetAI.TestGenerator.Tasks so the CLI and the NuGet package scaffold the very same files.
+    private static readonly string[] TemplateFiles = { "aisettings.json", "aisettings-schema.json" };
+
     public override int Execute(CommandContext context, InitCommandSettings settings)
     {
         var dir = Path.GetFullPath(settings.Directory ?? Directory.GetCurrentDirectory());
-        var target = Path.Combine(dir, "aisettings.json");
-
-        if (File.Exists(target))
+        if (!Directory.Exists(dir))
         {
-            AnsiConsole.MarkupLine($"[yellow]aisettings.json already exists:[/] {target}");
-            return 0;
+            AnsiConsole.MarkupLine($"[red]Directory not found:[/] {Markup.Escape(dir)}");
+            return ExitCodes.ConfigurationError;
         }
 
-        var defaultJson = """
-                          {
-                            "$schema": "aisettings-schema.json",
-                            "version": "1.1",
-                            "environment": { "targetDotNetVersion": "net9.0", "testProjectName": "{ProjectName}.Tests" },
-                            "frameworks": {
-                              "testFramework": "xunit",
-                              "mockingFramework": "moq",
-                              "useFluentAssertions": true,
-                              "useAutoFixture": false,
-                              "verbosePrompt": true
-                            }
-                          }
-                          """;
+        foreach (var fileName in TemplateFiles)
+        {
+            var target = Path.Combine(dir, fileName);
+            if (File.Exists(target))
+            {
+                AnsiConsole.MarkupLine($"[yellow]{fileName} already exists:[/] {Markup.Escape(target)}");
+                continue;
+            }
 
-        File.WriteAllText(target, defaultJson);
-        AnsiConsole.MarkupLine($"[green]✓[/] Created {target}");
-        return 0;
+            using var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream(fileName)
+                                 ?? throw new InvalidOperationException($"Embedded template '{fileName}' is missing.");
+            using var output = File.Create(target);
+            resource.CopyTo(output);
+
+            AnsiConsole.MarkupLine($"[green]Created[/] {Markup.Escape(target)}");
+        }
+
+        return ExitCodes.Success;
     }
 }

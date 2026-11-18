@@ -33,4 +33,10 @@
 		<ProjectReference Include="..\NetAI.TestGenerator.Core\NetAI.TestGenerator.Core.csproj" />
 	</ItemGroup>
 
+	<!-- 'netai init' writes the same template/schema the MSBuild package ships. -->
+	<ItemGroup>
+		<EmbeddedResource Include="..\NetAI.TestGenerator.Tasks\aisettings.json" LogicalName="aisettings.json" />
+		<EmbeddedResource Include="..\NetAI.TestGenerator.Tasks\aisettings-schema.json" LogicalName="aisettings-schema.json" />
+	</ItemGroup>
+
 </Project>

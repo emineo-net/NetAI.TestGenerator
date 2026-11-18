@@ -68,27 +68,51 @@ public static class UnitTestSkeletonGenerator
             var testClassName = className + "Tests";
             var targetMethodName = method.Name;
 
+            // Decide async-ness by the return type: a non-async method returning Task must still be awaited.
+            var isAwaitable = IsTaskLike(method.ReturnType);
+
             if (strategy is TestStrategy.RefactorFirst or TestStrategy.Skip)
             {
-                return CreateSkipStyleSkeleton(ns, className, sutTypeName, testClassName, targetMethodName, method.IsAsync, profile,
+                return CreateSkipStyleSkeleton(ns, className, sutTypeName, testClassName, targetMethodName, isAwaitable, profile,
                     requiresSta, strategy, refactoringLines ?? Array.Empty<string>(), skipReason);
             }
 
-            if (containingType.IsStatic || containingType.IsAbstract)
+            if (IsGenericOrNestedInGeneric(containingType))
             {
-                return CreateStaticOrAbstract(ns, className, sutTypeName, testClassName, targetMethodName, method.IsAsync,
+                return CreateTotalFallback(
+                    $"Type '{sutTypeName}' is generic; choose concrete type arguments for the SUT (e.g. `{className}<object>`).",
+                    strategy);
+            }
+
+            if (method.IsStatic)
+            {
+                return CreateStaticOrAbstract(ns, className, sutTypeName, testClassName, targetMethodName, isAwaitable,
                     method.ReturnsVoid, profile, requiresSta, strategy);
             }
 
+            if (containingType.IsAbstract || containingType.IsStatic)
+            {
+                return CreateTotalFallback(
+                    $"Type '{sutTypeName}' is abstract; instance method '{targetMethodName}' needs a concrete test subclass " +
+                    "or a partial mock (CallBase) as SUT.", strategy);
+            }
+
             var ctorParams = GetConstructorParameters(containingType);
+            if (ctorParams is null)
+            {
+                return CreateTotalFallback(
+                    $"Type '{sutTypeName}' has no public constructor; create the SUT through its factory or another accessible API.",
+                    strategy);
+            }
+
             if (ctorParams.Count == 0)
             {
-                return CreateParameterless(ns, className, sutTypeName, testClassName, targetMethodName, method.IsAsync, method.ReturnsVoid,
+                return CreateParameterless(ns, className, sutTypeName, testClassName, targetMethodName, isAwaitable, method.ReturnsVoid,
                     profile, requiresSta, strategy);
             }
 
             return CreateWithConstructorInjection(containingType, ctorParams, ns, sutTypeName, testClassName, targetMethodName,
-                method.IsAsync, method.ReturnsVoid, profile, requiresSta, strategy);
+                isAwaitable, method.ReturnsVoid, profile, requiresSta, strategy);
         }
         catch (Exception ex)
         {
@@ -141,17 +165,66 @@ public static class UnitTestSkeletonGenerator
         }
     }
 
-    private static List<IParameterSymbol> GetConstructorParameters(INamedTypeSymbol type)
+    /// <summary>Returns the parameters of the richest public constructor, or <see langword="null" /> when none is public.</summary>
+    private static List<IParameterSymbol>? GetConstructorParameters(INamedTypeSymbol type)
     {
         var best = type.InstanceConstructors.Where(c => c.DeclaredAccessibility == Accessibility.Public).Where(c => !c.IsStatic)
             .OrderByDescending(c => c.Parameters.Length).FirstOrDefault();
 
-        if (best is null || best.Parameters.Length == 0)
+        if (best is null)
         {
-            return new List<IParameterSymbol>();
+            return null;
         }
 
         return best.Parameters.ToList();
+    }
+
+    /// <summary>True for Task, Task&lt;T&gt;, ValueTask and ValueTask&lt;T&gt;.</summary>
+    internal static bool IsTaskLike(ITypeSymbol type)
+    {
+        return type is INamedTypeSymbol { Name: "Task" or "ValueTask" } named &&
+               named.ContainingNamespace?.ToDisplayString() == "System.Threading.Tasks";
+    }
+
+    /// <summary>True when the type or any of its containing types has type parameters.</summary>
+    internal static bool IsGenericOrNestedInGeneric(INamedTypeSymbol type)
+    {
+        for (var current = type; current is not null; current = current.ContainingType)
+        {
+            if (current.IsGenericType)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>True for interfaces and non-sealed classes whose behavior a mock can actually replace.</summary>
+    private static bool IsMockable(ITypeSymbol type)
+    {
+        if (type.TypeKind == TypeKind.Interface)
+        {
+            return true;
+        }
+
+        if (type.TypeKind != TypeKind.Class || type.IsSealed || type.IsStatic || type.SpecialType != SpecialType.None)
+        {
+            return false;
+        }
+
+        return type.IsAbstract || type.GetMembers().Any(m => (m.IsVirtual || m.IsAbstract) && !m.IsSealed);
+    }
+
+    /// <summary>Simple value for a constructor parameter that is not mocked.</summary>
+    private static string DefaultValueFor(ITypeSymbol type)
+    {
+        if (type.SpecialType == SpecialType.System_String)
+        {
+            return "string.Empty";
+        }
+
+        return type.IsValueType ? "default" : "default!";
     }
 
     private static GeneratorResult CreateSkipStyleSkeleton(string ns, string className, string sutTypeName, string testClassName,
@@ -267,6 +340,7 @@ namespace {ns}.UnitTests;
 
         prompt.AppendLine();
 
+        string? firstMockName = null;
         if (profile.HasMockFramework)
         {
             foreach (var p in ctorParams)
@@ -275,6 +349,19 @@ namespace {ns}.UnitTests;
                 var fieldName = $"_{pName}";
                 var typeName = p.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
 
+                if (!IsMockable(p.Type))
+                {
+                    // Value types, strings and sealed/non-virtual classes cannot be mocked: pass a plain value instead.
+                    mockFields.Add($"    private readonly {typeName} {fieldName};");
+                    mockInits.Add($"        {fieldName} = {DefaultValueFor(p.Type)}; // TODO: provide value");
+                    sutArgs.Add(fieldName);
+                    prompt.AppendLine($"=== Value `{fieldName}` ===");
+                    prompt.AppendLine($"Type: `{typeName}` (not mockable) - provide a real value.");
+                    prompt.AppendLine();
+                    continue;
+                }
+
+                firstMockName ??= fieldName;
                 mockFields.Add(profile.FieldDeclaration(typeName, fieldName));
                 mockInits.Add(profile.FieldInitialization(typeName, fieldName));
                 sutArgs.Add(profile.ConstructorArgument(fieldName));
@@ -307,11 +394,10 @@ namespace {ns}.UnitTests;
         prompt.AppendLine($"  {profile.AssertionExample}");
         prompt.AppendLine();
 
-        if (profile.HasMockFramework && ctorParams.Count > 0)
+        if (profile.HasMockFramework && firstMockName is not null)
         {
-            var firstName = $"_{ctorParams[0].Name}";
             prompt.AppendLine("=== Setup example (fill placeholders) ===");
-            prompt.AppendLine($"  {profile.SetupExample(firstName, "MethodName(...)")}");
+            prompt.AppendLine($"  {profile.SetupExample(firstMockName, "MethodName(...)")}");
             prompt.AppendLine();
         }
 
@@ -350,7 +436,7 @@ namespace {ns}.UnitTests;
         prompt.AppendLine($"Requires STA thread: {(requiresSta ? "yes" : "no")}");
         prompt.AppendLine($"Strategy: {strategy}");
         prompt.AppendLine();
-        prompt.AppendLine($"Class `{className}` is static or abstract.");
+        prompt.AppendLine($"Method `{sutTypeName}.{methodName}` is static; no instance of `{className}` is needed.");
         prompt.AppendLine($"Call `{sutTypeName}.{methodName}(...)` directly.");
         prompt.AppendLine($"Assertion example: {profile.AssertionExample}");
 
@@ -369,7 +455,7 @@ namespace {ns}.UnitTests;
 
 {classAttr}public class {testClassName}
 {{
-    // Class `{className}` is static or abstract; no instance can be created.
+    // `{sutTypeName}.{methodName}` is static; no instance is needed.
     // Call the method directly via `{sutTypeName}.{methodName}(...)`.
 
     {profile.FactAttribute(requiresSta)}

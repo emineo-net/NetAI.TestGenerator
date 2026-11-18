@@ -4,12 +4,7 @@
   "type": "object",
   "required": [
     "version",
-    "buildConfigurationFilter",
-    "environment",
-    "frameworks",
-    "codeStyle",
-    "generationBehavior",
-    "aiConfiguration"
+    "frameworks"
   ],
   "properties": {
     "$schema": {
@@ -22,8 +17,21 @@
     },
     "buildConfigurationFilter": {
       "type": "string",
-      "description": "Wann Testerstellung wird: 'all' oder kommagetrennt 'debug', 'release', 'publish'.",
+      "description": "When tests are generated (MSBuild task only): 'all', or a comma-separated list of configurations such as 'debug,release'. 'publish' matches publish builds.",
       "default": "all"
+    },
+    "maxMethodChars": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 25000,
+      "description": "Methods longer than this (in characters) get a skip stub instead of an AI-generated test."
+    },
+    "allowedPackages": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "default": [],
+      "description": "Additional NuGet package IDs that may be added to the test project automatically when generated code uses a namespace with the same name. Well-known test packages (Moq, NSubstitute, FluentAssertions, ...) are always allowed; any other package is never installed automatically."
     },
     "environment": {
       "type": "object",
@@ -51,8 +59,8 @@
         },
         "mockingFramework": {
           "type": "string",
-          "enum": [ "moq", "nsubstitute", "fakeiteasy" ],
-          "description": "The mocking framework to use."
+          "enum": [ "moq", "nsubstitute", "fakeiteasy", "none" ],
+          "description": "The mocking framework to use ('none' = no mocking library)."
         },
         "useFluentAssertions": {
           "type": "boolean",
@@ -119,9 +127,8 @@
         "baseUrl": {
           "type": "string",
           "format": "uri",
-          "pattern": "/$",
           "default": "http://localhost:8081/",
-          "description": "Absolute URL of the OpenAI-compatible endpoint. Must end with '/'. Defaults to a local server on port 8081. Examples: 'http://localhost:11434/' (Ollama), 'https://api.openai.com/'."
+          "description": "Absolute URL of the OpenAI-compatible endpoint (a trailing '/' is added automatically; a trailing '/v1/' is also accepted). Defaults to a local server on port 8081. Examples: 'http://localhost:11434/' (Ollama), 'https://api.openai.com/'."
         },
         "model": {
           "type": "string",

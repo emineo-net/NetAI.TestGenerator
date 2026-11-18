@@ -129,7 +129,7 @@ public sealed class TestFrameworkProfile
             TestFramework.xUnit => HasPackage("Xunit.StaFact")
                 ? "[StaFact]"
                 : "[Fact] // TODO: STA required – add 'Xunit.StaFact' package and switch to [StaFact]",
-            TestFramework.NUnit => "[Test] [Apartment(ApartmentState.STA)]",
+            TestFramework.NUnit => "[Test, Apartment(System.Threading.ApartmentState.STA)]",
             TestFramework.MSTest => "[STATestMethod]",
             _ => "[Fact]"
         };
@@ -141,8 +141,9 @@ public sealed class TestFrameworkProfile
         return Test switch
         {
             TestFramework.xUnit => $"[Fact(Skip = \"{reason}\")]",
-            TestFramework.NUnit => $"[Ignore(\"{reason}\")]",
-            TestFramework.MSTest => $"[Ignore(\"{reason}\")]",
+            // NUnit/MSTest: [Ignore] alone does not make a method a test, so the stub would never be discovered.
+            TestFramework.NUnit => $"[Test, Ignore(\"{reason}\")]",
+            TestFramework.MSTest => $"[TestMethod, Ignore(\"{reason}\")]",
             _ => "[Fact(Skip = \"unsupported framework\")]"
         };
     }
@@ -155,8 +156,8 @@ public sealed class TestFrameworkProfile
             TestFramework.xUnit => HasPackage("Xunit.StaFact")
                 ? $"[StaFact(Skip = \"{reason}\")]"
                 : $"[Fact(Skip = \"{reason}\")] // TODO: STA required – add 'Xunit.StaFact' package and switch to [StaFact]",
-            TestFramework.NUnit => $"[Ignore(\"{reason}\")] [Apartment(ApartmentState.STA)]",
-            TestFramework.MSTest => $"[Ignore(\"{reason}\")]",
+            TestFramework.NUnit => $"[Test, Ignore(\"{reason}\"), Apartment(System.Threading.ApartmentState.STA)]",
+            TestFramework.MSTest => $"[TestMethod, Ignore(\"{reason}\")]",
             _ => SkipAttribute(reason)
         };
     }

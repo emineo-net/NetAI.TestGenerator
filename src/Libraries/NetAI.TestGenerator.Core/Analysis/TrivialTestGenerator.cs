@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NetAI.TestGenerator.Core.Models.Enums;
 
 namespace NetAI.TestGenerator.Core.Analysis;
 
@@ -15,6 +16,11 @@ internal static class TrivialTestGenerator
             return new Result(null, false);
         }
 
+        if (!CanBuildSimpleTest(symbol))
+        {
+            return new Result(null, false);
+        }
+
         var expressionBody = method.ExpressionBody;
         var body = method.Body;
 
@@ -22,7 +28,7 @@ internal static class TrivialTestGenerator
         {
             if (expressionBody.Expression is ThrowExpressionSyntax throwExpr)
             {
-                return HandleThrow(symbol, throwExpr.Expression, profile, requiresSta);
+                return HandleThrow(symbol, throwExpr.Expression, model, profile, requiresSta);
             }
 
             var constant = model.GetConstantValue(expressionBody.Expression);
@@ -53,7 +59,7 @@ internal static class TrivialTestGenerator
 
         if (statement is ThrowStatementSyntax throwStmt && throwStmt.Expression is not null)
         {
-            return HandleThrow(symbol, throwStmt.Expression, profile, requiresSta);
+            return HandleThrow(symbol, throwStmt.Expression, model, profile, requiresSta);
         }
 
         if (statement is ReturnStatementSyntax returnStmt && returnStmt.Expression is not null)
@@ -68,28 +74,63 @@ internal static class TrivialTestGenerator
         return new Result(null, false);
     }
 
-    private static Result HandleThrow(IMethodSymbol symbol, ExpressionSyntax throwExpression, TestFrameworkProfile profile,
-        bool requiresSta)
+    /// <summary>
+    /// Only plain synchronous, non-generic methods on non-generic, top-level types can get a template test. Instance methods
+    /// additionally need a concrete type with a public parameterless constructor, because the snippet uses <c>new T()</c>.
+    /// </summary>
+    private static bool CanBuildSimpleTest(IMethodSymbol symbol)
     {
-        if (throwExpression is ObjectCreationExpressionSyntax creation)
+        var type = symbol.ContainingType;
+        if (type is null || type.ContainingType is not null)
         {
-            var typeName = creation.Type.ToString();
-            if (typeName.EndsWith("NotImplementedException", StringComparison.Ordinal) ||
-                typeName.EndsWith("NotSupportedException", StringComparison.Ordinal))
-            {
-                return new Result(null, true);
-            }
+            return false;
         }
 
-        string? exceptionTypeName = null;
-        if (throwExpression is ObjectCreationExpressionSyntax objCreation)
+        if (symbol.IsAsync || UnitTestSkeletonGenerator.IsTaskLike(symbol.ReturnType))
         {
-            exceptionTypeName = objCreation.Type.ToString();
+            return false;
         }
-        else if (throwExpression is IdentifierNameSyntax identifier)
+
+        if (symbol.IsGenericMethod || UnitTestSkeletonGenerator.IsGenericOrNestedInGeneric(type))
         {
-            exceptionTypeName = null;
+            return false;
         }
+
+        if (symbol.IsStatic)
+        {
+            return true;
+        }
+
+        if (type.IsAbstract || type.IsStatic || type.TypeKind is not (TypeKind.Class or TypeKind.Struct))
+        {
+            return false;
+        }
+
+        return type.InstanceConstructors.Any(c => c.Parameters.Length == 0 && c.DeclaredAccessibility == Accessibility.Public);
+    }
+
+    private static Result HandleThrow(IMethodSymbol symbol, ExpressionSyntax throwExpression, SemanticModel model,
+        TestFrameworkProfile profile, bool requiresSta)
+    {
+        // Only `throw new X(...)` / `throw new(...)` reveals the exact exception type; anything else is left to the LLM.
+        if (throwExpression is not BaseObjectCreationExpressionSyntax creation)
+        {
+            return new Result(null, false);
+        }
+
+        var exceptionType = model.GetTypeInfo(creation).Type;
+        if (exceptionType is null || exceptionType.TypeKind == TypeKind.Error)
+        {
+            return new Result(null, false);
+        }
+
+        if (exceptionType.Name is "NotImplementedException" or "NotSupportedException")
+        {
+            return new Result(null, true);
+        }
+
+        var exceptionTypeName = exceptionType.ToDisplayString(
+            SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted));
 
         return new Result(BuildThrowTest(symbol, exceptionTypeName, profile, requiresSta), false);
     }
@@ -104,7 +145,14 @@ internal static class TrivialTestGenerator
 
         var sutCall = symbol.IsStatic ? $"{className}.{symbol.Name}()" : $"_sut.{symbol.Name}()";
 
-        var assertion = profile.UseFluentAssertions ? $"result.Should().Be({literal});" : $"Assert.Equal({literal}, result);";
+        var assertion = profile.UseFluentAssertions
+            ? $"result.Should().Be({literal});"
+            : profile.Test switch
+            {
+                TestFramework.NUnit => $"Assert.That(result, Is.EqualTo({literal}));",
+                TestFramework.MSTest => $"Assert.AreEqual({literal}, result);",
+                _ => $"Assert.Equal({literal}, result);"
+            };
 
         return BuildClassSnippet(className, testClassName, symbol.ContainingNamespace, profile, requiresSta, null,
             profile.FactAttribute(requiresSta), testMethodName, "public void " + testMethodName + "()",
@@ -120,7 +168,14 @@ internal static class TrivialTestGenerator
 
         var sutCall = symbol.IsStatic ? $"{className}.{symbol.Name}" : $"_sut.{symbol.Name}";
 
-        var assertion = profile.UseFluentAssertions ? $"act.Should().Throw<{target}>();" : $"Assert.Throws<{target}>(act);";
+        var assertion = profile.UseFluentAssertions
+            ? $"act.Should().Throw<{target}>();"
+            : profile.Test switch
+            {
+                TestFramework.NUnit => $"Assert.Throws<{target}>(() => act());",
+                TestFramework.MSTest => $"Assert.ThrowsException<{target}>(act);",
+                _ => $"Assert.Throws<{target}>(act);"
+            };
 
         var body = $"        Action act = () => {sutCall}();\n" + $"        {assertion}";
 
@@ -139,7 +194,15 @@ internal static class TrivialTestGenerator
 
         var sutCall = symbol.IsStatic ? $"{className}.{symbol.Name}" : $"_sut.{symbol.Name}";
 
-        var assertion = profile.UseFluentAssertions ? "act.Should().NotThrow();" : "Assert.Null(Record.Exception(act));";
+        var assertion = profile.UseFluentAssertions
+            ? "act.Should().NotThrow();"
+            : profile.Test switch
+            {
+                TestFramework.NUnit => "Assert.DoesNotThrow(() => act());",
+                // MSTest has no DoesNotThrow: an unexpected exception fails the test by itself.
+                TestFramework.MSTest => "act();",
+                _ => "Assert.Null(Record.Exception(act));"
+            };
 
         var body = $"        Action act = () => {sutCall}();\n" + $"        {assertion}";
 

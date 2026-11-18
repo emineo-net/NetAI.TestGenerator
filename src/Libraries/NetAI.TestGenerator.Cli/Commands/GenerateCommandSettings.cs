@@ -42,7 +42,7 @@ public sealed class GenerateCommandSettings : CommandSettings
     public bool DryRun { get; init; }
 
     [CommandOption("--prompt-only")]
-    [Description("Save prompts to obj/netai/prompts and skip the LLM call.")]
+    [Description("Save prompts to obj/netai/prompts and write the AI drafts without compile validation.")]
     public bool PromptOnly { get; init; }
 
     [CommandOption("--framework <NAME>")]

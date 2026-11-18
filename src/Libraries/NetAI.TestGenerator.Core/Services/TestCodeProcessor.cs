@@ -129,41 +129,41 @@ public class TestCodeProcessor
         switch (errorId)
         {
             case "CS0246":
-            {
-                var m = Regex.Match(message, @"type or namespace name '([^']+)' could not be found", RegexOptions.IgnoreCase);
-                if (m.Success)
                 {
-                    missingName = m.Groups[1].Value;
-                    return true;
-                }
+                    var m = Regex.Match(message, @"type or namespace name '([^']+)' could not be found", RegexOptions.IgnoreCase);
+                    if (m.Success)
+                    {
+                        missingName = m.Groups[1].Value;
+                        return true;
+                    }
 
-                break;
-            }
+                    break;
+                }
 
             case "CS0234":
-            {
-                var m = Regex.Match(message, @"type or namespace name '([^']+)' does not exist in the namespace '([^']+)'",
-                    RegexOptions.IgnoreCase);
-                if (m.Success)
                 {
-                    missingName = m.Groups[2].Value + "." + m.Groups[1].Value;
-                    return true;
-                }
+                    var m = Regex.Match(message, @"type or namespace name '([^']+)' does not exist in the namespace '([^']+)'",
+                        RegexOptions.IgnoreCase);
+                    if (m.Success)
+                    {
+                        missingName = m.Groups[2].Value + "." + m.Groups[1].Value;
+                        return true;
+                    }
 
-                break;
-            }
+                    break;
+                }
 
             case "CS0103":
-            {
-                var m = Regex.Match(message, @"The name '([^']+)' does not exist in the current context", RegexOptions.IgnoreCase);
-                if (m.Success)
                 {
-                    missingName = m.Groups[1].Value;
-                    return true;
-                }
+                    var m = Regex.Match(message, @"The name '([^']+)' does not exist in the current context", RegexOptions.IgnoreCase);
+                    if (m.Success)
+                    {
+                        missingName = m.Groups[1].Value;
+                        return true;
+                    }
 
-                break;
-            }
+                    break;
+                }
         }
 
         return false;
@@ -171,9 +171,10 @@ public class TestCodeProcessor
 
     private static string? MapTypeToNamespace(string missingName, string errorId, TestFramework testFramework, MockFramework mockFramework)
     {
-        if (errorId == "CS0234" && missingName.Contains('.'))
+        // CS0234 means "Ns.Missing" does NOT exist; adding it as a using would only add another error.
+        if (errorId == "CS0234")
         {
-            return missingName;
+            return null;
         }
 
         switch (missingName)
@@ -187,11 +188,8 @@ public class TestCodeProcessor
                 };
 
             case "Test":
-                return testFramework switch
-                {
-                    TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting",
-                    _ => "NUnit.Framework"
-                };
+                // [Test] only exists in NUnit; for xUnit/MSTest a using would not help (wrong attribute).
+                return testFramework == TestFramework.NUnit ? "NUnit.Framework" : null;
 
             case "Fact":
             case "Theory":
