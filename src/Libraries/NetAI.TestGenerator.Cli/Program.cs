@@ -1,4 +1,6 @@
+using NetAI.TestGenerator.Cli;
 using NetAI.TestGenerator.Cli.Commands;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 var app = new CommandApp();
@@ -7,6 +9,12 @@ app.Configure(cfg =>
 {
     cfg.SetApplicationName("netai");
     cfg.ValidateExamples();
+    cfg.SetExceptionHandler((ex, _) =>
+    {
+        AnsiConsole.MarkupLine($"[red]Unexpected error:[/] {Markup.Escape(ex.Message)}");
+        Console.Error.WriteLine(ex);
+        return ExitCodes.UnhandledError;
+    });
 
     cfg.AddCommand<GenerateCommand>("generate")
         .WithDescription("Generate unit tests for a C# source file, directory, or project.")

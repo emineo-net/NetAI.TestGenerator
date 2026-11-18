@@ -48,7 +48,7 @@ public class AiTestGeneratorRunner
         {
             orchestrator = new TetsGeneratorOrchestrator(config);
         }
-        catch (ArgumentException ex)
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
         {
             logError($"Ungültige Framework-Einstellungen in aisettings.json: {ex.Message}");
             return false;
@@ -78,11 +78,13 @@ public class AiTestGeneratorRunner
                 .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             var compilation = RoslynDllTestabilityAnalyzer.BuildCompilation(sourceFiles, referencePaths, projectName);
 
-            var result = await orchestrator.ProcessProjectAsync(sourceFilePath, testProjectDirectory, logInfo, compilation);
+            using var _ = orchestrator;
+            var result = await orchestrator.ProcessProjectAsync(sourceFilePath, testProjectDirectory, (_, message) => logInfo(message),
+                compilation);
 
-            if (result.Contains("error"))
+            if (!result.IsSuccess)
             {
-                logError(result);
+                logError(result.Message);
                 return false;
             }
 

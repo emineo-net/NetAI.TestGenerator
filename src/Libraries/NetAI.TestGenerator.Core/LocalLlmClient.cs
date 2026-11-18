@@ -19,6 +19,7 @@ public class LocalLlmClient : IDisposable
     private readonly HttpClient _http;
     private readonly LlmConnectionSettings _settings;
     private readonly bool _ownsHttpClient;
+    private readonly string _chatCompletionsPath;
 
     /// <summary>Creates a client with default local settings (for backward compatibility).</summary>
     public LocalLlmClient()
@@ -32,11 +33,15 @@ public class LocalLlmClient : IDisposable
     public LocalLlmClient(LlmConnectionSettings settings, HttpClient? httpClient)
     {
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-
-        if (string.IsNullOrWhiteSpace(_settings.BaseUrl))
-            throw new InvalidOperationException("aiConfiguration.baseUrl must be set.");
+        _settings.Validate();
 
         var baseUri = new Uri(_settings.BaseUrl, UriKind.Absolute);
+
+        // Accept both "http://host:1234/" and "http://host:1234/v1/" – the latter would otherwise
+        // resolve to ".../v1/v1/chat/completions" and fail with 404.
+        _chatCompletionsPath = baseUri.AbsolutePath.TrimEnd('/').EndsWith("/v1", StringComparison.OrdinalIgnoreCase)
+            ? "chat/completions"
+            : "v1/chat/completions";
 
         if (httpClient is null)
         {
@@ -87,17 +92,35 @@ public class LocalLlmClient : IDisposable
         var jsonPayload = JsonConvert.SerializeObject(payload);
         using var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-        using var response = await _http.PostAsync("v1/chat/completions", content, ct).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+        HttpResponseMessage response;
+        try
+        {
+            response = await _http.PostAsync(_chatCompletionsPath, content, ct).ConfigureAwait(false);
+        }
+        catch (TaskCanceledException ex) when (!ct.IsCancellationRequested)
+        {
+            // HttpClient reports its own timeout as a cancellation; make it distinguishable from a user cancel.
+            throw new TimeoutException($"The LLM request did not complete within {_http.Timeout.TotalMinutes:0.#} minute(s).", ex);
+        }
 
+        using (response)
+        {
 #if NET6_0_OR_GREATER
-        var responseString = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var responseString = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 #else
-        var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 #endif
 
-        var json = JObject.Parse(responseString);
-        return json["choices"]?[0]?["message"]?["content"]?.ToString() ?? "";
+            if (!response.IsSuccessStatusCode)
+            {
+                // Keep the server's error body (e.g. "context length exceeded"); EnsureSuccessStatusCode would drop it.
+                var body = responseString.Length > 500 ? responseString.Substring(0, 500) + "..." : responseString;
+                throw new HttpRequestException($"LLM endpoint returned {(int)response.StatusCode} {response.ReasonPhrase}: {body}");
+            }
+
+            var choices = JObject.Parse(responseString)["choices"] as JArray;
+            return choices is { Count: > 0 } ? choices[0]?["message"]?["content"]?.ToString() ?? "" : "";
+        }
     }
 
     /// <inheritdoc />

@@ -32,9 +32,10 @@ public static class CompilationLoader
     public static async Task<LoadedCompilation?> TryLoadAsync(
         string? projectPath,
         string? targetFile,
-        Action<string>? log)
+        Action<string>? log,
+        CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(projectPath) || !File.Exists(projectPath))
+        if (string.IsNullOrWhiteSpace(projectPath) || !File.Exists(projectPath = Path.GetFullPath(projectPath)))
         {
             return null;
         }
@@ -49,7 +50,8 @@ public static class CompilationLoader
                 null,
                 projectPath,
                 targetFile,
-                log).ConfigureAwait(false);
+                log,
+                cancellationToken).ConfigureAwait(false);
 
             if (loaded.Compilation is null)
             {
@@ -61,7 +63,7 @@ public static class CompilationLoader
             log?.Invoke($"[NetAI] Compilation loaded: {loaded.Compilation.SyntaxTrees.Count()} syntax trees.");
             return new LoadedCompilation(loaded.Workspace, loaded.Compilation);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             log?.Invoke($"[NetAI] MSBuild load failed: {ex.Message}; falling back to syntax-only.");
             return null;

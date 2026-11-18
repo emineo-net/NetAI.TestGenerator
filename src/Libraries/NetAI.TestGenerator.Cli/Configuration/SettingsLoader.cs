@@ -20,7 +20,7 @@ public static class SettingsLoader
       },
       "frameworks": {
         "testFramework": "xunit",
-        "mockingFramework": "unknown",
+        "mockingFramework": "none",
         "useFluentAssertions": true,
         "useAutoFixture": false,
         "verbosePrompt": true
@@ -40,27 +40,22 @@ public static class SettingsLoader
 
     public static AiTestingConfig Load(string? explicitPath, string startDirectory)
     {
-        var path = explicitPath is not null
-            ? Path.GetFullPath(explicitPath)
-            : Discover(startDirectory);
-
-        var json = path is not null && File.Exists(path)
-            ? File.ReadAllText(path)
-            : DefaultJson;
-
-        return JsonConvert.DeserializeObject<AiTestingConfig>(json)
-               ?? JsonConvert.DeserializeObject<AiTestingConfig>(DefaultJson)!;
-    }
-
-    private static string? Discover(string startDirectory)
-    {
-        var dir = new DirectoryInfo(startDirectory);
-        while (dir is not null)
+        string? path;
+        if (explicitPath is not null)
         {
-            var candidate = Path.Combine(dir.FullName, "aisettings.json");
-            if (File.Exists(candidate)) return candidate;
-            dir = dir.Parent;
+            // An explicitly given file must exist; silently falling back to defaults hides typos.
+            path = Path.GetFullPath(explicitPath);
+            if (!File.Exists(path))
+                throw new FileNotFoundException($"Config file '{explicitPath}' was not found.", path);
         }
-        return null;
+        else
+        {
+            // Same discovery rule as the MSBuild task: project directory upward to the solution directory.
+            path = AiSettingsLoader.Find(startDirectory);
+        }
+
+        return path is not null
+            ? AiSettingsLoader.LoadFile(path)
+            : JsonConvert.DeserializeObject<AiTestingConfig>(DefaultJson)!;
     }
 }

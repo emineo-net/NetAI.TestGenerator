@@ -8,18 +8,25 @@ internal sealed class TestProjectManagerCompilerService : ICompilerService
 {
     private static readonly Regex ErrorLineRegex = new(@"(?<id>CS\d{4})\s*:\s*(?<msg>.+)$", RegexOptions.Compiled);
 
-    private readonly Func<string, Task<TestGenerationResult>> _compile;
+    private readonly Func<string, CancellationToken, Task<TestGenerationResult>> _compile;
 
     /// <summary>Initializes a test project manager compiler service instance.</summary>
-    public TestProjectManagerCompilerService(Func<string, Task<TestGenerationResult>> compile)
+    public TestProjectManagerCompilerService(Func<string, CancellationToken, Task<TestGenerationResult>> compile)
     {
         _compile = compile ?? throw new ArgumentNullException(nameof(compile));
     }
 
+    /// <summary>Gets the result of the most recent compilation since the last <see cref="Reset"/>.</summary>
+    public TestGenerationResult? LastResult { get; private set; }
+
+    /// <summary>Forgets the last compilation result.</summary>
+    public void Reset() => LastResult = null;
+
     /// <summary>Compiles the source and converts errors into diagnostics.</summary>
     public async Task<IReadOnlyList<Diagnostic>> CompileAndGetDiagnosticsAsync(string source, CancellationToken cancellationToken = default)
     {
-        var result = await _compile(source);
+        var result = await _compile(source, cancellationToken).ConfigureAwait(false);
+        LastResult = result;
 
         if (result?.CompilerErrors is null || result.CompilerErrors.Length == 0)
         {

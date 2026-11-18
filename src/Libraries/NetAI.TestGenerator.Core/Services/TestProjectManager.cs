@@ -41,7 +41,8 @@ public class TestProjectManager
 
     private static readonly HttpClient NuGetHttp = new()
     {
-        BaseAddress = new Uri("https://api.nuget.org/v3-flatcontainer/"), Timeout = TimeSpan.FromSeconds(15)
+        BaseAddress = new Uri("https://api.nuget.org/v3-flatcontainer/"),
+        Timeout = TimeSpan.FromSeconds(15)
     };
 
     private readonly TimeSpan _defaultProcessTimeout;
@@ -67,6 +68,12 @@ public class TestProjectManager
         _mockFramework = mockFramework;
         _wellKnownTypeToNamespace = BuildWellKnownTypeToNamespace(testFramework, mockFramework);
     }
+
+    /// <summary>
+    /// Gets additional package IDs that may be installed automatically when a namespace with the same name is missing.
+    /// Packages that are neither in this set nor in <see cref="KnownNamespaceToPackageMap"/> are never installed.
+    /// </summary>
+    public ISet<string> AllowedPackageIds { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Gets namespace-to-NuGet-package mappings used to resolve missing test dependencies.</summary>
     public IDictionary<string, string> KnownNamespaceToPackageMap { get; } = new Dictionary<string, string>(StringComparer.Ordinal)
@@ -149,23 +156,23 @@ public class TestProjectManager
             else if (sourceProjectPath is not null)
             {
                 await EnsureWindowsSettingsAsync(testProjectPath, sourceProjectPath, targetFramework, cancellationToken);
-
-                if (!await ProjectHasReferenceAsync(testProjectPath, sourceProjectPath, cancellationToken))
-                {
-                    await RunDotNetCliAsync(new[] { "add", testProjectPath, "reference", sourceProjectPath }, testProjectDir,
-                        cancellationToken);
-                }
             }
 
-            sourceProjectPath ??= FindContainingProject(sourceFilePath, solutionDirectory);
-            if (sourceProjectPath is not null && File.Exists(sourceProjectPath))
+            if (sourceProjectPath is not null && File.Exists(sourceProjectPath) &&
+                !await ProjectHasReferenceAsync(testProjectPath, sourceProjectPath, cancellationToken))
             {
-                if (!await ProjectHasReferenceAsync(testProjectPath, sourceProjectPath, cancellationToken))
+                var addResult = await RunDotNetCliAsync(new[] { "add", testProjectPath, "reference", sourceProjectPath }, testProjectDir,
+                    cancellationToken);
+                if (addResult.ExitCode != 0)
                 {
-                    await EnsureWindowsSettingsAsync(testProjectPath, sourceProjectPath, targetFramework, cancellationToken);
-                    await RunDotNetCliAsync(new[] { "add", testProjectPath, "reference", sourceProjectPath }, testProjectDir,
-                        cancellationToken);
-                    await RunDotNetCliAsync(new[] { "restore", testProjectPath }, testProjectDir, cancellationToken);
+                    return CliFailure($"Could not add a reference from '{Path.GetFileName(testProjectPath)}' to " +
+                                      $"'{Path.GetFileName(sourceProjectPath)}'.", addResult);
+                }
+
+                var restoreResult = await RunDotNetCliAsync(new[] { "restore", testProjectPath }, testProjectDir, cancellationToken);
+                if (restoreResult.ExitCode != 0)
+                {
+                    return CliFailure($"'dotnet restore' failed for '{Path.GetFileName(testProjectPath)}'.", restoreResult);
                 }
             }
 
@@ -209,15 +216,11 @@ public class TestProjectManager
                     buildResult, cancellationToken);
             }
 
-            if (!buildResult.IsSuccess)
-            {
-                var ivtAdded = await TryEnableInternalsVisibleToAsync(testProjectPath, sourceProjectPath,
-                    buildResult.CompilerErrors ?? Array.Empty<string>(), cancellationToken);
-                if (ivtAdded)
-                {
-                    buildResult = await ValidateProjectCompilesAsync(testProjectPath, cancellationToken);
-                }
-            }
+            // The source project is never modified automatically. If the test uses internal members, only report it.
+            var internalMemberHints = buildResult.IsSuccess
+                ? new List<string>()
+                : await FindInternalMemberHintsAsync(testProjectPath, sourceProjectPath, buildResult.CompilerErrors ?? Array.Empty<string>(),
+                    cancellationToken);
 
             if (buildResult.IsSuccess)
             {
@@ -250,6 +253,13 @@ public class TestProjectManager
             }
 
             var enrichedErrors = finalErrors.ToList();
+
+            if (internalMemberHints.Count > 0)
+            {
+                requiresRegeneration = true;
+                enrichedErrors.Add("---");
+                enrichedErrors.AddRange(internalMemberHints);
+            }
 
             if (requiresRegeneration)
             {
@@ -288,6 +298,12 @@ public class TestProjectManager
         }
     }
 
+    private static TestGenerationResult CliFailure(string message, (int ExitCode, string[] Output, string[] Errors) result)
+    {
+        var lines = result.Errors.Concat(result.Output).Where(l => !string.IsNullOrWhiteSpace(l)).Take(30).ToArray();
+        return new TestGenerationResult(false, $"{message} (exit code {result.ExitCode})", lines);
+    }
+
     private static TestGenerationResult CreateEnvironmentFailureResult(TestGenerationResult buildResult, string testClassPath,
         string currentTestClassCode)
     {
@@ -324,13 +340,13 @@ public class TestProjectManager
                 continue;
             }
 
-            foreach (Match m in Regex.Matches(line, "'([^']+)'"))
+            // CS0234: "The type or namespace name 'X' does not exist in the namespace 'Y'": only X is missing,
+            // Y (e.g. 'System') exists and must not be reported as hallucinated.
+            var m = Regex.Match(line, "'([^']+)'");
+            var name = m.Success ? m.Groups[1].Value : string.Empty;
+            if (name.Length > 0 && !candidates.Contains(name, StringComparer.Ordinal))
             {
-                var name = m.Groups[1].Value;
-                if (name.Length > 0 && !candidates.Contains(name, StringComparer.Ordinal))
-                {
-                    candidates.Add(name);
-                }
+                candidates.Add(name);
             }
         }
 
@@ -402,100 +418,71 @@ public class TestProjectManager
         return false;
     }
 
-    private async Task<bool> TryEnableInternalsVisibleToAsync(string testProjectPath, string? sourceProjectPath,
+    /// <summary>
+    /// Detects CS1061 errors caused by internal source members. The source project is not modified; instead the returned
+    /// hints tell the AI to use the public API and tell the user how to enable access if they want it.
+    /// </summary>
+    private async Task<List<string>> FindInternalMemberHintsAsync(string testProjectPath, string? sourceProjectPath,
         IReadOnlyList<string> compilerErrors, CancellationToken ct)
     {
+        var hints = new List<string>();
         if (sourceProjectPath is null || !File.Exists(sourceProjectPath))
         {
-            return false;
+            return hints;
         }
 
-        var candidates = new List<(string Type, string Member)>();
+        var members = new HashSet<string>(StringComparer.Ordinal);
         foreach (var line in compilerErrors)
         {
-            if (line.IndexOf("CS1061", StringComparison.OrdinalIgnoreCase) < 0)
+            if (line.IndexOf("CS1061", StringComparison.OrdinalIgnoreCase) >= 0 && InternalsVisibleToMemberRegex.Match(line) is { Success: true } m)
             {
-                continue;
-            }
-
-            var m = InternalsVisibleToMemberRegex.Match(line);
-            if (m.Success)
-            {
-                candidates.Add((m.Groups["type"].Value, m.Groups["member"].Value));
+                members.Add(m.Groups["member"].Value);
             }
         }
 
-        if (candidates.Count == 0)
+        if (members.Count == 0)
         {
-            return false;
+            return hints;
         }
 
-        var sourceProjectDir = Path.GetDirectoryName(sourceProjectPath)!;
-        var anyInternalFound = false;
-        foreach (var (_, member) in candidates)
-        {
-            var memberRegex = new Regex(@"\binternal\b[^\r\n;={]*\b" + Regex.Escape(member) + @"\b", RegexOptions.Compiled);
-            foreach (var file in Directory.EnumerateFiles(sourceProjectDir, "*.cs", SearchOption.AllDirectories))
-            {
-                if (IsInBuildOutput(file))
-                {
-                    continue;
-                }
+        var sourceFiles = Directory.EnumerateFiles(Path.GetDirectoryName(sourceProjectPath)!, "*.cs", SearchOption.AllDirectories)
+            .Where(f => !IsInBuildOutput(f)).ToList();
 
+        var internalMembers = new List<string>();
+        foreach (var member in members)
+        {
+            var memberRegex = new Regex(@"\binternal\b[^\r\n;={]*\b" + Regex.Escape(member) + @"\b");
+            foreach (var file in sourceFiles)
+            {
                 string text;
                 try
                 {
                     text = await ReadAllTextAsyncCompat(file, ct);
                 }
-                catch
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 {
                     continue;
                 }
 
                 if (memberRegex.IsMatch(text))
                 {
-                    anyInternalFound = true;
+                    internalMembers.Add(member);
                     break;
                 }
             }
-
-            if (anyInternalFound)
-            {
-                break;
-            }
         }
 
-        if (!anyInternalFound)
+        if (internalMembers.Count == 0)
         {
-            return false;
+            return hints;
         }
 
         var testAssemblyName = await GetProjectAssemblyNameAsync(testProjectPath, ct) ?? Path.GetFileNameWithoutExtension(testProjectPath);
-
-        var doc = XDocument.Parse(await ReadAllTextAsyncCompat(sourceProjectPath, ct));
-        if (doc.Root is null)
-        {
-            return false;
-        }
-
-        if (doc.Root.Descendants("InternalsVisibleTo")
-            .Any(e => string.Equals(e.Value.Trim(), testAssemblyName, StringComparison.OrdinalIgnoreCase)))
-        {
-            return false;
-        }
-
-        var itemGroup = doc.Root.Elements("ItemGroup").FirstOrDefault(g => g.Elements("InternalsVisibleTo").Any());
-        if (itemGroup is null)
-        {
-            itemGroup = new XElement("ItemGroup");
-            doc.Root.Add(itemGroup);
-        }
-
-        itemGroup.Add(new XElement("InternalsVisibleTo", new XAttribute("Include", testAssemblyName)));
-        doc.Save(sourceProjectPath);
-
-        await RunDotNetCliAsync(new[] { "restore", testProjectPath }, Path.GetDirectoryName(testProjectPath)!, ct);
-        return true;
+        hints.Add($"The following members are 'internal' and not visible to the test project: {string.Join(", ", internalMembers.Select(x => $"'{x}'"))}. " +
+                  "Test them only through the public API – do NOT reference them directly.");
+        hints.Add($"(To allow access, add <InternalsVisibleTo Include=\"{testAssemblyName}\" /> to '{Path.GetFileName(sourceProjectPath)}'. " +
+                  "NetAI does not change source projects automatically.)");
+        return hints;
     }
 
     private static async Task<string?> GetProjectAssemblyNameAsync(string projectPath, CancellationToken ct)
@@ -839,20 +826,37 @@ public class TestProjectManager
         return null;
     }
 
+    /// <summary>
+    /// Returns package IDs for a missing namespace. Only packages from <see cref="KnownNamespaceToPackageMap"/> or
+    /// <see cref="AllowedPackageIds"/> are returned: deriving package IDs from arbitrary (possibly hallucinated) namespaces
+    /// would install unknown public packages (dependency confusion).
+    /// </summary>
     private IEnumerable<string> GetPackageCandidates(string namespaceName)
     {
-        if (KnownNamespaceToPackageMap.TryGetValue(namespaceName, out var mapped))
+        if (IsFrameworkNamespace(namespaceName))
         {
-            yield return mapped;
+            yield break;
         }
 
         var segments = namespaceName.Split('.');
         for (var len = segments.Length; len >= 1; len--)
         {
-            var candidate = string.Join(".", segments.Take(len));
-            yield return KnownNamespaceToPackageMap.TryGetValue(candidate, out var mappedPrefix) ? mappedPrefix : candidate;
+            var prefix = string.Join(".", segments.Take(len));
+
+            if (KnownNamespaceToPackageMap.TryGetValue(prefix, out var mapped))
+            {
+                yield return mapped;
+            }
+            else if (AllowedPackageIds.Contains(prefix))
+            {
+                yield return prefix;
+            }
         }
     }
+
+    private static bool IsFrameworkNamespace(string namespaceName) =>
+        namespaceName is "System" or "Microsoft" ||
+        (namespaceName.StartsWith("System.", StringComparison.Ordinal) && !namespaceName.StartsWith("System.IO.Abstractions", StringComparison.Ordinal));
 
     private static async Task<bool> IsCentralPackageManagementEnabledAsync(string? propsPath, CancellationToken ct)
     {
@@ -886,8 +890,10 @@ public class TestProjectManager
 
         if (existing is not null)
         {
+            // Never change a pinned central version: it applies to every project of the solution.
+            // Only floating versions (which CPM rejects) are replaced.
             var cur = (string?)existing.Attribute("Version");
-            if (LooksLikeFloatingVersion(cur ?? string.Empty) || !string.Equals(cur, version, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(cur) || LooksLikeFloatingVersion(cur!))
             {
                 existing.SetAttributeValue("Version", version);
                 doc.Save(propsPath);
@@ -957,9 +963,23 @@ public class TestProjectManager
         }
     }
 
-    private Task<Dictionary<string, List<TypeLocation>>> GetOrScanAsync(string solutionDirectory, CancellationToken ct)
+    private async Task<Dictionary<string, List<TypeLocation>>> GetOrScanAsync(string solutionDirectory, CancellationToken ct)
     {
-        return _scanCache.GetOrAdd(solutionDirectory, dir => Task.Run(() => ScanTypeNamespaces(dir), ct));
+        // The cached task must not depend on the caller's token, and a failed scan must not stay cached forever.
+        var task = _scanCache.GetOrAdd(solutionDirectory, dir => Task.Run(() => ScanTypeNamespaces(dir)));
+        try
+        {
+#if NET6_0_OR_GREATER
+            return await task.WaitAsync(ct).ConfigureAwait(false);
+#else
+            return await task.ConfigureAwait(false);
+#endif
+        }
+        catch (Exception) when (task.IsFaulted)
+        {
+            _scanCache.TryRemove(solutionDirectory, out _);
+            throw;
+        }
     }
 
     private async Task<string?> TryAddMissingUsingsAsync(string testClassPath, string testProjectPath, string? sourceProjectPath,
@@ -1482,6 +1502,18 @@ public class TestProjectManager
         };
     }
 
+    /// <summary>True when <paramref name="current"/> is a fixed version with the same major version as <paramref name="required"/>.</summary>
+    private static bool IsCompatiblePinnedVersion(string? current, string required)
+    {
+        if (string.IsNullOrWhiteSpace(current) || LooksLikeFloatingVersion(current!))
+        {
+            return false;
+        }
+
+        static string Major(string v) => v.Trim().Split('.')[0];
+        return string.Equals(Major(current!), Major(required), StringComparison.Ordinal);
+    }
+
     private async Task<bool> EnsurePackageReferenceWithVersionAsync(string testProjectPath, string packageId, string version,
         CancellationToken ct)
     {
@@ -1496,8 +1528,9 @@ public class TestProjectManager
                 string.Equals((string?)e.Attribute("Include"), packageId, StringComparison.OrdinalIgnoreCase));
             if (existing is not null)
             {
+                // Respect a version the user pinned; only fill in missing or floating versions.
                 var currentVersion = (string?)existing.Attribute("Version");
-                if (string.Equals(currentVersion, version, StringComparison.OrdinalIgnoreCase))
+                if (IsCompatiblePinnedVersion(currentVersion, version))
                 {
                     return false;
                 }
@@ -1531,7 +1564,7 @@ public class TestProjectManager
         else
         {
             var cur = (string?)versionElement.Attribute("Version");
-            if (!string.Equals(cur, version, StringComparison.OrdinalIgnoreCase) || LooksLikeFloatingVersion(cur ?? string.Empty))
+            if (!IsCompatiblePinnedVersion(cur, version))
             {
                 versionElement.SetAttributeValue("Version", version);
                 changed = true;
@@ -1941,6 +1974,8 @@ public class TestProjectManager
                 "-v",
                 "q",
                 "-p:GenerateFullPaths=true",
+                // Reused MSBuild worker nodes inherit our redirected stdout/stderr handles and keep files locked.
+                "-nodeReuse:false",
                 "-t:Compile",
                 "-p:BuildProjectReferences=false"
             };
@@ -2098,17 +2133,32 @@ public class TestProjectManager
                 continue;
             }
 
+            // Windows command-line quoting (CommandLineToArgvW rules): backslashes are only special before a quote.
             sb.Append('"');
+            var backslashes = 0;
             foreach (var c in argument)
             {
-                if (c == '"')
+                if (c == '\\')
                 {
-                    sb.Append('\\');
+                    backslashes++;
+                    continue;
                 }
 
+                if (c == '"')
+                {
+                    sb.Append('\\', backslashes * 2 + 1);
+                }
+                else
+                {
+                    sb.Append('\\', backslashes);
+                }
+
+                backslashes = 0;
                 sb.Append(c);
             }
 
+            // Trailing backslashes must be doubled so they do not escape the closing quote ("C:\My Dir\" → C:\My Dir").
+            sb.Append('\\', backslashes * 2);
             sb.Append('"');
         }
 
@@ -2191,7 +2241,10 @@ public class TestProjectManager
         try
         {
             await WaitForExitAsyncCompat(process, linkedCts.Token);
-            process.WaitForExit();
+
+            // Let the async output readers drain, but never wait unbounded: a child process (compiler server,
+            // MSBuild node) that inherited the pipe handles would otherwise block this call indefinitely.
+            process.WaitForExit(5000);
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
@@ -2215,11 +2268,17 @@ public class TestProjectManager
         {
             if (!process.HasExited)
             {
+#if NET5_0_OR_GREATER
+                // Also stop MSBuild/compiler child processes, otherwise they keep holding file locks.
+                process.Kill(entireProcessTree: true);
+#else
                 process.Kill();
+#endif
             }
         }
-        catch
+        catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception or NotSupportedException)
         {
+            // The process exited in the meantime or cannot be killed; nothing else to do.
         }
     }
 

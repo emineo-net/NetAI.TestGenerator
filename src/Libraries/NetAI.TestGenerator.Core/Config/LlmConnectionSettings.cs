@@ -12,7 +12,7 @@ namespace NetAI.TestGenerator.Core.Config;
 /// </summary>
 public class LlmConnectionSettings
 {
-    /// <summary>Gets or sets the base URL of the endpoint. Must end with a trailing slash.</summary>
+    /// <summary>Gets or sets the base URL of the endpoint. A missing trailing slash is added by <see cref="Validate"/>.</summary>
     [JsonProperty("baseUrl")]
     public string BaseUrl { get; set; } = "http://localhost:8081/";
 
@@ -66,10 +66,10 @@ public class LlmConnectionSettings
     {
         if (string.IsNullOrWhiteSpace(BaseUrl))
             throw new InvalidOperationException("aiConfiguration.baseUrl must be set.");
+        if (!BaseUrl.EndsWith("/", StringComparison.Ordinal))
+            BaseUrl += "/"; // HttpClient drops the last path segment of a base address without trailing slash.
         if (!Uri.TryCreate(BaseUrl, UriKind.Absolute, out _))
             throw new InvalidOperationException($"aiConfiguration.baseUrl is not a valid absolute URI: '{BaseUrl}'.");
-        if (!BaseUrl.EndsWith("/", StringComparison.Ordinal))
-            throw new InvalidOperationException("aiConfiguration.baseUrl must end with a trailing slash.");
         if (string.IsNullOrWhiteSpace(Model))
             throw new InvalidOperationException("aiConfiguration.model must be set.");
         if (Temperature < 0 || Temperature > 2)

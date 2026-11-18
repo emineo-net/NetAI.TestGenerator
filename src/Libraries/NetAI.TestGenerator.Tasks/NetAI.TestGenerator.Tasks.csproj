@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
@@ -76,15 +76,17 @@
 		<ProjectReference Include="..\NetAI.TestGenerator.Core\NetAI.TestGenerator.Core.csproj" PrivateAssets="all" />
 	</ItemGroup>
 
-	<Target Name="CleanLocalBuildFolder" BeforeTargets="CopyTaskAndDependenciesToLocalBuildFolder">
+	<!-- Only the netstandard2.0 inner build owns build\*.dll; running this in both TFM builds raced (delete vs. copy). -->
+	<Target Name="CleanLocalBuildFolder" BeforeTargets="CopyTaskAndDependenciesToLocalBuildFolder" Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<ItemGroup>
 			<_OldBuildFiles Include="$(MSBuildProjectDirectory)\build\*.dll" />
 			<_OldBuildFiles Include="$(MSBuildProjectDirectory)\build\*.pdb" />
 		</ItemGroup>
-		<Delete Files="@(_OldBuildFiles)" />
+		<!-- Files locked by a running MSBuild node are left in place (and overwritten below) instead of failing the build. -->
+		<Delete Files="@(_OldBuildFiles)" ContinueOnError="WarnAndContinue" />
 	</Target>
 
-	<Target Name="CopyTaskAndDependenciesToLocalBuildFolder" AfterTargets="Build">
+	<Target Name="CopyTaskAndDependenciesToLocalBuildFolder" AfterTargets="Build" Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<ItemGroup>
 			<LocalTaskFiles Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.dll" />
 			<LocalTaskFiles Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\netstandard2.0\*.pdb" />

@@ -30,6 +30,13 @@ public record AiTestingConfig
     [JsonProperty("maxMethodChars")]
     public int MaxMethodChars { get; set; } = 25_000;
 
+    /// <summary>
+    /// Gets or sets NuGet package IDs (besides the built-in well-known test packages) that may be added to the
+    /// test project automatically when generated code uses a namespace of the same name.
+    /// </summary>
+    [JsonProperty("allowedPackages")]
+    public List<string> AllowedPackages { get; set; } = new();
+
     /// <summary>Gets or sets target framework and test project settings.</summary>
     [JsonProperty("environment")]
     public EnvironmentConfig Environment { get; set; }

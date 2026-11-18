@@ -6,6 +6,7 @@ using NetAI.TestGenerator.Cli.Infrastructure;
 using NetAI.TestGenerator.Cli.Logging;
 using NetAI.TestGenerator.Core;
 using NetAI.TestGenerator.Core.Config;
+using NetAI.TestGenerator.Core.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -23,8 +24,7 @@ public sealed class GenerateCommand : AsyncCommand<GenerateCommandSettings>
     {
         if (string.IsNullOrWhiteSpace(settings.Source) && string.IsNullOrWhiteSpace(settings.ProjectPath))
         {
-            AnsiConsole.MarkupLine("[red]Provide a source file/directory or --project.[/]");
-            return ExitCodes.ConfigurationError;
+            return ReportError(settings, "Provide a source file/directory or --project.", ExitCodes.ConfigurationError);
         }
 
         var log = BuildLog(settings);
@@ -41,72 +41,116 @@ public sealed class GenerateCommand : AsyncCommand<GenerateCommandSettings>
                 filters: settings.Filter,
                 excludes: settings.Exclude,
                 maxFiles: settings.MaxFiles,
-                log: log);
+                log: log.AsInfoAction());
         }
         catch (Exception ex)
         {
-            AnsiConsole.MarkupLine($"[red]Source resolution failed:[/] {ex.Message}");
-            return ExitCodes.ConfigurationError;
+            return ReportError(settings, $"Source resolution failed: {ex.Message}", ExitCodes.ConfigurationError);
         }
 
         if (sources.Count == 0)
         {
-            AnsiConsole.MarkupLine("[yellow]No source files matched the given input.[/]");
-            return ExitCodes.ConfigurationError;
+            return ReportError(settings, "No source files matched the given input.", ExitCodes.ConfigurationError);
         }
 
-        // 2) Load MSBuild compilation once, keyed on the first source file.
-        LoadedCompilation? loaded = null;
-        if (!settings.DryRun && !string.IsNullOrWhiteSpace(settings.ProjectPath))
-        {
-            loaded = await CompilationLoader.TryLoadAsync(
-                settings.ProjectPath,
-                Path.GetFileName(sources[0]),
-                log).ConfigureAwait(false);
-        }
-
+        // 2) Load and validate the config before doing anything expensive.
+        AiTestingConfig coreConfig;
         try
         {
-            // 3) Load the config once, from the first source file's directory.
-            AiTestingConfig coreConfig;
-            try
+            coreConfig = SettingsLoader.Load(settings.ConfigPath, Path.GetDirectoryName(sources[0])!);
+
+            if (!string.IsNullOrWhiteSpace(settings.TestFramework))
             {
-                coreConfig = SettingsLoader.Load(settings.ConfigPath, Path.GetDirectoryName(sources[0])!);
-                if (!string.IsNullOrWhiteSpace(settings.TestFramework))
-                    coreConfig.Frameworks.TestFramework = settings.TestFramework!;
-                if (!string.IsNullOrWhiteSpace(settings.MockingFramework))
-                    coreConfig.Frameworks.MockingFramework = settings.MockingFramework!;
-            }
-            catch (Exception ex)
-            {
-                AnsiConsole.MarkupLine($"[red]Config error:[/] {ex.Message}");
-                return ExitCodes.ConfigurationError;
+                FrameworkParser.ParseTest(settings.TestFramework);
+                coreConfig.Frameworks.TestFramework = settings.TestFramework!;
             }
 
-            // 4) Dispatch.
-            return settings.DryRun
-                ? RunDryRun(settings, sources)
-                : await RunGenerateAsync(settings, sources, coreConfig, loaded, log).ConfigureAwait(false);
+            if (!string.IsNullOrWhiteSpace(settings.MockingFramework))
+            {
+                FrameworkParser.ParseMock(settings.MockingFramework);
+                coreConfig.Frameworks.MockingFramework = settings.MockingFramework!;
+            }
+        }
+        catch (Exception ex)
+        {
+            return ReportError(settings, $"Config error: {ex.Message}", ExitCodes.ConfigurationError);
+        }
+
+        if (settings.DryRun)
+        {
+            return RunDryRun(settings, sources, coreConfig);
+        }
+
+        using var cts = new CancellationTokenSource();
+
+        // First Ctrl+C: cancel gracefully (test files are restored). Second Ctrl+C: let the process terminate.
+        ConsoleCancelEventHandler handler = (_, e) =>
+        {
+            if (cts.IsCancellationRequested) return;
+            e.Cancel = true;
+            cts.Cancel();
+            Console.Error.WriteLine("Cancelling… press Ctrl+C again to abort immediately.");
+        };
+        Console.CancelKeyPress += handler;
+
+        // 3) Load the MSBuild compilation once, keyed on the first source file.
+        LoadedCompilation? loaded = null;
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(settings.ProjectPath))
+            {
+                loaded = await CompilationLoader.TryLoadAsync(settings.ProjectPath, Path.GetFileName(sources[0]), log.AsInfoAction(),
+                    cts.Token).ConfigureAwait(false);
+            }
+
+            return await RunGenerateAsync(settings, sources, coreConfig, loaded, log, cts.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cts.IsCancellationRequested)
+        {
+            return ReportError(settings, "Cancelled by user.", ExitCodes.Cancelled);
         }
         finally
         {
+            Console.CancelKeyPress -= handler;
             loaded?.Dispose();
         }
     }
 
-    private static Action<string>? BuildLog(GenerateCommandSettings settings)
+    private static GeneratorLogger? BuildLog(GenerateCommandSettings settings)
     {
         if (settings.Json)
-            return settings.Verbose ? msg => Console.Error.WriteLine(msg) : null;
+        {
+            // JSON mode: stdout is reserved for the result; logs go to stderr.
+            return settings.Verbose
+                ? (level, msg) => Console.Error.WriteLine($"{level}: {msg}")
+                : (level, msg) =>
+                {
+                    if (level >= GeneratorLogLevel.Warning) Console.Error.WriteLine($"{level}: {msg}");
+                };
+        }
 
-        return new SpectreLog(settings.Verbose, settings.NoColor).Info;
+        return new SpectreLog(settings.Verbose, settings.NoColor).Log;
+    }
+
+    private static int ReportError(GenerateCommandSettings settings, string message, int exitCode)
+    {
+        if (settings.Json)
+        {
+            Console.WriteLine(JsonSerializer.Serialize(new { success = false, error = message }, JsonOpts));
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[red]{Markup.Escape(message)}[/]");
+        }
+
+        return exitCode;
     }
 
     // ---------------------------------------------------------------------
     // Dry-run
     // ---------------------------------------------------------------------
 
-    private static int RunDryRun(GenerateCommandSettings settings, IReadOnlyList<string> sources)
+    private static int RunDryRun(GenerateCommandSettings settings, IReadOnlyList<string> sources, AiTestingConfig config)
     {
         var sw = Stopwatch.StartNew();
         var table = new Table().Border(TableBorder.Rounded);
@@ -119,7 +163,7 @@ public sealed class GenerateCommand : AsyncCommand<GenerateCommandSettings>
         {
             var (className, methodCount) = InspectFile(src);
             var testDir = settings.TestProjectDirectory
-                ?? ProjectLocator.ResolveTestProjectDirectory(src);
+                ?? ProjectLocator.ResolveTestProjectDirectory(src, config);
 
             table.AddRow(
                 Markup.Escape(Path.GetFileName(src)),
@@ -161,69 +205,79 @@ public sealed class GenerateCommand : AsyncCommand<GenerateCommandSettings>
     private static async Task<int> RunGenerateAsync(
         GenerateCommandSettings settings,
         IReadOnlyList<string> sources,
-        AiTestingConfig coreConfig,
+        AiTestingConfig config,
         LoadedCompilation? preloaded,
-        Action<string>? log)
+        GeneratorLogger? log,
+        CancellationToken cancellationToken)
     {
-        using var cts = new CancellationTokenSource();
-        ConsoleCancelEventHandler handler = (_, e) => { e.Cancel = true; cts.Cancel(); };
-        Console.CancelKeyPress += handler;
-
-        var results = new List<FileResult>(sources.Count);
-        var orchestrator = new TetsGeneratorOrchestrator(coreConfig);
-
+        TetsGeneratorOrchestrator orchestrator;
         try
         {
-            for (var i = 0; i < sources.Count; i++)
+            orchestrator = new TetsGeneratorOrchestrator(config);
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            return ReportError(settings, $"Config error: {ex.Message}", ExitCodes.ConfigurationError);
+        }
+
+        using var _ = orchestrator;
+        var results = new List<FileResult>(sources.Count);
+
+        for (var i = 0; i < sources.Count; i++)
+        {
+            var src = sources[i];
+
+            if (cancellationToken.IsCancellationRequested)
             {
-                if (cts.IsCancellationRequested)
-                {
-                    results.Add(new FileResult(sources[i], "cancelled", "Cancelled by user.", null));
-                    continue;
-                }
+                results.Add(new FileResult(src, "cancelled", "Cancelled by user.", null));
+                continue;
+            }
 
-                var src = sources[i];
-                var testDir = settings.TestProjectDirectory
-                    ?? ProjectLocator.ResolveTestProjectDirectory(src);
+            var testDir = settings.TestProjectDirectory
+                ?? ProjectLocator.ResolveTestProjectDirectory(src, config);
 
-                if (testDir is null)
-                {
-                    results.Add(new FileResult(src, "no-test-project", "Could not resolve test project directory.", null));
-                    continue;
-                }
+            if (testDir is null)
+            {
+                results.Add(new FileResult(src, "no-test-project", "Could not resolve test project directory.", null));
+                continue;
+            }
 
-                testDir = Path.GetFullPath(testDir);
+            testDir = Path.GetFullPath(testDir);
 
-                if (!settings.Json)
-                {
-                    AnsiConsole.MarkupLine(
-                        $"[blue][[{i + 1}/{sources.Count}]][/] {Markup.Escape(Path.GetFileName(src))}");
-                }
+            if (!settings.Json)
+            {
+                AnsiConsole.MarkupLine(
+                    $"[blue][[{i + 1}/{sources.Count}]][/] {Markup.Escape(Path.GetFileName(src))}");
+            }
 
-                try
-                {
-                    var result = await orchestrator.ProcessProjectAsync(
+            try
+            {
+                // The MSBuild compilation was loaded once above; never let the orchestrator reload it per file.
+                var result = await orchestrator.ProcessProjectAsync(
                         src,
                         testDir,
                         log,
                         compilation: preloaded?.Compilation,
                         promptOnly: settings.PromptOnly,
-                        solutionPath: null,
-                        projectPath: preloaded is null ? settings.ProjectPath : null)
-                        .ConfigureAwait(false);
+                        cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
 
-                    var status = string.Equals(result, "ok", StringComparison.OrdinalIgnoreCase) ? "ok" : "failed";
-                    results.Add(new FileResult(src, status, status == "ok" ? null : result, testDir));
-                }
-                catch (Exception ex)
+                var status = result.Status switch
                 {
-                    results.Add(new FileResult(src, "failed", ex.Message, testDir));
-                }
+                    FileGenerationStatus.Success or FileGenerationStatus.NothingToDo => "ok",
+                    FileGenerationStatus.PartialSuccess => "partial",
+                    _ => "failed"
+                };
+                results.Add(new FileResult(src, status, result.Message, testDir));
             }
-        }
-        finally
-        {
-            Console.CancelKeyPress -= handler;
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                results.Add(new FileResult(src, "cancelled", "Cancelled by user.", testDir));
+            }
+            catch (Exception ex)
+            {
+                results.Add(new FileResult(src, "failed", ex.Message, testDir));
+            }
         }
 
         return Report(settings, results);
@@ -232,17 +286,23 @@ public sealed class GenerateCommand : AsyncCommand<GenerateCommandSettings>
     private static int Report(GenerateCommandSettings settings, IReadOnlyList<FileResult> results)
     {
         var ok = results.Count(r => r.Status == "ok");
+        var partial = results.Count(r => r.Status == "partial");
         var failed = results.Count(r => r.Status == "failed");
         var skipped = results.Count(r => r.Status == "no-test-project");
         var cancelled = results.Count(r => r.Status == "cancelled");
+
+        var exitCode = cancelled > 0
+            ? ExitCodes.Cancelled
+            : failed == 0 && partial == 0 && skipped == 0 ? ExitCodes.Success : ExitCodes.GenerationFailed;
 
         if (settings.Json)
         {
             var payload = new
             {
-                success = failed == 0 && skipped == 0 && cancelled == 0,
+                success = exitCode == ExitCodes.Success,
                 total = results.Count,
                 ok,
+                partial,
                 failed,
                 skipped,
                 cancelled,
@@ -255,9 +315,7 @@ public sealed class GenerateCommand : AsyncCommand<GenerateCommandSettings>
                 })
             };
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonOpts));
-
-            if (cancelled > 0) return ExitCodes.Cancelled;
-            return failed == 0 && skipped == 0 ? ExitCodes.Success : ExitCodes.GenerationFailed;
+            return exitCode;
         }
 
         var table = new Table().Border(TableBorder.Rounded);
@@ -271,6 +329,7 @@ public sealed class GenerateCommand : AsyncCommand<GenerateCommandSettings>
             var statusMarkup = r.Status switch
             {
                 "ok" => "[green]ok[/]",
+                "partial" => "[yellow]partial[/]",
                 "failed" => "[red]failed[/]",
                 "no-test-project" => "[yellow]skipped[/]",
                 "cancelled" => "[grey]cancelled[/]",
@@ -287,10 +346,9 @@ public sealed class GenerateCommand : AsyncCommand<GenerateCommandSettings>
         AnsiConsole.Write(new Rule("[blue]Summary[/]"));
         AnsiConsole.Write(table);
         AnsiConsole.MarkupLine(
-            $"[grey]Total: {results.Count} · ok: {ok} · failed: {failed} · skipped: {skipped} · cancelled: {cancelled}[/]");
+            $"[grey]Total: {results.Count} · ok: {ok} · partial: {partial} · failed: {failed} · skipped: {skipped} · cancelled: {cancelled}[/]");
 
-        if (cancelled > 0) return ExitCodes.Cancelled;
-        return failed == 0 && skipped == 0 ? ExitCodes.Success : ExitCodes.GenerationFailed;
+        return exitCode;
     }
 
     private static string RelativePath(string fullPath)

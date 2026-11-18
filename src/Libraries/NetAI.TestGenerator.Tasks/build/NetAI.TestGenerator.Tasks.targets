@@ -41,46 +41,36 @@
 	<Target Name="SetupTestGeneratorSettings" Condition="'$(TestGeneratorActive)' == 'true'">
 		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\content\aisettings-schema.json"
 		      DestinationFiles="$(MSBuildProjectDirectory)\aisettings-schema.json"
-		      Condition="!Exists('$(MSBuildProjectDirectory)\aisettings-schema.json')" />
+		      Condition="!Exists('$(MSBuildProjectDirectory)\aisettings-schema.json') And Exists('$(MSBuildThisFileDirectory)..\content\aisettings-schema.json')" />
 
 		<Copy SourceFiles="$(MSBuildThisFileDirectory)..\content\aisettings.json"
 		      DestinationFiles="$(MSBuildProjectDirectory)\aisettings.json"
-		      Condition="!Exists('$(MSBuildProjectDirectory)\aisettings.json')" />
+		      Condition="!Exists('$(MSBuildProjectDirectory)\aisettings.json') And Exists('$(MSBuildThisFileDirectory)..\content\aisettings.json')" />
 
+		<!-- Visible in the IDE, but never copied to bin/publish output (the file may contain an API key and would
+		     otherwise flow into every referencing project's output). -->
 		<ItemGroup>
 			<None Remove="aisettings-schema.json" />
 			<None Remove="aisettings.json" />
-			<None Include="aisettings-schema.json" CopyToOutputDirectory="PreserveNewest" />
-			<None Include="aisettings.json" CopyToOutputDirectory="PreserveNewest" />
+			<None Include="aisettings-schema.json" CopyToOutputDirectory="Never" />
+			<None Include="aisettings.json" CopyToOutputDirectory="Never" />
 		</ItemGroup>
 	</Target>
 
+	<!-- Runs after reference resolution so that @(ReferencePath) is populated (before PrepareForBuild it is always empty).
+	     Publishing runs the build first, so this target also covers 'dotnet publish'. -->
 	<Target Name="RunTestGeneration"
-	        BeforeTargets="PrepareForBuild"
+	        AfterTargets="ResolveReferences"
+	        BeforeTargets="CoreCompile"
 	        DependsOnTargets="SetupTestGeneratorSettings"
 	        Condition="'$(TestGeneratorActive)' == 'true' And '$(_TestGeneratorIsFirstTfm)' == 'true'">
 
-		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
+		<TestGeneratorTask Mode="Generate"
+		                   ProjectDir="$(_TestGeneratorProjectDir)"
+		                   ProjectName="$(MSBuildProjectName)"
+		                   AssemblyName="$(AssemblyName)"
 		                   CurrentConfiguration="$(Configuration)"
 		                   IsPublishing="$(_TestGeneratorIsPublishing)"
-		                   PromptOnly="$(TestGeneratorPromptOnly)"
-		                   SourceFiles="@(Compile)"
-		                   ReferencePaths="@(ReferencePath)"
-		                   DefineConstants="$(DefineConstants)"
-		                   UseWpf="$(UseWPF)"
-		                   UseWindowsForms="$(UseWindowsForms)"
-		                   FailOnError="$(TestGeneratorFailOnError)" />
-	</Target>
-
-	
-	<Target Name="RunTestGenerationOnPublish"
-	        BeforeTargets="PrepareForPublish"
-	        DependsOnTargets="SetupTestGeneratorSettings"
-	        Condition="'$(TestGeneratorActive)' == 'true' And '$(_TestGeneratorIsFirstTfm)' == 'true' And '$(_TestGeneratorIsPublishing)' != 'true'">
-
-		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
-		                   CurrentConfiguration="$(Configuration)"
-		                   IsPublishing="true"
 		                   PromptOnly="$(TestGeneratorPromptOnly)"
 		                   SourceFiles="@(Compile)"
 		                   ReferencePaths="@(ReferencePath)"
@@ -99,7 +89,10 @@
 		<MakeDir Directories="$(_TestGeneratorAnalysisDir)"
 		         Condition="!Exists('$(_TestGeneratorAnalysisDir)')" />
 
-		<TestGeneratorTask ProjectDir="$(_TestGeneratorProjectDir)"
+		<TestGeneratorTask Mode="Analyze"
+		                   ProjectDir="$(_TestGeneratorProjectDir)"
+		                   ProjectName="$(MSBuildProjectName)"
+		                   AssemblyName="$(AssemblyName)"
 		                   CurrentConfiguration="$(Configuration)"
 		                   IsPublishing="$(_TestGeneratorIsPublishing)"
 		                   SourceFiles="@(Compile)"
